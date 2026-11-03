@@ -34,7 +34,13 @@ Status: PARTIALLY VERIFIED. Essential runtime and visual gates pending; no merge
 
 ## Delivery and continuation
 
-Implementation commit, PR, CI and current main SHAs: append after actual delivery. No merge/release/deployment yet.
+Implementation commit: `66ffc1097a33c22af6a3582f7036c3253edde4a9`; device test/CI follow-up: `f376e4af779fcb2aea6c34811b559d80e02bcca3`. Both pushed to the task branch. [Draft PR #1](https://github.com/daynightae-cmyk/KX-Private-VPN/pull/1). Main remains `37c5d8778ccdcd03dd78fca71ddcdc3d3b6df9d4`; no merge/release/deployment.
+
+Initial real CI execution at `66ffc10`: [push run 41620943996](https://github.com/daynightae-cmyk/KX-Private-VPN/actions/runs/41620943996) and [PR run 41621059178](https://github.com/daynightae-cmyk/KX-Private-VPN/actions/runs/41621059178) FAILED. On API26 and API35, the timed choreography, reduced-motion/day render and preference tests passed; dialog visibility assertion failed because the test froze Compose's animation clock before Material dialog entrance. The fix resumes the test clock after the skip assertion. Build setup independently failed trying to install removed SDK package `tools`; explicit platform/build-tool packages replace that default. These failures are retained, not treated as passing acceptance.
+
+Seven instrumented tests now cover the above plus Arabic RTL/1.5x font/360dp, a 411dp day layout, and real MainActivity recreation/background resume. Container width tests do not establish device-wide 360/411dp acceptance. Local compilation and lint passed after the test additions (exit 0, 57 tasks, 1m). [Follow-up run 41625979478](https://github.com/daynightae-cmyk/KX-Private-VPN/actions/runs/41625979478) is pending inspection.
+
+CI capture script also records first-launch video, `am start -W` cold/repeat timings, native Welcome screenshot, and `dumpsys gfxinfo` frame data on fresh CI emulators. Do not claim these exist or establish 60fps until the corresponding run artifacts have been inspected.
 
 Reproduce from `android/`: `./gradlew.bat :app:testDebugUnitTest :app:lintDebug :app:assembleDebug :app:assembleDebugAndroidTest`; with an accelerated emulator: `./gradlew.bat :app:connectedDebugAndroidTest`.
 
