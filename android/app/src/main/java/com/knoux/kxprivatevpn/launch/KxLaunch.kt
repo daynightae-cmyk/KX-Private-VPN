@@ -31,6 +31,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivityResultRegistryOwner
 import android.content.res.Configuration
 import java.util.Locale
 import com.knoux.kxprivatevpn.features.ClientViewModel
@@ -45,6 +46,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 @Composable
 fun KxLaunch() {
     val context = LocalContext.current
+    val activityResults = checkNotNull(LocalActivityResultRegistryOwner.current)
     val preferences = remember { LaunchPreferences(context.applicationContext) }
     val client: ClientViewModel = viewModel()
     val state by client.state.collectAsStateWithLifecycle()
@@ -93,6 +95,7 @@ fun KxLaunch() {
     val localized = remember(context, configuration) { context.createConfigurationContext(configuration) }
     val night = when (state.settings.theme) { "day" -> false; "night" -> true; else -> isSystemInDarkTheme() }
     CompositionLocalProvider(LocalContext provides localized, LocalConfiguration provides configuration,
+        LocalActivityResultRegistryOwner provides activityResults,
         LocalLayoutDirection provides if (configuration.layoutDirection == 1) LayoutDirection.Rtl else LayoutDirection.Ltr) {
         BackHandler(enabled = stack.size > 1 || state.busy) {
             if (!state.busy && stack.size > 1) stack = stack.dropLast(1)
