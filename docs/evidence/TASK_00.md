@@ -69,4 +69,13 @@ Actual native photon, ribbon, reveal and final frames at be93953 were downloaded
 
 Local verification after the locale/geometry fixes: assembleDebug + assembleDebugAndroidTest + testDebugUnitTest + lintDebug exit 0, 80 tasks, 1m17s; JVM tests remain 3/3 passing. Original React/references remain unchanged. Performance at 05135c7 on higher-resolution Nexus5 software GPU remains poor (22/22 janky, p50=350ms); it is not directly comparable to the earlier 320px emulator. No 60fps claim.
 
+## Verified checkpoint — 3f8d472
+
+- Source SHA `3f8d472f585eda6e799aecbc1b4e94601e2fb8a7`, pushed, [run 41635288213](https://github.com/daynightae-cmyk/KX-Private-VPN/actions/runs/41635288213): **build job success and API26 device job success, all 7 instrumented tests passed**. API35 still running when inspected; do not represent the aggregate CI as successful.
+- New [Arabic dialog screenshot](ci-3f8d472-api26/device-screenshots/identity-evidence/06a-ar-dialog.png) inspected: title, body and Close are Arabic; the previously English dialog is fixed. Native reveal screenshot also inspected. Layout width: physical 1080×1920 at 480dpi (360dp), then explicit 420dpi override (411.4dp), recorded in display text evidence.
+- Actual first process launch: Status ok, TotalTime 1613ms, WaitTime 1622ms. Recorded software-GPU frames: 22/22 janky, p50=400ms. **Performance and flagship visual gates still not passed.** This is a tested identity preview, not complete TASK_00 or a VPN product.
+- [Visual comparison page](visual/TASK_00/review.html) pairs the approved Welcome with actual current-source captures and lists discrepancies. Photon/ribbon/reveal/final PNGs are individual original captures.
+- CI recording command is being bounded at host level (12s + 3s kill grace), and jobs at 20min, because older API35 runs have not terminated promptly. This guards test infrastructure; it does not bypass failed tests or establish runtime acceptance.
+- Safe continuation: inspect the latest bounded API35 job and its artifacts; reduce rendering cost and improve native optical depth/reference composition. Keep PR draft and main unchanged until essential gates actually pass. Full TASK_01 and all transport/repair services remain NOT IMPLEMENTED; no merge or release has occurred.
+
 Official compatibility sources consulted: [AGP 8.13](https://developer.android.com/build/releases/agp-8-13-0-release-notes), [Compose compiler setup](https://developer.android.com/develop/ui/compose/setup-compose-dependencies-and-compiler), [system splash migration](https://developer.android.com/develop/ui/views/launch/splash-screen/migrate).

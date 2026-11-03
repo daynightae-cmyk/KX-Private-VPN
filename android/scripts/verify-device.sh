@@ -7,7 +7,9 @@ bash ./gradlew :app:installDebug
 install_result=$?
 if [ "$install_result" -ne 0 ]; then exit "$install_result"; fi
 adb shell dumpsys gfxinfo com.knoux.kxprivatevpn reset > /dev/null
-adb shell screenrecord --time-limit 6 /sdcard/kx-launch.mp4 &
+# Some software renderers can stall the recorder after the last animated frame.
+# Bound the host command as well as Android's requested duration.
+timeout --signal=INT --kill-after=3s 12s adb shell screenrecord --time-limit 6 /sdcard/kx-launch.mp4 &
 recorder=$!
 adb shell am start -W -n com.knoux.kxprivatevpn/.MainActivity > device-screenshots/cold-start.txt
 sleep 6

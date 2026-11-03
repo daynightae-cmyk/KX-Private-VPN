@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KX TASK_00 — captured Android visual review</title>
+<style>
+body{margin:0;padding:32px;background:#090c22;color:#eeeafa;font:16px/1.6 system-ui,sans-serif;max-width:1200px;margin:auto}
+h1{font-size:28px}h2{font-size:21px}p{max-width:85ch}code{color:#7de9ff}.status{color:#ffd586}
+.pair,.stages{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;align-items:start}
+figure{margin:0;padding:16px;border:1px solid #45486e;border-radius:18px;background:#11152e}
+img{width:100%;height:auto;display:block;border-radius:10px}figcaption{padding-top:12px;font-size:14px}
+.stages{grid-template-columns:repeat(4,minmax(0,1fr))}a{color:#85dcff}
+@media(max-width:700px){body{padding:16px}.pair,.stages{grid-template-columns:1fr}}
+</style>
+<h1>KX TASK_00 — real Android captures</h1>
+<p class="status">PARTIALLY VERIFIED · Visual acceptance pending · Performance gate failed on measured software GPU · PR stays draft</p>
+<p>All Android PNGs below were produced by instrumentation on API26 at commit <code>3f8d472f585eda6e799aecbc1b4e94601e2fb8a7</code>, not design mockups. All seven instrumented tests passed on that API. The approved source is unchanged. This page is QA evidence, not an Android screen or a replacement design.</p>
+<h2>Approved Welcome ↔ native identity preview</h2>
+<div class="pair">
+<figure><img src="../../../../public/assets/aistudio/01-welcome_464a7c4f.png" alt="Owner-approved Welcome reference"><figcaption>Approved Welcome, 941×1672. Visual authority.</figcaption></figure>
+<figure><img src="../../ci-3f8d472-api26/device-screenshots/identity-evidence/04-welcome.png" alt="Actual API26 native Welcome preview"><figcaption>Actual native preview. Shared orb and native controls; full TASK_01 onboarding and its two actions are absent.</figcaption></figure>
+</div>
+<h2>Four actual native animation frames</h2>
+<div class="stages">
+<figure><img src="../../ci-3f8d472-api26/device-screenshots/identity-evidence/01-photons.png" alt="Native photon convergence"><figcaption>Photons, ~0.4s</figcaption></figure>
+<figure><img src="../../ci-3f8d472-api26/device-screenshots/identity-evidence/02-ribbons.png" alt="Native ribbon formation"><figcaption>Canvas ribbons, ~1.4s</figcaption></figure>
+<figure><img src="../../ci-3f8d472-api26/device-screenshots/identity-evidence/03-reveal.png" alt="Original brand reveal"><figcaption>Brand reveal, ~2.7s</figcaption></figure>
+<figure><img src="../../ci-3f8d472-api26/device-screenshots/identity-evidence/04-welcome.png" alt="Settled Welcome preview"><figcaption>Settled, ~3.9s</figcaption></figure>
+</div>
+<h2>Inspected differences and open gates</h2>
+<ul>
+<li>Final identity uses the exact original logo bytes; native formation has simplified optical geometry and shows a proportion mismatch during crossfade. A later code change adjusts native shield proportions; new capture review is required.</li>
+<li>The background lacks the approved image's layered reflections, controlled bloom and volumetric depth. Button surface and typography remain less faithful. This is not approved visual parity.</li>
+<li>The intro and Welcome share one stationary orb; no replacement screen or WebView is used. Skip, reduced motion, persistence and lifecycle are tested separately.</li>
+<li>Arabic large-text testing found a separate dialog-window locale fallback. The fix passed on API26; the actual <a href="../../ci-3f8d472-api26/device-screenshots/identity-evidence/06a-ar-dialog.png">Arabic dialog capture</a> was inspected and shows Arabic copy.</li>
+<li>Software-GPU startup profiling failed the 60fps target. Hardware runtime/performance and TalkBack manual review remain unverified.</li>
+</ul>
+<p><a href="../../TASK_00.md">Evidence, SHAs, failures and continuation</a> · <a href="https://github.com/daynightae-cmyk/KX-Private-VPN/pull/1">Draft PR #1</a></p>
+</html>
