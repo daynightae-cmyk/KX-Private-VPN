@@ -69,17 +69,18 @@ class ClientFlowTest {
                 compose.onNodeWithTag("config-text").performScrollTo().performTextInput(config)
                 compose.onNodeWithTag("save-profile").performScrollTo().performClick()
                 compose.waitUntil(10000) { compose.onAllNodes(hasTestTag("route-home")).fetchSemanticsNodes().isNotEmpty() }
-                compose.onNodeWithText(name).assertIsDisplayed()
-                compose.onNodeWithText(context.getString(R.string.disconnected)).assertIsDisplayed()
+                // Home is a scrollable page and resets to the top on navigation by design.
+                compose.onNodeWithText(name).performScrollTo().assertIsDisplayed()
+                compose.onNodeWithText(context.getString(R.string.disconnected)).performScrollTo().assertIsDisplayed()
                 val folder = File(context.getExternalFilesDir(null), "identity-evidence").apply { mkdirs() }
                 File(folder, "08-native-home-imported.png").outputStream().use {
                     compose.onRoot().captureToImage().asAndroidBitmap().compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it)
                 }
                 scenario.recreate()
                 compose.waitUntil(10000) { compose.onAllNodes(hasText(name)).fetchSemanticsNodes().isNotEmpty() }
-                compose.onNodeWithText(name).assertIsDisplayed()
+                compose.onNodeWithText(name).performScrollTo().assertIsDisplayed()
                 compose.onNodeWithTag("open-servers").performScrollTo().performClick()
-                compose.onNodeWithText(name).assertIsDisplayed()
+                compose.onNodeWithText(name).performScrollTo().assertIsDisplayed()
             }
         } finally {
             runBlocking {
