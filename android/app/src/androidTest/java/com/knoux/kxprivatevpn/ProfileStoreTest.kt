@@ -43,6 +43,13 @@ class ProfileStoreTest {
         try { store.import("next", config.toByteArray()); fail() } catch (_: Exception) { }
         assertArrayEquals(damaged, file.readBytes())
     }
+    @Test fun storedConfigIsReadableThroughDecryptionOnly() = runBlocking {
+        val namespace = namespace()
+        val store = ProfileStore(context, namespace)
+        val profile = store.import("tunnel", config.toByteArray()).profiles.single()
+        assertArrayEquals(config.toByteArray(), store.config(profile.id))
+        assertNull(store.config("missing"))
+    }
     @Test fun concurrentStoresPreserveEveryUniqueProfile() = runBlocking {
         val namespace = namespace()
         coroutineScope { (1..6).map { index -> async(Dispatchers.IO) {

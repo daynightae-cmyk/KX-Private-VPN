@@ -114,8 +114,12 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                         "session" -> VpnSessionScreen(vpn) { model.disconnectVpn() }
                         else -> {
                             KxOrb(1f, IntroTimeline.frame(1f), Modifier.size(210.dp).align(Alignment.CenterHorizontally))
-                            Text(stringResource(if (vpn.phase == com.knoux.kxprivatevpn.platform.vpn.VpnPhase.CONNECTED)
-                                R.string.connected else R.string.disconnected), fontSize = 26.sp,
+                            Text(stringResource(when (vpn.phase) {
+                                com.knoux.kxprivatevpn.platform.vpn.VpnPhase.CONNECTED -> R.string.connected
+                                com.knoux.kxprivatevpn.platform.vpn.VpnPhase.CONNECTING -> R.string.connecting
+                                com.knoux.kxprivatevpn.platform.vpn.VpnPhase.DISCONNECTING -> R.string.disconnecting
+                                else -> R.string.disconnected
+                            }), fontSize = 26.sp,
                                 fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.CenterHorizontally))
                             VpnHomePanel(state.snapshot, state.busy, vpn,
                                 onConnect = { model.prepareConnect()?.let(consent::launch) },

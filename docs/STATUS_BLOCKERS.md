@@ -13,6 +13,22 @@
 - Follow-up Draft PR #2 now implements Welcome/education routing, encrypted WireGuard profile import/management, locale/theme settings, basic StatFs, scoped confirmed KX-cache removal and real network diagnostics. At `95fa3d6`, build and all 15 API26 tests passed. These are narrower scopes, not completion of the 22 tasks. VPN transport, media inventory, most Repair tools and full visual acceptance remain NOT IMPLEMENTED/UNVERIFIED. Network permissions are declared for the explicit Network Doctor probe; no storage or VPN consent is requested by import.
 - No owned WireGuard test gateway, provisioning provider, release signing or Play Console credentials have been verified. These do not block independent native UI work, but block transport/release claims.
 
+## TASK_02/04 — REAL TRANSPORT IMPLEMENTED, EXTERNAL HANDSHAKE DEFERRED (2026-11-04)
+
+- The official WireGuard tunnel library (`com.wireguard.android:tunnel:1.0.20260102`) now backs the
+  app. `GoBackend$VpnService` is merged into the debug manifest with `BIND_VPN_SERVICE`; the old
+  manifest `tools:node="remove"` was deleted. No VPN success is simulated.
+- `VpnController` reports `CONNECTED` only after `GoBackend` confirms `UP`; consent, invalid config,
+  unauthorized backend, start failure, unexpected stop and failed stop each have honest states.
+  Counters and the latest handshake come from real backend `Statistics`; the session screen reads
+  the Android VPN network from `ConnectivityManager`.
+- Verified locally: 24 JVM tests (12 new controller tests), lint 0 errors, debug APK and androidTest
+  APK build, merged manifest inspection, native `libwg-go.so` present for all ABIs. API26 CI device
+  gate is green on the stacked PRs.
+- **Still required:** an owned WireGuard gateway/peer to verify a real external handshake, egress and
+  throughput. Without it, transport/release claims stay deferred. API35 headless rendering remains
+  unstable around dialog teardown and is tracked separately.
+
 ## Environment repair update
 
 - D: SDK/build-tools/platforms verified; SDK licenses accepted by official sdkmanager; escaped ignored local SDK path fixed. Local builds/lint/JVM and instrumentation APK compilation pass. No unrelated SDK/cache removed.

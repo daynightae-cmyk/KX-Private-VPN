@@ -123,7 +123,8 @@ fun VpnSessionScreen(vpn: VpnState, onDisconnect: () -> Unit) {
         return
     }
     CrystalPanel {
-        Text(session.profileName, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+        Text(session.profileName, fontWeight = FontWeight.Bold, fontSize = 20.sp,
+            modifier = Modifier.testTag("session-profile"))
         Text(session.endpoint, fontSize = 14.sp)
         val started = session.startedAtMillis
         if (started != null) {
@@ -138,6 +139,7 @@ fun VpnSessionScreen(vpn: VpnState, onDisconnect: () -> Unit) {
                 Formatter.formatFileSize(context, session.txBytes),
             ),
             fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.testTag("session-traffic"),
         )
         Text(stringResource(R.string.vpn_stats_scope), fontSize = 12.sp)
         val handshake = session.latestHandshakeMillis
@@ -167,11 +169,12 @@ fun VpnSessionScreen(vpn: VpnState, onDisconnect: () -> Unit) {
                     link.routes,
                     link.mtu?.toString() ?: stringResource(R.string.unknown_value),
                 ),
+                modifier = Modifier.testTag("session-link-present"),
             )
             Detail(R.string.interface_addresses, link.addresses)
             Detail(R.string.dns_servers, link.dns)
         } else {
-            Text(stringResource(R.string.android_link_absent))
+            Text(stringResource(R.string.android_link_absent), modifier = Modifier.testTag("session-link-absent"))
         }
     }
     if (vpn.phase == VpnPhase.CONNECTED || vpn.phase == VpnPhase.DISCONNECTING) {
