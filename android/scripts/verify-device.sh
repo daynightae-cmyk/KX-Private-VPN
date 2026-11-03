@@ -3,8 +3,10 @@
 set -u
 adb_cmd() { timeout --signal=TERM --kill-after=3s 20s adb "$@"; }
 mkdir -p device-screenshots
+gradle_flags=(--no-daemon --max-workers=2 '-Dorg.gradle.jvmargs=-Xmx1536m -Dfile.encoding=UTF-8' '-Pkotlin.compiler.execution.strategy=in-process')
+free -m > device-screenshots/host-memory-before.txt
 # A fresh CI emulator provides the true first launch, before tests mark the intro seen.
-timeout --kill-after=15s 6m bash ./gradlew :app:installDebug
+timeout --kill-after=15s 6m bash ./gradlew "${gradle_flags[@]}" :app:installDebug
 install_result=$?
 if [ "$install_result" -ne 0 ]; then exit "$install_result"; fi
 adb_cmd shell wm density 320
@@ -27,8 +29,10 @@ adb_cmd shell wm density >> device-screenshots/display-360.txt
 adb_cmd shell wm density 280
 adb_cmd shell wm size > device-screenshots/display-411.txt
 adb_cmd shell wm density >> device-screenshots/display-411.txt
-timeout --kill-after=15s 8m bash ./gradlew :app:connectedDebugAndroidTest -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true
+timeout --kill-after=15s 8m bash ./gradlew "${gradle_flags[@]}" :app:connectedDebugAndroidTest -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true
 test_result=$?
+free -m > device-screenshots/host-memory-after.txt
+sudo dmesg > device-screenshots/host-kernel.txt 2>&1 || true
 adb_cmd pull /sdcard/Android/data/com.knoux.kxprivatevpn/files/identity-evidence ./device-screenshots/
 capture_result=$?
 adb_cmd logcat -d > device-screenshots/logcat.txt
