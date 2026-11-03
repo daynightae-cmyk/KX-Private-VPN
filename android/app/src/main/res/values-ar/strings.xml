@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">KX Private VPN</string>
+    <string name="skip_intro">تخطي المقدمة</string>
+    <string name="brand_description">شعار KX داخل كرة زجاجية</string>
+    <string name="tagline">خصوصية. سرعة. بلا حدود.</string>
+    <string name="welcome">أهلًا بيك في KX</string>
+    <string name="continue_label">متابعة</string>
+    <string name="preview_notice">معاينة الهوية الأصلية</string>
+    <string name="scope_notice">الإصدار ده لاختبار تجربة فتح KX. اتصال VPN ومختبر الصيانة لسه مش متاحين. مفيش اتصال أو حماية نشطة.</string>
+    <string name="close">إغلاق</string>
+    <string name="save_error">تعذر حفظ تفضيلات البداية. ممكن المقدمة تتكرر في التشغيل الجاي.</string>
+</resources>
