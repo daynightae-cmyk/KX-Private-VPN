@@ -61,4 +61,12 @@ At `6a1528461354bb02bd093e8d7bc52a2cc86bcbec`, [run 41626620376](https://github.
 
 Correction commit: `be93953422347076b927b25796bbd5fd4829adb7`; subsequent background performance change remains subject to CI. No merge while visual/performance/large-text gates remain unresolved.
 
+### Arabic root cause found from a real window capture
+
+At `f28291cd3bf52dd24eb630f93e875834044bc24c`, API26 [run 41630466645](https://github.com/daynightae-cmyk/KX-Private-VPN/actions/runs/41630466645) still failed the Arabic test after waiting for window placement. Actual dialog screenshot showed Arabic background/CTA but an English dialog. Scrolling alone did not fix it. The separate dialog composition used the Activity's original resource context. The implementation now resolves title/body/close strings in the selected parent locale before constructing the dialog. The Arabic assertion is retained unchanged; no weakening to accept English text.
+
+Actual native photon, ribbon, reveal and final frames at be93953 were downloaded and inspected individually. Major deltas remain: simplified optical depth in native formation, a geometry mismatch during artwork crossfade, and sparse background lighting compared with the owner reference. Native shield width/height were adjusted from the measured source silhouette, plus a native glass reflection. These changes need new captured comparison and are not declared visually accepted.
+
+Local verification after the locale/geometry fixes: assembleDebug + assembleDebugAndroidTest + testDebugUnitTest + lintDebug exit 0, 80 tasks, 1m17s; JVM tests remain 3/3 passing. Original React/references remain unchanged. Performance at 05135c7 on higher-resolution Nexus5 software GPU remains poor (22/22 janky, p50=350ms); it is not directly comparable to the earlier 320px emulator. No 60fps claim.
+
 Official compatibility sources consulted: [AGP 8.13](https://developer.android.com/build/releases/agp-8-13-0-release-notes), [Compose compiler setup](https://developer.android.com/develop/ui/compose/setup-compose-dependencies-and-compiler), [system splash migration](https://developer.android.com/develop/ui/views/launch/splash-screen/migrate).

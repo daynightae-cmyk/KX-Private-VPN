@@ -90,6 +90,11 @@ fun IdentityExperience(
     }
     val frame = IntroTimeline.frame(if (finished || reducedMotion || skipped) 1f else progress.value)
     val text = if (night) Color(0xFFF5F0FF) else Color(0xFF161050)
+    // Dialog owns a separate Android window/context. Resolve copy in the selected locale here,
+    // so that its portal cannot fall back to the underlying Activity's previous resources.
+    val disclosureTitle = stringResource(R.string.welcome)
+    val disclosureBody = stringResource(R.string.scope_notice)
+    val disclosureClose = stringResource(R.string.close)
     MaterialTheme(colorScheme = if (night) darkColorScheme() else lightColorScheme()) {
         BoxWithConstraints(Modifier.fillMaxSize().testTag("identity")) {
             // Stable zero pulse lets Compose retain the background through photon/ribbon motion.
@@ -137,11 +142,11 @@ fun IdentityExperience(
             }
             if (disclosure) AlertDialog(
                 onDismissRequest = { disclosure = false },
-                title = { Text(stringResource(R.string.welcome)) },
-                text = { Text(stringResource(R.string.scope_notice),
+                title = { Text(disclosureTitle) },
+                text = { Text(disclosureBody,
                     modifier = Modifier.verticalScroll(rememberScrollState())) },
                 confirmButton = { TextButton(onClick = { disclosure = false }) {
-                    Text(stringResource(R.string.close))
+                    Text(disclosureClose)
                 } },
             )
         }

@@ -119,31 +119,40 @@ fun KxOrb(progress: Float, frame: IntroFrame, modifier: Modifier = Modifier) {
                 cubicTo(635f, 225f, 555f, 238f, 500f, 177f); close()
             }
             val nativeAlpha = frame.ribbons * (1f - frame.artwork)
-            drawPath(shield, Brush.linearGradient(listOf(Color(0xFFDD91FF), Color(0xFF3412BB),
-                Color(0xFF0059D0), Cyan), Offset(300f, 250f), Offset(700f, 540f)), alpha = nativeAlpha)
-            drawPath(shield, Brush.linearGradient(listOf(Pearl, Cyan, Violet, Pearl)),
-                style = Stroke(3f), alpha = nativeAlpha)
-            clipPath(shield) {
-                for (i in 0..3) {
-                    val y = 238f + i * 96f
-                    val shift = (1f - frame.ribbons) * (if (i % 2 == 0) -280f else 280f)
-                    translate(shift, 0f) {
-                        val ribbon = Path().apply {
-                            if (i % 2 == 0) {
-                                moveTo(290f, y); cubicTo(310f, y + 80f, 625f, y + 96f, 710f, y + 230f)
-                                lineTo(710f, y + 165f)
-                                cubicTo(590f, y + 50f, 335f, y + 24f, 290f, y - 35f)
-                            } else {
-                                moveTo(710f, y - 80f); cubicTo(670f, y, 360f, y + 75f, 300f, y + 180f)
-                                lineTo(300f, y + 106f)
-                                cubicTo(355f, y + 25f, 640f, y - 42f, 710f, y - 119f)
-                            }; close()
+            if (nativeAlpha > 0f) {
+                // Measured against the cropped source: apex ~182, base ~573, width ~350/1000.
+                scale(.90f, .88f, Offset(500f, 177f)) {
+                    drawPath(shield, Brush.linearGradient(listOf(Color(0xFFDD91FF), Color(0xFF3412BB),
+                        Color(0xFF0059D0), Cyan), Offset(300f, 250f), Offset(700f, 540f)), alpha = nativeAlpha)
+                    drawPath(shield, Brush.linearGradient(listOf(Pearl, Cyan, Violet, Pearl)),
+                        style = Stroke(3f), alpha = nativeAlpha)
+                    clipPath(shield) {
+                        for (i in 0..3) {
+                            val y = 238f + i * 96f
+                            val shift = (1f - frame.ribbons) * (if (i % 2 == 0) -280f else 280f)
+                            translate(shift, 0f) {
+                                val ribbon = Path().apply {
+                                    if (i % 2 == 0) {
+                                        moveTo(290f, y); cubicTo(310f, y + 80f, 625f, y + 96f, 710f, y + 230f)
+                                        lineTo(710f, y + 165f)
+                                        cubicTo(590f, y + 50f, 335f, y + 24f, 290f, y - 35f)
+                                    } else {
+                                        moveTo(710f, y - 80f); cubicTo(670f, y, 360f, y + 75f, 300f, y + 180f)
+                                        lineTo(300f, y + 106f)
+                                        cubicTo(355f, y + 25f, 640f, y - 42f, 710f, y - 119f)
+                                    }; close()
+                                }
+                                drawPath(ribbon, Brush.linearGradient(listOf(Pearl, Cyan.copy(alpha = .95f),
+                                    Color(0xFF7D5FE9), Color(0xFFF2C4FF), Pearl), Offset(295f, y), Offset(710f, y + 160f)),
+                                    alpha = nativeAlpha)
+                                drawPath(ribbon, Pearl.copy(alpha = .8f), style = Stroke(1.6f), alpha = nativeAlpha)
+                            }
                         }
-                        drawPath(ribbon, Brush.linearGradient(listOf(Pearl, Cyan.copy(alpha = .95f),
-                            Color(0xFF7D5FE9), Color(0xFFF2C4FF), Pearl), Offset(295f, y), Offset(710f, y + 160f)),
-                            alpha = nativeAlpha)
-                        drawPath(ribbon, Pearl.copy(alpha = .8f), style = Stroke(1.6f), alpha = nativeAlpha)
                     }
+                }
+                rotate(24f, Offset(630f, 178f)) {
+                    drawOval(Brush.linearGradient(listOf(Pearl, Cyan.copy(alpha = .4f), Color.Transparent)),
+                        Offset(545f, 140f), Size(240f, 56f), alpha = nativeAlpha * .75f)
                 }
             }
             // Reveal original, byte-preserved owner artwork after the native formation.
