@@ -1,0 +1,1189 @@
+# KX VPN — CONTINUOUS PRODUCTION EXECUTION + KX PHONE REPAIR LAB
+
+## SUPREME OWNER DIRECTIVE — EXECUTE WITHOUT INTERRUPTION
+
+You are the principal Android architect, senior Kotlin engineer, security engineer, UI/UX specialist, QA engineer, and Git integration owner for **KX VPN — KNOUX Private Network**.
+
+**Your highest priority is to preserve and finish the work already in progress.**
+
+This directive is an EXTENSION to your current mission, not a replacement.
+
+**DO NOT STOP YOUR CURRENT TASK. DO NOT RESTART THE PROJECT. DO NOT DISCARD ANY COMPLETED OR UNIQUE WORK.**
+
+I may be away from my computer. You are authorized to continue through consecutive safe, non-destructive implementation tasks without requesting approval after each task.
+
+Your objective is to complete the current 11-task roadmap first, then build an entirely new flagship feature called:
+
+# KX PHONE REPAIR LAB™
+
+*A premium, privacy-first Android storage, maintenance and repair experience.*
+
+The new feature must contain **10 genuinely functional services**, each with its own exceptional visual design, icon, backend, tests, and verified Git integration.
+
+---
+
+# PHASE 0 — VERIFY THE CURRENT REALITY
+
+Canonical repository:
+
+https://github.com/daynightae-cmyk/KX
+
+Local checkout:
+
+`D:\KNOUX-Workspace\KX`
+
+Integration branch:
+
+`main`
+
+Previously observed main SHA:
+
+`98e6e46cb5d21c4933bc47e949a0a122a16f25a8`
+
+This is a historical observation, NOT a fixed baseline. Fetch and verify the latest remote state before taking action.
+
+At the previous inspection:
+
+- TASK_00 PR #1 had been merged into main.
+- CI on the merge commit had started but was not yet confirmed successful.
+- PR #2 remained open as a draft, containing potentially unique TASK_00 work.
+- Android CI workflows were available, although previous runs had encountered setup problems.
+
+**Reinspect everything. Never act on stale status.**
+
+Check HEAD, origin/main, branches, worktrees, stashes, untracked files, reflog, existing PRs, CI workflows, screenshots, current implementation, and active parallel agents.
+
+Preserve unique work from both TASK_00 branches before considering any cleanup.
+
+No reset --hard, git clean, force push, destructive history rewrites, worktree deletion or unapproved branch deletion.
+
+Read:
+
+`AGENTS.md`
+
+`docs/TASK_ORDER.md`
+
+`docs/ENGINEERING_CONTRACT.md`
+
+`docs/DESIGN_SYSTEM.md`
+
+`docs/SECURITY_MODEL.md`
+
+`docs/QUALITY_GATES.md`
+
+`docs/ASSET_MANIFEST.md`
+
+`docs/AGENT_UNATTENDED_CONTINUATION.md`
+
+`docs/PROGRESS_LEDGER.md`
+
+Plus all existing task specifications.
+
+# PHASE 1 — COMPLETE THE ENTIRE ORIGINAL VPN APPLICATION FIRST
+
+**DO NOT START THE PHONE REPAIR IMPLEMENTATION UNTIL THE ORIGINAL VPN ROADMAP HAS BEEN COMPLETED AND VERIFIED TO THE EXTENT REQUIRED BY ITS ACCEPTANCE CONTRACTS.**
+
+Continue the exact original sequence:
+
+| Task | Required deliverable |
+|---|---|
+| TASK_00 | KX identity, logo, splash, native project foundation |
+| TASK_01 | Welcome and onboarding |
+| TASK_02 | Home dashboard and actual VPN engine |
+| TASK_03 | Server/configuration selection |
+| TASK_04 | Connected session and real connection metrics |
+| TASK_05 | Security Center |
+| TASK_06 | Split Tunneling |
+| TASK_07 | Advanced Network |
+| TASK_08 | Statistics and history |
+| TASK_09 | Secure Configuration Import |
+| TASK_10 | Profile and Settings |
+
+Each task must be a complete vertical slice.
+
+A vertical slice includes:
+
+- Native visual implementation
+- Actual user interactions
+- Domain logic
+- Real Android integration
+- Storage/persistence where appropriate
+- Error handling and loading states
+- Unit and instrumentation tests
+- Visual regression verification
+- Security review
+- GitHub PR and CI validation
+- Safe merge into main
+- Post-merge verification
+
+**Complete one task, verify it, merge it, then proceed immediately to the next.**
+
+Do not stop to ask me whether to continue.
+
+If a paid service, API key, third-party provider or external account is unavailable, use a genuine provider-independent solution where possible. Mark unavailable optional functionality as deferred with exact evidence.
+
+Never fabricate servers, VPN connections, benchmarks, performance gains, security claims or implementation results.
+
+---
+
+# PHASE 2 — VISUAL QUALITY IS A PRODUCT REQUIREMENT
+
+## Preserve the locked KX glass-orbit design identity
+
+The original images are located in:
+
+`assets/reference/`
+
+They are the authoritative design references for the existing VPN screens.
+
+The product must retain:
+
+- Premium circular glass-orb branding.
+- Flowing three-dimensional ribbon/shield emblem.
+- Pearlescent white and silver reflections.
+- Violet, sapphire blue, cyan and lavender gradients.
+- Floating luminous orbit particles.
+- Soft luminous atmospheric backgrounds.
+- Curved transparent glass panels.
+- Elegant gradients and illuminated card boundaries.
+- Smooth, controlled microinteractions.
+- Day and Night themes.
+- Native Arabic RTL and English LTR layouts.
+
+**Never redesign the approved identity into generic Material cards.**
+
+Use Material 3 as a functional accessibility foundation, not as a replacement for the visual brand.
+
+Do not display entire screenshot references as a fake UI.
+
+Every control must be a real interactive Compose component.
+
+## Cinematic interactions
+
+Design a consistent visual interaction language:
+
+**KX PulseLink**
+
+When a service is selected:
+
+1. The central KX emblem emits a subtle pulse.
+2. A light ribbon travels visually toward the chosen service card.
+3. The card illuminates and responds with a short, premium animation.
+4. The selected feature opens through a shared-element-style transition where feasible.
+5. Background particles remain elegant and lightweight.
+
+Animations must respect reduced-motion preferences and performance constraints.
+
+No excessive GPU effects, constantly running expensive blur layers, or unnecessary battery consumption.
+
+## Mandatory visual checks
+
+For every screen:
+
+- Compare actual runtime screenshots with the approved design.
+- Test Day and Night modes.
+- Test Arabic and English.
+- Test RTL and LTR layouts.
+- Test 360dp, 411dp and larger supported screens.
+- Test large accessibility text.
+- Check visual hierarchy, spacing, typography and glass surfaces.
+- Validate scroll behavior and system bar insets.
+- Validate TalkBack semantics and touch targets.
+- Ensure there are no invisible or unreachable controls.
+
+**Passing CI does not mean the visual design is correct.**
+
+Do not merge visible regressions.
+
+---
+
+# PHASE 3 — NEW FLAGSHIP MODULE: KX PHONE REPAIR LAB™
+
+## Product vision
+
+Create an advanced phone storage and maintenance center inside KX VPN, visually unified with the KNOUX ecosystem.
+
+The feature must feel like a dedicated premium application embedded within KX.
+
+It should help users understand storage usage, identify genuinely unnecessary files, clean safely, manage supported privacy/session records, and diagnose network or maintenance problems.
+
+It must not claim to physically repair damaged phone hardware, secretly control other applications, or bypass Android security restrictions.
+
+**Design principle: diagnose first, explain clearly, act safely, verify the outcome.**
+
+## New implementation roadmap
+
+After TASK_10:
+
+Create and register the following sequential tasks:
+
+- `TASK_11` — Phone Repair Lab architecture, dashboard and navigation
+- `TASK_12` — KX Storage X-Ray
+- `TASK_13` — KX Ghost Hunter
+- `TASK_14` — KX Duplicate DNA
+- `TASK_15` — KX Heavyweight Finder
+- `TASK_16` — KX Cache Surgeon
+- `TASK_17` — KX Media Slim Studio
+- `TASK_18` — KX Download Rescue
+- `TASK_19` — KX Session Shield
+- `TASK_20` — KX Network Doctor
+- `TASK_21` — KX Repair Autopilot
+
+Every one must have its own detailed Markdown task specification, dedicated design reference, individual icon, native Compose screen, functionality, tests and merge evidence.
+
+## TASK_11 — Repair Lab Dashboard
+
+Create a striking new Repair tab with a full native interactive dashboard.
+
+Visual composition:
+
+- Premium KX glass orb in the upper hero area.
+- A subtle animated diagnostic ring.
+- Storage summary based on real accessible measurements.
+- Ten individual frosted-glass service cards.
+- Distinct 3D-style vector icon for every service.
+- Violet-to-cyan connecting energy lines.
+- Small transparent progress indicators.
+- Actual scan timestamps.
+- A prominent **Analyze My Phone** action.
+- A safe cleanup summary with an explicit review button.
+- Recent repair history based on actual completed operations.
+
+Group the ten tools in an elegant responsive layout without overwhelming the screen.
+
+Create a unique service identity system using different shapes and accent treatments while preserving the same KX palette.
+
+The section needs a beautiful empty state, loading state, permission-denied state, partial-scan state and completed-results state.
+
+No fake "Your phone is 100% healthy" or synthetic gigabyte savings.
+
+---
+
+# THE TEN SIGNATURE SERVICES
+
+## 1. KX STORAGE X-RAY™
+
+**Deep storage intelligence.**
+
+Create a translucent 3D storage visualization that breaks down accessible storage usage into categories such as images, videos, audio, documents and other permitted files.
+
+Functional requirements:
+
+- Read actual storage capacity/free space using supported Android APIs.
+- Analyze accessible media using MediaStore.
+- Scan user-selected directories with Storage Access Framework.
+- Support internal shared storage and user-authorized external volumes.
+- Explain inaccessible areas instead of showing fabricated zero values.
+- Sort by size, category, age and location.
+- Display drill-down details and actual scan timestamps.
+- Optimize scans with pagination, cancellation and incremental updates.
+
+Visual identity: glass 3D storage core with luminous concentric rings.
+
+Acceptance: category totals reconcile with the scanned file records, and accessible scope is clearly disclosed.
+
+## 2. KX GHOST HUNTER™
+
+**Find suspicious leftovers and unnecessary files.**
+
+Detect candidates such as:
+
+- Empty folders within authorized directory trees.
+- Confirmed zero-byte files.
+- Old temporary files in permitted scopes.
+- Abandoned temporary downloads when identification is reliable.
+- Obsolete KX-owned temporary artifacts.
+- Files matching independently documented disposable-file rules.
+
+Do not assume that an unfamiliar folder is junk.
+
+Never classify a file as unnecessary merely because it is old or has an unknown extension.
+
+Provide confidence and explanation for every candidate.
+
+Use a **Review Before Cleanup** screen with individually selectable items and clear exclusion rules.
+
+Visual identity: a translucent spectral scanner with neon violet detection waves.
+
+Acceptance: no deletion occurs without user confirmation and supported platform authorization.
+
+## 3. KX DUPLICATE DNA™
+
+**High-confidence duplicate detection.**
+
+Implement:
+
+- File-size grouping as a preliminary filter.
+- Streaming SHA-256 hashing for exact duplicates.
+- Optional perceptual similarity analysis for user-granted images.
+- Clear separation between exact and visually similar matches.
+- Cancellation and progress reporting.
+- Preservation recommendations rather than automatic deletion.
+- Original/duplicate comparison previews.
+- Safe user-reviewed removal workflow.
+
+Prefer efficient chunked hashing and memory-safe pipelines.
+
+Never treat visually similar images as identical.
+
+Visual identity: two interconnected crystalline glass molecules.
+
+Acceptance: duplicate results are reproducible and contain no false exact matches in the test corpus.
+
+## 4. KX HEAVYWEIGHT FINDER™
+
+**Discover large storage consumers.**
+
+Show the largest accessible files with:
+
+- Size
+- File type
+- Last modification time
+- Location when available
+- Safe preview
+- Sorting and filtering
+- User-approved delete/trash actions
+
+Add a Storage Heatmap to identify which accessible categories consume the most space.
+
+Visual identity: a glass gravity sphere with layered luminous storage blocks.
+
+Acceptance: measured sizes are accurate and filters handle thousands of files without freezing UI.
+
+## 5. KX CACHE SURGEON™
+
+**Real cleanup without placebo optimization.**
+
+Clean KX-owned cache and temporary data using legitimate Android APIs.
+
+Provide guided access to supported Android storage-management screens for broader cleanup.
+
+Never claim to silently clear private caches or app data belonging to unrelated applications.
+
+Do not abuse Accessibility, root privileges or hidden APIs to fake system-wide cleaning.
+
+Visual features:
+
+- Segmented glass cache visualization
+- Reclaimable space before cleanup
+- Exact selected categories
+- Safe action confirmation
+- Actual reclaimed storage measurement afterward
+
+Visual identity: precision blue-violet surgical ring around a storage crystal.
+
+Acceptance: measured before/after storage values support every reclaimed-space claim.
+
+## 6. KX MEDIA SLIM STUDIO™
+
+**Reduce media storage while preserving quality.**
+
+Implement legitimate user-directed image and supported video optimization.
+
+Features:
+
+- Preview original versus optimized result.
+- Show measured output size and quality tradeoffs.
+- Batch processing.
+- User-selected output format and quality where supported.
+- Preserve originals by default.
+- Write optimized copies safely before any replacement.
+- Validate output integrity and media readability.
+- Handle orientation and metadata intentionally.
+- Provide cancellation and partial-failure recovery.
+
+Avoid misleading claims of guaranteed lossless compression.
+
+Visual identity: luminous glass prism compressing a photographic ribbon.
+
+Acceptance: actual size savings and successful decode of output files are verified.
+
+## 7. KX DOWNLOAD RESCUE™
+
+**Diagnose incomplete and problematic downloads.**
+
+Within accessible user-authorized files:
+
+- Identify zero-byte downloads.
+- Detect known incomplete temporary download patterns.
+- Inspect file signatures for supported formats.
+- Detect clearly truncated or unreadable files when reliably testable.
+- Categorize uncertain files as needing review, not definitely broken.
+- Allow safe rename, move, reopen or delete where permissions allow.
+- Support user-controlled quarantine/copy workflows.
+
+Do not claim to repair arbitrary corrupted documents.
+
+Any repair must have format-specific validation and verifiable output.
+
+Visual identity: crystalline download arrow emerging from a glowing recovery ring.
+
+Acceptance: only confirmed problems receive strong error labels; unsupported recovery states are explicit.
+
+## 8. KX SESSION SHIELD™
+
+**Privacy and local session management.**
+
+This service must be exceptionally trustworthy.
+
+For KX-owned application data:
+
+- View active VPN session state.
+- Review stored connection configurations.
+- Review authorized saved preferences.
+- Identify stale KX-owned temporary session records.
+- Clear local diagnostic history on request.
+- Revoke or remove KX-owned stored credentials/configurations where supported.
+- Explain what remains on the device.
+
+For third-party applications:
+
+Android sandbox boundaries must be respected.
+
+Do not claim to read, terminate or erase private sessions belonging to WhatsApp, Chrome, banking apps, or other unrelated applications.
+
+Where appropriate, provide user-controlled shortcuts and clear guidance to official Android/app settings.
+
+Visual identity: luminous privacy shield containing small orbiting session tokens.
+
+Acceptance: clearing KX-owned records is verifiable; third-party data remains untouched.
+
+## 9. KX NETWORK DOCTOR™
+
+**Advanced connectivity and VPN diagnostics.**
+
+This is a unique differentiator because it integrates with KX VPN.
+
+Features:
+
+- Active network type and capability state using official APIs.
+- Real, bounded DNS resolution diagnostics.
+- Latency probes to authorized diagnostic endpoints.
+- VPN tunnel state and permitted connection diagnostics.
+- Explain Wi-Fi/mobile-data changes.
+- Detect relevant captive-portal indicators exposed by Android.
+- Show the difference between device connectivity, VPN tunnel UP, and verified external reachability.
+- Provide guided troubleshooting steps.
+- Show actual probe results and timestamps.
+
+Optional public-IP checks must be opt-in, privacy-disclosed and grounded in real service responses.
+
+Do not present DNS or VPN leak protection as confirmed without appropriate network tests.
+
+Visual identity: transparent orbital globe intersected by flowing network waves.
+
+Acceptance: every measurement has a source, timeout and success/failure state.
+
+## 10. KX REPAIR AUTOPILOT™
+
+**The flagship smart maintenance experience.**
+
+This is the signature experience that should make KX distinctive.
+
+Create a guided maintenance engine that combines results from all supported diagnostic tools and proposes a personalized, user-approved action plan.
+
+It must not be a fake AI button.
+
+Start with a transparent, deterministic rules engine. Only add an AI layer if a real provider/model is available, privacy requirements are met, and it demonstrably improves recommendations.
+
+The workflow:
+
+**SCAN → ANALYZE → EXPLAIN → PREVIEW → APPROVE → EXECUTE → VERIFY → REPORT**
+
+Capabilities:
+
+- Aggregate safe opportunities from Storage X-Ray, Ghost Hunter, Duplicate DNA and other supported services.
+- Prioritize reversible, low-risk actions.
+- Provide an estimated recovery amount clearly labeled as estimated.
+- Show every proposed operation before execution.
+- Allow individual actions to be excluded.
+- Require explicit confirmation for destructive actions.
+- Execute selected actions transactionally where possible.
+- Maintain an auditable operation journal.
+- Support undo only when the original content or system trash can genuinely be recovered.
+- Report completed, skipped and failed operations accurately.
+- Measure actual reclaimed storage after execution.
+- Provide a beautiful final Repair Report.
+
+Never delete personal media, documents, downloads, configurations, login information or other sensitive files automatically.
+
+Visual identity: the original KX orb surrounded by ten illuminated service satellites, with an elegant repair-progress halo.
+
+Acceptance: the report reconciles with actual completed operations; cancelled and failed actions never appear as completed.
+
+---
+
+# PHASE 4 — CREATE A UNIQUE VISUAL SYSTEM FOR THE REPAIR LAB
+
+Before implementing TASK_11, produce a complete visual specification.
+
+Design references should include:
+
+1. Repair Lab dashboard
+2. Storage X-Ray
+3. Ghost Hunter
+4. Duplicate DNA
+5. Heavyweight Finder
+6. Cache Surgeon
+7. Media Slim Studio
+8. Download Rescue
+9. Session Shield
+10. Network Doctor
+11. Repair Autopilot
+
+**ONE SCREEN = ONE INDEPENDENT DESIGN REFERENCE. NO COLLAGES.**
+
+If image-generation tooling is available, generate individual reference assets without replacing or modifying the original approved KX VPN images.
+
+If image generation is unavailable, create native Compose design prototypes/previews and capture individual runtime screenshots; disclose that external concept-art references were not generated.
+
+No task may use a reference screenshot as a static replacement for real native UI.
+
+Each service needs:
+
+- Distinct original vector icon
+- Hero illustration or procedural glass visualization
+- Compact service card
+- Full service screen
+- Real controls
+- Scan animations driven by actual progress
+- Result cards
+- Error states
+- Permission education
+- Before/after evidence where meaningful
+- Arabic and English localization
+- Day/Night variants
+- Smooth navigation
+- Accessibility
+- Pixel-level visual QA
+
+Use a consistent design language without making every service screen look identical.
+
+The finished product must look premium and cohesive.
+
+---
+
+# PHASE 5 — ANDROID SECURITY AND TECHNICAL TRUTH
+
+The Repair Lab must obey current Android SDK limitations and platform policies.
+
+Use appropriate APIs:
+
+- StorageStatsManager / StatFs
+- MediaStore
+- Storage Access Framework
+- DocumentFile / ContentResolver
+- Android Photo Picker where applicable
+- WorkManager for suitable persistent background work
+- Kotlin Coroutines and Flow
+- Room/DataStore for state and operation journals
+- Native permissions and user-confirmed media operations
+- Existing VPN backend and network diagnostics
+
+Avoid broad `MANAGE_EXTERNAL_STORAGE`, `QUERY_ALL_PACKAGES`, Usage Access, Accessibility services, device administration or other sensitive permissions unless genuinely essential, explicitly justified, legally permitted and reviewed against current Google Play policies.
+
+Do not attempt to bypass Android sandbox isolation.
+
+No fake RAM boosts.
+
+No silent killing of unrelated apps.
+
+No unauthorized global session deletion.
+
+No silent factory resets.
+
+No root or ADB dependency for ordinary users.
+
+No performance percentage without controlled measurement.
+
+Use narrow permissions, scoped access, clear disclosures and safe user consent.
+
+## Required destructive-operation safety
+
+For every action involving user data:
+
+1. Preflight check accessible path and permissions.
+2. Show exact affected files/count/size.
+3. Display a preview and explanation.
+4. Obtain explicit user confirmation.
+5. Prefer safe trash or reversible actions when supported.
+6. Never delete protected or inaccessible files through bypasses.
+7. Record attempted and successful actions separately.
+8. Verify the resulting state.
+9. Expose honest recovery/undo availability.
+
+No invented rollback guarantee.
+
+---
+
+# PHASE 6 — FULL-STACK TASK DELIVERY AND GIT INTEGRATION
+
+Create a separate detailed task file for each repair service.
+
+Each task must contain:
+
+- Exact objective
+- Assigned design image
+- Original UI/UX specification
+- Scope and affected modules
+- Actual domain services
+- Android APIs and permission model
+- Persistence architecture
+- Error and cancellation cases
+- Data privacy controls
+- Performance constraints
+- Localization requirements
+- Unit tests
+- Instrumentation tests
+- Runtime tests
+- Visual regression tests
+- Security tests
+- Acceptance criteria
+- Git branch and merge procedure
+- Evidence and handoff requirements
+
+One completed and verified task must be merged into main before beginning the next service.
+
+After each task:
+
+**IMPLEMENT → TEST → VERIFY RUNTIME → REVIEW VISUALS → PR → CI → MERGE → VERIFY MAIN → NEXT**
+
+Do not merge a task with a known blocker in an essential acceptance criterion.
+
+Optional external-service functionality can be explicitly deferred when the independent supported scope is complete and verified.
+
+Prevent duplicate implementations, overwritten visual assets and unreviewed regressions.
+
+---
+
+# PHASE 7 — TESTING AND PRODUCTION READINESS
+
+For every Repair Lab service, test at minimum:
+
+- Empty storage/results
+- Large datasets
+- Invalid or inaccessible files
+- Revoked permissions
+- Low available storage
+- Scan cancellation
+- App backgrounding
+- Process recreation
+- Interrupted cleanup
+- Concurrent operations
+- Files disappearing during scans
+- User declining deletion
+- Arabic/English UI
+- Day/Night UI
+- Large font size
+- Accessibility behavior
+- Emulator/device compatibility
+
+Include performance benchmarks where applicable.
+
+Long file scans must not block the main UI thread.
+
+Use progress indicators driven by actual work.
+
+For storage cleanup, verify filesystem changes and actual reclaimed space where measurable.
+
+For VPN/network diagnostics, test against owned or explicitly authorized endpoints.
+
+For data modification, prove non-target files remain untouched.
+
+For every task, report exact test commands, exit codes, CI run IDs, commit SHAs and visual evidence.
+
+**No Fake Closure.**
+
+---
+
+# PHASE 8 — UNATTENDED CONTINUATION PRIORITY
+
+You do not need to ask me to continue after every task.
+
+Continue through as much genuinely verified work as the active execution session permits.
+
+Priority order:
+
+1. Finish and reconcile active VPN work.
+2. Complete TASK_00–TASK_10.
+3. Verify the integrated VPN product.
+4. Establish Repair Lab architecture and visual identity.
+5. Implement TASK_11–TASK_21 sequentially.
+6. Produce final integration, security and runtime evidence.
+
+Do not interrupt an active agent's branch.
+
+Do not overwrite uncommitted work.
+
+Do not waste execution time rewriting code that already works.
+
+Do not spend the entire session planning.
+
+Do not treat a missing paid service as a reason to abandon unrelated work.
+
+If tests fail, investigate the precise failure and attempt safe corrections.
+
+If a mandatory gate cannot be met, leave a durable checkpoint and clearly label the blocked scope. Never use fabricated evidence to move forward.
+
+If session time, resources, or tool access run out, leave all progress committed/preserved where appropriate and provide a precise continuation report. Do not imply work will continue after the session ends unless an actual automation or agent runtime is available.
+
+---
+
+# FINAL ACCEPTANCE CONTRACT
+
+A feature is complete only when:
+
+**VISUAL + FUNCTIONAL + ANDROID INTEGRATION + DATA + SECURITY + TESTS + RUNTIME + CI + PR + MAIN MERGE** are all supported by evidence for its agreed scope.
+
+The entire product should ultimately deliver:
+
+- Fully integrated KX VPN screens.
+- Real working WireGuard-based client capabilities.
+- Consistent premium KX glass design.
+- Arabic and English.
+- Day and Night modes.
+- Accessible native Android UI.
+- KX Phone Repair Lab with ten real maintenance tools.
+- Safe user-approved cleanup.
+- Real network and storage diagnostics.
+- Measured, not invented, results.
+- A polished report and history system.
+- Auditable production-readiness evidence.
+
+**START FROM THE REAL CURRENT REPOSITORY STATE. FINISH YOUR ACTIVE WORK FIRST. THEN CONTINUE WITHOUT ASKING ME BETWEEN SAFE TASKS.**
+
+**BUILD A REAL PRODUCT — NOT A GALLERY OF BEAUTIFUL BUT NONFUNCTIONAL SCREENS.**# MASTER EXECUTION PROMPT
+## PREMIUM FOUNDER & DEVELOPER IDENTITY EXPERIENCE
+### Production-Grade · Brand-Native · Visually Exceptional · Fully Functional
+
+أنت تعمل داخل مشروع برمجي قائم، ومهمتك هي **تنفيذ أو إعادة بناء تجربة تعريفية استثنائية للمطور والمؤسس داخل التطبيق نفسه**.
+
+هذه مهمة تنفيذ إنتاجي متكاملة تشمل **الهوية البصرية، التصميم، الواجهة، المحتوى، التفاعلات، الربط، الوصول، الاختبارات، والتحقق البصري والوظيفي**.
+
+لا تكتفِ بالتخطيط أو إعداد تقرير أو اقتراح تصميم. نفّذ فعليًا داخل المشروع، باستخدام معماريته وتقنياته ومكوناته الحالية.
+
+**الهدف النهائي:** إنشاء تجربة Founder / Developer Identity بمستوى تطبيقات Premium الحديثة، تُشعر المستخدم أنه يتعرف على الشخص والعقل الهندسي وراء المنتج، وليس أنه يقرأ صفحة معلومات تقليدية من قالب جاهز.
+
+---
+
+# 01 — DISCOVER THE REAL APPLICATION
+
+قبل أي تعديل:
+
+1. افحص بنية المشروع ومعماريته.
+2. حدد الـFramework والمكتبات المستخدمة فعليًا.
+3. افحص Design System الحالي.
+4. استخرج ألوان العلامة التجارية الرسمية، والخطوط، والشعار، والأيقونات، والمسافات، والـBorder Radius، والظلال، والتدرجات، والـMotion Language.
+5. افحص الشاشات الرئيسية المعتمدة لمعرفة مستوى الجودة البصرية الفعلي.
+6. حدد نظام الملاحة والـRouting.
+7. اكتشف صفحة About / Developer / Founder الحالية إن وجدت.
+8. استخرج بيانات المطور والشركة من مصادر المشروع الرسمية.
+9. راجع أصول الصور والشعارات الموجودة، ولا تستبدل أصولًا معتمدة بتصميمات تخمينية.
+10. افحص Git status وHEAD والفروع والتغييرات المحلية والأعمال غير المدمجة ذات الصلة، واحمِ العمل الفريد قبل التعديل.
+
+لا تفترض أن `main` يحتوي بالضرورة على كل العمل المهم.
+
+**ممنوع بدء إعادة تصميم عشوائية قبل فهم الهوية المعتمدة.**
+
+# 02 — THE DESIGN VISION
+
+أنشئ تجربة بصرية يمكن وصفها بأنها:
+
+**Luxury Software Identity × Contemporary Digital Craft × Editorial Precision × Premium Product Experience**
+
+يجب أن تبدو الصفحة جزءًا أصيلًا من التطبيق، بنفس مستوى الجودة أو أعلى من أفضل شاشاته، لا موقع Portfolio خارجي تم إدخاله داخله.
+
+التوجيهات:
+
+- Contemporary, sophisticated and timeless.
+- Strong visual hierarchy.
+- Distinctive typography.
+- Confident whitespace.
+- Premium brand composition.
+- Purposeful depth and lighting.
+- Controlled micro-interactions.
+- Exceptional alignment and spacing.
+- High-quality visual storytelling.
+- Native application consistency.
+- Clean, intentional, unmistakably modern aesthetics.
+
+استخدم الهوية الحالية كمرجع إلزامي، وليس كاقتراح اختياري.
+
+**لا تفرض ألوانًا أو أسلوب Dark أو Glassmorphism أو Neon أو 3D من عندك.** استخدمها فقط إذا كانت متوافقة بوضوح مع الهوية البصرية القائمة وتضيف قيمة حقيقية.
+
+تجنب تمامًا:
+
+- تصميمات About Us القديمة.
+- قالب Portfolio تقليدي.
+- شبكة متكررة من الكروت المتشابهة.
+- ازدحام الأيقونات والزخارف.
+- النصوص الصغيرة التي تضعف القراءة.
+- تأثيرات Glow المبالغ فيها.
+- Glassmorphism عشوائي.
+- التدرجات الجاهزة والمستهلكة.
+- الأيقونات التعبيرية بدل العناصر الرسومية الاحترافية.
+- أنيميشن بلا وظيفة.
+- صور أشخاص مولّدة أو صور Stock تمثل المؤسس بشكل زائف.
+- نسخ تصميم من مشروع آخر على حساب هوية المنتج.
+
+المطلوب ليس زيادة المؤثرات، بل **إنتاج تجربة لها شخصية قوية، وتفاصيل متقنة، وإحساس بصري راقٍ**.
+
+# 03 — PREMIUM IDENTITY HERO
+
+ابدأ بتكوين افتتاحي قوي وفريد.
+
+يجب أن يتضمن:
+
+- الهوية الرسمية للعلامة التجارية.
+- اسم المطور بالعربية والإنجليزية.
+- الدور الهندسي والمؤسسي.
+- عبارة تعريفية قصيرة، دقيقة، وذات حضور بصري.
+- معالجة فنية مميزة للشعار الرسمي.
+- منطقة تواصل أساسية واضحة.
+- تفاصيل بصرية دقيقة تستفيد من لغة التصميم الموجودة.
+
+لا تجعل Hero مجرد عنوان ضخم وشعار داخل دائرة.
+
+صمّم تكوينًا متوازنًا باستخدام توزيع بصري مبتكر، ومساحات محسوبة، وعمق مناسب، وتفاعلات خفيفة ذات هدف.
+
+يمكن استخدام:
+
+- Layered compositions.
+- Dynamic lighting.
+- Subtle parallax.
+- Responsive highlight tracking.
+- Brand-inspired geometry.
+- Refined entrance transitions.
+- Carefully controlled visual accents.
+
+لكن يجب احترام الأداء و`prefers-reduced-motion` وعدم جعل الصفحة أثقل من اللازم.
+
+كل حركة لها سبب، وكل عنصر له دور.
+
+# 04 — FOUNDER / DEVELOPER PROFILE
+
+قدّم المطور بطريقة احترافية تبرز هويته وخبرته.
+
+البيانات الرسمية المطلوب عرضها عندما تكون مطابقة للمصادر المعتمدة:
+
+**الاسم العربي:** م. صادق الجزار
+
+**English Name:** Eng. Sadek Elgazar
+
+**الجهة:** KNOUX
+
+**الأدوار:**
+- Founder
+- Software Engineer
+- Digital Product Builder
+- AI Automation Engineer
+
+صمّم Founder Identity Section متميزًا يتضمن:
+
+- اسمًا واضحًا ومهيبًا بصريًا.
+- تعريفًا مهنيًا مصقولًا.
+- أدوارًا منظمة بتسلسل بصري راقٍ.
+- سيرة مهنية موجزة وقوية.
+- مساحة بصرية لشخصية المؤسس الهندسية.
+- معالجة متقنة لتوقيع الهوية.
+
+استخدم صورة شخصية حقيقية فقط لو كانت موجودة ومعتمدة داخل المشروع. وإلا فاستخدم Monogram أو Signature أو تركيبًا بصريًا مستمدًا من الهوية الرسمية.
+
+لا تختلق صورة، شهادات، جوائز، سنوات خبرة، أرقام مستخدمين أو إنجازات.
+
+# 05 — ENGINEERING EXPERTISE EXPERIENCE
+
+لا تعرض الخبرات كقائمة Tags مزدحمة أو كروت متشابهة بلا قيمة تصميمية.
+
+اعرضها كتجربة تحريرية منظمة ذات مستويات واضحة.
+
+المجموعات:
+
+**Software Engineering**
+React · TypeScript · JavaScript · Electron · Windows Desktop · Android
+
+**Cloud & Delivery**
+Supabase · GitHub · Vercel · Git · API Integrations · CI/CD
+
+**AI & Automation**
+Artificial Intelligence · AI Integrations · AI Automation · PowerShell · Intelligent Workflows
+
+**Product & Design**
+UI/UX · Product Architecture · Application Integration · Digital Product Development
+
+اختر التكوين الأنسب للهوية الفعلية، مثل:
+
+- Editorial capability matrix.
+- Structured expertise panels.
+- Premium interactive technology map.
+- Progressive disclosure.
+- Elegant grouped compositions.
+
+لا تستخدم Charts أو Progress Bars بنسب خبرة مختلقة.
+
+**مهم:** هذه خبرات المطور وليست بالضرورة وظائف منفذة داخل التطبيق. لا تعرضها على أنها قدرات تشغيلية للمنتج دون دليل.
+
+# 06 — CONTACT & DIGITAL PRESENCE
+
+أنشئ Contact Experience احترافية وسريعة وواضحة.
+
+بيانات التواصل المعتمدة:
+
+| النوع | القيمة |
+|---|---|
+| Website | https://knoux.store/ |
+| Email | admin@knoux.store |
+| International Phone | +971 50 328 1920 |
+| Local Phone | 050 328 1920 |
+| WhatsApp | https://wa.me/971503281920 |
+| Founder Facebook | https://www.facebook.com/CopSadek |
+| Founder GitHub | https://github.com/daynightae-cmyk |
+| Company Facebook | https://www.facebook.com/knouxStore/ |
+| Company GitHub | https://github.com/knoux-io |
+| Company TikTok | https://www.tiktok.com/@knoux_7 |
+
+تحقق من توافق البيانات مع مصدر الهوية الحالي قبل تنفيذها. حافظ على فصل حسابات المؤسس الشخصية عن حسابات الشركة.
+
+المطلوب تنفيذه:
+
+1. أزرار تواصل حقيقية.
+2. فتح الروابط باستخدام آلية التطبيق الآمنة.
+3. دعم نسخ البريد والهاتف.
+4. Feedback واضح بعد النسخ.
+5. التعامل مع غياب تطبيق البريد أو الاتصال.
+6. عدم الإبلاغ عن نجاح إجراء إذا رفضه نظام التشغيل.
+7. حماية من الروابط غير الآمنة.
+8. دعم Keyboard Navigation.
+9. Focus States واضحة.
+10. Loading/Error/Unavailable States حيث تنطبق.
+
+اجعل التفاعلات مفيدة وقصيرة ومباشرة.
+
+لا تعرض زرًا لا يؤدي إلى وظيفة حقيقية.
+
+# 07 — SIGNATURE EXPERIENCE
+
+اختم الصفحة بقطاع Founder Signature له حضور بصري مميز.
+
+يجب أن يجمع بصورة أنيقة:
+
+- هوية العلامة.
+- اسم المؤسس.
+- توقيعًا بصريًا راقيًا.
+- رابط الموقع الرسمي.
+- وسيلة التواصل الأساسية.
+- إشارة واضحة إلى العلاقة بين المطور والمنتج.
+
+تجنب Footer تقليديًا ممتلئًا بنصوص وروابط مكررة.
+
+لا تضف سنة تأسيس أو حقوق نشر أو بيانات قانونية غير مثبتة.
+
+# 08 — UX, MOTION & RESPONSIVENESS
+
+نفّذ تجربة متكاملة على أحجام النوافذ والشاشات المدعومة بالفعل.
+
+اختبر:
+
+- Wide Desktop.
+- Standard Desktop.
+- Compact Window.
+- Narrow Layout.
+- High-DPI Scaling حيث يمكن اختباره.
+- RTL.
+- LTR.
+- Light Theme إن كان مدعومًا.
+- Dark Theme إن كان مدعومًا.
+- Keyboard-only Navigation.
+- Reduced Motion.
+
+احرص على:
+
+- عدم وجود Horizontal Overflow.
+- عدم تداخل النصوص.
+- عدم اختفاء أزرار التواصل.
+- عدم قص الأسماء الطويلة أو النصوص العربية.
+- عدم تعطيل Scroll.
+- وضوح تباين الألوان.
+- انتقالات سلسة بين المقاسات.
+- احترام خطوط ولغات التطبيق.
+- عدم اختلال الهوية عند تغيير اللغة أو الثيم.
+
+الـAnimations يجب أن تستخدم تقنيات مناسبة للأداء، وتتجنب Layout Thrashing وإعادة التصيير غير الضرورية.
+
+# 09 — REAL FULL-STACK INTEGRATION
+
+لا تكتفِ بإنشاء Component معزول.
+
+أكمل دمج الصفحة مع التطبيق:
+
+- Route أو View Registration.
+- Sidebar / Navigation.
+- Active Navigation State.
+- Back/Forward Navigation حيث ينطبق.
+- Theme System.
+- i18n Translation System.
+- Existing Icon System.
+- Shared Components.
+- External Link Services.
+- Toast / Notification System.
+- Accessibility Conventions.
+- Error Handling.
+- Existing Test Infrastructure.
+
+استخدم الموجود بدل إنشاء أنظمة موازية.
+
+لا تضف مكتبات جديدة لمجرد التجميل.
+
+إذا كان المشروع يحتوي على صفحة مطور منفذة بالفعل، فحسّنها بصورة محافظة على الوظائف والبيانات والتصميمات الجيدة الموجودة، بدل هدمها وإعادة بنائها بلا ضرورة.
+
+# 10 — VISUAL QUALITY GATE
+
+لا تعتبر نجاح TypeScript أو Build دليلًا على نجاح التصميم.
+
+يجب تشغيل الصفحة الفعلية ومراجعتها بصريًا، متى كانت الأدوات متاحة.
+
+احصل على Screenshots قبل التعديل وبعده، وقارن:
+
+- Visual Hierarchy.
+- Typography.
+- Alignment.
+- Whitespace.
+- Layout Rhythm.
+- Brand Consistency.
+- Contrast.
+- Component States.
+- Motion.
+- Responsiveness.
+- RTL/LTR.
+- Light/Dark.
+- Screenshot Regression.
+
+اكتشف عيوب التصميم وصححها.
+
+أي فقدان لهوية أو عنصر بصري معتمد يعتبر Regression حتى لو نجح البناء.
+
+لا تعتمد على جمال الكود لإثبات جمال الواجهة.
+
+# 11 — FUNCTIONAL & PRODUCTION VERIFICATION
+
+نفّذ التحقق على مراحل:
+
+**A. Static Verification**
+- Typecheck.
+- Lint.
+- i18n Validation.
+- Relevant Unit Tests.
+
+**B. Integration Verification**
+- Page Route.
+- Navigation.
+- Identity Data.
+- External Links.
+- Copy Actions.
+- Error Handling.
+
+**C. Runtime Verification**
+- Real Application Startup.
+- UI Rendering.
+- Interaction Execution.
+- Console Errors.
+- Runtime Exceptions.
+- Asset Loading.
+
+**D. Visual Verification**
+- Screenshots.
+- RTL/LTR.
+- Supported Themes.
+- Responsive Layouts.
+- Focus/Keyboard.
+- Motion Preferences.
+
+**E. Regression Verification**
+- Existing Navigation.
+- Shared Design System.
+- Existing About Functionality.
+- Application Build.
+- Relevant Smoke Tests.
+
+لو اختبار غير قابل للتنفيذ في البيئة الحالية، سجّل أنه **NOT VERIFIED** مع السبب.
+
+لا تختلق نجاح اختبار أو Screenshot.
+
+# 12 — SAFE DELIVERY & GIT INTEGRITY
+
+احمِ المشروع الحالي.
+
+- لا تستخدم `reset --hard`.
+- لا تستخدم `git clean -fd`.
+- لا تستخدم `force-push`.
+- لا تحذف فروعًا أو Worktrees أو Backups دون إثبات أنها آمنة وموافقة صريحة عند العمليات المدمرة.
+- لا تكتب فوق تغييرات Agent آخر.
+- لا تعدّل خدمات غير مرتبطة بالمهمة.
+- لا تدفع أو تنشر دون تفويض.
+- لا تُدخل بيانات افتراضية باعتبارها بيانات رسمية.
+
+نفّذ المهمة كاملة داخل النطاق المسموح، وتوقف فقط عند عائق حقيقي لا يمكن تجاوزه بأمان.
+
+# 13 — DEFINITION OF DONE
+
+لا تعتبر المهمة مكتملة إلا إذا ثبت:
+
+- [ ] صفحة المطور مدمجة داخل التطبيق.
+- [ ] الصفحة منسجمة تمامًا مع الهوية البصرية الرسمية.
+- [ ] التكوين البصري عصري، فاخر، ومتميز.
+- [ ] الاسم والسيرة والأدوار والمهارات دقيقة.
+- [ ] الروابط والحسابات مصنفة بشكل صحيح.
+- [ ] الأزرار والتفاعلات تعمل فعليًا.
+- [ ] دعم RTL/LTR مكتمل.
+- [ ] الثيمات المدعومة تعمل بصورة سليمة.
+- [ ] Responsive Layout سليم.
+- [ ] Keyboard/Accessibility سليم.
+- [ ] لا توجد أخطاء Runtime مثبتة في المسارات المختبرة.
+- [ ] الاختبارات ذات الصلة ناجحة.
+- [ ] تمت مراجعة صور قبل وبعد.
+- [ ] لم يُفقد أي عمل فريد أو تصميم معتمد.
+- [ ] تقرير التسليم مدعوم بالأدلة.
+
+النتيجة المطلوبة ليست صفحة «جميلة نسبيًا»، بل **Developer Identity Experience ذات جودة إنتاجية عالية، تحمل بصمة المنتج وتمثل مطوره بصورة احترافية استثنائية**.
+
+# 14 — FINAL EXECUTION DIRECTIVE
+
+ابدأ فورًا بالفحص، ثم انتقل للتنفيذ الفعلي.
+
+لا تقضِ المهمة في كتابة خطة طويلة.
+
+لا تسلّم Mockup بدل كود حقيقي.
+
+لا تكتفِ بتغيير الألوان والخطوط.
+
+لا تصنع واجهة فخمة شكليًا وتترك تفاعلاتها غير مرتبطة.
+
+لا تعلن `DONE` بناءً على نجاح Build وحده.
+
+استمر في دورة:
+
+**DISCOVER → PRESERVE → DESIGN → IMPLEMENT → INTEGRATE → RUN → INSPECT → FIX → VERIFY**
+
+وفي التسليم النهائي قدّم:
+
+1. ما اكتُشف عن الهوية والصفحة الحالية.
+2. ما تم تغييره ولماذا.
+3. الملفات المعدلة.
+4. Screenshots الفعلية قبل وبعد.
+5. نتائج Typecheck وLint وTests وBuild.
+6. نتائج تشغيل الصفحة والتفاعلات.
+7. أي مخاطر أو اختبارات غير منفذة.
+8. Git Branch وHEAD SHA وWorking Tree Status.
+9. حالة الدمج والدفع والنشر إن حدثت فعلًا.
+
+صنّف النتائج باستخدام:
+
+`VERIFIED` · `PARTIAL` · `IMPLEMENTED-NOT-VERIFIED` · `BLOCKED` · `NOT-IMPLEMENTED` · `UNKNOWN`
+
+**THE FINAL STANDARD:**
+
+Build an extraordinary, brand-native Founder & Developer experience. Make it feel intentionally art-directed, technically precise, beautifully integrated, and unquestionably modern.
+
+**No generic templates. No fake polish. No broken interactions. No lost work. No fake completion.**
+
+**EXECUTE THE REAL IMPLEMENTATION NOW.**

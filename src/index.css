@@ -1,0 +1,241 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    --font-brand: 'Orbitron', 'Syne', sans-serif;
+    --font-arabic: 'Tajawal', 'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    user-select: none;
+  }
+
+  [dir="rtl"] {
+    font-family: var(--font-arabic);
+  }
+}
+
+/* Designer KX Typography */
+.kx-brand-title {
+  font-family: 'Orbitron', 'Syne', sans-serif;
+  letter-spacing: 0.18em;
+  font-weight: 800;
+  background: linear-gradient(135deg, #ffffff 0%, #dbeafe 35%, #818cf8 70%, #38bdf8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.45));
+}
+
+.kx-brand-title-large {
+  font-family: 'Orbitron', 'Syne', sans-serif;
+  letter-spacing: 0.22em;
+  font-weight: 900;
+  background: linear-gradient(180deg, #ffffff 0%, #e0e7ff 40%, #a5b4fc 70%, #38bdf8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 4px 20px rgba(99, 102, 241, 0.65)) drop-shadow(0 0 35px rgba(56, 189, 248, 0.4));
+}
+
+.kx-brand-sub {
+  font-family: 'Syne', 'Orbitron', sans-serif;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  font-weight: 700;
+  background: linear-gradient(90deg, #c7d2fe 0%, #38bdf8 50%, #c084fc 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Glass Orb & Aura Keyframe Animations */
+@keyframes orbit-cw {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.02); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+@keyframes orbit-ccw {
+  0% { transform: rotate(360deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.75; transform: scale(1); filter: blur(22px); }
+  50% { opacity: 0.98; transform: scale(1.09); filter: blur(32px); }
+}
+
+@keyframes float-subtle {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-7px) rotate(1deg); }
+}
+
+@keyframes scan-laser {
+  0% { top: 10%; opacity: 0.2; }
+  50% { top: 85%; opacity: 0.9; }
+  100% { top: 10%; opacity: 0.2; }
+}
+
+@keyframes laser-sweep {
+  0% { transform: translateX(-150%) skewX(-20deg); }
+  100% { transform: translateX(250%) skewX(-20deg); }
+}
+
+@keyframes shockwave-expand {
+  0% {
+    transform: scale(0.6);
+    opacity: 1;
+    border-width: 3px;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+    border-width: 0.5px;
+  }
+}
+
+@keyframes cosmic-particle-float {
+  0% { transform: translateY(0) scale(1); opacity: 0.3; }
+  50% { transform: translateY(-18px) scale(1.2); opacity: 0.9; }
+  100% { transform: translateY(0) scale(1); opacity: 0.3; }
+}
+
+.animate-orbit {
+  animation: orbit-cw 20s linear infinite;
+}
+
+.animate-orbit-reverse {
+  animation: orbit-ccw 26s linear infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3.5s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float-subtle 5s ease-in-out infinite;
+}
+
+.animate-laser {
+  animation: scan-laser 2.2s ease-in-out infinite;
+}
+
+.animate-shockwave {
+  animation: shockwave-expand 1.8s cubic-bezier(0.1, 0.8, 0.3, 1) infinite;
+}
+
+.animate-particle-1 { animation: cosmic-particle-float 4.2s ease-in-out infinite; }
+.animate-particle-2 { animation: cosmic-particle-float 3.4s ease-in-out infinite 0.7s; }
+.animate-particle-3 { animation: cosmic-particle-float 5.1s ease-in-out infinite 1.4s; }
+
+/* 100% Reference-Matched Glassmorphism Classes */
+.glass-panel-night {
+  background: linear-gradient(135deg, rgba(26, 28, 68, 0.65) 0%, rgba(13, 16, 43, 0.85) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 
+    0 12px 36px -8px rgba(0, 0, 0, 0.65), 
+    inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -1px 1px 0 rgba(147, 197, 253, 0.1);
+}
+
+.glass-panel-day {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.72) 0%, rgba(232, 238, 255, 0.52) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 
+    0 14px 38px -10px rgba(99, 102, 241, 0.16), 
+    inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.98),
+    inset 0 -1px 2px 0 rgba(147, 197, 253, 0.25);
+}
+
+.glass-card-crystal {
+  position: relative;
+  border-radius: 1.25rem;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.04) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 8px 30px rgba(0, 0, 0, 0.4),
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.35);
+  overflow: hidden;
+}
+
+.glass-card-crystal::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 100%);
+  pointer-events: none;
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+}
+
+.glass-pill-active {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%);
+  box-shadow: 0 4px 22px -2px rgba(99, 102, 241, 0.55), inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.glass-pill-inactive-night {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+}
+
+.glass-pill-inactive-day {
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+}
+
+/* Holographic Shimmer Effect */
+.shimmer-sweep {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-sweep::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.25) 50%, transparent 100%);
+  animation: laser-sweep 3.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.5);
+}
