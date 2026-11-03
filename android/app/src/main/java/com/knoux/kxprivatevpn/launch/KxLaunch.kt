@@ -104,10 +104,10 @@ fun KxLaunch() {
             ready = initialRead, finished = introFinished, reducedMotion = rememberReducedMotion(),
             night = night, saveError = error, onFinished = { introFinished = true },
             onGetStarted = { stack = stack + "education" }, onImport = { stack = stack + "import" },
-        ) else NativeClient(stack.last(), state, client, night,
+        ) else key(stack.last()) { NativeClient(stack.last(), state, client, night,
             navigate = { stack = stack + it }, back = {
                 if (!state.busy) stack = if (stack.size > 1) stack.dropLast(1) else listOf("welcome")
-            })
+            }) }
     }
 }
 

@@ -19,6 +19,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -101,7 +103,7 @@ fun CacheScreen(onBusy: (Boolean) -> Unit) {
     val body = stringResource(R.string.cache_approved_body)
     val remove = stringResource(R.string.cache_remove)
     val cancel = stringResource(R.string.cancel)
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    CrystalPanel {
         Canvas(Modifier.size(72.dp)) {
             val path = Path().apply {
                 moveTo(size.width * .18f, size.height * .72f)
@@ -111,6 +113,9 @@ fun CacheScreen(onBusy: (Boolean) -> Unit) {
             }
             drawCircle(Brush.radialGradient(listOf(Color(0xFFAF77FF).copy(alpha = .5f), Color.Transparent)))
             drawPath(path, Brush.linearGradient(listOf(Color.White, Color(0xFF69EFFF), Color(0xFF7330EE)), Offset.Zero, Offset(size.width, size.height)))
+            drawPath(path, Color.White.copy(alpha = .7f), style = Stroke(1.dp.toPx()))
+            drawLine(Color(0xFFF7EFFF), Offset(size.width * .2f, size.height * .70f),
+                Offset(size.width * .65f, size.height * .15f), 2.dp.toPx(), StrokeCap.Round)
         }
         Text(stringResource(R.string.cache_scope))
         if (state.busy) LinearProgressIndicator(Modifier.fillMaxWidth())

@@ -41,7 +41,7 @@ import java.util.Date
 import kotlin.coroutines.coroutineContext
 
 @Composable
-private fun CrystalPanel(content: @Composable ColumnScope.() -> Unit) {
+internal fun CrystalPanel(content: @Composable ColumnScope.() -> Unit) {
     val shape = RoundedCornerShape(24.dp)
     Column(Modifier.fillMaxWidth()
         .background(Brush.linearGradient(listOf(Color.White.copy(alpha = .23f),

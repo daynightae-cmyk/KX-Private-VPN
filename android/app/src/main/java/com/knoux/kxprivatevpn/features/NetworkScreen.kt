@@ -45,7 +45,7 @@ fun NetworkScreen() {
         catch (_: Exception) { failed = true }
         onDispose { try { manager.unregisterNetworkCallback(callback) } catch (_: Exception) { } }
     }
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    CrystalPanel {
         Text(stringResource(R.string.network_scope))
         reading?.let {
             Text(stringResource(if (it.present) R.string.network_present else R.string.network_absent), Modifier.testTag("network-status"))
