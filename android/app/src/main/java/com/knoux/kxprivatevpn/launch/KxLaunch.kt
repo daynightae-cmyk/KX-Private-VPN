@@ -178,7 +178,7 @@ fun IdentityExperience(
                             if (onGetStarted != null) onGetStarted() else disclosure = true
                         }
                         Spacer(Modifier.height(12.dp))
-                        if (onImport != null) GlassAction(stringResource(R.string.import_config), Modifier.testTag("welcome-import"), onImport)
+                        if (onImport != null) GlassAction(stringResource(R.string.import_config), Modifier.testTag("welcome-import"), onClick = onImport)
                         else Text(stringResource(R.string.preview_notice), color = text, fontSize = 12.sp)
                         if (saveError) Text(stringResource(R.string.save_error), color = text,
                             textAlign = TextAlign.Center, fontSize = 12.sp)

@@ -35,6 +35,7 @@ dependencies {
     implementation(libs.wireguard)
     implementation(libs.zxing)
     testImplementation(libs.junit)
+    testImplementation(libs.coroutines.test)
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.compose.test)
     androidTestImplementation(libs.android.test)

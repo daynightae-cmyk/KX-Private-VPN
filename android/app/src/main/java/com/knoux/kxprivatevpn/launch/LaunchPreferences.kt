@@ -14,6 +14,7 @@ class LaunchPreferences(private val context: Context) {
     private val onboarded = booleanPreferencesKey("onboarded")
     private val language = stringPreferencesKey("language")
     private val theme = stringPreferencesKey("theme")
+    private val vpnActive = booleanPreferencesKey("vpn_session_active")
     suspend fun hasSeenIntro(): Boolean = context.launchDataStore.data.first()[seen] ?: false
     suspend fun markSeen() { context.launchDataStore.edit { it[seen] = true } }
     suspend fun settings(): UiPreferences {
@@ -21,6 +22,11 @@ class LaunchPreferences(private val context: Context) {
         return UiPreferences(p[onboarded] ?: false, p[language] ?: "system", p[theme] ?: "system")
     }
     suspend fun completeOnboarding() { context.launchDataStore.edit { it[onboarded] = true } }
+    /** Hint that a tunnel was active when the UI process last stopped. Never proof of protection. */
+    suspend fun markVpnActive(active: Boolean) {
+        context.launchDataStore.edit { if (active) it[vpnActive] = true else it.remove(vpnActive) }
+    }
+    suspend fun wasVpnActive(): Boolean = context.launchDataStore.data.first()[vpnActive] ?: false
     suspend fun appearance(languageValue: String, themeValue: String) {
         require(languageValue in listOf("system", "ar", "en") && themeValue in listOf("system", "night", "day"))
         context.launchDataStore.edit { it[language] = languageValue; it[theme] = themeValue }

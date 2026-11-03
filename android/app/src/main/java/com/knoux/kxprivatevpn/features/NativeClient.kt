@@ -28,6 +28,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.knoux.kxprivatevpn.R
 import com.knoux.kxprivatevpn.designsystem.Atmosphere
 import com.knoux.kxprivatevpn.designsystem.GlassAction
@@ -55,6 +56,10 @@ internal fun CrystalPanel(content: @Composable ColumnScope.() -> Unit) {
 fun NativeClient(route: String, state: ClientState, model: ClientViewModel, night: Boolean,
                  navigate: (String) -> Unit, back: () -> Unit) {
     var repairBusy by remember { mutableStateOf(false) }
+    val vpn by model.vpnState.collectAsStateWithLifecycle()
+    val consent = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == android.app.Activity.RESULT_OK) model.connectSelected() else model.consentDenied()
+    }
     val foreground = if (night) Color(0xFFF7F3FF) else Color(0xFF171050)
     MaterialTheme(colorScheme = if (night) darkColorScheme(primary = Color(0xFF99EBFF))
         else lightColorScheme(primary = Color(0xFF4420B3))) {
@@ -78,6 +83,7 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                         "storage" -> R.string.storage
                         "cache" -> R.string.cache_surgeon
                         "network" -> R.string.network_doctor
+                        "session" -> R.string.session_title
                         else -> R.string.home
                     }), fontSize = 28.sp, fontWeight = FontWeight.Bold)
                     if (state.busy) LinearProgressIndicator(Modifier.fillMaxWidth())
@@ -105,15 +111,17 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                         "storage" -> StorageScreen()
                         "cache" -> CacheScreen { repairBusy = it }
                         "network" -> NetworkScreen()
+                        "session" -> VpnSessionScreen(vpn) { model.disconnectVpn() }
                         else -> {
                             KxOrb(1f, IntroTimeline.frame(1f), Modifier.size(210.dp).align(Alignment.CenterHorizontally))
-                            Text(stringResource(R.string.disconnected), fontSize = 26.sp,
+                            Text(stringResource(if (vpn.phase == com.knoux.kxprivatevpn.platform.vpn.VpnPhase.CONNECTED)
+                                R.string.connected else R.string.disconnected), fontSize = 26.sp,
                                 fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.CenterHorizontally))
-                            CrystalPanel {
-                                Text(state.snapshot.profiles.firstOrNull { it.id == state.snapshot.selectedId }?.name
-                                    ?: stringResource(R.string.no_profiles), fontWeight = FontWeight.Bold)
-                                Text(stringResource(R.string.transport_unavailable))
-                            }
+                            VpnHomePanel(state.snapshot, state.busy, vpn,
+                                onConnect = { model.prepareConnect()?.let(consent::launch) },
+                                onDisconnect = { model.disconnectVpn() },
+                                onSession = { navigate("session") },
+                                onDismissIssue = { model.dismissVpnIssue() })
                             GlassAction(stringResource(R.string.import_config), Modifier.testTag("open-import")) { navigate("import") }
                             listOf("servers" to R.string.servers, "storage" to R.string.storage, "cache" to R.string.cache_surgeon,
                                 "network" to R.string.network_doctor,

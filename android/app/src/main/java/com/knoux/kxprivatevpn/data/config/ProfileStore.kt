@@ -87,6 +87,13 @@ class ProfileStore(context: Context, namespace: String = "wireguard-profiles") {
             snapshot(json)
         }
     }
+    /** Plaintext for the tunnel backend only. Callers must zero the returned array promptly. */
+    suspend fun config(id: String): ByteArray? = withContext(Dispatchers.IO) { mutex.withLock {
+        val array = read().getJSONArray("profiles")
+        val index = (0 until array.length()).firstOrNull { array.getJSONObject(it).getString("id") == id }
+            ?: return@withLock null
+        array.getJSONObject(index).getString("config").toByteArray(Charsets.UTF_8)
+    } }
     suspend fun select(id: String): ProfileSnapshot = withContext(Dispatchers.IO) { mutex.withLock {
         val json = read()
         require(snapshot(json).profiles.any { it.id == id })

@@ -1,8 +1,10 @@
 package com.knoux.kxprivatevpn.features
 
 import android.app.Application
+import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.net.VpnService
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.zxing.BinaryBitmap
@@ -12,6 +14,7 @@ import com.google.zxing.common.HybridBinarizer
 import com.knoux.kxprivatevpn.data.config.*
 import com.knoux.kxprivatevpn.launch.LaunchPreferences
 import com.knoux.kxprivatevpn.launch.UiPreferences
+import com.knoux.kxprivatevpn.platform.vpn.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 
@@ -29,7 +32,37 @@ class ClientViewModel(app: Application) : AndroidViewModel(app) {
     private val preferences = LaunchPreferences(app)
     private val mutable = MutableStateFlow(ClientState())
     val state: StateFlow<ClientState> = mutable.asStateFlow()
-    init { reload() }
+    private val vpn = VpnController(viewModelScope, WireGuardVpnGateway(app), { id -> store.config(id) })
+    val vpnState: StateFlow<VpnState> = vpn.state
+    init {
+        reload()
+        viewModelScope.launch {
+            // Restore the persisted hint before observing, so the first IDLE emission cannot clear it.
+            val loaded = state.first { it.loaded || it.issue == ClientIssue.STORE }
+            if (loaded.loaded) {
+                val active = try { preferences.wasVpnActive() } catch (_: Exception) { false }
+                if (active) {
+                    val selected = loaded.snapshot.profiles.firstOrNull { it.id == loaded.snapshot.selectedId }
+                    vpn.restore(selected)
+                }
+            }
+            vpn.state.collect { value ->
+                try {
+                    when {
+                        value.phase == VpnPhase.CONNECTED -> preferences.markVpnActive(true)
+                        value.phase == VpnPhase.CONNECTING || value.phase == VpnPhase.IDLE ->
+                            preferences.markVpnActive(false)
+                        value.phase == VpnPhase.ERROR && value.issue != VpnIssue.STOP_FAILED ->
+                            preferences.markVpnActive(false)
+                    }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (_: Exception) {
+                    // The session hint is advisory; a failed write must not break the tunnel.
+                }
+            }
+        }
+    }
     fun reload() {
         if (mutable.value.busy) return
         viewModelScope.launch {
@@ -69,7 +102,31 @@ class ClientViewModel(app: Application) : AndroidViewModel(app) {
         mutable.update { it.copy(settings = it.settings.copy(language = language, theme = theme)) }
     }
     fun select(id: String) = operation { val value = store.select(id); mutable.update { it.copy(snapshot = value) } }
-    fun remove(id: String) = operation { val value = store.remove(id); mutable.update { it.copy(snapshot = value) } }
+    fun remove(id: String) = operation {
+        if (vpn.state.value.session?.profileId == id) vpn.stopNow()
+        val value = store.remove(id)
+        mutable.update { it.copy(snapshot = value) }
+    }
+    private fun selectedProfile() = mutable.value.snapshot.let { snapshot ->
+        snapshot.profiles.firstOrNull { it.id == snapshot.selectedId }
+    }
+    /** Returns the real Android consent intent when the platform still requires it. */
+    fun prepareConnect(): Intent? {
+        val selected = selectedProfile() ?: run { vpn.reportNoProfile(); return null }
+        val consent = try {
+            VpnService.prepare(getApplication())
+        } catch (_: Exception) {
+            vpn.reportStartFailed(); return null
+        }
+        if (consent == null) vpn.connect(selected)
+        return consent
+    }
+    fun connectSelected() {
+        selectedProfile()?.let(vpn::connect) ?: vpn.reportNoProfile()
+    }
+    fun consentDenied() = vpn.reportConsentDenied()
+    fun disconnectVpn() = vpn.disconnect()
+    fun dismissVpnIssue() = vpn.clearIssue()
     private suspend fun save(name: String, bytes: ByteArray) {
         val value = try { store.import(name, bytes) } finally { bytes.fill(0) }
         mutable.update { it.copy(snapshot = value, importedId = value.profiles.last().id) }

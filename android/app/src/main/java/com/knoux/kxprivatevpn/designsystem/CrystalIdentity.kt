@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
@@ -205,12 +206,12 @@ private fun DrawScope.star(p: Offset, radius: Float, alpha: Float) {
 }
 
 @Composable
-fun GlassAction(label: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
+fun GlassAction(label: String, modifier: Modifier = Modifier, enabled: Boolean = true, onClick: () -> Unit) {
     val shape = RoundedCornerShape(40.dp)
-    Box(modifier.fillMaxWidth().heightIn(min = 58.dp).clip(shape)
+    Box(modifier.fillMaxWidth().heightIn(min = 58.dp).clip(shape).alpha(if (enabled) 1f else .5f)
         .background(Brush.linearGradient(listOf(Violet.copy(alpha = .9f), Color(0xFF4930D6), Cyan.copy(alpha = .8f))))
         .border(1.5.dp, Brush.linearGradient(listOf(Pearl, Cyan, Violet, Pearl)), shape)
-        .clickable(role = Role.Button, onClick = onClick).padding(horizontal = 24.dp, vertical = 16.dp),
+        .clickable(enabled = enabled, role = Role.Button, onClick = onClick).padding(horizontal = 24.dp, vertical = 16.dp),
         contentAlignment = Alignment.Center) {
         Text(label, color = Color.White, fontSize = 21.sp, fontWeight = FontWeight.SemiBold)
     }

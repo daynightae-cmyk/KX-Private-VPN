@@ -21,6 +21,7 @@ datastore = { module = "androidx.datastore:datastore-preferences", version = "1.
 lifecycle = { module = "androidx.lifecycle:lifecycle-runtime-compose", version = "2.9.0" }
 viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version = "2.9.0" }
 junit = { module = "junit:junit", version = "4.13.2" }
+coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version = "1.10.2" }
 android-test = { module = "androidx.test.ext:junit", version = "1.2.1" }
 test-runner = { module = "androidx.test:runner", version = "1.6.2" }
 wireguard = { module = "com.wireguard.android:tunnel", version = "1.0.20260102" }
