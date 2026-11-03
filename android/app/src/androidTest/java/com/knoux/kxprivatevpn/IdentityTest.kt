@@ -42,7 +42,9 @@ class IdentityTest {
         val folder = File(instrumentation.targetContext.getExternalFilesDir(null), "identity-evidence")
             .apply { mkdirs() }
         File(folder, "$name.png").outputStream().use { stream ->
-            check(instrumentation.uiAutomation.takeScreenshot()
+            // Capture the real dialog root. The API35 renderer lost its display during the
+            // former full-display capture; retain the same locale/visibility assertions.
+            check(compose.onNode(isDialog()).captureToImage().asAndroidBitmap()
                 .compress(Bitmap.CompressFormat.PNG, 100, stream))
         }
     }
