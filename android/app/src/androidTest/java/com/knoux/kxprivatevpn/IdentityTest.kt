@@ -115,8 +115,13 @@ class IdentityTest {
                 }
             }
         }
-        compose.onNodeWithText(arabicContext.getString(R.string.continue_label))
-            .performScrollTo().assertIsDisplayed().performClick()
+        val arabicContinue = arabicContext.getString(R.string.continue_label)
+        compose.onNodeWithText(arabicContinue).performScrollTo().assertIsDisplayed()
+        // Capture the Arabic large-text screen before any dialog window exists. The API35
+        // headless software renderer loses its ColorBuffer when the activity is copied right
+        // after a dialog window is destroyed; API26 still captures the dialog itself.
+        capture("06-ar-rtl-360-large-text")
+        compose.onNodeWithText(arabicContinue).performClick()
         compose.waitForIdle()
         captureWindow("06a-ar-dialog")
         compose.waitUntil(5000) {
@@ -126,7 +131,8 @@ class IdentityTest {
             } catch (_: AssertionError) { false }
         }
         compose.onNodeWithText(arabicContext.getString(R.string.close)).performClick()
-        capture("06-ar-rtl-360-large-text")
+        compose.waitForIdle()
+        compose.onNodeWithText(arabicContext.getString(R.string.scope_notice)).assertDoesNotExist()
     }
 
     @Test fun english411dpDay() {
