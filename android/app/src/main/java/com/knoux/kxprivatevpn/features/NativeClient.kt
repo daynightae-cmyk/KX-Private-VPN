@@ -77,6 +77,7 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                         "settings" -> R.string.settings
                         "storage" -> R.string.storage
                         "cache" -> R.string.cache_surgeon
+                        "network" -> R.string.network_doctor
                         else -> R.string.home
                     }), fontSize = 28.sp, fontWeight = FontWeight.Bold)
                     if (state.busy) LinearProgressIndicator(Modifier.fillMaxWidth())
@@ -103,6 +104,7 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                         "settings" -> PreferenceScreen(state, model)
                         "storage" -> StorageScreen()
                         "cache" -> CacheScreen { repairBusy = it }
+                        "network" -> NetworkScreen()
                         else -> {
                             KxOrb(1f, IntroTimeline.frame(1f), Modifier.size(210.dp).align(Alignment.CenterHorizontally))
                             Text(stringResource(R.string.disconnected), fontSize = 26.sp,
@@ -114,6 +116,7 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                             }
                             GlassAction(stringResource(R.string.import_config), Modifier.testTag("open-import")) { navigate("import") }
                             listOf("servers" to R.string.servers, "storage" to R.string.storage, "cache" to R.string.cache_surgeon,
+                                "network" to R.string.network_doctor,
                                 "settings" to R.string.settings).forEach { (target, label) ->
                                 OutlinedButton(onClick = { navigate(target) }, modifier = Modifier.fillMaxWidth()
                                     .heightIn(min = 52.dp).testTag("open-$target")) { Text(stringResource(label)) }
