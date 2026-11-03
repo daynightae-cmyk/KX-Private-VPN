@@ -44,7 +44,9 @@ class IdentityTest {
         File(folder, "$name.png").outputStream().use { stream ->
             // Capture the real dialog root. The API35 renderer lost its display during the
             // former full-display capture; retain the same locale/visibility assertions.
-            check(compose.onNode(isDialog()).captureToImage().asAndroidBitmap()
+            val bitmap = if (android.os.Build.VERSION.SDK_INT < 28) instrumentation.uiAutomation.takeScreenshot()
+                else compose.onNode(isDialog()).captureToImage().asAndroidBitmap()
+            check(bitmap
                 .compress(Bitmap.CompressFormat.PNG, 100, stream))
         }
     }
