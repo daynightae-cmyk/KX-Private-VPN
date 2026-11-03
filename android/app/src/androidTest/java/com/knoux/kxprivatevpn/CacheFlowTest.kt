@@ -39,7 +39,10 @@ class CacheFlowTest {
                 assertTrue(target.exists()) // Preview and dialog do not delete anything.
                 compose.onNodeWithTag("cache-confirm").performClick()
                 compose.waitUntil(10000) { !target.exists() }
-                compose.waitForIdle()
+                val receipt = context.getString(R.string.cache_receipt, 1,
+                    android.text.format.Formatter.formatFileSize(context, 64), 0, 0)
+                compose.waitUntil(10000) { compose.onAllNodes(hasText(receipt)).fetchSemanticsNodes().isNotEmpty() }
+                compose.onNodeWithText(receipt).performScrollTo().assertIsDisplayed()
                 assertEquals("keep", sentinel.readText())
                 assertEquals("outside cache", privateSentinel.readText())
                 val output = File(context.getExternalFilesDir(null), "identity-evidence").apply { mkdirs() }

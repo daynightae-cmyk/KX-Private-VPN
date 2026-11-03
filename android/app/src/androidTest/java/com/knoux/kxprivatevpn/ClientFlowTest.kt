@@ -13,9 +13,44 @@ import org.junit.Test
 import java.io.File
 import java.util.Base64
 import java.util.UUID
+import android.content.res.Configuration
+import java.util.Locale
 
 class ClientFlowTest {
     @get:Rule val compose = createEmptyComposeRule()
+    @Test fun languageAndThemePersistAcrossActivityRecreation() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val preferences = LaunchPreferences(context)
+        val original = runBlocking { preferences.settings() }
+        runBlocking {
+            preferences.markSeen(); preferences.completeOnboarding(); preferences.appearance("en", "day")
+        }
+        val ar = context.createConfigurationContext(Configuration(context.resources.configuration).apply {
+            setLocale(Locale.forLanguageTag("ar"))
+        })
+        try {
+            ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+                compose.waitUntil(10000) { compose.onAllNodes(hasTestTag("route-home")).fetchSemanticsNodes().isNotEmpty() }
+                compose.onNodeWithTag("open-settings").performScrollTo().performClick()
+                compose.onNodeWithText("العربية").performScrollTo().performClick()
+                compose.waitUntil(10000) { compose.onAllNodes(hasText(ar.getString(R.string.language))).fetchSemanticsNodes().isNotEmpty() }
+                compose.onNodeWithText(ar.getString(R.string.night)).performScrollTo().performClick()
+                compose.onNodeWithText(ar.getString(R.string.night)).assertIsSelected()
+                scenario.recreate()
+                compose.waitForIdle()
+                compose.onNodeWithText(ar.getString(R.string.night)).assertIsSelected()
+                val folder = File(context.getExternalFilesDir(null), "identity-evidence").apply { mkdirs() }
+                File(folder, "11-settings-ar-night.png").outputStream().use {
+                    compose.onRoot().captureToImage().asAndroidBitmap().compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it)
+                }
+                compose.onNodeWithText("English").performScrollTo().performClick()
+                compose.waitUntil(10000) { compose.onAllNodes(hasText(context.getString(R.string.language))).fetchSemanticsNodes().isNotEmpty() }
+            }
+            val restored = runBlocking { preferences.settings() }
+            org.junit.Assert.assertEquals("en", restored.language)
+            org.junit.Assert.assertEquals("night", restored.theme)
+        } finally { runBlocking { preferences.appearance(original.language, original.theme) } }
+    }
     @Test fun manualImportPersistsAndNeverClaimsConnection() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val store = ProfileStore(context)
