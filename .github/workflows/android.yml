@@ -2,7 +2,7 @@ name: Native Android
 on:
   pull_request:
   push:
-    branches: [main, 'codex/**']
+    branches: [main]
 permissions:
   contents: read
 jobs:
@@ -15,6 +15,9 @@ jobs:
           distribution: temurin
           java-version: '21'
       - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-36 build-tools;35.0.0'
+          log-accepted-android-sdk-licenses: false
       - uses: gradle/actions/setup-gradle@v4
       - run: bash ./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleDebug :app:assembleDebugAndroidTest
         working-directory: android
@@ -28,6 +31,7 @@ jobs:
   device:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         api: [26, 35]
     steps:
@@ -48,9 +52,7 @@ jobs:
           arch: x86_64
           disable-animations: false
           working-directory: android
-          script: |
-            bash ./gradlew :app:connectedDebugAndroidTest
-            adb pull /sdcard/Android/data/com.knoux.kxprivatevpn/files/identity-evidence ./device-screenshots
+          script: bash scripts/verify-device.sh
       - uses: actions/upload-artifact@v4
         if: always()
         with:

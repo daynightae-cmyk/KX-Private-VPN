@@ -1,6 +1,19 @@
 package com.knoux.kxprivatevpn
 
 import android.graphics.Bitmap
+import android.content.res.Configuration
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -12,6 +25,7 @@ import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
 import java.io.File
+import java.util.Locale
 
 class IdentityTest {
     @get:Rule val compose = createComposeRule()
@@ -47,6 +61,9 @@ class IdentityTest {
         compose.onNodeWithTag("skip").performClick()
         compose.mainClock.advanceTimeBy(32)
         compose.onNodeWithTag("continue").assertIsDisplayed().performClick()
+        // Resume Material dialog's entrance transition after the deterministic intro assertions.
+        compose.mainClock.autoAdvance = true
+        compose.waitForIdle()
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         compose.onNodeWithText(context.getString(R.string.scope_notice)).assertIsDisplayed()
     }
@@ -60,5 +77,42 @@ class IdentityTest {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         LaunchPreferences(context).markSeen()
         assertTrue(LaunchPreferences(context).hasSeenIntro())
+    }
+
+    @Test fun arabicRtlLargeText360dp() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val config = Configuration(context.resources.configuration).apply {
+            setLocale(Locale.forLanguageTag("ar"))
+            setLayoutDirection(Locale.forLanguageTag("ar"))
+        }
+        val arabicContext = context.createConfigurationContext(config)
+        compose.setContent {
+            val density = LocalDensity.current
+            CompositionLocalProvider(
+                LocalContext provides arabicContext,
+                LocalConfiguration provides config,
+                LocalLayoutDirection provides LayoutDirection.Rtl,
+                LocalDensity provides Density(density.density, 1.5f),
+            ) {
+                Box(Modifier.fillMaxSize().requiredWidth(360.dp)) {
+                    IdentityExperience(reducedMotion = true)
+                }
+            }
+        }
+        compose.onNodeWithText(arabicContext.getString(R.string.continue_label))
+            .performScrollTo().assertIsDisplayed().performClick()
+        compose.onNodeWithText(arabicContext.getString(R.string.scope_notice)).assertIsDisplayed()
+        compose.onNodeWithText(arabicContext.getString(R.string.close)).performClick()
+        capture("06-ar-rtl-360-large-text")
+    }
+
+    @Test fun english411dpDay() {
+        compose.setContent {
+            Box(Modifier.fillMaxSize().requiredWidth(411.dp)) {
+                IdentityExperience(reducedMotion = true, night = false)
+            }
+        }
+        compose.onNodeWithTag("continue").assertIsDisplayed()
+        capture("07-en-411-day")
     }
 }
