@@ -37,6 +37,15 @@ class IdentityTest {
                 .compress(Bitmap.CompressFormat.PNG, 100, stream))
         }
     }
+    private fun captureWindow(name: String) {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val folder = File(instrumentation.targetContext.getExternalFilesDir(null), "identity-evidence")
+            .apply { mkdirs() }
+        File(folder, "$name.png").outputStream().use { stream ->
+            check(instrumentation.uiAutomation.takeScreenshot()
+                .compress(Bitmap.CompressFormat.PNG, 100, stream))
+        }
+    }
     @Test fun choreographyFinishesAndStops() {
         compose.mainClock.autoAdvance = false
         var completions = 0
@@ -102,7 +111,13 @@ class IdentityTest {
         compose.onNodeWithText(arabicContext.getString(R.string.continue_label))
             .performScrollTo().assertIsDisplayed().performClick()
         compose.waitForIdle()
-        compose.onNodeWithText(arabicContext.getString(R.string.scope_notice)).assertIsDisplayed()
+        captureWindow("06a-ar-dialog")
+        compose.waitUntil(5000) {
+            try {
+                compose.onNodeWithText(arabicContext.getString(R.string.scope_notice)).assertIsDisplayed()
+                true
+            } catch (_: AssertionError) { false }
+        }
         compose.onNodeWithText(arabicContext.getString(R.string.close)).performClick()
         capture("06-ar-rtl-360-large-text")
     }
