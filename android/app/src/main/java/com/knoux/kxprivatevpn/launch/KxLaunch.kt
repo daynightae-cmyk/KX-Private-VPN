@@ -92,7 +92,8 @@ fun IdentityExperience(
     val text = if (night) Color(0xFFF5F0FF) else Color(0xFF161050)
     MaterialTheme(colorScheme = if (night) darkColorScheme() else lightColorScheme()) {
         BoxWithConstraints(Modifier.fillMaxSize().testTag("identity")) {
-            Atmosphere(night, frame)
+            // Stable zero pulse lets Compose retain the background through photon/ribbon motion.
+            Atmosphere(night, frame.pulse)
             val orb = minOf(maxWidth * .88f, maxHeight * .46f, 410.dp)
             // One shared orb across intro and Welcome: no image replacement or positional cut.
             Box(Modifier.fillMaxWidth().padding(top = maxHeight * .09f), contentAlignment = Alignment.TopCenter) {

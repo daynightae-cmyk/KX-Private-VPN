@@ -32,7 +32,7 @@ private val Violet = Color(0xFFAD71FF)
 private val Pearl = Color(0xFFF9ECFF)
 
 @Composable
-fun Atmosphere(night: Boolean, frame: IntroFrame) {
+fun Atmosphere(night: Boolean, pulse: Float) {
     Canvas(Modifier.fillMaxSize()) {
         val w = size.width
         val h = size.height
@@ -63,7 +63,7 @@ fun Atmosphere(night: Boolean, frame: IntroFrame) {
             cubicTo(w * .31f, h * .13f, w * .12f, h * .14f, 0f, h * .18f); close()
         }
         drawPath(veil, Brush.linearGradient(listOf(Violet.copy(alpha = .45f), Color.Transparent)))
-        val pulseAlpha = frame.pulse * .12f
+        val pulseAlpha = pulse * .12f
         if (pulseAlpha > 0f) drawRect(Brush.radialGradient(listOf(Pearl.copy(alpha = pulseAlpha),
             Color.Transparent), Offset(w * .5f, h * .31f), w * .9f))
     }

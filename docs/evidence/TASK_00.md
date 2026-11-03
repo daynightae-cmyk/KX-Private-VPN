@@ -46,4 +46,19 @@ Reproduce from `android/`: `./gradlew.bat :app:testDebugUnitTest :app:lintDebug 
 
 Next: inspect API26/35 CI results, download/inspect each native capture; fix critical deviations, exercise cold/warm startup, AR/EN 360/411dp + large text, inspect frame timing before accepting TASK_00. Then implement full TASK_01 independently; do not move VPN or repair scope into the splash PR.
 
+## First captured runtime and corrective work
+
+At `f376e4a`, [run 41625979478](https://github.com/daynightae-cmyk/KX-Private-VPN/actions/runs/41625979478): build succeeded; both API26/35 executed 7 tests with 1 failure each (Arabic large-font disclosure). The earlier dialog-clock failure was fixed; launcher recreation/resume passed. The large-text failure is a real UI accessibility gap: the disclosure body was not scrollable. Added native scrolling; acceptance awaits rerun.
+
+At `6a1528461354bb02bd093e8d7bc52a2cc86bcbec`, [run 41626620376](https://github.com/daynightae-cmyk/KX-Private-VPN/actions/runs/41626620376), API26 produced actual [Welcome screenshot](ci-6a15284-api26/device-screenshots/launcher-welcome.png), [startup recording](ci-6a15284-api26/device-screenshots/kx-launch.mp4), [cold launch](ci-6a15284-api26/device-screenshots/cold-start.txt), [repeat launch](ci-6a15284-api26/device-screenshots/repeat-start.txt), and [frame timing](ci-6a15284-api26/device-screenshots/launch-frames.txt).
+
+- Screenshot inspected individually: source brand silhouette recognizable; original artwork retained; observed black fringe around orb. Native mask was inset to remove that irregular source-background fringe. The day atmosphere and preview layout are NOT accepted as matching the supplied Welcome reference; full TASK_01 content/actions remain absent.
+- Emulator default capture was only 320×640 pixels. It is not 360/411dp evidence. Follow-up CI selects Nexus 5 and records actual wm size/density before 360/411dp runs.
+- Cold process launch `am start -W`: Status ok, TotalTime 1049ms, WaitTime 1055ms. Second force-stopped process launch: Status ok, TotalTime 1096ms, WaitTime 1123ms. This second measure is NOT a hot Activity resume or proof of animation smoothness.
+- Software-GPU API26 recording: 87 total rendered frames, 87 janky (100%), p50=77ms, p90=150ms. **60fps gate FAILS on this measured emulator.** Recording and software GPU affect the result; no hardware performance conclusion is justified. Refactored background input to a stable pulse float so Compose can retain the full-screen background during photon/ribbon motion; profiling must be rerun to measure any improvement.
+- Native test-frame PNGs were initially lost when Gradle uninstalled the app after instrumentation. CI now requests leaveApksInstalledAfterRun before pulling app-owned screenshots. The failed pull is documented, not counted as captured frame evidence.
+- Latest local source check after scroll fix: testDebugUnitTest + lintDebug + assembleDebug + assembleDebugAndroidTest exit 0, 80 tasks, 1m40s. A later build attempt after the background-only optimization failed before compilation with Gradle UDP `BindException: Address already in use`; no host networking/processes were changed to force a pass. Exact current-source CI is required.
+
+Correction commit: `be93953422347076b927b25796bbd5fd4829adb7`; subsequent background performance change remains subject to CI. No merge while visual/performance/large-text gates remain unresolved.
+
 Official compatibility sources consulted: [AGP 8.13](https://developer.android.com/build/releases/agp-8-13-0-release-notes), [Compose compiler setup](https://developer.android.com/develop/ui/compose/setup-compose-dependencies-and-compiler), [system splash migration](https://developer.android.com/develop/ui/views/launch/splash-screen/migrate).
