@@ -1,0 +1,13 @@
+<resources>
+    <string name="cache_surgeon">جراح الكاش</string>
+    <string name="cache_scope">راجع ملفات KX المؤقتة بس. كاش التطبيقات التانية وإعدادات VPN المحفوظة خارج النطاق. اختار الملفات وبعدها وافق صراحة على الإزالة. أي ملف اتغيّر بيتساب. مفيش تراجع.</string>
+    <string name="cache_scan">افحص كاش KX</string>
+    <string name="cache_none">مفيش ملفات كاش KX متاحة للإزالة.</string>
+    <string name="cache_limit">أول ٥٠٠ ملف مرشح ظاهرين. اعمل فحص تاني بعد الإزالة لباقي الملفات.</string>
+    <string name="cache_confirm">إزالة الملفات المؤقتة المختارة؟</string>
+    <string name="cache_remove">إزالة الملفات المختارة</string>
+    <string name="cache_approved_body">ملفات كاش KX المختارة بس هي اللي هتتشال. أي ملف اتغيّر بعد المعاينة هيتساب. الملفات المحذوفة مفيش استرجاع ليها.</string>
+    <string name="cache_receipt">إزالة متحققة: %1$d ملف · %2$s محتوى ملفات. تم تخطي %3$d · فشل %4$d.</string>
+    <string name="cache_bytes_note">حجم المحتوى مقاس من الملفات اللي اتشالت فعليًا. تغيير المساحة الفعلية ممكن يختلف بسبب حسابات نظام ملفات Android.</string>
+    <string name="cache_interrupted">العملية السابقة ماكملتش. التقرير بيعرض الإزالات المتحققة والمسجلة بس؛ أي نتائج إضافية مش مؤكدة. افحص تاني قبل الموافقة على عملية جديدة.</string>
+</resources>

@@ -54,6 +54,7 @@ private fun CrystalPanel(content: @Composable ColumnScope.() -> Unit) {
 @Composable
 fun NativeClient(route: String, state: ClientState, model: ClientViewModel, night: Boolean,
                  navigate: (String) -> Unit, back: () -> Unit) {
+    var repairBusy by remember { mutableStateOf(false) }
     val foreground = if (night) Color(0xFFF7F3FF) else Color(0xFF171050)
     MaterialTheme(colorScheme = if (night) darkColorScheme(primary = Color(0xFF99EBFF))
         else lightColorScheme(primary = Color(0xFF4420B3))) {
@@ -64,7 +65,7 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                     .verticalScroll(rememberScrollState()).testTag("route-$route"),
                     verticalArrangement = Arrangement.spacedBy(16.dp)) {
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                        TextButton(onClick = back, enabled = !state.busy,
+                        TextButton(onClick = back, enabled = !state.busy && !repairBusy,
                             modifier = Modifier.heightIn(min = 48.dp).testTag("back")) { Text(stringResource(R.string.back)) }
                         Spacer(Modifier.weight(1f))
                         Text("KX PRIVATE VPN", fontSize = 15.sp, fontWeight = FontWeight.Bold, letterSpacing = 2.sp)
@@ -75,6 +76,7 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                         "servers" -> R.string.servers
                         "settings" -> R.string.settings
                         "storage" -> R.string.storage
+                        "cache" -> R.string.cache_surgeon
                         else -> R.string.home
                     }), fontSize = 28.sp, fontWeight = FontWeight.Bold)
                     if (state.busy) LinearProgressIndicator(Modifier.fillMaxWidth())
@@ -100,6 +102,7 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                         "servers" -> ProfileList(state, model)
                         "settings" -> PreferenceScreen(state, model)
                         "storage" -> StorageScreen()
+                        "cache" -> CacheScreen { repairBusy = it }
                         else -> {
                             KxOrb(1f, IntroTimeline.frame(1f), Modifier.size(210.dp).align(Alignment.CenterHorizontally))
                             Text(stringResource(R.string.disconnected), fontSize = 26.sp,
@@ -110,7 +113,7 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                                 Text(stringResource(R.string.transport_unavailable))
                             }
                             GlassAction(stringResource(R.string.import_config), Modifier.testTag("open-import")) { navigate("import") }
-                            listOf("servers" to R.string.servers, "storage" to R.string.storage,
+                            listOf("servers" to R.string.servers, "storage" to R.string.storage, "cache" to R.string.cache_surgeon,
                                 "settings" to R.string.settings).forEach { (target, label) ->
                                 OutlinedButton(onClick = { navigate(target) }, modifier = Modifier.fillMaxWidth()
                                     .heightIn(min = 52.dp).testTag("open-$target")) { Text(stringResource(label)) }

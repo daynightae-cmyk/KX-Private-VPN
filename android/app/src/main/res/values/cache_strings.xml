@@ -1,0 +1,13 @@
+<resources>
+    <string name="cache_surgeon">Cache Surgeon</string>
+    <string name="cache_scope">Review temporary files owned by KX only. Other apps’ caches and saved VPN configurations are excluded. Select files, then explicitly approve removal. Changed files are skipped. No undo is available.</string>
+    <string name="cache_scan">Inspect KX cache</string>
+    <string name="cache_none">No removable KX cache files found.</string>
+    <string name="cache_limit">Showing the first 500 candidates. Scan again after removal for further files.</string>
+    <string name="cache_confirm">Remove selected temporary files?</string>
+    <string name="cache_remove">Remove selected files</string>
+    <string name="cache_approved_body">Only the selected KX cache files will be removed. Files changed since this preview will be skipped. Removed files cannot be restored.</string>
+    <string name="cache_receipt">Verified removed: %1$d files · %2$s of file contents. Skipped: %3$d · Failed: %4$d.</string>
+    <string name="cache_bytes_note">File-content bytes are verified from removed files. Physical free-space change can differ because of Android filesystem accounting.</string>
+    <string name="cache_interrupted">The previous operation did not finish. Only journaled verified removals are reported; additional outcomes are unknown. Inspect again before approving another action.</string>
+</resources>
