@@ -149,7 +149,9 @@ fun KxOrb(progress: Float, frame: IntroFrame, modifier: Modifier = Modifier) {
             // Reveal original, byte-preserved owner artwork after the native formation.
             // Only the orb is drawn, never a screenshot-as-screen. The outside black margin is clipped.
             if (frame.artwork > 0f) {
-                val crop = Path().apply { addOval(androidx.compose.ui.geometry.Rect(88f, 88f, 912f, 912f)) }
+                // Inset inside the source orb's irregular black silhouette; the native glass rim
+                // supplies the outer edge, preventing black fringes against the day atmosphere.
+                val crop = Path().apply { addOval(androidx.compose.ui.geometry.Rect(101f, 101f, 899f, 899f)) }
                 clipPath(crop) {
                     drawImage(artwork, srcOffset = IntOffset(80, 88), srcSize = IntSize(1085, 1085),
                         dstOffset = IntOffset(88, 88), dstSize = IntSize(824, 824), alpha = frame.artwork,

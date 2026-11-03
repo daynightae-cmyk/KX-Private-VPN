@@ -50,6 +50,7 @@ jobs:
         with:
           api-level: ${{ matrix.api }}
           arch: x86_64
+          profile: Nexus 5
           disable-animations: false
           working-directory: android
           script: bash scripts/verify-device.sh

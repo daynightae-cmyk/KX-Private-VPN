@@ -17,7 +17,13 @@ adb shell dumpsys gfxinfo com.knoux.kxprivatevpn framestats > device-screenshots
 adb exec-out screencap -p > device-screenshots/launcher-welcome.png
 adb shell am force-stop com.knoux.kxprivatevpn
 adb shell am start -W -n com.knoux.kxprivatevpn/.MainActivity > device-screenshots/repeat-start.txt
-bash ./gradlew :app:connectedDebugAndroidTest
+adb shell wm size > device-screenshots/display-360.txt
+adb shell wm density >> device-screenshots/display-360.txt
+# Nexus 5: 1080px / (420dpi / 160) = 411.4dp. Keep actual device geometry in evidence.
+adb shell wm density 420
+adb shell wm size > device-screenshots/display-411.txt
+adb shell wm density >> device-screenshots/display-411.txt
+bash ./gradlew :app:connectedDebugAndroidTest -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true
 test_result=$?
 adb pull /sdcard/Android/data/com.knoux.kxprivatevpn/files/identity-evidence ./device-screenshots/
 capture_result=$?

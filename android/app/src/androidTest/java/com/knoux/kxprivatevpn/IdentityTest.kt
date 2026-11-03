@@ -101,6 +101,7 @@ class IdentityTest {
         }
         compose.onNodeWithText(arabicContext.getString(R.string.continue_label))
             .performScrollTo().assertIsDisplayed().performClick()
+        compose.waitForIdle()
         compose.onNodeWithText(arabicContext.getString(R.string.scope_notice)).assertIsDisplayed()
         compose.onNodeWithText(arabicContext.getString(R.string.close)).performClick()
         capture("06-ar-rtl-360-large-text")

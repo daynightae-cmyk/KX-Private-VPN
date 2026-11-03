@@ -137,7 +137,8 @@ fun IdentityExperience(
             if (disclosure) AlertDialog(
                 onDismissRequest = { disclosure = false },
                 title = { Text(stringResource(R.string.welcome)) },
-                text = { Text(stringResource(R.string.scope_notice)) },
+                text = { Text(stringResource(R.string.scope_notice),
+                    modifier = Modifier.verticalScroll(rememberScrollState())) },
                 confirmButton = { TextButton(onClick = { disclosure = false }) {
                     Text(stringResource(R.string.close))
                 } },
