@@ -15,6 +15,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildFeatures { compose = true }
+    bundle { language { enableSplit = false } }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -30,6 +31,9 @@ dependencies {
     implementation(libs.splashscreen)
     implementation(libs.datastore)
     implementation(libs.lifecycle)
+    implementation(libs.viewmodel)
+    implementation(libs.wireguard)
+    implementation(libs.zxing)
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.compose.test)

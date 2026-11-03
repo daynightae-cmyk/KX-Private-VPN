@@ -14,22 +14,25 @@ import org.junit.Test
 class StartupTest {
     @get:Rule val compose = createEmptyComposeRule()
 
-    @Test fun realLauncherRestoresWelcomeAcrossRecreationAndResume() {
+    @Test fun realLauncherRestoresDashboardAcrossRecreationAndResume() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        runBlocking { LaunchPreferences(context).markSeen() }
+        runBlocking {
+            LaunchPreferences(context).markSeen()
+            LaunchPreferences(context).completeOnboarding()
+        }
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
             compose.waitUntil(5000) {
-                compose.onAllNodes(androidx.compose.ui.test.hasTestTag("continue"))
+                compose.onAllNodes(androidx.compose.ui.test.hasTestTag("route-home"))
                     .fetchSemanticsNodes().isNotEmpty()
             }
-            compose.onNodeWithTag("continue").assertIsDisplayed()
+            compose.onNodeWithTag("route-home").assertIsDisplayed()
             scenario.recreate()
             compose.waitForIdle()
-            compose.onNodeWithTag("continue").assertIsDisplayed()
+            compose.onNodeWithTag("route-home").assertIsDisplayed()
             scenario.moveToState(Lifecycle.State.CREATED)
             scenario.moveToState(Lifecycle.State.RESUMED)
             compose.waitForIdle()
-            compose.onNodeWithTag("continue").assertIsDisplayed()
+            compose.onNodeWithTag("route-home").assertIsDisplayed()
         }
     }
 }

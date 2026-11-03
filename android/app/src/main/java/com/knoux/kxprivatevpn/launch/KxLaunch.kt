@@ -15,6 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
@@ -25,6 +28,13 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.activity.compose.BackHandler
+import android.content.res.Configuration
+import java.util.Locale
+import com.knoux.kxprivatevpn.features.ClientViewModel
+import com.knoux.kxprivatevpn.features.NativeClient
 import com.knoux.kxprivatevpn.R
 import com.knoux.kxprivatevpn.designsystem.Atmosphere
 import com.knoux.kxprivatevpn.designsystem.GlassAction
@@ -36,6 +46,22 @@ import kotlinx.coroutines.withTimeoutOrNull
 fun KxLaunch() {
     val context = LocalContext.current
     val preferences = remember { LaunchPreferences(context.applicationContext) }
+    val client: ClientViewModel = viewModel()
+    val state by client.state.collectAsStateWithLifecycle()
+    var stack by rememberSaveable { mutableStateOf(listOf("welcome")) }
+    var routingInitialized by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(state.loaded) {
+        if (state.loaded && !routingInitialized) {
+            if (state.settings.onboarded || state.snapshot.profiles.isNotEmpty()) stack = listOf("home")
+            routingInitialized = true
+        }
+    }
+    LaunchedEffect(state.settings.onboarded) {
+        if (state.settings.onboarded && stack.last() == "education") stack = listOf("home")
+    }
+    LaunchedEffect(state.importedId) {
+        if (state.importedId != null) { stack = listOf("home"); client.consumeImport() }
+    }
     var introFinished by rememberSaveable { mutableStateOf(false) }
     var initialRead by remember { mutableStateOf(false) }
     var error by rememberSaveable { mutableStateOf(false) }
@@ -55,16 +81,38 @@ fun KxLaunch() {
             catch (_: Exception) { error = true }
         }
     }
-    IdentityExperience(
-        ready = initialRead, finished = introFinished, reducedMotion = rememberReducedMotion(),
-        night = isSystemInDarkTheme(), saveError = error, onFinished = { introFinished = true },
-    )
+    val systemConfiguration = LocalConfiguration.current
+    val configuration = remember(systemConfiguration, state.settings.language) {
+        Configuration(systemConfiguration).apply {
+            if (state.settings.language != "system") {
+                val locale = Locale.forLanguageTag(state.settings.language)
+                setLocale(locale); setLayoutDirection(locale)
+            }
+        }
+    }
+    val localized = remember(context, configuration) { context.createConfigurationContext(configuration) }
+    val night = when (state.settings.theme) { "day" -> false; "night" -> true; else -> isSystemInDarkTheme() }
+    CompositionLocalProvider(LocalContext provides localized, LocalConfiguration provides configuration,
+        LocalLayoutDirection provides if (configuration.layoutDirection == 1) LayoutDirection.Rtl else LayoutDirection.Ltr) {
+        BackHandler(enabled = stack.size > 1 || state.busy) {
+            if (!state.busy && stack.size > 1) stack = stack.dropLast(1)
+        }
+        if (stack.last() == "welcome") IdentityExperience(
+            ready = initialRead, finished = introFinished, reducedMotion = rememberReducedMotion(),
+            night = night, saveError = error, onFinished = { introFinished = true },
+            onGetStarted = { stack = stack + "education" }, onImport = { stack = stack + "import" },
+        ) else NativeClient(stack.last(), state, client, night,
+            navigate = { stack = stack + it }, back = {
+                if (!state.busy) stack = if (stack.size > 1) stack.dropLast(1) else listOf("welcome")
+            })
+    }
 }
 
 @Composable
 fun IdentityExperience(
     ready: Boolean = true, finished: Boolean = false, reducedMotion: Boolean = false,
     night: Boolean = true, saveError: Boolean = false, onFinished: () -> Unit = {},
+    onGetStarted: (() -> Unit)? = null, onImport: (() -> Unit)? = null,
 ) {
     val progress = remember { Animatable(if (finished || reducedMotion) 1f else 0f) }
     val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -123,11 +171,12 @@ fun IdentityExperience(
                     Column(Modifier.fillMaxWidth().graphicsLayer { alpha = frame.welcome },
                         horizontalAlignment = Alignment.CenterHorizontally) {
                         Spacer(Modifier.height(28.dp))
-                        GlassAction(stringResource(R.string.continue_label), Modifier.testTag("continue")) {
-                            disclosure = true
+                        GlassAction(stringResource(if (onGetStarted == null) R.string.continue_label else R.string.get_started), Modifier.testTag("continue")) {
+                            if (onGetStarted != null) onGetStarted() else disclosure = true
                         }
                         Spacer(Modifier.height(12.dp))
-                        Text(stringResource(R.string.preview_notice), color = text, fontSize = 12.sp)
+                        if (onImport != null) GlassAction(stringResource(R.string.import_config), Modifier.testTag("welcome-import"), onImport)
+                        else Text(stringResource(R.string.preview_notice), color = text, fontSize = 12.sp)
                         if (saveError) Text(stringResource(R.string.save_error), color = text,
                             textAlign = TextAlign.Center, fontSize = 12.sp)
                         Spacer(Modifier.height(24.dp))
