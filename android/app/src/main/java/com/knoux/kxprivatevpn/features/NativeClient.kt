@@ -199,7 +199,7 @@ private fun ImportScreen(state: ClientState, model: ClientViewModel) {
         Button(onClick = { file.launch(arrayOf("*/*")) }, enabled = enabled,
             modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("import-file")) { Text(stringResource(R.string.import_file)) }
         Button(onClick = { qr.launch(arrayOf("image/*")) }, enabled = enabled,
-            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text(stringResource(R.string.import_qr)) }
+            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("import-qr")) { Text(stringResource(R.string.import_qr)) }
         OutlinedButton(onClick = {
             try {
                 val text = context.getSystemService(ClipboardManager::class.java).primaryClip
