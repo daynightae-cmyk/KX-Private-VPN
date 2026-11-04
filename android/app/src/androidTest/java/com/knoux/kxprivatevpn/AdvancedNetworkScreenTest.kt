@@ -7,11 +7,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -155,15 +155,16 @@ class AdvancedNetworkScreenTest {
             onDnsHosts = { hosts = it })
 
         compose.onNodeWithTag("adv-dns-toggle").performScrollTo().assertIsDisplayed().performClick()
-        compose.onNodeWithTag("adv-dns-input").assertIsDisplayed()
+        compose.onNodeWithTag("adv-dns-input").performScrollTo().assertIsDisplayed()
         compose.onNodeWithTag("adv-dns-input").performTextInput("junk.example")
-        compose.onNodeWithTag("adv-dns-error").assertIsDisplayed()
-        compose.onNodeWithTag("adv-dns-save").assertDisabled()
+        compose.onNodeWithTag("adv-dns-error").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("adv-dns-save").performScrollTo().assertDisabled()
         capture("31-advanced-dns-custom-expanded")
 
+        compose.onNodeWithTag("adv-dns-input").performScrollTo()
         compose.onNodeWithTag("adv-dns-input").performTextClearance()
         compose.onNodeWithTag("adv-dns-input").performTextInput("1.1.1.1, 2606:4700:4700::1111")
-        compose.onNodeWithTag("adv-dns-save").performClick()
+        compose.onNodeWithTag("adv-dns-save").performScrollTo().performClick()
         compose.waitForIdle()
         assertEquals(listOf("1.1.1.1", "2606:4700:4700::1111"), hosts)
     }
@@ -246,18 +247,12 @@ class AdvancedNetworkScreenTest {
         screen(state(), onMtu = { mtu = it })
 
         val slider = compose.onNodeWithTag("adv-mtu-slider").performScrollTo()
-        // A real drag, not a tap: this Material3 version fires onValueChangeFinished on a
-        // gesture end, so the drag must press, move and release on the track.
-        val trackWidth = slider.fetchSemanticsNode().boundsInRoot.width
-        slider.performTouchInput {
-            down(Offset(2f, center.y))
-            moveBy(Offset(trackWidth * 0.75f, 0f))
-            up()
-        }
+        // Material3 1.3.2 fires onValueChangeFinished on thumb drags and on the accessibility
+        // SetProgress action; a track tap only animates the value. Drive the commit path the
+        // same way TalkBack does, with a value that must snap onto the 10-byte grid.
+        slider.performSemanticsAction(SemanticsActions.SetProgress) { it(1313f) }
         compose.waitForIdle()
-        val value = mtu ?: error("Slider finished callback must report a value")
-        assertTrue("Snapped MTU $value inside range", value in 1280..1420)
-        assertEquals("Snapped onto the 10-byte grid", 0, value % 10)
+        assertEquals("Snapped onto the 10-byte grid", 1310, mtu)
     }
 
     @Test fun nightArabicLayoutCapturesRtlEvidence() {
