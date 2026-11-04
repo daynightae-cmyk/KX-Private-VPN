@@ -45,6 +45,26 @@
 - **Still required:** an owned WireGuard gateway/peer to prove end-to-end package traffic through
   and around the tunnel. API35 dialog-teardown renderer loss is unchanged.
 
+## TASK_07 — ADVANCED NETWORK IMPLEMENTED, MTU/DNS/KEEPALIVE FIELD PROOF DEFERRED (2026-11-04)
+
+- `AdvancedNetworkScreen` implements the owner reference structure: header/overflow, glass stack
+  hero, protocol cards, MTU slider, DNS mode (Profile/Custom/System), obfuscation and port-hopping
+  rows, keepalive slider, reset panel and honest notes.
+- Real config rebuild before `GoBackend.start`: `Interface.Builder.setMtu` for an override, custom
+  DNS validated as 1–3 numeric IPv4/IPv6 hosts via the WireGuard library's `InetAddresses.parse`,
+  SYSTEM mode emitting no DNS line, and a textual per-peer `PersistentKeepalive` rewrite (0 = off).
+  JVM tests assert the exact rebuilt bytes and that split-tunnel application lists survive the
+  `advanced.apply(split.apply(config))` chain.
+- Unavailable capabilities stay honest: OpenVPN/Automatic show "Unavailable", obfuscation and port
+  hopping are disabled switches with "not implemented in this build" copy — no fake toggles.
+- Verified: 68 JVM tests, API26 CI device run 61/61 (14 advanced screen tests, 6 store tests, real
+  device flow), lint 0 errors, captures 30–35 compared with reference
+  `07-advanced-network_5b3214f4.png`. Capture review found and fixed two real rendering defects
+  (zero-sized glyph canvases, inverted back chevron) and the final artifact re-verified them.
+- **Still required:** an owned WireGuard gateway/peer to prove MTU/DNS/keepalive effects on real
+  egress traffic. API35 dialog-teardown renderer loss is unchanged (same
+  `IdentityTest.arabicRtlLargeText360dp` failure, 21/61 reached).
+
 ## TASK_05 — SECURITY CENTER IMPLEMENTED, FIELD VERIFICATION LIMITED (2026-11-04)
 
 - `SecurityCenterScreen` implements all six owner-reference rows, but only with measured state:

@@ -17,12 +17,25 @@ You are the autonomous coding agent for the repository `K:\KX-Private-VPN` (`htt
 
 ## Current state (verified, do not regress)
 
-- `main` at `481ecf0` (merge commit). All branches preserved: `feature/visual-overhaul-and-missing-tasks` (`2ca10bb`), `codex/task-00-native-cinematic` (`4879c81`), `codex/native-onboarding-config` (`f68eb11`), `codex/task-02-vpn-transport` (`fb8f8b3`).
-- Build: `gradlew :app:compileDebugKotlin` PASS. Unit tests: 24 (0 failures). Lint: 0 errors. Assemble: PASS. AndroidTest compile: PASS.
-- VPN transport: real `GoBackend` (official WireGuard library `1.0.20260102`), `VpnService` merged into manifest, consent flow, state machine, real counters/handshake, `ConnectivityManager` link reader. `CONNECTED` only after backend confirms `UP`. 12 unit tests + 4 UI tests.
-- CI: build PASS on all PRs; API26 device PASS (19/19 tests); API35 FAIL (reproducible SwiftShader renderer loss around dialog teardown — environment blocker, documented).
-- Evidence: 13 `ci-*` directories preserved; `docs/evidence/VPN_TRANSPORT_20261104.md`, `FULL_AUDIT_20261104.md`, `CONTINUATION_CHECKPOINT_20261103.md`.
-- No owned WireGuard gateway exists → handshake/traffic deferred. No release signing/Play Console credentials.
+- `main` at `9cf4b64` (TASK_07 merge commit). All branches preserved:
+  `feature/visual-overhaul-and-missing-tasks` (`2ca10bb`), `codex/task-00-native-cinematic`
+  (`4879c81`), `codex/native-onboarding-config` (`f68eb11`), `codex/task-02-vpn-transport`
+  (`fb8f8b3`), `codex/task-06-split-tunneling` (`5cc503e`), `codex/task-07-advanced-network`
+  (`b1c8828`).
+- Build: `gradlew :app:compileDebugKotlin` PASS. Unit tests: 68 (0 failures). Lint: 0 errors.
+  Assemble: PASS. AndroidTest compile: PASS.
+- VPN transport: real `GoBackend` (official WireGuard library `1.0.20260102`), `VpnService` merged
+  into manifest, consent flow, state machine, real counters/handshake, `ConnectivityManager` link
+  reader. `CONNECTED` only after backend confirms `UP`.
+- TASK_05–07 merged: truthful Security Center (`5ce8002` → `4122b33`), real split tunneling
+  (`5cc503e` → `bae1bc6`), real advanced MTU/DNS/keepalive (`b1c8828` → `9cf4b64`).
+- CI: build PASS on all PRs; API26 device PASS (latest 61/61); API35 FAIL (reproducible
+  SwiftShader renderer loss around dialog teardown — environment blocker, documented).
+- Evidence: `docs/evidence/TASK_05.md`, `TASK_06.md`, `TASK_07.md`,
+  `VPN_TRANSPORT_20261104.md`, `FULL_AUDIT_20261104.md`.
+- No owned WireGuard gateway exists → handshake/traffic deferred. No release signing/Play Console
+  credentials.
+- Next: TASK_08 real local usage statistics (measured counters + monotonic durations, DataStore).
 
 ## Visual authority (non-negotiable)
 
