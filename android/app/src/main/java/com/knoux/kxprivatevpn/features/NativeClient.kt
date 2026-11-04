@@ -60,12 +60,21 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
     val consent = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == android.app.Activity.RESULT_OK) model.connectSelected() else model.consentDenied()
     }
+    val reconnectConsent = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == android.app.Activity.RESULT_OK) model.reconnectSelected()
+    }
     val foreground = if (night) Color(0xFFF7F3FF) else Color(0xFF171050)
     MaterialTheme(colorScheme = if (night) darkColorScheme(primary = Color(0xFF99EBFF))
         else lightColorScheme(primary = Color(0xFF4420B3))) {
         CompositionLocalProvider(LocalContentColor provides foreground) {
             if (route == "security") {
                 SecurityRoute(model, vpn, night, onBack = back, onSession = { navigate("session") })
+                return@CompositionLocalProvider
+            }
+            if (route == "split") {
+                SplitTunnelRoute(model, night, onBack = back) {
+                    model.prepareReconnect()?.let(reconnectConsent::launch)
+                }
                 return@CompositionLocalProvider
             }
             Box(Modifier.fillMaxSize()) {
@@ -132,6 +141,7 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                                 onDismissIssue = { model.dismissVpnIssue() })
                             GlassAction(stringResource(R.string.import_config), Modifier.testTag("open-import")) { navigate("import") }
                             listOf("security" to R.string.security_center,
+                                "split" to R.string.split_title,
                                 "servers" to R.string.servers, "storage" to R.string.storage,
                                 "cache" to R.string.cache_surgeon, "network" to R.string.network_doctor,
                                 "settings" to R.string.settings).forEach { (target, label) ->
