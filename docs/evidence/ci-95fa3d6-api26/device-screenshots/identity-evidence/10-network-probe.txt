@@ -1,0 +1,3 @@
+HTTP 200
+HTTPS HEAD elapsedMs=634
+No VPN claim

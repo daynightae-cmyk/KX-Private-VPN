@@ -1,0 +1,16 @@
+<resources>
+    <string name="network_doctor">Network Doctor</string>
+    <string name="network_scope">Live Android network capabilities and DNS addresses. VPN transport may belong to another app and is not proof of KX protection. HTTPS duration measures one request, not ICMP ping or VPN speed.</string>
+    <string name="network_present">An active Android network is present</string>
+    <string name="network_absent">No active Android network</string>
+    <string name="network_validated">Internet validated by Android: %1$s</string>
+    <string name="network_captive">Captive portal reported by Android: %1$s</string>
+    <string name="network_vpn">VPN transport reported by Android: %1$s</string>
+    <string name="network_dns">Configured DNS: %1$s</string>
+    <string name="answer_yes">Yes</string>
+    <string name="answer_no">No</string>
+    <string name="probe_url">HTTPS address · no credentials or query</string>
+    <string name="probe_consent">Send one HTTPS HEAD request to this address. Its operator can see my IP. Redirects are not followed.</string>
+    <string name="probe_run">Measure authorized HTTPS request</string>
+    <string name="probe_result">HTTP %1$d · request duration %2$d ms</string>
+</resources>

@@ -1,0 +1,14 @@
+<resources>
+    <style name="Theme.KX" parent="android:style/Theme.Material.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:colorAccent">#66EEFF</item>
+        <item name="android:windowBackground">#080B28</item>
+    </style>
+    <style name="Theme.KX.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#080B28</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/kx_brand</item>
+        <item name="postSplashScreenTheme">@style/Theme.KX</item>
+    </style>
+</resources>

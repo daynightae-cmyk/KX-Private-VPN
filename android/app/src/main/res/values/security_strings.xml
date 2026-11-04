@@ -1,0 +1,72 @@
+<resources>
+    <string name="security_center">Security Center</string>
+    <string name="security_hero_verified">Fully protected</string>
+    <string name="security_hero_verified_body">Tunnel, DNS and IPv6 routing are verified on this device.</string>
+    <string name="security_hero_unverified">Tunnel up · verification pending</string>
+    <string name="security_hero_unverified_body">The tunnel is active. Some protections could not be verified yet.</string>
+    <string name="security_hero_inactive">Not protected</string>
+    <string name="security_hero_inactive_body">No VPN tunnel is active. Your traffic currently uses the normal network.</string>
+    <string name="security_hero_connecting">Changing tunnel state</string>
+    <string name="security_hero_connecting_body">Android and the WireGuard backend are switching the tunnel. No result is shown before it is confirmed.</string>
+    <string name="security_hero_error">Not protected</string>
+    <string name="security_hero_error_body">The tunnel reported an error. Nothing is claimed as protected.</string>
+    <string name="security_hero_loading">Reading device state</string>
+    <string name="security_hero_loading_body">Waiting for Android and the WireGuard backend to report.</string>
+
+    <string name="security_kill_switch">Kill Switch</string>
+    <string name="security_kill_switch_body">Blocks internet if the VPN drops. Android owns this switch.</string>
+    <string name="security_dns">DNS Leak Protection</string>
+    <string name="security_dns_body">Uses only the DNS servers inside the active WireGuard tunnel.</string>
+    <string name="security_ipv6">IPv6 Protection</string>
+    <string name="security_ipv6_body">Requires ::/0 in tunnel routes so IPv6 cannot bypass.</string>
+    <string name="security_auto">Auto Reconnect</string>
+    <string name="security_auto_body">Not implemented. KX never claims automatic reconnection.</string>
+    <string name="security_tracker">Tracker Blocking</string>
+    <string name="security_tracker_body">Not implemented. No tracker or DNS filtering is active.</string>
+    <string name="security_always_on">Always-On VPN</string>
+    <string name="security_always_on_body">Android keeps the selected VPN active at all times.</string>
+
+    <string name="security_state_on">On</string>
+    <string name="security_state_off">Off</string>
+    <string name="security_state_unknown">Unknown</string>
+    <string name="security_state_unavailable">Unavailable</string>
+    <string name="security_state_awaiting">Awaiting tunnel</string>
+    <string name="security_state_other_app">Other app</string>
+    <string name="security_state_error">Error</string>
+
+    <string name="security_action_vpn_settings">Open Android VPN settings</string>
+    <string name="security_action_security_settings">Open Android security settings</string>
+    <string name="security_action_session">Session details</string>
+    <string name="security_guide">Android owns always-on VPN and lockdown. Open the system VPN settings to change them; KX never flips these silently.</string>
+
+    <string name="security_diagnostics_title">Measured on this device</string>
+    <string name="security_diag_state">Tunnel state</string>
+    <string name="security_diag_link">Android VPN network</string>
+    <string name="security_diag_link_present">Present · %1$s</string>
+    <string name="security_diag_link_absent">Absent</string>
+    <string name="security_diag_dns">Tunnel DNS</string>
+    <string name="security_diag_routes">Allowed routes</string>
+    <string name="security_diag_handshake">Latest handshake</string>
+    <string name="security_diag_lockdown">System lockdown</string>
+    <string name="security_diag_always_on">Always-on app</string>
+    <string name="security_diag_consent">VPN consent</string>
+    <string name="security_diag_measured_at">Measured at %1$s</string>
+    <string name="security_diag_none">—</string>
+    <string name="security_diag_this_app">This app</string>
+    <string name="security_diag_other_app">Another app</string>
+    <string name="security_diag_not_configured">Not configured</string>
+    <string name="security_diag_unknown">Could not be read</string>
+    <string name="security_diag_granted">Granted</string>
+    <string name="security_diag_not_granted">Not granted</string>
+    <string name="security_refresh">Recheck device state</string>
+
+    <string name="security_missing_title">Not yet verified</string>
+    <string name="security_missing_handshake">Handshake</string>
+    <string name="security_missing_link">Android link</string>
+    <string name="security_missing_dns">DNS</string>
+    <string name="security_missing_ipv6">IPv6 routes</string>
+
+    <string name="security_scope">Status is read from Android VpnService, Settings.Secure, ConnectivityManager and the WireGuard backend. Protection is never claimed without a measured tunnel.</string>
+    <string name="security_settings_failed">Android settings could not be opened on this device.</string>
+    <string name="security_issue_prefix">Tunnel issue: %1$s</string>
+</resources>
