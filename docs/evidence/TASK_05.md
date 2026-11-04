@@ -2,8 +2,9 @@
 
 **baseline_sha:** `481ecf0` (main after TASK_00–04 merge)
 **branch:** `codex/task-05-security-center`
-**implementation_sha:** pending first push
-**status:** IMPLEMENTED · LOCAL GATES PASS · CI/visual verification pending
+**implementation_sha:** `5ce8002` (final head; `4402751` initial feature, `16d9714`/`b8c4a4b` accessibility and truth fixes, `5ce8002` row proportions)
+**merged_sha:** `4122b33` (PR #4 merge commit)
+**status:** IMPLEMENTED · LOCAL GATES PASS · API26 CI VERIFIED · API35 BLOCKED (SAME RENDERER) · VISUAL STRUCTURE VERIFIED, HONEST STATES INTENTIONALLY DIFFER
 
 ## Scope implemented
 
@@ -78,9 +79,29 @@ Screenshots produced by instrumentation to `identity-evidence/` and collected by
 - `23-security-center-verified-night-rtl.png`
 - `24-security-center-device-light.png`
 
-**VISUAL_UNVERIFIED locally** because no local emulator is usable (hypervisor policy
-block). The CI API26 artifact is the screenshot gate; comparison notes are appended after
-download.
+### Visual comparison (CI API26 artifact, run `41873137461`)
+
+Reference `05-security-center_d0a1f09a.png` vs captures `20`–`24` (720px-wide API26 captures):
+
+| Aspect | Reference | Native capture | Verdict |
+|---|---|---|---|
+| Top brand | Large faceted KX shield + wordmark above title | Small brand roundel + KX beside title | Close; brand mark smaller than reference |
+| Title | Large centered "Security Center" | Large centered "Security Center" | Matches |
+| Hero | Luminous glass orb with shield, orbital ring, satellites, "Fully Protected" | Glass orb with shield, orbital ring, satellites, state-driven headline | Structure matches; honest state differs |
+| Hero state | Always "Fully Protected / On" | "Not protected" / "Fully protected" only with measured evidence | Intentional truth difference — required by mission |
+| Rows | Six compact glass rows, icon tile, title + green pill + switch | Six compact glass rows, icon tile, title + measured pill + switch | Matches structure and proportions |
+| Row states | All "On" | Unknown / Awaiting tunnel / Unavailable where unmeasured | Intentional truth difference |
+| Background | Lavender glass waves with bright rim light | Purple/lavender layered glass waves | Close; native slightly flatter |
+| RTL/night | Not supplied by owner | `23-...night-rtl.png` mirrors header, switches, rows correctly | Verified for RTL/night |
+| Scroll | Content fits tall reference artboard | 360dp scrolls; last row + diagnostics below fold | Acceptable responsive behavior |
+
+Remaining visual gaps (non-blocking, tracked): header brand mark is much smaller than the
+reference lockup; glass rim luminance is flatter than the reference render; the reference
+shows false "On" states that this task must not reproduce. `SecurityCenterTest` asserts the
+honest states, so changing them to match the reference pixels would violate the mission.
+
+**VISUAL_STRUCTURE_VERIFIED** against the owner reference; exact pixel parity is not claimed
+and the honest state differences are intentional.
 
 ## Known limits (honest)
 
@@ -95,7 +116,10 @@ download.
 
 ## PR / CI / merge
 
-- PR: pending
-- CI run: pending
-- merged_sha: pending
-- remote_main_sha: pending
+- PR: #4 `https://github.com/daynightae-cmyk/KX-Private-VPN/pull/4`
+- CI run: `41873137461` — build PASS; API26 device PASS (27 tests: 5 SecurityCenter + 1 SecurityFlow + 21 existing, 0 failures, 36.531s); API35 FAIL only on `IdentityTest.arabicRtlLargeText360dp` dialog-teardown renderer loss (known blocker)
+- Unit tests: 37/37 PASS (`SecurityPolicyTest` 13 new)
+- merged_sha: `4122b336` (PR #4 merge commit)
+- remote_main_sha: `4122b336` (verified in PR #4)
+- visual evidence: `identity-evidence/20`–`24` downloaded from run artifact `native-device-api-26`
+- next_task: TASK_06 — per-app split tunneling (`codex/task-06-split-tunneling` worktree active)

@@ -6,7 +6,8 @@
 | TASK_01 | TASK_00 branch | Welcome actions, education, persistence/navigation | Implemented; first-install/visual acceptance pending | Draft PR #2, dependent on #1 |
 | TASK_02–03 | TASK_00 branch | Honest disconnected Home, real saved-profile selection/removal, real WireGuard transport behind Android consent (official `GoBackend`) | 24 JVM tests pass incl. 12 controller cases; lint 0 errors; API26 CI device gate green; external handshake deferred (no gateway) | Draft PR #3, stacked on #2 |
 | TASK_04 | TASK_00 branch | Connected session screen with backend-confirmed counters/handshake and real `ConnectivityManager` VPN link | UI/RTL strings compile; no owned gateway for a real handshake yet | Draft PR #3 |
-| TASK_05–08 | Pending | NOT IMPLEMENTED | Not run | Not merged |
+| TASK_05 | TASK_00 branch (main `4122b33`) | Truthful Security Center: real lockdown/always-on from `Settings.Secure` + `GoBackend.isLockdownEnabled`, tunnel DNS/IPv6 route evidence, disabled unimplemented rows, Android settings intents | 37 JVM tests (13 new policy); API26 CI 27/27 instrumentation; lint 0 errors; visual comparison vs `05-security-center_d0a1f09a.png` documented; no gateway so field-level "Fully protected" deferred | Merged PR #4 (`5ce8002` → `4122b33`), CI run `41873137461` |
+| TASK_06–08 | Pending | NOT IMPLEMENTED | Not run | Not merged |
 | TASK_09 | TASK_00 branch | Keystore-encrypted file/manual/Clipboard/QR-image imports | API26 file/QR/manual/tamper/concurrency verified; camera/visual gaps | Draft PR #2 |
 | TASK_10 | TASK_00 branch | Persisted locale/theme, local account state | Implemented; new interactive preference test pending | Draft PR #2 |
 | TASK_11–12 | TASK_00 branch | Available repair navigation, basic StatFs/cache measurements | Full ten-tool dashboard and shared-media categories NOT IMPLEMENTED | Draft PR #2 |

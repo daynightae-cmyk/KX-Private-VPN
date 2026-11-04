@@ -29,6 +29,20 @@
   throughput. Without it, transport/release claims stay deferred. API35 headless rendering remains
   unstable around dialog teardown and is tracked separately.
 
+## TASK_05 — SECURITY CENTER IMPLEMENTED, FIELD VERIFICATION LIMITED (2026-11-04)
+
+- `SecurityCenterScreen` implements all six owner-reference rows, but only with measured state:
+  kill switch/always-on from `Settings.Secure` plus `GoBackend.isLockdownEnabled()`; DNS from the
+  active tunnel or `ConnectivityManager`; IPv6 from real `::/0` tunnel routes. Auto Reconnect and
+  Tracker Blocking are visibly **Unavailable** and disabled — no fake tracker list or reconnection.
+- Verified: 37 JVM tests (13 new), API26 CI device gate 27/27 instrumentation tests, lint 0 errors,
+  debug APK. Visual captures `20`–`24` match the owner reference structure (hero orb, six compact
+  glass rows, status pills, switches); honest discrepancies are intentional (ours shows
+  Unknown/Awaiting tunnel instead of false "On").
+- **Still required:** an owned WireGuard gateway to reach a field "Fully protected" state; the
+  verified state is exercised only in controlled UI tests. API35 dialog-teardown renderer loss is
+  unchanged.
+
 ## Environment repair update
 
 - D: SDK/build-tools/platforms verified; SDK licenses accepted by official sdkmanager; escaped ignored local SDK path fixed. Local builds/lint/JVM and instrumentation APK compilation pass. No unrelated SDK/cache removed.
