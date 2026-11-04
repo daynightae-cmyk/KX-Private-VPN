@@ -108,6 +108,9 @@ class VpnController(
         startMonitor()
     }
 
+    /** Official backend view of Android's system-wide lockdown. null is "could not read". */
+    suspend fun lockdownEnabled(): Boolean? = runCatching { gateway.isLockdownEnabled() }.getOrNull()
+
     fun reportNoProfile() {
         if (mutable.value.phase == VpnPhase.IDLE || mutable.value.phase == VpnPhase.ERROR) {
             mutable.value = VpnState(VpnPhase.ERROR, null, VpnIssue.NO_PROFILE)

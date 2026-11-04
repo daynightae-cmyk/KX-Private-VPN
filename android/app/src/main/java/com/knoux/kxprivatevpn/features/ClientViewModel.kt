@@ -127,6 +127,9 @@ class ClientViewModel(app: Application) : AndroidViewModel(app) {
     fun consentDenied() = vpn.reportConsentDenied()
     fun disconnectVpn() = vpn.disconnect()
     fun dismissVpnIssue() = vpn.clearIssue()
+
+    /** Real Android/WireGuard lockdown read for the Security Center; null means unknown. */
+    suspend fun lockdownEnabled(): Boolean? = vpn.lockdownEnabled()
     private suspend fun save(name: String, bytes: ByteArray) {
         val value = try { store.import(name, bytes) } finally { bytes.fill(0) }
         mutable.update { it.copy(snapshot = value, importedId = value.profiles.last().id) }

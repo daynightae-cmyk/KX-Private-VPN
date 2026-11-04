@@ -66,7 +66,7 @@ class VpnControllerTest {
 
         override suspend fun traffic(): VpnTraffic = traffic
         override suspend fun isUp(): Boolean = up
-        override suspend fun isLockdownEnabled(): Boolean = false
+        override suspend fun isLockdownEnabled(): Boolean? = false
     }
 
     private fun TestScope.controller(

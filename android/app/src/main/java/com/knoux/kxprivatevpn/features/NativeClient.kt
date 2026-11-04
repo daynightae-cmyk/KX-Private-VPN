@@ -64,6 +64,10 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
     MaterialTheme(colorScheme = if (night) darkColorScheme(primary = Color(0xFF99EBFF))
         else lightColorScheme(primary = Color(0xFF4420B3))) {
         CompositionLocalProvider(LocalContentColor provides foreground) {
+            if (route == "security") {
+                SecurityRoute(model, vpn, night, onBack = back, onSession = { navigate("session") })
+                return@CompositionLocalProvider
+            }
             Box(Modifier.fillMaxSize()) {
                 Atmosphere(night, 0f)
                 Column(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 20.dp)
@@ -127,8 +131,9 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                                 onSession = { navigate("session") },
                                 onDismissIssue = { model.dismissVpnIssue() })
                             GlassAction(stringResource(R.string.import_config), Modifier.testTag("open-import")) { navigate("import") }
-                            listOf("servers" to R.string.servers, "storage" to R.string.storage, "cache" to R.string.cache_surgeon,
-                                "network" to R.string.network_doctor,
+                            listOf("security" to R.string.security_center,
+                                "servers" to R.string.servers, "storage" to R.string.storage,
+                                "cache" to R.string.cache_surgeon, "network" to R.string.network_doctor,
                                 "settings" to R.string.settings).forEach { (target, label) ->
                                 OutlinedButton(onClick = { navigate(target) }, modifier = Modifier.fillMaxWidth()
                                     .heightIn(min = 52.dp).testTag("open-$target")) { Text(stringResource(label)) }

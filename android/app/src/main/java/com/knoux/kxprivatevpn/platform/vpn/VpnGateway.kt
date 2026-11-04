@@ -16,7 +16,9 @@ interface VpnGateway {
     suspend fun stop()
     suspend fun traffic(): VpnTraffic
     suspend fun isUp(): Boolean
-    suspend fun isLockdownEnabled(): Boolean
+
+    /** null means the platform could not be read; it must never be reported as "off". */
+    suspend fun isLockdownEnabled(): Boolean?
 }
 
 /**
@@ -65,11 +67,11 @@ class WireGuardVpnGateway(context: Context) : VpnGateway {
         }
     }
 
-    override suspend fun isLockdownEnabled(): Boolean = withContext(Dispatchers.IO) {
+    override suspend fun isLockdownEnabled(): Boolean? = withContext(Dispatchers.IO) {
         try {
             backend.isLockdownEnabled
         } catch (_: Exception) {
-            false
+            null
         }
     }
 

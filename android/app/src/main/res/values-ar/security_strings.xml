@@ -1,0 +1,76 @@
+<resources>
+    <string name="security_center">مركز الأمان</string>
+    <string name="security_hero_verified">محمي بالكامل</string>
+    <string name="security_hero_verified_body">تم التحقق من النفق وDNS وتوجيه IPv6 على هذا الجهاز.</string>
+    <string name="security_hero_unverified">النفق نشط · التحقق معلّق</string>
+    <string name="security_hero_unverified_body">النفق نشط، لكن بعض الحمايات لم يتم التحقق منها بعد.</string>
+    <string name="security_hero_inactive">غير محمي</string>
+    <string name="security_hero_inactive_body">لا يوجد نفق VPN نشط. حركة المرور بتاعتك بتستخدم الشبكة العادية دلوقتي.</string>
+    <string name="security_hero_connecting">جارٍ تغيير حالة النفق</string>
+    <string name="security_hero_connecting_body">أندرويد وخلفية WireGuard بيغيّروا حالة النفق. مفيش نتيجة هتظهر قبل ما تتأكد.</string>
+    <string name="security_hero_error">غير محمي</string>
+    <string name="security_hero_error_body">النفق رجّع خطأ. مفيش حماية بيتم الادعاء بيها.</string>
+    <string name="security_hero_loading">جارٍ قراءة حالة الجهاز</string>
+    <string name="security_hero_loading_body">بانتظار أندرويد وخلفية WireGuard يبلّغوا بالحالة.</string>
+
+    <string name="security_kill_switch">مفتاح الإيقاف</string>
+    <string name="security_kill_switch_body">بيقطع الإنترنت لو الـVPN فصل. أندرويد بيتحكم في ده من خلال التشغيل الدائم وقفل الاتصال.</string>
+    <string name="security_dns">حماية تسريب DNS</string>
+    <string name="security_dns_body">بتتحقق من خوادم DNS المطبقة جوّه نفق WireGuard النشط.</string>
+    <string name="security_ipv6">حماية IPv6</string>
+    <string name="security_ipv6_body">بتتحقق لما مسارات النفق تشمل ::/0، عشان IPv6 ما يهربش برّه النفق.</string>
+    <string name="security_auto">إعادة الاتصال التلقائي</string>
+    <string name="security_auto_body">مش متاح في النسخة دي. KX مش بيدّعي إنه بيعيد الاتصال تلقائيًا.</string>
+    <string name="security_tracker">حظر المتتبعات</string>
+    <string name="security_tracker_body">مش متاح في النسخة دي. مفيش فلترة DNS أو قائمة متتبعات شغالة.</string>
+    <string name="security_always_on">VPN دائم التشغيل</string>
+    <string name="security_always_on_body">أندرويد بيخلي الـVPN المختار شغال طول الوقت. بيتظبط من إعدادات النظام.</string>
+
+    <string name="security_state_on">مفعّل</string>
+    <string name="security_state_off">متوقف</string>
+    <string name="security_state_unknown">غير معروف</string>
+    <string name="security_state_unavailable">غير متاح</string>
+    <string name="security_state_awaiting">بانتظار النفق</string>
+    <string name="security_state_other_app">تطبيق آخر</string>
+    <string name="security_state_error">خطأ</string>
+
+    <string name="security_control_system">بيتحكم فيه إعدادات VPN في أندرويد</string>
+    <string name="security_control_tunnel">مقاس من النفق النشط</string>
+    <string name="security_control_unavailable">مش متاح في النسخة دي</string>
+
+    <string name="security_action_vpn_settings">افتح إعدادات VPN في أندرويد</string>
+    <string name="security_action_security_settings">افتح إعدادات الأمان في أندرويد</string>
+    <string name="security_action_session">تفاصيل الجلسة</string>
+    <string name="security_guide">أندرويد هو المسؤول عن التشغيل الدائم وقفل الاتصال. افتح إعدادات VPN في النظام عشان تغيّرها؛ KX مش بيغيّرها من غير علمك.</string>
+
+    <string name="security_diagnostics_title">مقاس على هذا الجهاز</string>
+    <string name="security_diag_state">حالة النفق</string>
+    <string name="security_diag_link">شبكة VPN في أندرويد</string>
+    <string name="security_diag_link_present">موجودة · %1$s</string>
+    <string name="security_diag_link_absent">غير موجودة</string>
+    <string name="security_diag_dns">DNS النفق</string>
+    <string name="security_diag_routes">المسارات المسموحة</string>
+    <string name="security_diag_handshake">آخر مصافحة</string>
+    <string name="security_diag_lockdown">قفل النظام</string>
+    <string name="security_diag_always_on">تطبيق التشغيل الدائم</string>
+    <string name="security_diag_consent">موافقة VPN</string>
+    <string name="security_diag_measured_at">قيس في %1$s</string>
+    <string name="security_diag_none">—</string>
+    <string name="security_diag_this_app">هذا التطبيق</string>
+    <string name="security_diag_other_app">تطبيق آخر</string>
+    <string name="security_diag_not_configured">غير مُهيّأ</string>
+    <string name="security_diag_unknown">مقدرناش نقراه</string>
+    <string name="security_diag_granted">تمت الموافقة</string>
+    <string name="security_diag_not_granted">لم تتم الموافقة</string>
+    <string name="security_refresh">إعادة فحص حالة الجهاز</string>
+
+    <string name="security_missing_title">لم يتم التحقق بعد</string>
+    <string name="security_missing_handshake">مصافحة</string>
+    <string name="security_missing_link">رابط أندرويد</string>
+    <string name="security_missing_dns">DNS</string>
+    <string name="security_missing_ipv6">مسارات IPv6</string>
+
+    <string name="security_scope">الحالة بتتقرا من VpnService وSettings.Secure وConnectivityManager وخلفية WireGuard في أندرويد. مفيش ادعاء حماية من غير نفق مقاس.</string>
+    <string name="security_settings_failed">مقدرناش نفتح إعدادات أندرويد على الجهاز ده.</string>
+    <string name="security_issue_prefix">مشكلة النفق: %1$s</string>
+</resources>
