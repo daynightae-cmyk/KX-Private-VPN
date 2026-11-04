@@ -274,6 +274,14 @@ private fun PreferenceScreen(state: ClientState, model: ClientViewModel) {
                 Text(stringResource(label))
             }
         }
+        Text(stringResource(R.string.pref_notifications_unavailable), fontSize = 12.sp,
+            modifier = Modifier.testTag("pref-notifications"))
+        OutlinedButton(onClick = { model.appearance("system", "system") }, enabled = !state.busy,
+            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("pref-reset")) {
+            Text(stringResource(R.string.pref_reset))
+        }
+        Text(stringResource(R.string.pref_reset_hint), fontSize = 11.sp)
+        Text(stringResource(R.string.pref_privacy), fontSize = 11.sp, modifier = Modifier.testTag("pref-privacy"))
     }
 }
 
