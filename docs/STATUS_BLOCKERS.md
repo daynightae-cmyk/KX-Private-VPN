@@ -45,6 +45,28 @@
 - **Still required:** an owned WireGuard gateway/peer to prove end-to-end package traffic through
   and around the tunnel. API35 dialog-teardown renderer loss is unchanged.
 
+## TASK_08 — REAL MEASURED STATISTICS IMPLEMENTED, EXTERNAL TRAFFIC RECONCILIATION DEFERRED (2026-11-05)
+
+- `StatisticsScreen` and the usage pipeline are merged. Only measured values are stored or shown:
+  WireGuard RX/TX counter deltas, monotonic session duration, profile/endpoint identity, and the
+  session's start day. No ping, privacy score, synthetic download or interpolated traffic is
+  produced. Unsupported reference cards are replaced by Sessions and measured Connection Time.
+- `UsageRecorder` samples `VpnState.session` transitions, writes a 15 s checkpoint, recovers a
+  process-death checkpoint once as `recovered`, discards zero-length checkpoints, and never records
+  a restored tunnel whose start is unknown. Clearing history deletes records + checkpoint atomically
+  and rebases the live session so pre-clear bytes/time cannot be re-added. Retention keeps the
+  newest 2,000 sessions.
+- Pure `UsageAggregator` provides 7/30/90/365-day windows, previous-window comparison, measured
+  average rates, per-server share and 7-day sparklines, and 13 weekly/13 monthly buckets. A session
+  crossing midnight counts on its start day (stated on screen).
+- Verified: 98 JVM tests (30 new), API26 CI device run 79/79 (10 screen, 7 store, 1 flow), lint 0
+  errors, captures `36`–`42` reviewed against `08-statistics_a6c474b9.png`. The clear dialog is
+  rendered in-screen so API 26 can capture it.
+- **Still required:** an owned WireGuard gateway/peer to reconcile recorded bytes/duration against
+  real external egress. API35 headless SwiftShader renderer loss at
+  `IdentityTest.arabicRtlLargeText360dp` is unchanged (21–22/79 reached). No release signing/Play
+  Console credentials.
+
 ## TASK_07 — ADVANCED NETWORK IMPLEMENTED, MTU/DNS/KEEPALIVE FIELD PROOF DEFERRED (2026-11-04)
 
 - `AdvancedNetworkScreen` implements the owner reference structure: header/overflow, glass stack

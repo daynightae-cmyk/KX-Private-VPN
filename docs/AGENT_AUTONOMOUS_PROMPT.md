@@ -17,25 +17,27 @@ You are the autonomous coding agent for the repository `K:\KX-Private-VPN` (`htt
 
 ## Current state (verified, do not regress)
 
-- `main` at `9cf4b64` (TASK_07 merge commit). All branches preserved:
+- `main` at `ecf9848` (TASK_08 merge commit). All branches preserved:
   `feature/visual-overhaul-and-missing-tasks` (`2ca10bb`), `codex/task-00-native-cinematic`
   (`4879c81`), `codex/native-onboarding-config` (`f68eb11`), `codex/task-02-vpn-transport`
   (`fb8f8b3`), `codex/task-06-split-tunneling` (`5cc503e`), `codex/task-07-advanced-network`
-  (`b1c8828`).
-- Build: `gradlew :app:compileDebugKotlin` PASS. Unit tests: 68 (0 failures). Lint: 0 errors.
+  (`b1c8828`), `codex/task-08-metrics` (`34989fa`).
+- Build: `gradlew :app:compileDebugKotlin` PASS. Unit tests: 98 (0 failures). Lint: 0 errors.
   Assemble: PASS. AndroidTest compile: PASS.
 - VPN transport: real `GoBackend` (official WireGuard library `1.0.20260102`), `VpnService` merged
   into manifest, consent flow, state machine, real counters/handshake, `ConnectivityManager` link
   reader. `CONNECTED` only after backend confirms `UP`.
-- TASK_05–07 merged: truthful Security Center (`5ce8002` → `4122b33`), real split tunneling
-  (`5cc503e` → `bae1bc6`), real advanced MTU/DNS/keepalive (`b1c8828` → `9cf4b64`).
-- CI: build PASS on all PRs; API26 device PASS (latest 61/61); API35 FAIL (reproducible
+- TASK_05–08 merged: truthful Security Center (`5ce8002` → `4122b33`), real split tunneling
+  (`5cc503e` → `bae1bc6`), real advanced MTU/DNS/keepalive (`b1c8828` → `9cf4b64`), real
+  measured usage statistics (`34989fa` → `ecf9848`).
+- CI: build PASS on all PRs; API26 device PASS (latest 79/79); API35 FAIL (reproducible
   SwiftShader renderer loss around dialog teardown — environment blocker, documented).
-- Evidence: `docs/evidence/TASK_05.md`, `TASK_06.md`, `TASK_07.md`,
+- Evidence: `docs/evidence/TASK_05.md`, `TASK_06.md`, `TASK_07.md`, `TASK_08.md`,
   `VPN_TRANSPORT_20261104.md`, `FULL_AUDIT_20261104.md`.
 - No owned WireGuard gateway exists → handshake/traffic deferred. No release signing/Play Console
   credentials.
-- Next: TASK_08 real local usage statistics (measured counters + monotonic durations, DataStore).
+- Next: TASK_09 secure config import polish (camera/QR visual fidelity against
+  `09-import-configuration_670a2aea.png`).
 
 ## Visual authority (non-negotiable)
 
@@ -181,7 +183,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 
 ## Current HEAD and branch state
 
-- `main`: `481ecf0` (merged)
+- `main`: `ecf9848` (merged)
 - `feature/visual-overhaul-and-missing-tasks`: `2ca10bb`
 - `codex/task-00-native-cinematic`: `4879c81`
 - `codex/native-onboarding-config`: `f68eb11`
@@ -191,6 +193,6 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 
 ## Start now
 
-Begin with TASK_05 (security truth center) on a new branch `codex/task-05-security-center` from `main`. Read the reference image `public/assets/aistudio/05-security-center_d0a1f09a.png`, derive the layout, implement real security diagnostics, test, verify, commit, push, open PR, wait for CI, merge when green, update ledger, then immediately begin TASK_06.
+Begin with TASK_09 (secure config import polish) on a new branch `codex/task-09-import-polish` from `main`. Read the reference image `public/assets/aistudio/09-import-configuration_670a2aea.png`, derive the layout, implement real import UX fidelity, test, verify, commit, push, open PR, wait for CI, merge when green, update ledger, then immediately begin TASK_10.
 
 Do not stop. Do not ask. Continue through all 22 tasks. Leave a continuation checkpoint if the session must end.
