@@ -14,17 +14,17 @@
     <string name="security_hero_loading_body">بانتظار أندرويد وخلفية WireGuard يبلّغوا بالحالة.</string>
 
     <string name="security_kill_switch">مفتاح الإيقاف</string>
-    <string name="security_kill_switch_body">بيقطع الإنترنت لو الـVPN فصل. أندرويد بيتحكم في ده من خلال التشغيل الدائم وقفل الاتصال.</string>
+    <string name="security_kill_switch_body">بيقطع الإنترنت لو الـVPN فصل. أندرويد مالك المفتاح ده.</string>
     <string name="security_dns">حماية تسريب DNS</string>
-    <string name="security_dns_body">بتتحقق من خوادم DNS المطبقة جوّه نفق WireGuard النشط.</string>
+    <string name="security_dns_body">بيستخدم خوادم DNS اللي جوّه نفق WireGuard النشط بس.</string>
     <string name="security_ipv6">حماية IPv6</string>
-    <string name="security_ipv6_body">بتتحقق لما مسارات النفق تشمل ::/0، عشان IPv6 ما يهربش برّه النفق.</string>
+    <string name="security_ipv6_body">بيتطلب ::/0 في مسارات النفق عشان IPv6 ما يهربش.</string>
     <string name="security_auto">إعادة الاتصال التلقائي</string>
-    <string name="security_auto_body">مش متاح في النسخة دي. KX مش بيدّعي إنه بيعيد الاتصال تلقائيًا.</string>
+    <string name="security_auto_body">مش متاح. KX مش بيدّعي إعادة اتصال تلقائي.</string>
     <string name="security_tracker">حظر المتتبعات</string>
-    <string name="security_tracker_body">مش متاح في النسخة دي. مفيش فلترة DNS أو قائمة متتبعات شغالة.</string>
+    <string name="security_tracker_body">مش متاح. مفيش فلترة متتبعات أو DNS شغالة.</string>
     <string name="security_always_on">VPN دائم التشغيل</string>
-    <string name="security_always_on_body">أندرويد بيخلي الـVPN المختار شغال طول الوقت. بيتظبط من إعدادات النظام.</string>
+    <string name="security_always_on_body">أندرويد بيخلي الـVPN المختار شغال طول الوقت.</string>
 
     <string name="security_state_on">مفعّل</string>
     <string name="security_state_off">متوقف</string>
@@ -33,10 +33,6 @@
     <string name="security_state_awaiting">بانتظار النفق</string>
     <string name="security_state_other_app">تطبيق آخر</string>
     <string name="security_state_error">خطأ</string>
-
-    <string name="security_control_system">بيتحكم فيه إعدادات VPN في أندرويد</string>
-    <string name="security_control_tunnel">مقاس من النفق النشط</string>
-    <string name="security_control_unavailable">مش متاح في النسخة دي</string>
 
     <string name="security_action_vpn_settings">افتح إعدادات VPN في أندرويد</string>
     <string name="security_action_security_settings">افتح إعدادات الأمان في أندرويد</string>

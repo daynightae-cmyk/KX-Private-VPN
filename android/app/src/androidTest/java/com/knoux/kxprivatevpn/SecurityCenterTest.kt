@@ -122,7 +122,6 @@ class SecurityCenterTest {
         compose.onNodeWithTag("security-row-dns-status")
             .assertTextEquals(text(R.string.security_state_awaiting))
         compose.onNodeWithTag("security-hero").assertIsDisplayed()
-        compose.onNodeWithTag("security-hero").performScrollTo()
         capture("20-security-center-disconnected-light")
     }
 
@@ -133,7 +132,6 @@ class SecurityCenterTest {
         assertEquals(ProtectionLevel.UNVERIFIED, state.assessment.protection)
         compose.onNodeWithTag("security-posture")
             .assertTextEquals(text(R.string.security_hero_unverified))
-        compose.onNodeWithTag("security-hero").performScrollTo()
         capture("21-security-center-connected-unverified-light")
     }
 
@@ -143,12 +141,11 @@ class SecurityCenterTest {
 
         assertEquals(ProtectionLevel.VERIFIED, state.assessment.protection)
         compose.onNodeWithTag("security-posture").assertTextEquals(text(R.string.security_hero_verified))
+        capture("22-security-center-verified-light")
         compose.onNodeWithTag("security-diag-dns").performScrollTo().assertTextEquals("10.7.0.1, fd00::1")
         compose.onNodeWithTag("security-diag-link").performScrollTo().assertTextEquals(
             text(R.string.security_diag_link_present).replace("%1\$s", "tun0"))
         compose.onNodeWithTag("security-open-session").performScrollTo().assertIsDisplayed()
-        compose.onNodeWithTag("security-hero").performScrollTo()
-        capture("22-security-center-verified-light")
     }
 
     @Test fun unimplementedControlsStayDisabledAndSwitchDoesNotFakeAToggle() {

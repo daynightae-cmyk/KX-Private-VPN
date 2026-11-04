@@ -181,7 +181,6 @@ fun SecurityCenterScreen(
                 body = stringResource(R.string.security_kill_switch_body),
                 status = state.assessment.killSwitch,
                 statusText = checkText(state.assessment.killSwitch),
-                controlNote = stringResource(R.string.security_control_system),
                 switchChecked = state.assessment.killSwitch == CheckStatus.ON,
                 switchEnabled = true,
                 switchAction = onOpenVpnSettings,
@@ -194,7 +193,6 @@ fun SecurityCenterScreen(
                 body = stringResource(R.string.security_dns_body),
                 status = state.assessment.dnsProtection,
                 statusText = checkText(state.assessment.dnsProtection),
-                controlNote = stringResource(R.string.security_control_tunnel),
                 switchChecked = state.assessment.dnsProtection == CheckStatus.ON,
                 switchEnabled = state.assessment.dnsProtection != CheckStatus.PENDING,
                 switchAction = null,
@@ -207,7 +205,6 @@ fun SecurityCenterScreen(
                 body = stringResource(R.string.security_ipv6_body),
                 status = state.assessment.ipv6Protection,
                 statusText = checkText(state.assessment.ipv6Protection),
-                controlNote = stringResource(R.string.security_control_tunnel),
                 switchChecked = state.assessment.ipv6Protection == CheckStatus.ON,
                 switchEnabled = state.assessment.ipv6Protection != CheckStatus.PENDING,
                 switchAction = null,
@@ -220,7 +217,6 @@ fun SecurityCenterScreen(
                 body = stringResource(R.string.security_auto_body),
                 status = CheckStatus.UNAVAILABLE,
                 statusText = checkText(CheckStatus.UNAVAILABLE),
-                controlNote = stringResource(R.string.security_control_unavailable),
                 switchChecked = false, switchEnabled = false, switchAction = null,
                 rowAction = null, testTag = "security-row-auto-reconnect",
             )
@@ -230,7 +226,6 @@ fun SecurityCenterScreen(
                 body = stringResource(R.string.security_tracker_body),
                 status = CheckStatus.UNAVAILABLE,
                 statusText = checkText(CheckStatus.UNAVAILABLE),
-                controlNote = stringResource(R.string.security_control_unavailable),
                 switchChecked = false, switchEnabled = false, switchAction = null,
                 rowAction = null, testTag = "security-row-tracker",
             )
@@ -240,7 +235,6 @@ fun SecurityCenterScreen(
                 body = stringResource(R.string.security_always_on_body),
                 status = state.assessment.alwaysOn,
                 statusText = alwaysOnText(state),
-                controlNote = stringResource(R.string.security_control_system),
                 switchChecked = state.assessment.alwaysOn == CheckStatus.ON,
                 switchEnabled = true,
                 switchAction = onOpenVpnSettings,
@@ -476,7 +470,6 @@ private fun SecurityRow(
     body: String,
     status: CheckStatus,
     statusText: String,
-    controlNote: String,
     switchChecked: Boolean,
     switchEnabled: Boolean,
     switchAction: (() -> Unit)?,
@@ -492,28 +485,21 @@ private fun SecurityRow(
             if (rowAction != null) Modifier.clickable(role = Role.Button,
                 onClickLabel = title, onClick = rowAction) else Modifier,
         ),
-        radius = 24.dp, contentPadding = PaddingValues(horizontal = 12.dp, vertical = 12.dp),
+        radius = 24.dp, contentPadding = PaddingValues(horizontal = 11.dp, vertical = 10.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             ShieldTile(glyph, available = !unavailable)
-            Spacer(Modifier.width(9.dp))
-            Box(Modifier.width(1.dp).height(38.dp)
-                .background(Color.White.copy(alpha = if (night) .18f else .55f)))
             Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(title, color = titleColor, fontSize = 15.5.sp, fontWeight = FontWeight.Bold,
                         modifier = Modifier.weight(1f, fill = false))
-                    Spacer(Modifier.width(6.dp))
+                    Spacer(Modifier.width(5.dp))
                     StatusPill(statusText, tone(status), night,
                         Modifier.testTag("$testTag-status"))
                 }
                 Spacer(Modifier.height(2.dp))
                 Text(body, color = muted, fontSize = 11.5.sp, lineHeight = 15.sp)
-                Text(
-                    controlNote, color = muted.copy(alpha = .78f), fontSize = 10.sp,
-                    lineHeight = 13.sp, modifier = Modifier.padding(top = 2.dp),
-                )
             }
             Spacer(Modifier.width(4.dp))
             GlassSwitch(
@@ -562,7 +548,7 @@ private fun StatusPill(text: String, tone: PillTone, night: Boolean, modifier: M
 
 @Composable
 private fun ShieldTile(glyph: SecurityGlyph, available: Boolean) {
-    Canvas(Modifier.size(45.dp)) {
+    Canvas(Modifier.size(42.dp)) {
         val w = size.width
         val h = size.height
         val shield = Path().apply {

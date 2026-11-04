@@ -14,17 +14,17 @@
     <string name="security_hero_loading_body">Waiting for Android and the WireGuard backend to report.</string>
 
     <string name="security_kill_switch">Kill Switch</string>
-    <string name="security_kill_switch_body">Blocks internet traffic if the VPN drops. Android owns this through always-on VPN and lockdown.</string>
+    <string name="security_kill_switch_body">Blocks internet if the VPN drops. Android owns this switch.</string>
     <string name="security_dns">DNS Leak Protection</string>
-    <string name="security_dns_body">Verified from the DNS servers applied inside your active WireGuard tunnel.</string>
+    <string name="security_dns_body">Uses only the DNS servers inside the active WireGuard tunnel.</string>
     <string name="security_ipv6">IPv6 Protection</string>
-    <string name="security_ipv6_body">Verified when the tunnel\'s allowed routes include ::/0, so IPv6 cannot bypass it.</string>
+    <string name="security_ipv6_body">Requires ::/0 in tunnel routes so IPv6 cannot bypass.</string>
     <string name="security_auto">Auto Reconnect</string>
-    <string name="security_auto_body">Not implemented in this build. KX does not claim to reconnect automatically.</string>
+    <string name="security_auto_body">Not implemented. KX never claims automatic reconnection.</string>
     <string name="security_tracker">Tracker Blocking</string>
-    <string name="security_tracker_body">Not implemented in this build. No DNS filtering or tracker list is active.</string>
+    <string name="security_tracker_body">Not implemented. No tracker or DNS filtering is active.</string>
     <string name="security_always_on">Always-On VPN</string>
-    <string name="security_always_on_body">Android keeps the selected VPN active at all times. Configured in system settings.</string>
+    <string name="security_always_on_body">Android keeps the selected VPN active at all times.</string>
 
     <string name="security_state_on">On</string>
     <string name="security_state_off">Off</string>
@@ -33,10 +33,6 @@
     <string name="security_state_awaiting">Awaiting tunnel</string>
     <string name="security_state_other_app">Other app</string>
     <string name="security_state_error">Error</string>
-
-    <string name="security_control_system">Controlled by Android VPN settings</string>
-    <string name="security_control_tunnel">Measured from the active tunnel</string>
-    <string name="security_control_unavailable">Not implemented in this build</string>
 
     <string name="security_action_vpn_settings">Open Android VPN settings</string>
     <string name="security_action_security_settings">Open Android security settings</string>
