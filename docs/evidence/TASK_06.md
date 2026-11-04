@@ -2,8 +2,8 @@
 
 **baseline_sha:** `ca5f92e` (main after TASK_05 merge and docs)
 **branch:** `codex/task-06-split-tunneling`
-**implementation_sha:** pending first push
-**status:** IMPLEMENTED · LOCAL GATES PASS · CI/visual verification pending
+**implementation_sha:** `4fd25f3` (final head; `1cd28fd` feature, `b77225c` fixed scope notes, `24a7c62` swipes, `4fd25f3` tagged list gestures)
+**status:** IMPLEMENTED · LOCAL GATES PASS · API26 CI VERIFIED (40/40) · API35 BLOCKED (SAME RENDERER) · VISUAL STRUCTURE VERIFIED
 
 ## Scope implemented
 
@@ -88,6 +88,22 @@ Expected captures from instrumentation (CI artifact): `25-split-tunnel-only-mode
 `28-split-tunnel-device-light`, `29-split-tunnel-ar-large-text`.
 Comparison notes are appended after the CI API26 artifact is downloaded.
 
+### Visual comparison (CI API26 artifact, run `41888802503`)
+
+| Aspect | Reference | Native capture | Verdict |
+|---|---|---|---|
+| Header | Shield + KX wordmark, back button | Roundel + KX, back button | Close; brand mark smaller (same gap as TASK_05) |
+| Title | Large centered "Split Tunneling" | Same | Matches |
+| Hero | Glass orb with split routing ribbons, shield + crossed-eye badges, description on the right | Glass orb with two routing ribbons, shield/bypass badges, description on the right | Structure matches |
+| Protocol/mode | "Bypass VPN" / "Only through VPN" segmented control, selected pill violet | Same segmented control, same selected styling | Matches |
+| Search | Rounded search field with glyph | Same | Matches |
+| App rows | Icon, name, per-app status + switch | Real PackageManager icons (fallback letter tile offline), status + switch | Matches; reference shows 6 sample apps, capture shows Android's real list |
+| Bottom summary | "6 apps · 3 through VPN · 3 bypassing" pill | Same three-part pill with measured counts | Matches |
+| Disconnected honesty | Reference implies a working tunnel | Capture 28 states "No apps selected. Until you pick one, the tunnel routes every app." and never claims applied routing | Intentional truth difference |
+| RTL/night | Not supplied | Capture 27: mirrored header, selector, switches, summary | Verified |
+| Large text | Not supplied | Capture 29 at 1.6× Arabic: rows, notes and summary all reachable | Verified |
+| Notes | Not in reference | Three scope notes fixed under the list (own addition, always visible) | Kept for honesty |
+
 ## Known limits (honest)
 
 - No owned WireGuard gateway/peer, so end-to-end in/out package traffic cannot be verified here.
@@ -100,8 +116,10 @@ Comparison notes are appended after the CI API26 artifact is downloaded.
 
 ## PR / CI / merge
 
-- PR: pending
-- CI run: pending
+- PR: #5 `https://github.com/daynightae-cmyk/KX-Private-VPN/pull/5`
+- CI run: `41888802503` (head `4fd25f3`) — build PASS; API26 device PASS (40 tests, 0 failures, 36.392s); API35 FAIL only on `IdentityTest.arabicRtlLargeText360dp` dialog-teardown renderer loss (known blocker). Earlier runs on `1cd28fd`/`b77225c`/`24a7c62`/`24a7c62` documented the two device-found test defects and their fixes.
+- Unit tests: 55/55 PASS (14 new policy tests, 4 new controller tests)
+- Visual evidence: captures `25`–`29` downloaded from `native-device-api-26` artifact
 - merged_sha: pending
 - remote_main_sha: pending
-- next_task: TASK_07 — advanced network settings (DNS/MTU/transport), after merge.
+- next_task: TASK_07 — advanced network configuration (MTU/DNS/keepalive), after merge.
