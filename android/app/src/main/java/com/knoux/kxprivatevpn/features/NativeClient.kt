@@ -83,6 +83,12 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                 }
                 return@CompositionLocalProvider
             }
+            if (route == "stats") {
+                StatisticsRoute(model, night, onBack = back, onNavigate = { target ->
+                    if (target == "home") back() else navigate(target)
+                })
+                return@CompositionLocalProvider
+            }
             Box(Modifier.fillMaxSize()) {
                 Atmosphere(night, 0f)
                 Column(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 20.dp)
@@ -149,6 +155,7 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                             listOf("security" to R.string.security_center,
                                 "split" to R.string.split_title,
                                 "advanced" to R.string.adv_title,
+                                "stats" to R.string.stats_title,
                                 "servers" to R.string.servers, "storage" to R.string.storage,
                                 "cache" to R.string.cache_surgeon, "network" to R.string.network_doctor,
                                 "settings" to R.string.settings).forEach { (target, label) ->
