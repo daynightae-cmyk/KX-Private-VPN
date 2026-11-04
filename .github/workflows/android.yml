@@ -70,4 +70,6 @@ jobs:
           name: native-device-api-${{ matrix.api }}
           path: |
             android/app/build/reports/androidTests
+            android/app/build/outputs/androidTest-results
+            android/app/build/test-results
             android/device-screenshots
