@@ -148,20 +148,6 @@ class StatisticsScreenTest {
         }
     }
 
-    /**
-     * Dialogs create a second Compose root, and Compose cannot capture a dialog below API 28
-     * ("Cannot currently capture dialogs on API lower than 28"). The platform screenshot includes
-     * every window, so use it for dialog evidence on the API 26 gate.
-     */
-    private fun captureScreen(name: String) {
-        compose.waitForIdle()
-        val folder = File(context.getExternalFilesDir(null), "identity-evidence").apply { mkdirs() }
-        val bitmap = InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()
-        File(folder, "$name.png").outputStream().use { stream ->
-            check(bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream))
-        }
-    }
-
     @Test fun emptyHistoryShowsNoSessionsInsteadOfInventedNumbers() {
         screen(state())
 
@@ -283,7 +269,7 @@ class StatisticsScreenTest {
         compose.onNodeWithTag("stats-menu").performClick()
         compose.onNodeWithTag("stats-clear-dialog").assertIsDisplayed()
         compose.onNodeWithText(text(R.string.stats_clear_title)).assertIsDisplayed()
-        captureScreen("38-statistics-clear-dialog")
+        capture("38-statistics-clear-dialog")
 
         compose.onNodeWithTag("stats-clear-cancel").performClick()
         compose.waitForIdle()

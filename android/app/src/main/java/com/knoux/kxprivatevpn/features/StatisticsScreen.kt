@@ -2,6 +2,7 @@ package com.knoux.kxprivatevpn.features
 
 import android.content.Context
 import android.text.format.Formatter
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -12,7 +13,6 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -37,6 +37,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
@@ -177,7 +178,7 @@ fun StatisticsScreen(
             StatsBottomBar(night, muted, titleColor, accent, onNavigate)
         }
         if (state.confirmClear) {
-            ClearHistoryDialog(state, onDismissClear, onConfirmClear)
+            ClearHistoryDialog(night, state, onDismissClear, onConfirmClear)
         }
     }
 }
@@ -969,28 +970,48 @@ private fun Banner(night: Boolean, text: String, modifier: Modifier = Modifier) 
 
 @Composable
 private fun ClearHistoryDialog(
+    night: Boolean,
     state: StatisticsUiState,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
 ) {
-    AlertDialog(
-        onDismissRequest = { if (!state.clearing) onDismiss() },
-        modifier = Modifier.testTag("stats-clear-dialog"),
-        title = { Text(stringResource(R.string.stats_clear_title)) },
-        text = { Text(stringResource(R.string.stats_clear_body)) },
-        confirmButton = {
-            TextButton(onClick = onConfirm, enabled = !state.clearing,
-                modifier = Modifier.testTag("stats-clear-confirm")) {
-                Text(stringResource(if (state.clearing) R.string.stats_clearing else R.string.stats_clear_confirm))
+    val title = stringResource(R.string.stats_clear_title)
+    // Rendered inside the screen instead of a separate dialog window: Compose cannot capture
+    // dialog windows below API 28, and the in-screen modal keeps dialog evidence capturable.
+    BackHandler(enabled = !state.clearing) { onDismiss() }
+    Box(
+        Modifier.fillMaxSize().background(Color(0x66000000))
+            .semantics { paneTitle = title }
+            .testTag("stats-clear-dialog"),
+        contentAlignment = Alignment.Center,
+    ) {
+        GlassSurface(
+            night, Modifier.padding(horizontal = 28.dp), radius = 28.dp,
+            contentPadding = PaddingValues(22.dp),
+        ) {
+            Text(title, color = if (night) Color(0xFFF6F1FF) else Color(0xFF171050),
+                fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(10.dp))
+            Text(
+                stringResource(R.string.stats_clear_body),
+                color = if (night) Color(0xFFC8C5E9) else Color(0xFF4B477F),
+                fontSize = 13.sp, lineHeight = 19.sp,
+            )
+            Spacer(Modifier.height(14.dp))
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                TextButton(onClick = onDismiss, enabled = !state.clearing,
+                    modifier = Modifier.heightIn(min = 48.dp).testTag("stats-clear-cancel")) {
+                    Text(stringResource(R.string.stats_clear_cancel))
+                }
+                TextButton(onClick = onConfirm, enabled = !state.clearing,
+                    modifier = Modifier.heightIn(min = 48.dp).testTag("stats-clear-confirm")) {
+                    Text(stringResource(
+                        if (state.clearing) R.string.stats_clearing else R.string.stats_clear_confirm,
+                    ))
+                }
             }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss, enabled = !state.clearing,
-                modifier = Modifier.testTag("stats-clear-cancel")) {
-                Text(stringResource(R.string.stats_clear_cancel))
-            }
-        },
-    )
+        }
+    }
 }
 
 @Composable
