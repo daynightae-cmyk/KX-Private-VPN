@@ -17,26 +17,26 @@ You are the autonomous coding agent for the repository `K:\KX-Private-VPN` (`htt
 
 ## Current state (verified, do not regress)
 
-- `main` at `d34a083` (TASK_09 merge commit). All branches preserved:
+- `main` at `4b6a3e7` (TASK_10 merge commit). All branches preserved:
   `feature/visual-overhaul-and-missing-tasks` (`2ca10bb`), `codex/task-00-native-cinematic`
   (`4879c81`), `codex/native-onboarding-config` (`f68eb11`), `codex/task-02-vpn-transport`
   (`fb8f8b3`), `codex/task-06-split-tunneling` (`5cc503e`), `codex/task-07-advanced-network`
-  (`b1c8828`), `codex/task-08-metrics` (`34989fa`), `codex/task-09-import-polish` (`cd6d5c7`).
+  (`b1c8828`), `codex/task-08-metrics` (`34989fa`), `codex/task-09-import-polish` (`cd6d5c7`),
+  `codex/task-10-profile-preferences` (`2f5e8e2`).
 - Build: `gradlew :app:compileDebugKotlin` PASS. Unit tests: 98 (0 failures). Lint: 0 errors.
   Assemble: PASS. AndroidTest compile: PASS.
 - VPN transport: real `GoBackend` (official WireGuard library `1.0.20260102`), `VpnService` merged
   into manifest, consent flow, state machine, real counters/handshake, `ConnectivityManager` link
   reader. `CONNECTED` only after backend confirms `UP`.
-- TASK_05–09 merged: truthful Security Center, real split tunneling, real advanced MTU/DNS/
-  keepalive, real measured usage statistics, secure config import (Keystore, strict validation,
-  SAF/QR/clipboard/manual, FLAG_SECURE).
+- TASK_05–10 merged: truthful Security Center, real split tunneling, real advanced MTU/DNS/
+  keepalive, real measured usage statistics, secure config import, profile/preference controls.
 - CI: build PASS on all PRs; API26 device PASS (latest 79/79); API35 FAIL (reproducible
   SwiftShader renderer loss around dialog teardown — environment blocker, documented).
-- Evidence: `docs/evidence/TASK_05.md` .. `TASK_09.md`, `VPN_TRANSPORT_20261104.md`,
+- Evidence: `docs/evidence/TASK_05.md` .. `TASK_10.md`, `VPN_TRANSPORT_20261104.md`,
   `FULL_AUDIT_20261104.md`.
 - No owned WireGuard gateway exists → handshake/traffic deferred. No release signing/Play Console
-  credentials. Image-reading tooling broken this cycle → visual fidelity unverified for TASK_09.
-- Next: TASK_10 profile/preferences (persisted locale/theme, local account state).
+  credentials. Image-reading tooling broken this cycle → visual fidelity unverified for TASK_09/10.
+- Next: TASK_11 Repair Lab dashboard (real tools list + navigation).
 
 ## Visual authority (non-negotiable)
 
@@ -182,7 +182,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 
 ## Current HEAD and branch state
 
-- `main`: `d34a083` (merged)
+- `main`: `4b6a3e7` (merged)
 - `feature/visual-overhaul-and-missing-tasks`: `2ca10bb`
 - `codex/task-00-native-cinematic`: `4879c81`
 - `codex/native-onboarding-config`: `f68eb11`

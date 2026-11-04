@@ -45,6 +45,18 @@
 - **Still required:** an owned WireGuard gateway/peer to prove end-to-end package traffic through
   and around the tunnel. API35 dialog-teardown renderer loss is unchanged.
 
+## TASK_10 — PROFILE/PREFERENCES FUNCTIONALLY COMPLETE, VISUAL FIDELITY UNVERIFIED (2026-11-05)
+
+- PreferenceScreen now exposes honest controls: language/theme selection (existing, persisted),
+  an explicit "notifications unavailable" row (no POST_NOTIFICATIONS permission declared in this
+  build), a reset-to-system-defaults action, and a privacy note (Keystore encryption, no backup,
+  no account, no analytics).
+- Verified: 98 JVM tests, API26 device 79/79, lint 0 errors. ClientFlowTest verifies language/theme
+  persistence across activity recreation.
+- **Still required:** visual fidelity against `10-profile-settings_75031956.png` not re-verified
+  this cycle (image tooling broken). POST_NOTIFICATIONS permission and notification channels remain
+  deferred (no FGS notification on API 33+). API35 renderer loss unchanged.
+
 ## TASK_09 — SECURE CONFIG IMPORT FUNCTIONALLY COMPLETE, VISUAL FIDELITY UNVERIFIED (2026-11-05)
 
 - Import stack (Keystore AES-GCM ProfileStore, strict ConfigValidator, SAF file, QR image via
