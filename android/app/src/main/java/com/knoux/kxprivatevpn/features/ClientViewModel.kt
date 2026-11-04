@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.net.VpnService
+import android.os.SystemClock
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.zxing.BinaryBitmap
@@ -12,10 +13,14 @@ import com.google.zxing.MultiFormatReader
 import com.google.zxing.RGBLuminanceSource
 import com.google.zxing.common.HybridBinarizer
 import com.knoux.kxprivatevpn.data.config.*
+import com.knoux.kxprivatevpn.data.stats.UsageStatsStore
 import com.knoux.kxprivatevpn.launch.LaunchPreferences
 import com.knoux.kxprivatevpn.launch.UiPreferences
 import com.knoux.kxprivatevpn.platform.apps.InstalledApp
 import com.knoux.kxprivatevpn.platform.apps.InstalledApps
+import com.knoux.kxprivatevpn.platform.usage.StatsRange
+import com.knoux.kxprivatevpn.platform.usage.UsageAggregator
+import com.knoux.kxprivatevpn.platform.usage.UsageRecorder
 import com.knoux.kxprivatevpn.platform.vpn.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -63,6 +68,14 @@ class ClientViewModel(app: Application) : AndroidViewModel(app) {
     private val advancedMutable = MutableStateFlow(AdvancedNetworkUiState())
     val advancedState: StateFlow<AdvancedNetworkUiState> = advancedMutable.asStateFlow()
     private var appliedAdvanced: AdvancedNetworkSettings? = null
+    private val usageStore = UsageStatsStore(app)
+    private val statsMutable = MutableStateFlow(StatisticsUiState())
+    val statsState: StateFlow<StatisticsUiState> = statsMutable.asStateFlow()
+    private val usageRecorder = UsageRecorder(
+        sink = usageStore,
+        elapsedMillis = SystemClock::elapsedRealtime,
+        onChanged = { reloadStats() },
+    )
     init {
         reload()
         viewModelScope.launch {
@@ -75,6 +88,9 @@ class ClientViewModel(app: Application) : AndroidViewModel(app) {
                     vpn.restore(selected)
                 }
             }
+            // Finish an interrupted checkpoint before live collection can overwrite it.
+            usageRecorder.recoverCheckpoint()
+            if (statsMutable.value.loading) reloadStats()
             var previousPhase: VpnPhase? = null
             vpn.state.collect { value ->
                 try {
@@ -100,6 +116,9 @@ class ClientViewModel(app: Application) : AndroidViewModel(app) {
                     captureApplied = value.phase == VpnPhase.CONNECTING &&
                         previousPhase != VpnPhase.CONNECTING,
                 )
+                usageRecorder.onVpnState(value)
+                // Surface a commit/checkpoint failure on the statistics screen immediately.
+                statsMutable.update { it.copy(saveFailed = usageRecorder.saveFailed.value) }
                 previousPhase = value.phase
             }
         }
@@ -398,6 +417,90 @@ class ClientViewModel(app: Application) : AndroidViewModel(app) {
         } catch (_: Exception) {
             // An unreadable profile only means "no baseline numbers"; settings still load.
             AdvancedProfileBaseline(exists = true)
+        }
+    }
+
+    /** Reloads the measured session history; loading is shown only for an explicit refresh. */
+    fun refreshStats() {
+        if (statsMutable.value.clearing) return
+        viewModelScope.launch {
+            statsMutable.update { it.copy(loading = true, loadFailed = false) }
+            reloadStats()
+        }
+    }
+
+    private suspend fun reloadStats() {
+        try {
+            val stored = usageStore.load()
+            val range = statsMutable.value.range
+            statsMutable.update {
+                it.copy(
+                    loading = false,
+                    loadFailed = false,
+                    saveFailed = usageRecorder.saveFailed.value,
+                    records = stored.records,
+                    summary = UsageAggregator.summarize(
+                        stored.records, range, System.currentTimeMillis(),
+                    ),
+                )
+            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            statsMutable.update { it.copy(loading = false, loadFailed = true) }
+        }
+    }
+
+    /** Recomputes the visible window from the already-loaded records; no new storage read. */
+    fun selectStatsRange(range: StatsRange) {
+        val current = statsMutable.value
+        if (current.loading || current.clearing) return
+        val now = System.currentTimeMillis()
+        statsMutable.update {
+            it.copy(range = range, summary = UsageAggregator.summarize(it.records, range, now))
+        }
+    }
+
+    fun openClearStats() {
+        if (!statsMutable.value.clearing) {
+            statsMutable.update { it.copy(confirmClear = true, clearFailed = false) }
+        }
+    }
+
+    fun dismissClearStats() {
+        if (!statsMutable.value.clearing) statsMutable.update { it.copy(confirmClear = false) }
+    }
+
+    /**
+     * Deletes the stored history, then rebases a live session so only time and bytes measured
+     * after the clear can be recorded. The live tunnel itself is never touched.
+     */
+    fun confirmClearStats() {
+        val current = statsMutable.value
+        if (current.clearing) return
+        statsMutable.update { it.copy(clearing = true, clearFailed = false) }
+        viewModelScope.launch {
+            try {
+                usageStore.clear()
+                usageRecorder.onHistoryCleared()
+                val empty = UsageAggregator.summarize(
+                    emptyList(), current.range, System.currentTimeMillis(),
+                )
+                statsMutable.update {
+                    it.copy(
+                        clearing = false,
+                        confirmClear = false,
+                        clearFailed = false,
+                        records = emptyList(),
+                        summary = empty,
+                        saveFailed = usageRecorder.saveFailed.value,
+                    )
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                statsMutable.update { it.copy(clearing = false, clearFailed = true) }
+            }
         }
     }
 
