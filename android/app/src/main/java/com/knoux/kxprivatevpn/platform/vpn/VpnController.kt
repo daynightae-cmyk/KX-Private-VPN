@@ -28,6 +28,11 @@ class VpnController(
     private val scope: CoroutineScope,
     private val gateway: VpnGateway,
     private val loadConfig: suspend (String) -> ByteArray?,
+    /**
+     * Applies device-owned routing rules (per-app split tunneling) to the parsed profile
+     * right before the backend sees it. Kept as a seam so the state machine stays testable.
+     */
+    private val adjustConfig: suspend (Config) -> Config = { it },
     private val io: CoroutineDispatcher = Dispatchers.IO,
     private val now: () -> Long = System::currentTimeMillis,
 ) {
@@ -64,6 +69,30 @@ class VpnController(
             } catch (e: Exception) {
                 fail(mapIssue(e))
             }
+        }
+    }
+
+    /**
+     * Stops the measured tunnel and starts it again with the current persisted routing rules.
+     * Only valid while CONNECTED; a consent revocation surfaces as AUTHORIZATION, never as a
+     * silent success. The UI calls this only after it has shown the saved-changes banner.
+     */
+    fun reconnect(profile: Profile) {
+        if (mutable.value.phase != VpnPhase.CONNECTED) return
+        monitoring?.cancel()
+        val current = mutable.value.session
+        mutable.value = VpnState(VpnPhase.DISCONNECTING, current)
+        scope.launch(io) {
+            try {
+                gateway.stop()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                mutable.value = VpnState(VpnPhase.ERROR, current, VpnIssue.STOP_FAILED)
+                return@launch
+            }
+            mutable.value = VpnState()
+            connect(profile)
         }
     }
 
@@ -164,7 +193,7 @@ class VpnController(
     private suspend fun read(profileId: String): Config {
         val bytes = loadConfig(profileId) ?: throw ConfigUnavailable()
         return try {
-            ConfigValidator.parse(bytes)
+            adjustConfig(ConfigValidator.parse(bytes))
         } finally {
             bytes.fill(0)
         }

@@ -1,6 +1,10 @@
 package com.knoux.kxprivatevpn
 
 import com.knoux.kxprivatevpn.data.config.Profile
+import com.knoux.kxprivatevpn.platform.vpn.SplitTunnelConfig
+import com.knoux.kxprivatevpn.platform.vpn.SplitTunnelMode
+import com.knoux.kxprivatevpn.platform.vpn.SplitTunnelPolicy
+import com.knoux.kxprivatevpn.platform.vpn.SplitTunnelSelection
 import com.knoux.kxprivatevpn.platform.vpn.VpnController
 import com.knoux.kxprivatevpn.platform.vpn.VpnGateway
 import com.knoux.kxprivatevpn.platform.vpn.VpnIssue
@@ -72,13 +76,22 @@ class VpnControllerTest {
     private fun TestScope.controller(
         gateway: VpnGateway,
         config: ByteArray? = validConfig.toByteArray(),
+        adjustConfig: suspend (Config) -> Config = { it },
     ) = VpnController(
         scope = backgroundScope,
         gateway = gateway,
-        loadConfig = { config },
+        // The controller owns and zeroes the returned bytes, like the real store's fresh array.
+        loadConfig = { config?.copyOf() },
+        adjustConfig = adjustConfig,
         io = StandardTestDispatcher(testScheduler),
         now = { startedAt },
     )
+
+    private fun splitAdjuster(packages: () -> Set<String>): suspend (Config) -> Config = { config ->
+        val selected = packages()
+        SplitTunnelConfig.apply(config, SplitTunnelPolicy.plan(
+            SplitTunnelSelection(SplitTunnelMode.ONLY_VPN, selected), selected))
+    }
 
     @Test fun connectPublishesOnlyBackendConfirmedSession() = runTest {
         val gateway = FakeGateway().apply { traffic = VpnTraffic(120, 80, 5_000) }
@@ -251,6 +264,66 @@ class VpnControllerTest {
         runCurrent()
 
         assertEquals(VpnPhase.CONNECTED, controller.state.value.phase)
+        assertEquals(1, gateway.startCalls)
+        assertTrue(gateway.up)
+    }
+
+    @Test fun connectSendsTheDeviceRoutingRulesToTheBackend() = runTest {
+        val gateway = FakeGateway()
+        val controller = controller(gateway,
+            adjustConfig = splitAdjuster { setOf("com.example.browser") })
+
+        controller.connect(profile)
+        runCurrent()
+
+        assertEquals(VpnPhase.CONNECTED, controller.state.value.phase)
+        assertEquals(setOf("com.example.browser"),
+            gateway.lastConfig?.`interface`?.includedApplications)
+        assertTrue(gateway.lastConfig?.`interface`?.excludedApplications.isNullOrEmpty())
+    }
+
+    @Test fun reconnectStopsThenStartsWithTheFreshRules() = runTest {
+        val gateway = FakeGateway()
+        var packages = setOf("com.example.browser")
+        val controller = controller(gateway, adjustConfig = splitAdjuster { packages })
+        controller.connect(profile)
+        runCurrent()
+
+        packages = setOf("com.example.chat")
+        controller.reconnect(profile)
+        assertEquals(VpnPhase.DISCONNECTING, controller.state.value.phase)
+        runCurrent()
+
+        assertEquals(VpnPhase.CONNECTED, controller.state.value.phase)
+        assertEquals(1, gateway.stopCalls)
+        assertEquals(2, gateway.startCalls)
+        assertEquals(setOf("com.example.chat"),
+            gateway.lastConfig?.`interface`?.includedApplications)
+    }
+
+    @Test fun reconnectIsIgnoredUnlessTheTunnelIsConnected() = runTest {
+        val gateway = FakeGateway()
+        val controller = controller(gateway)
+
+        controller.reconnect(profile)
+        runCurrent()
+
+        assertEquals(VpnPhase.IDLE, controller.state.value.phase)
+        assertEquals(0, gateway.stopCalls)
+        assertEquals(0, gateway.startCalls)
+    }
+
+    @Test fun failedReconnectStopNeverClaimsANewTunnel() = runTest {
+        val gateway = FakeGateway().apply { stopFailure = IllegalStateException("still owned") }
+        val controller = controller(gateway)
+        controller.connect(profile)
+        runCurrent()
+
+        controller.reconnect(profile)
+        runCurrent()
+
+        assertEquals(VpnPhase.ERROR, controller.state.value.phase)
+        assertEquals(VpnIssue.STOP_FAILED, controller.state.value.issue)
         assertEquals(1, gateway.startCalls)
         assertTrue(gateway.up)
     }

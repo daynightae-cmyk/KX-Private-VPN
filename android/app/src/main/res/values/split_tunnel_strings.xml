@@ -1,0 +1,28 @@
+<resources>
+    <string name="split_title">Split Tunneling</string>
+    <string name="split_hero_title">Choose which apps use the VPN and which bypass it.</string>
+    <string name="split_hero_body">Route selected apps through KX for privacy, and let others connect directly for speed.</string>
+    <string name="split_mode_bypass">Bypass VPN</string>
+    <string name="split_mode_only">Only through VPN</string>
+    <string name="split_only_vpn">Only through VPN</string>
+    <string name="split_bypass">Bypass VPN</string>
+    <string name="split_search">Search apps</string>
+    <string name="split_summary_apps">%1$d apps</string>
+    <string name="split_summary_through">%1$d through VPN</string>
+    <string name="split_summary_bypass">%1$d bypassing</string>
+    <string name="split_warning_no_apps">No apps selected. Until you pick one, the tunnel routes every app.</string>
+    <string name="split_warning_stale">%1$d saved app(s) are not installed or visible and are ignored.</string>
+    <string name="split_reconnect_required">Rules changed. Reconnect the tunnel to apply them.</string>
+    <string name="split_reconnect">Reconnect now</string>
+    <string name="split_applied">Applied to this tunnel · %1$d through VPN, %2$d bypassing.</string>
+    <string name="split_loading">Reading installed apps</string>
+    <string name="split_load_failed">Android did not return the launchable app list.</string>
+    <string name="split_refresh">Reload installed apps</string>
+    <string name="split_no_apps">Android returned no launchable apps. Work-profile apps are not visible to KX.</string>
+    <string name="split_no_match">No app matches “%1$s”.</string>
+    <string name="split_save_failed">The selection could not be saved. Nothing was applied.</string>
+    <string name="split_note_scope">Only launchable apps visible to this app are listed. Work-profile apps are managed by Android separately.</string>
+    <string name="split_note_import">KX owns per-app routing; app rules inside an imported profile are replaced when the tunnel starts.</string>
+    <string name="split_note_apply">The selection is saved on this device and applies the next time the tunnel starts.</string>
+    <string name="split_note_reconnect">The selection is saved on this device. Reconnect to apply it to the running tunnel.</string>
+</resources>

@@ -14,6 +14,8 @@ import com.google.zxing.common.HybridBinarizer
 import com.knoux.kxprivatevpn.data.config.*
 import com.knoux.kxprivatevpn.launch.LaunchPreferences
 import com.knoux.kxprivatevpn.launch.UiPreferences
+import com.knoux.kxprivatevpn.platform.apps.InstalledApp
+import com.knoux.kxprivatevpn.platform.apps.InstalledApps
 import com.knoux.kxprivatevpn.platform.vpn.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -32,8 +34,18 @@ class ClientViewModel(app: Application) : AndroidViewModel(app) {
     private val preferences = LaunchPreferences(app)
     private val mutable = MutableStateFlow(ClientState())
     val state: StateFlow<ClientState> = mutable.asStateFlow()
-    private val vpn = VpnController(viewModelScope, WireGuardVpnGateway(app), { id -> store.config(id) })
+    private val vpn = VpnController(
+        scope = viewModelScope,
+        gateway = WireGuardVpnGateway(app),
+        loadConfig = { id -> store.config(id) },
+        adjustConfig = SplitTunnelConfigurator(app)::apply,
+    )
     val vpnState: StateFlow<VpnState> = vpn.state
+    private val splitStore = SplitTunnelStore(app)
+    private val installedApps = InstalledApps(app)
+    private val splitMutable = MutableStateFlow(SplitTunnelUiState())
+    val splitState: StateFlow<SplitTunnelUiState> = splitMutable.asStateFlow()
+    private var appliedSelection: SplitTunnelSelection? = null
     init {
         reload()
         viewModelScope.launch {
@@ -46,6 +58,7 @@ class ClientViewModel(app: Application) : AndroidViewModel(app) {
                     vpn.restore(selected)
                 }
             }
+            var previousPhase: VpnPhase? = null
             vpn.state.collect { value ->
                 try {
                     when {
@@ -60,7 +73,37 @@ class ClientViewModel(app: Application) : AndroidViewModel(app) {
                 } catch (_: Exception) {
                     // The session hint is advisory; a failed write must not break the tunnel.
                 }
+                syncSplitState(
+                    phase = value.phase,
+                    captureApplied = value.phase == VpnPhase.CONNECTING &&
+                        previousPhase != VpnPhase.CONNECTING,
+                )
+                previousPhase = value.phase
             }
+        }
+    }
+
+    /**
+     * Mirrors the measured tunnel phase into the split-tunnel screen without inventing state.
+     * [captureApplied] is true only on the transition into CONNECTING: that is the selection
+     * the backend is about to read. If a save is still in flight the rules are unknown, so the
+     * captured value stays null and the screen keeps showing "reconnect required" until the
+     * user actually rebuilds the tunnel.
+     */
+    private fun syncSplitState(phase: VpnPhase, captureApplied: Boolean = false) {
+        if (captureApplied) {
+            appliedSelection = if (splitMutable.value.saving) null else splitMutable.value.selection
+        }
+        if (phase == VpnPhase.IDLE) appliedSelection = null
+        val connected = phase == VpnPhase.CONNECTED
+        splitMutable.update { state ->
+            val dirty = connected && appliedSelection != state.selection
+            state.copy(
+                connected = connected,
+                dirty = dirty,
+                appliedThrough = if (connected && !dirty) state.plan.throughVpnCount else 0,
+                appliedBypass = if (connected && !dirty) state.plan.bypassCount else 0,
+            )
         }
     }
     fun reload() {
@@ -127,6 +170,100 @@ class ClientViewModel(app: Application) : AndroidViewModel(app) {
     fun consentDenied() = vpn.reportConsentDenied()
     fun disconnectVpn() = vpn.disconnect()
     fun dismissVpnIssue() = vpn.clearIssue()
+
+    /** Real PackageManager + DataStore read; nothing is shown before both complete. */
+    fun refreshSplitTunnel() {
+        if (splitMutable.value.saving) return
+        viewModelScope.launch {
+            splitMutable.update { it.copy(loading = true, loadFailed = false) }
+            try {
+                val selection = splitStore.load()
+                val apps = installedApps.list()
+                splitMutable.update {
+                    it.copy(
+                        selection = selection,
+                        installed = apps,
+                        plan = splitPlan(selection, apps),
+                        loading = false,
+                        loadFailed = false,
+                    )
+                }
+                syncSplitState(vpn.state.value.phase)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                splitMutable.update { it.copy(loading = false, loadFailed = true) }
+            }
+        }
+    }
+
+    fun setSplitMode(mode: SplitTunnelMode) = changeSplitSelection { it.copy(mode = mode) }
+
+    fun toggleSplitApp(packageName: String) {
+        val current = splitMutable.value
+        if (current.loading || current.saving) return
+        val nextPackages = SplitTunnelPolicy.toggle(
+            mode = current.selection.mode,
+            applied = current.plan.isApplied,
+            packages = current.selection.packages,
+            installedPackages = current.installed.mapTo(linkedSetOf()) { it.packageName },
+            packageName = packageName,
+        )
+        changeSplitSelection { selection -> selection.copy(packages = nextPackages) }
+    }
+
+    private fun changeSplitSelection(transform: (SplitTunnelSelection) -> SplitTunnelSelection) {
+        val current = splitMutable.value
+        if (current.loading || current.saving) return
+        val next = transform(current.selection)
+        if (next == current.selection) return
+        splitMutable.value = current.copy(
+            selection = next,
+            plan = splitPlan(next, current.installed),
+            saving = true,
+            saveFailed = false,
+        )
+        viewModelScope.launch {
+            try {
+                splitStore.save(next)
+                splitMutable.update { it.copy(saving = false) }
+                syncSplitState(vpn.state.value.phase)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                // Keep the persisted selection authoritative; do not pretend it was saved.
+                splitMutable.value = current.copy(saveFailed = true)
+            }
+        }
+    }
+
+    private fun splitPlan(selection: SplitTunnelSelection, apps: List<InstalledApp>) =
+        SplitTunnelPolicy.plan(selection, apps.mapTo(linkedSetOf()) { it.packageName },
+            getApplication<Application>().packageName)
+
+    /**
+     * A running tunnel can be rebuilt without asking Android again unless consent was revoked.
+     * Returns the real consent intent when Android demands one; the screen must launch it.
+     */
+    fun prepareReconnect(): Intent? {
+        if (vpn.state.value.phase != VpnPhase.CONNECTED) return null
+        val selected = selectedProfile() ?: run {
+            vpn.reportNoProfile()
+            return null
+        }
+        val consent = try {
+            VpnService.prepare(getApplication())
+        } catch (_: Exception) {
+            vpn.reportStartFailed()
+            return null
+        }
+        if (consent == null) vpn.reconnect(selected)
+        return consent
+    }
+
+    fun reconnectSelected() {
+        selectedProfile()?.let(vpn::reconnect)
+    }
 
     /** Real Android/WireGuard lockdown read for the Security Center; null means unknown. */
     suspend fun lockdownEnabled(): Boolean? = vpn.lockdownEnabled()

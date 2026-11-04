@@ -1,0 +1,28 @@
+<resources>
+    <string name="split_title">تقسيم النفق</string>
+    <string name="split_hero_title">اختار التطبيقات اللي تستخدم الـVPN واللي تعدّيه.</string>
+    <string name="split_hero_body">وجّه التطبيقات المختارة عبر KX للخصوصية، وسيب غيرها يتصل مباشرة للسرعة.</string>
+    <string name="split_mode_bypass">تجاوز VPN</string>
+    <string name="split_mode_only">عبر VPN فقط</string>
+    <string name="split_only_vpn">عبر VPN فقط</string>
+    <string name="split_bypass">تجاوز VPN</string>
+    <string name="split_search">ابحث عن تطبيق</string>
+    <string name="split_summary_apps">التطبيقات: %1$d</string>
+    <string name="split_summary_through">عبر VPN: %1$d</string>
+    <string name="split_summary_bypass">متجاوزة: %1$d</string>
+    <string name="split_warning_no_apps">مفيش تطبيقات مختارة. لحد ما تختار، النفق بيمرّر كل التطبيقات.</string>
+    <string name="split_warning_stale">%1$d تطبيق محفوظ مش متثبت أو مش ظاهر، وبيتم تجاهله.</string>
+    <string name="split_reconnect_required">القواعد اتغيرت. أعد توصيل النفق عشان تتطبق.</string>
+    <string name="split_reconnect">أعد التوصيل دلوقتي</string>
+    <string name="split_applied">مطبقة على النفق ده · %1$d عبر VPN، %2$d متجاوزة.</string>
+    <string name="split_loading">جارٍ قراءة التطبيقات المثبتة</string>
+    <string name="split_load_failed">أندرويد مرجّعش قائمة التطبيقات اللي ممكن تفتح.</string>
+    <string name="split_refresh">إعادة تحميل التطبيقات</string>
+    <string name="split_no_apps">أندرويد مرجّعش أي تطبيق ممكن يفتح. تطبيقات ملف العمل مش ظاهرة لـKX.</string>
+    <string name="split_no_match">مفيش تطبيق اسمه “%1$s”.</string>
+    <string name="split_save_failed">مقدرناش نحفظ الاختيار. مفيش حاجة اتطبقت.</string>
+    <string name="split_note_scope">بس التطبيقات اللي ممكن تفتح والظاهرة للتطبيق ده بتظهر هنا. تطبيقات ملف العمل أندرويد بيديرها لوحده.</string>
+    <string name="split_note_import">KX هو المسؤول عن التوجيه لكل تطبيق؛ قواعد التطبيقات جوّه ملف مستورد بتتبدّل لما النفق يبدأ.</string>
+    <string name="split_note_apply">الاختيار محفوظ على الجهاز ده وبيتطبق أول ما النفق يبدأ.</string>
+    <string name="split_note_reconnect">الاختيار محفوظ على الجهاز ده. أعد توصيل النفق عشان يتطبق على النفق الشغال.</string>
+</resources>
