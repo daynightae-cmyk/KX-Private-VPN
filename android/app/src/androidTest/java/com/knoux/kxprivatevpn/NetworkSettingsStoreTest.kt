@@ -37,6 +37,7 @@ class NetworkSettingsStoreTest {
         assertEquals(AdvancedNetworkSettings(), store.load())
     }
 
+    /** Per-entry sanitization: the valid host survives; only the garbage is dropped. */
     @Test fun mountsGarbageAndStillLoadsSomethingHonest() = runBlocking {
         context.getSharedPreferences("advanced_network", Context.MODE_PRIVATE).edit()
             .putInt("mtu", 999)
@@ -49,7 +50,7 @@ class NetworkSettingsStoreTest {
         assertEquals(null, loaded.mtuOverride)
         assertEquals(null, loaded.keepaliveSeconds)
         assertEquals(DnsMode.PROFILE, loaded.dnsMode)
-        assertEquals(emptyList<String>(), loaded.customDns)
+        assertEquals(listOf("1.1.1.1"), loaded.customDns)
     }
 
     @Test fun customModeKeepsItsValidPartWhenOnlySomeHostsSurvive() = runBlocking {

@@ -58,18 +58,21 @@ class AdvancedNetworkFlowTest {
                 // No tunnel exists on a fresh device: nothing may claim it is applied.
                 compose.onNodeWithTag("adv-applied").assertDoesNotExist()
                 compose.onNodeWithTag("adv-reconnect").assertDoesNotExist()
-                compose.onNodeWithTag("adv-note-apply").assertIsDisplayed()
-                compose.onNodeWithTag("adv-protocol-wireguard").assertIsSelected()
+                // Top of the page first: this capture is the reference-comparison shot.
+                compose.onNodeWithTag("adv-hero").assertIsDisplayed()
+                compose.onNodeWithTag("adv-protocol-wireguard").performScrollTo().assertIsSelected()
                 compose.onNodeWithTag("adv-protocol-openvpn").assertDisabled()
                 compose.onNodeWithTag("adv-protocol-automatic").assertDisabled()
-                compose.onNodeWithTag("adv-obfuscation-switch").performScrollTo().assertDisabled()
-                compose.onNodeWithTag("adv-porthopping-switch").performScrollTo().assertDisabled()
-                compose.onNodeWithTag("adv-hero").assertIsDisplayed()
                 val folder = File(context.getExternalFilesDir(null), "identity-evidence").apply { mkdirs() }
                 File(folder, "35-advanced-device-light.png").outputStream().use { stream ->
                     check(compose.onRoot().captureToImage().asAndroidBitmap()
                         .compress(Bitmap.CompressFormat.PNG, 100, stream))
                 }
+                // The honest apply-on-next-start note sits at the very bottom: reach it
+                // explicitly instead of asserting against clipped content.
+                compose.onNodeWithTag("adv-note-apply").performScrollTo().assertIsDisplayed()
+                compose.onNodeWithTag("adv-obfuscation-switch").performScrollTo().assertDisabled()
+                compose.onNodeWithTag("adv-porthopping-switch").performScrollTo().assertDisabled()
             }
         } finally {
             runBlocking { preferences.appearance(original.language, original.theme) }

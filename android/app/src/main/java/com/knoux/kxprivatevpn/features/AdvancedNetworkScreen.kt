@@ -328,7 +328,7 @@ private fun ThreeDotButton(
     val label = stringResource(R.string.adv_reset_menu)
     val shape = CircleShape
     Box(
-        Modifier.size(44.dp).clip(shape)
+        modifier.size(44.dp).clip(shape)
             .background(
                 Brush.linearGradient(
                     if (night) listOf(Color.White.copy(alpha = .14f),

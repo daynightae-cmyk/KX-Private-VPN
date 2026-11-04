@@ -33,6 +33,9 @@ import java.util.Locale
  * The screen may only promise what the WireGuard build can actually deliver: WireGuard is the
  * only selectable protocol, obfuscation/port-hopping stay genuinely disabled, and a running
  * tunnel says whether the saved settings are live or need a reconnect.
+ *
+ * Compose rules allow exactly one setContent per test, so every test below calls [screen]
+ * once and asserts one honest state.
  */
 class AdvancedNetworkScreenTest {
     @get:Rule val compose = createComposeRule()
@@ -124,35 +127,44 @@ class AdvancedNetworkScreenTest {
     @Test fun protocolRowOffersWireGuardOnlyAndSaysWhyTheOthersAreQuiet() {
         screen(state())
 
-        compose.onNodeWithTag("adv-protocol-wireguard").assertIsSelected()
-        compose.onNodeWithTag("adv-protocol-openvpn").assertIsNotSelected().assertDisabled()
-        compose.onNodeWithTag("adv-protocol-automatic").assertIsNotSelected().assertDisabled()
+        compose.onNodeWithTag("adv-protocol-wireguard").performScrollTo().assertIsSelected()
+        compose.onNodeWithTag("adv-protocol-openvpn").performScrollTo()
+            .assertIsNotSelected().assertDisabled()
+        compose.onNodeWithTag("adv-protocol-automatic").performScrollTo()
+            .assertIsNotSelected().assertDisabled()
         compose.onAllNodes(hasText(text(R.string.adv_protocol_unavailable)))
             .fetchSemanticsNodes().let { assertTrue("Unavailable captions", it.size >= 2) }
         capture("30-advanced-defaults-light")
     }
 
-    @Test fun dnsExpansionSwitchesModesAndValidatesCustomHosts() {
+    @Test fun dnsExpansionSwitchesToSystemMode() {
         var mode: DnsMode? = null
-        var hosts: List<String>? = null
-        screen(state(), onDnsMode = { mode = it }, onDnsHosts = { hosts = it })
+        screen(state(), onDnsMode = { mode = it })
 
-        compose.onNodeWithTag("adv-dns-toggle").performScrollTo().performClick()
+        compose.onNodeWithTag("adv-dns-toggle").performScrollTo().assertIsDisplayed().performClick()
         compose.onNodeWithTag("adv-dns-options").assertIsDisplayed()
-        compose.onNodeWithTag("adv-dns-opt-system").performClick()
+        compose.onNodeWithTag("adv-dns-opt-system").performScrollTo()
+            .assertIsDisplayed().performClick()
         assertEquals(DnsMode.SYSTEM, mode)
+    }
 
-        // Fresh screen with CUSTOM already saved: the editor must exist and validate.
+    @Test fun customDnsEditorValidatesAndSavesNumericHosts() {
+        var hosts: List<String>? = null
         screen(state(settings = AdvancedNetworkSettings(
-            dnsMode = DnsMode.CUSTOM, customDns = listOf("1.1.1.1"))))
-        compose.onNodeWithTag("adv-dns-toggle").performScrollTo().performClick()
+            dnsMode = DnsMode.CUSTOM, customDns = listOf("1.1.1.1"))),
+            onDnsHosts = { hosts = it })
+
+        compose.onNodeWithTag("adv-dns-toggle").performScrollTo().assertIsDisplayed().performClick()
+        compose.onNodeWithTag("adv-dns-input").assertIsDisplayed()
         compose.onNodeWithTag("adv-dns-input").performTextInput("junk.example")
         compose.onNodeWithTag("adv-dns-error").assertIsDisplayed()
         compose.onNodeWithTag("adv-dns-save").assertDisabled()
         capture("31-advanced-dns-custom-expanded")
+
         compose.onNodeWithTag("adv-dns-input").performTextClearance()
         compose.onNodeWithTag("adv-dns-input").performTextInput("1.1.1.1, 2606:4700:4700::1111")
         compose.onNodeWithTag("adv-dns-save").performClick()
+        compose.waitForIdle()
         assertEquals(listOf("1.1.1.1", "2606:4700:4700::1111"), hosts)
     }
 
@@ -163,37 +175,48 @@ class AdvancedNetworkScreenTest {
         compose.onNodeWithTag("adv-porthopping-switch").performScrollTo().assertDisabled()
     }
 
-    @Test fun connectedTunnelKnowsWhetherSettingsAreLive() {
+    @Test fun connectedDirtyTunnelAsksForReconnect() {
         var reconnects = 0
         screen(state(connected = true, dirty = true), onReconnect = { reconnects++ })
+
         compose.onNodeWithTag("adv-reconnect").performScrollTo().assertIsDisplayed().performClick()
+        compose.waitForIdle()
         assertEquals(1, reconnects)
         capture("32-advanced-connected-dirty")
+    }
 
+    @Test fun connectedCleanTunnelStatesExactlyWhatWasApplied() {
         val live = AdvancedNetworkSettings(
             mtuOverride = 1280,
             dnsMode = DnsMode.CUSTOM,
             customDns = listOf("1.1.1.1"),
             keepaliveSeconds = 25,
         )
-        screen(state(connected = true, dirty = false,
-            settings = live, applied = live))
+        screen(state(connected = true, dirty = false, settings = live, applied = live))
+
         compose.onNodeWithTag("adv-applied").performScrollTo()
             .assertTextEquals(text(R.string.adv_applied, "1280", "1.1.1.1",
                 text(R.string.adv_keepalive_seconds, 25)))
         compose.onNodeWithTag("adv-reconnect").assertDoesNotExist()
     }
 
-    @Test fun keepalivePillDoesNotInventAValue() {
+    @Test fun keepalivePillShowsProfileWhenTheProfileDecides() {
         screen(state())
+
         compose.onNodeWithTag("adv-keepalive-value").performScrollTo()
             .assertTextEquals(text(R.string.adv_keepalive_profile))
+    }
 
+    @Test fun keepalivePillShowsOffForAnExplicitZero() {
         screen(state(settings = AdvancedNetworkSettings(keepaliveSeconds = 0)))
+
         compose.onNodeWithTag("adv-keepalive-value").performScrollTo()
             .assertTextEquals(text(R.string.adv_keepalive_off))
+    }
 
+    @Test fun keepalivePillShowsSecondsForAnExplicitPositiveValue() {
         screen(state(settings = AdvancedNetworkSettings(keepaliveSeconds = 25)))
+
         compose.onNodeWithTag("adv-keepalive-value").performScrollTo()
             .assertTextEquals(text(R.string.adv_keepalive_seconds, 25))
     }
@@ -202,8 +225,11 @@ class AdvancedNetworkScreenTest {
         var resets = 0
         screen(state(settings = AdvancedNetworkSettings(mtuOverride = 1280)), onReset = { resets++ })
 
-        compose.onNodeWithTag("adv-reset-menu").performClick()
+        compose.onNodeWithTag("adv-reset-menu").performScrollTo()
+            .assertIsDisplayed().performClick()
+        compose.onNodeWithTag("adv-reset-panel").assertIsDisplayed()
         compose.onNodeWithTag("adv-reset").assertIsDisplayed().performClick()
+        compose.waitForIdle()
         assertEquals(1, resets)
         compose.onNodeWithTag("adv-reset-panel").assertDoesNotExist()
     }
@@ -220,7 +246,14 @@ class AdvancedNetworkScreenTest {
         screen(state(), onMtu = { mtu = it })
 
         val slider = compose.onNodeWithTag("adv-mtu-slider").performScrollTo()
-        slider.performTouchInput { click(centerRight) }
+        // A real drag, not a tap: this Material3 version fires onValueChangeFinished on a
+        // gesture end, so the drag must press, move and release on the track.
+        val trackWidth = slider.fetchSemanticsNode().boundsInRoot.width
+        slider.performTouchInput {
+            down(Offset(2f, center.y))
+            moveBy(Offset(trackWidth * 0.75f, 0f))
+            up()
+        }
         compose.waitForIdle()
         val value = mtu ?: error("Slider finished callback must report a value")
         assertTrue("Snapped MTU $value inside range", value in 1280..1420)
