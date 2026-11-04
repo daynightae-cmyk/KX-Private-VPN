@@ -29,16 +29,29 @@ data class ClientState(
     val issue: ClientIssue? = null, val importedId: String? = null,
 )
 
+/** What the currently selected WireGuard profile itself says, used only for honest previews. */
+private data class AdvancedProfileBaseline(
+    val exists: Boolean,
+    val mtu: Int? = null,
+    val keepalive: Int? = null,
+    val hasDns: Boolean = false,
+)
+
 class ClientViewModel(app: Application) : AndroidViewModel(app) {
     private val store = ProfileStore(app)
     private val preferences = LaunchPreferences(app)
     private val mutable = MutableStateFlow(ClientState())
     val state: StateFlow<ClientState> = mutable.asStateFlow()
+    private val splitConfigurator = SplitTunnelConfigurator(app)
+    private val advancedConfigurator = AdvancedNetworkConfigurator(app)
     private val vpn = VpnController(
         scope = viewModelScope,
         gateway = WireGuardVpnGateway(app),
         loadConfig = { id -> store.config(id) },
-        adjustConfig = SplitTunnelConfigurator(app)::apply,
+        // Split tunneling writes the per-app lists; advanced network then rebuilds the
+        // interface around them (MTU/DNS) and rewrites the peer keepalive. Both run before
+        // the backend ever sees the profile.
+        adjustConfig = { config -> advancedConfigurator.apply(splitConfigurator.apply(config)) },
     )
     val vpnState: StateFlow<VpnState> = vpn.state
     private val splitStore = SplitTunnelStore(app)
@@ -46,6 +59,10 @@ class ClientViewModel(app: Application) : AndroidViewModel(app) {
     private val splitMutable = MutableStateFlow(SplitTunnelUiState())
     val splitState: StateFlow<SplitTunnelUiState> = splitMutable.asStateFlow()
     private var appliedSelection: SplitTunnelSelection? = null
+    private val networkStore = NetworkSettingsStore(app)
+    private val advancedMutable = MutableStateFlow(AdvancedNetworkUiState())
+    val advancedState: StateFlow<AdvancedNetworkUiState> = advancedMutable.asStateFlow()
+    private var appliedAdvanced: AdvancedNetworkSettings? = null
     init {
         reload()
         viewModelScope.launch {
@@ -78,6 +95,11 @@ class ClientViewModel(app: Application) : AndroidViewModel(app) {
                     captureApplied = value.phase == VpnPhase.CONNECTING &&
                         previousPhase != VpnPhase.CONNECTING,
                 )
+                syncAdvancedState(
+                    phase = value.phase,
+                    captureApplied = value.phase == VpnPhase.CONNECTING &&
+                        previousPhase != VpnPhase.CONNECTING,
+                )
                 previousPhase = value.phase
             }
         }
@@ -103,6 +125,29 @@ class ClientViewModel(app: Application) : AndroidViewModel(app) {
                 dirty = dirty,
                 appliedThrough = if (connected && !dirty) state.plan.throughVpnCount else 0,
                 appliedBypass = if (connected && !dirty) state.plan.bypassCount else 0,
+            )
+        }
+    }
+
+    /**
+     * Mirrors the tunnel phase into the advanced-network screen without inventing state.
+     * [captureApplied] is true only on the transition into CONNECTING — the settings the
+     * configurator is about to read; a save in flight keeps the snapshot null so the screen
+     * keeps asking for a reconnect until a tunnel actually picked up the new values.
+     */
+    private fun syncAdvancedState(phase: VpnPhase, captureApplied: Boolean = false) {
+        if (captureApplied) {
+            appliedAdvanced = if (advancedMutable.value.saving) null
+            else advancedMutable.value.settings
+        }
+        if (phase == VpnPhase.IDLE) appliedAdvanced = null
+        val connected = phase == VpnPhase.CONNECTED
+        advancedMutable.update { state ->
+            state.copy(
+                connected = connected,
+                dirty = connected && appliedAdvanced != state.settings,
+                applied = if (connected && appliedAdvanced == state.settings) appliedAdvanced
+                else null,
             )
         }
     }
@@ -263,6 +308,97 @@ class ClientViewModel(app: Application) : AndroidViewModel(app) {
 
     fun reconnectSelected() {
         selectedProfile()?.let(vpn::reconnect)
+    }
+
+    /** Stored settings plus the selected profile's own MTU/DNS/keepalive baseline. */
+    fun refreshAdvanced() {
+        if (advancedMutable.value.saving) return
+        viewModelScope.launch {
+            advancedMutable.update { it.copy(loading = true, loadFailed = false) }
+            try {
+                val settings = networkStore.load()
+                val baseline = profileBaseline()
+                advancedMutable.update {
+                    it.copy(
+                        settings = settings,
+                        profileMtu = baseline.mtu,
+                        profileKeepalive = baseline.keepalive,
+                        profileHasDns = baseline.hasDns,
+                        hasProfile = baseline.exists,
+                        loading = false,
+                        loadFailed = false,
+                    )
+                }
+                syncAdvancedState(vpn.state.value.phase)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                advancedMutable.update { it.copy(loading = false, loadFailed = true) }
+            }
+        }
+    }
+
+    fun setAdvancedMtu(value: Int?) = changeAdvancedSettings { it.copy(mtuOverride = value) }
+
+    fun setAdvancedKeepalive(value: Int?) =
+        changeAdvancedSettings { it.copy(keepaliveSeconds = value) }
+
+    fun setAdvancedDnsMode(mode: DnsMode) = changeAdvancedSettings { it.copy(dnsMode = mode) }
+
+    fun setAdvancedDnsHosts(hosts: List<String>) =
+        changeAdvancedSettings { it.copy(customDns = hosts) }
+
+    /** Back to "the profile decides": every override cleared, nothing invented. */
+    fun resetAdvancedSettings() = changeAdvancedSettings { AdvancedNetworkSettings() }
+
+    private fun changeAdvancedSettings(
+        transform: (AdvancedNetworkSettings) -> AdvancedNetworkSettings,
+    ) {
+        val current = advancedMutable.value
+        if (current.loading || current.saving) return
+        val next = transform(current.settings)
+        if (next == current.settings) return
+        advancedMutable.value = current.copy(settings = next, saving = true, saveFailed = false)
+        viewModelScope.launch {
+            try {
+                networkStore.save(next)
+                advancedMutable.update { it.copy(saving = false) }
+                syncAdvancedState(vpn.state.value.phase)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                // Keep the stored settings authoritative; do not pretend the change was saved.
+                advancedMutable.value = current.copy(saveFailed = true)
+            }
+        }
+    }
+
+    private suspend fun profileBaseline(): AdvancedProfileBaseline {
+        val profile = selectedProfile()
+            ?: return AdvancedProfileBaseline(exists = false)
+        return try {
+            val bytes = store.config(profile.id)
+            if (bytes == null) AdvancedProfileBaseline(exists = true)
+            else try {
+                val config = ConfigValidator.parse(bytes)
+                val keepalives = config.peers
+                    .mapNotNull { it.persistentKeepalive.orElse(null) }
+                    .distinct()
+                AdvancedProfileBaseline(
+                    exists = true,
+                    mtu = config.`interface`.mtu.orElse(null),
+                    keepalive = keepalives.singleOrNull(),
+                    hasDns = config.`interface`.dnsServers.isNotEmpty(),
+                )
+            } finally {
+                bytes.fill(0)
+            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            // An unreadable profile only means "no baseline numbers"; settings still load.
+            AdvancedProfileBaseline(exists = true)
+        }
     }
 
     /** Real Android/WireGuard lockdown read for the Security Center; null means unknown. */

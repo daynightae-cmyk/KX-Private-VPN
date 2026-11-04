@@ -20,6 +20,8 @@ data class VpnSession(
     val addresses: List<String> = emptyList(),
     val allowedIps: List<String> = emptyList(),
     val mtu: Int? = null,
+    /** Measured keepalive actually written into the running config; null = none/unknown. */
+    val keepaliveSeconds: Int? = null,
     val backendVersion: String? = null,
 )
 
