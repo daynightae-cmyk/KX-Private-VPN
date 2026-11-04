@@ -117,6 +117,8 @@ class ClientViewModel(app: Application) : AndroidViewModel(app) {
                         previousPhase != VpnPhase.CONNECTING,
                 )
                 usageRecorder.onVpnState(value)
+                // Surface a commit/checkpoint failure on the statistics screen immediately.
+                statsMutable.update { it.copy(saveFailed = usageRecorder.saveFailed.value) }
                 previousPhase = value.phase
             }
         }

@@ -18,6 +18,7 @@
     <string name="stats_server_hint">%1$d%% of measured time</string>
     <string name="stats_time_hint">Measured tunnel time</string>
     <string name="stats_compare_none">No previous window to compare</string>
+    <string name="stats_compare_previous_empty">Previous window had no traffic</string>
     <string name="stats_compare_new">First measured window</string>
     <string name="stats_compare_same">Same as previous window</string>
     <string name="stats_compare_up">↑ %1$d%% vs previous window</string>

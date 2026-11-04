@@ -146,6 +146,15 @@ class StatisticsScreenTest {
         }
     }
 
+    /** Dialogs create a second Compose root; capture the tagged node instead of onRoot(). */
+    private fun captureNode(tag: String, name: String) {
+        val folder = File(context.getExternalFilesDir(null), "identity-evidence").apply { mkdirs() }
+        File(folder, "$name.png").outputStream().use { stream ->
+            check(compose.onNodeWithTag(tag).captureToImage().asAndroidBitmap()
+                .compress(Bitmap.CompressFormat.PNG, 100, stream))
+        }
+    }
+
     @Test fun emptyHistoryShowsNoSessionsInsteadOfInventedNumbers() {
         screen(state())
 
@@ -266,7 +275,7 @@ class StatisticsScreenTest {
         compose.onNodeWithTag("stats-menu").performClick()
         compose.onNodeWithTag("stats-clear-dialog").assertIsDisplayed()
         compose.onNodeWithText(text(R.string.stats_clear_title)).assertIsDisplayed()
-        capture("38-statistics-clear-dialog")
+        captureNode("stats-clear-dialog", "38-statistics-clear-dialog")
 
         compose.onNodeWithTag("stats-clear-cancel").performClick()
         compose.waitForIdle()

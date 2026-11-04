@@ -18,6 +18,7 @@
     <string name="stats_server_hint">%1$d%% من الوقت المقاس</string>
     <string name="stats_time_hint">وقت النفق المقاس</string>
     <string name="stats_compare_none">مفيش فترة سابقة للمقارنة</string>
+    <string name="stats_compare_previous_empty">الفترة السابقة مكنش فيها ترافيك</string>
     <string name="stats_compare_new">أول فترة مقاسة</string>
     <string name="stats_compare_same">زي الفترة السابقة</string>
     <string name="stats_compare_up">↑ %1$d%% عن الفترة السابقة</string>

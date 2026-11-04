@@ -19,7 +19,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,7 +36,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
@@ -976,9 +974,9 @@ private fun bytesText(context: Context, bytes: Long): String =
 private fun bytesShort(bytes: Long): String {
     val value = bytes.coerceAtLeast(0).toDouble()
     return when {
-        value >= 1_000_000_000 -> String.format(Locale.US, "%.0f GB", value / 1_000_000_000)
-        value >= 1_000_000 -> String.format(Locale.US, "%.0f MB", value / 1_000_000)
-        value >= 1_000 -> String.format(Locale.US, "%.0f KB", value / 1_000)
+        value >= 1_073_741_824 -> String.format(Locale.US, "%.0f GB", value / 1_073_741_824)
+        value >= 1_048_576 -> String.format(Locale.US, "%.0f MB", value / 1_048_576)
+        value >= 1_024 -> String.format(Locale.US, "%.0f KB", value / 1_024)
         else -> "${bytes.coerceAtLeast(0)} B"
     }
 }
@@ -1013,8 +1011,12 @@ private fun comparisonText(context: Context, summary: UsageSummary): String {
     val previous = summary.previousTotalBytes
         ?: return context.getString(R.string.stats_compare_none)
     if (previous <= 0) {
-        return if (summary.totalBytes > 0) context.getString(R.string.stats_compare_new)
-        else context.getString(R.string.stats_compare_same)
+        return when {
+            summary.previousSessions > 0 ->
+                context.getString(R.string.stats_compare_previous_empty)
+            summary.totalBytes > 0 -> context.getString(R.string.stats_compare_new)
+            else -> context.getString(R.string.stats_compare_same)
+        }
     }
     val delta = ((summary.totalBytes - previous) * 100.0 / previous).roundToInt()
     return when {
