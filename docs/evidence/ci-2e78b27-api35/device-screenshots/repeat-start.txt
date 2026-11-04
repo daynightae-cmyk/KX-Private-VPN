@@ -1,0 +1,7 @@
+Starting: Intent { cmp=com.knoux.kxprivatevpn/.MainActivity }
+Status: ok
+LaunchState: COLD
+Activity: com.knoux.kxprivatevpn/.MainActivity
+TotalTime: 1887
+WaitTime: 1888
+Complete

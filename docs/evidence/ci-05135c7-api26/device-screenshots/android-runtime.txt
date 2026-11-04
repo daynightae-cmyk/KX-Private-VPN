@@ -1,0 +1,41 @@
+--------- beginning of main
+--------- beginning of system
+11-03 11:43:43.848  1495  1495 D AndroidRuntime: >>>>>> START com.android.internal.os.ZygoteInit uid 0 <<<<<<
+11-03 11:43:43.891  1496  1496 D AndroidRuntime: >>>>>> START com.android.internal.os.ZygoteInit uid 0 <<<<<<
+11-03 11:43:47.409  2581  2581 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-03 11:43:47.461  2581  2581 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-03 11:43:48.217  2581  2581 D AndroidRuntime: Shutting down VM
+11-03 11:46:05.890  2915  2915 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-03 11:46:05.925  2915  2915 D AndroidRuntime: Calling main entry com.android.commands.pm.Pm
+11-03 11:46:07.350  2915  2915 I AndroidRuntime: VM exiting with result code 0.
+11-03 11:46:18.534  3095  3095 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-03 11:46:18.609  3095  3095 D AndroidRuntime: Calling main entry com.android.commands.wm.Wm
+11-03 11:46:18.610  3095  3095 D AndroidRuntime: Shutting down VM
+11-03 11:46:18.733  3105  3105 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-03 11:46:18.767  3105  3105 D AndroidRuntime: Calling main entry com.android.commands.wm.Wm
+11-03 11:46:18.769  3105  3105 D AndroidRuntime: Shutting down VM
+11-03 11:46:18.880  3115  3115 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-03 11:46:18.918  3115  3115 D AndroidRuntime: Calling main entry com.android.commands.wm.Wm
+11-03 11:46:19.038  3115  3115 D AndroidRuntime: Shutting down VM
+11-03 11:46:19.377  3128  3128 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-03 11:46:19.454  3128  3128 D AndroidRuntime: Calling main entry com.android.commands.wm.Wm
+11-03 11:46:19.455  3128  3128 D AndroidRuntime: Shutting down VM
+11-03 11:46:19.475  3128  3139 I AndroidRuntime: NOTE: attach of thread 'Binder:3128_2' failed
+11-03 11:46:19.710  3140  3140 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-03 11:46:19.763  3140  3140 D AndroidRuntime: Calling main entry com.android.commands.wm.Wm
+11-03 11:46:19.764  3140  3140 D AndroidRuntime: Shutting down VM
+11-03 11:46:38.948  3188  3188 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-03 11:46:39.001  3188  3188 D AndroidRuntime: Calling main entry com.android.commands.content.Content
+11-03 11:46:39.010  3188  3188 D AndroidRuntime: Shutting down VM
+11-03 11:46:43.683  3307  3307 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-03 11:46:43.756  3307  3307 D AndroidRuntime: Calling main entry com.android.commands.pm.Pm
+11-03 11:46:43.765  3307  3307 I AndroidRuntime: VM exiting with result code 0.
+11-03 11:46:43.925  3321  3321 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-03 11:46:43.961  3321  3321 D AndroidRuntime: Calling main entry com.android.commands.pm.Pm
+11-03 11:46:43.965  3321  3321 I AndroidRuntime: VM exiting with result code 0.
+11-03 11:46:44.098  3334  3334 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-03 11:46:44.133  3334  3334 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+11-03 11:47:05.616  3334  3334 D AndroidRuntime: Shutting down VM
+11-03 11:47:05.835  3421  3421 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-03 11:47:05.870  3421  3421 D AndroidRuntime: Calling main entry com.android.commands.pm.Pm
+11-03 11:47:05.873  3421  3421 I AndroidRuntime: VM exiting with result code 0.
