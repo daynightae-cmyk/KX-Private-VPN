@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
@@ -160,10 +161,15 @@ fun GlassSwitch(
         Brush.horizontalGradient(listOf(Color(0xFF9A94C9).copy(alpha = .28f),
             Color(0xFF7C76B5).copy(alpha = .22f)))
     }
+    val interaction = if (onClick != null) {
+        Modifier.clickable(enabled = enabled, role = Role.Switch,
+            onClickLabel = clickLabel, onClick = onClick)
+    } else {
+        Modifier.semantics { if (!enabled) disabled() }
+    }
     Box(
         modifier.size(52.dp, 48.dp)
-            .clickable(enabled = enabled && onClick != null, role = Role.Switch,
-                onClickLabel = clickLabel, onClick = { onClick?.invoke() })
+            .then(interaction)
             .semantics { this.stateDescription = stateDescription },
         contentAlignment = Alignment.Center,
     ) {
