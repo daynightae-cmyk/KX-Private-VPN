@@ -1,6 +1,7 @@
 package com.knoux.kxprivatevpn
 
 import androidx.test.platform.app.InstrumentationRegistry
+import com.knoux.kxprivatevpn.data.config.ConfigValidator
 import com.knoux.kxprivatevpn.data.config.ProfileStore
 import kotlinx.coroutines.*
 import org.junit.Assert.*
@@ -47,7 +48,13 @@ class ProfileStoreTest {
         val namespace = namespace()
         val store = ProfileStore(context, namespace)
         val profile = store.import("tunnel", config.toByteArray()).profiles.single()
-        assertArrayEquals(config.toByteArray(), store.config(profile.id))
+        // The store persists the validated, canonical WireGuard serialization, not the raw
+        // input order. Prove the decrypted bytes still describe the same tunnel.
+        val decrypted = store.config(profile.id) ?: error("Stored config is missing")
+        val reloaded = ConfigValidator.parse(decrypted)
+        assertEquals("10.7.0.2/32", reloaded.`interface`.addresses.single().toString())
+        assertEquals("192.0.2.1:51820", reloaded.peers.single().endpoint.get().toString())
+        assertEquals(key, reloaded.`interface`.keyPair.privateKey.toBase64())
         assertNull(store.config("missing"))
     }
     @Test fun concurrentStoresPreserveEveryUniqueProfile() = runBlocking {

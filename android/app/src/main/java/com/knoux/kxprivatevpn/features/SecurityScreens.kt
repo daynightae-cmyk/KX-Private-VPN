@@ -541,7 +541,8 @@ private fun StatusPill(text: String, tone: PillTone, night: Boolean, modifier: M
             (if (night) Color(0xFFD6D2EF) else Color(0xFF5B5780))
     }
     Row(
-        modifier.clip(RoundedCornerShape(50)).background(bg)
+        modifier.semantics(mergeDescendants = true) {}
+            .clip(RoundedCornerShape(50)).background(bg)
             .border(1.dp, fg.copy(alpha = .28f), RoundedCornerShape(50))
             .padding(horizontal = 8.dp, vertical = 3.dp),
         verticalAlignment = Alignment.CenterVertically,
