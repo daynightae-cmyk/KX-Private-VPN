@@ -51,7 +51,7 @@ class SplitTunnelFlowTest {
                 assertTrue("Android must report a real app count, got: $countText", countText.isNotEmpty())
                 assertFalse("A disconnected screen cannot claim applied routing: $countText",
                     countText.startsWith("0 "))
-                compose.onNodeWithTag("split-note-apply").performScrollTo().assertIsDisplayed()
+                compose.onNodeWithTag("split-note-apply").assertIsDisplayed()
                 val folder = File(context.getExternalFilesDir(null), "identity-evidence").apply { mkdirs() }
                 File(folder, "28-split-tunnel-device-light.png").outputStream().use { stream ->
                     check(compose.onRoot().captureToImage().asAndroidBitmap()

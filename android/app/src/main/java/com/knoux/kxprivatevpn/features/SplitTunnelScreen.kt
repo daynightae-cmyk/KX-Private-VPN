@@ -198,21 +198,6 @@ fun SplitTunnelScreen(
                         )
                     }
                 }
-                item {
-                    Column(Modifier.padding(horizontal = 4.dp, vertical = 4.dp),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text(stringResource(R.string.split_note_scope), color = muted,
-                            fontSize = 10.5.sp, lineHeight = 14.sp)
-                        Text(stringResource(R.string.split_note_import), color = muted,
-                            fontSize = 10.5.sp, lineHeight = 14.sp)
-                        Text(
-                            stringResource(if (state.connected) R.string.split_note_reconnect
-                            else R.string.split_note_apply),
-                            color = muted, fontSize = 10.5.sp, lineHeight = 14.sp,
-                            modifier = Modifier.testTag("split-note-apply"),
-                        )
-                    }
-                }
                 if (state.loadFailed || state.installed.isEmpty()) {
                     item {
                         OutlinedButton(onClick = onRefresh,
@@ -223,6 +208,7 @@ fun SplitTunnelScreen(
                     }
                 }
             }
+            ScopeNotes(night, muted, state)
             SummaryBar(night, muted, titleColor, state)
         }
     }
@@ -639,6 +625,26 @@ private fun LoadFailedPanel(night: Boolean, muted: Color, onRefresh: () -> Unit)
                 .testTag("split-retry")) {
             Text(stringResource(R.string.split_refresh))
         }
+    }
+}
+
+/** Scope notes live under the list so they stay visible while a long app list scrolls. */
+@Composable
+private fun ScopeNotes(night: Boolean, muted: Color, state: SplitTunnelUiState) {
+    Column(
+        Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(3.dp),
+    ) {
+        Text(stringResource(R.string.split_note_scope), color = muted,
+            fontSize = 10.sp, lineHeight = 13.sp)
+        Text(stringResource(R.string.split_note_import), color = muted,
+            fontSize = 10.sp, lineHeight = 13.sp)
+        Text(
+            stringResource(if (state.connected) R.string.split_note_reconnect
+            else R.string.split_note_apply),
+            color = muted, fontSize = 10.sp, lineHeight = 13.sp,
+            modifier = Modifier.testTag("split-note-apply"),
+        )
     }
 }
 
