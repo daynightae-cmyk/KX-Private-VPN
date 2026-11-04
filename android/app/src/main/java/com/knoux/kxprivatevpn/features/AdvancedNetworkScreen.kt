@@ -343,7 +343,7 @@ private fun ThreeDotButton(
             .clickable(role = Role.Button, onClickLabel = label, onClick = onOpen)
             .semantics { contentDescription = label },
         contentAlignment = Alignment.Center,
-    ) { CardGlyph({ CanvasGlyphs.Dots(muted) }, Modifier.size(18.dp)) }
+    ) { CardGlyph({ m -> CanvasGlyphs.Dots(muted, m) }, Modifier.size(18.dp)) }
 }
 
 @Composable
@@ -734,7 +734,7 @@ private fun CardGlyphPanel(kind: CardGlyphKind, titleColor: Color) {
             .border(1.dp, Color.White.copy(alpha = .55f), CircleShape),
         contentAlignment = Alignment.Center,
     ) {
-        CardGlyph({ CanvasGlyphs.Glyph(kind, titleColor) }, Modifier.size(20.dp))
+        CardGlyph({ m -> CanvasGlyphs.Glyph(kind, titleColor, m) }, Modifier.size(20.dp))
     }
 }
 
@@ -871,6 +871,6 @@ private object CanvasGlyphs {
 }
 
 @Composable
-private fun CardGlyph(node: @Composable () -> Unit, modifier: Modifier = Modifier) {
-    Box(modifier) { node() }
+private fun CardGlyph(glyph: @Composable (Modifier) -> Unit, modifier: Modifier = Modifier) {
+    Box(modifier) { glyph(Modifier.fillMaxSize()) }
 }
