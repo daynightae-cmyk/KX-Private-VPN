@@ -304,7 +304,7 @@ private fun ProtocolOption(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(Modifier.size(30.dp), contentAlignment = Alignment.Center) {
-            CardGlyph({ CanvasGlyphs.Glyph(glyph, foreground.copy(alpha = alpha)) },
+            CardGlyph({ m -> CanvasGlyphs.Glyph(glyph, foreground.copy(alpha = alpha), m) },
                 Modifier.size(20.dp))
         }
         Spacer(Modifier.height(6.dp))

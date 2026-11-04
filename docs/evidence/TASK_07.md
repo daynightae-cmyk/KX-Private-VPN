@@ -2,8 +2,8 @@
 
 **baseline_sha:** `e775abb` (main after TASK_06 merge and docs)
 **branch:** `codex/task-07-advanced-network`
-**implementation_sha:** pending first push
-**status:** IMPLEMENTED · LOCAL GATES PASS (compile/unit 68 ✓/lint 0 errors/assemble) · CI/visual verification pending
+**implementation_sha:** `c8d6395` (`51f5663` feature, `0b53657` first test fixes, `881cedc` slider/DNS test fixes, `c8d6395` capture-review glyph/chevron fixes)
+**status:** IMPLEMENTED · LOCAL GATES PASS (compile/unit 68 ✓/lint 0 errors/assemble) · CI/visual verification in progress on `c8d6395`
 
 ## Scope implemented
 
@@ -56,6 +56,7 @@
 - `android/app/src/main/java/com/knoux/kxprivatevpn/features/AdvancedNetworkScreen.kt`
 - `android/app/src/main/java/com/knoux/kxprivatevpn/features/ClientViewModel.kt` (advanced state, applied/dirty, configurator chain)
 - `android/app/src/main/java/com/knoux/kxprivatevpn/features/NativeClient.kt` (route + home entry)
+- `android/app/src/main/java/com/knoux/kxprivatevpn/designsystem/GlassComponents.kt` (back-chevron direction; shared with other page headers)
 - `android/app/src/main/java/com/knoux/kxprivatevpn/platform/vpn/VpnModels.kt` (+`VpnSession.keepaliveSeconds`)
 - `android/app/src/main/java/com/knoux/kxprivatevpn/platform/vpn/VpnController.kt` (measured keepalive in the session)
 - `android/app/src/main/res/values/advanced_strings.xml` + `values-ar/advanced_strings.xml`
@@ -66,12 +67,15 @@
 
 ## api_and_real_results
 
-- Local gates (from `android/`): `:app:compileDebugKotlin` PASS;
+- Local gates on `c8d6395` (from `android/`): `:app:compileDebugKotlin` PASS;
   `:app:testDebugUnitTest` 68 tests, 0 failures (13 new: MTU/DNS/keepalive/validator,
   IPv6-correct DNS comparison, split→advanced composition);
   `:app:compileDebugAndroidTestKotlin` PASS; `:app:lintDebug` 0 errors (baseline warnings);
   `:app:assembleDebug` PASS.
-- CI: pending (API26 device gate; API35 known renderer-loss blocker applies).
+- CI `41906598533` on `881cedc`: build PASS; **API26 device PASS 61/61 (0 failures, 0 errors,
+  0 skipped)**; API35 stopped at the documented `IdentityTest.arabicRtlLargeText360dp` renderer
+  loss (no new assertion failures).
+- CI on `c8d6395`: pending — final visual pass after the capture-review fixes.
 
 ## unit_ui_instrumentation_results
 
@@ -83,27 +87,51 @@
 - Instrumented `NetworkSettingsStoreTest`: 6 tests — round-trip, empty default, garbage mounts
   sanitized (bad MTU/mode/hosts/keepalive), partial valid custom hosts survive, custom-without-
   usable-hosts falls back to PROFILE, save rejects out-of-range input instead of clamping.
-- Instrumented `AdvancedNetworkScreenTest`: 8 tests — protocol row states (WireGuard selected;
+- Instrumented `AdvancedNetworkScreenTest`: 14 tests — protocol row states (WireGuard selected;
   others not selected + disabled semantics + "Unavailable" captions), DNS expansion incl.
   invalid-host error + disabled save + valid hosts saved, obfuscation/port-hopping switch
   disabled-ness, connected dirty→reconnect / clean→applied text, keepalive pill shows Profile/Off/N s
-  (no invented number), reset panel flow, MTU slider click writes a snapped value in range, night
-  RTL and 1.6× Arabic captures.
+  (no invented number), reset panel flow, MTU slider commit through the Material3 accessibility
+  `SetProgress` action snapping 1313 → 1310, night RTL and 1.6× Arabic captures.
 - Instrumented `AdvancedNetworkFlowTest`: real Activity path — stored settings load, honest
   "apply on next start" note, no applied/reconnect claims without a tunnel, disabled rows on
   device, runtime capture.
+- Compose interaction fixes verified against Material3 1.3.2 bytecode: the slider commit path is
+  `SetProgress` (calls `onValueChange` then `onValueChangeFinished`); a track tap only animates and
+  a track drag starts no gesture, so the old touch test could never commit.
 
 ## visual_before_after
 
 Reference: `public/assets/aistudio/07-advanced-network_5b3214f4.png`.
-Expected captures from instrumentation (CI artifact): `30-advanced-defaults-light`,
-`31-advanced-dns-custom-expanded`, `32-advanced-connected-dirty`, `33-advanced-night-rtl`,
-`34-advanced-ar-large-text`, `35-advanced-device-light`.
-Comparison notes are appended after the CI API26 artifact is downloaded.
+
+| Reference element | Device capture | Verdict |
+| --- | --- | --- |
+| KX back target + centered brand + three-dot overflow | 30/33 | Structure matches; capture review found the three-dot glyph and every card glyph rendered 0×0. `CardGlyph` now forwards `fillMaxSize`, so dots/glyphs draw. |
+| Glass stack hero | 30 | Gradient glass, rim, overlapping glass panes reproduced. |
+| Protocol cards (WireGuard / OpenVPN / Automatic) | 30 | Faithful layout; only WireGuard interactive, others honestly "Unavailable". |
+| Advanced Controls (MTU / DNS / Obfuscation / Port hopping / keepalive) | 30–32, 34 | Layout, labels, sliders, switches and pills match; unsupported rows disabled with honest copy instead of the reference's "On". |
+| Custom DNS editor | 31 | Reference has no editor state; the app adds numeric-host validation, inline error and a disabled Save. |
+| Night + RTL | 33 | Gradient/readability and mirrored layout hold; back chevron direction fixed in `c8d6395` (was inverted in both directions). |
+| Arabic 1.6× large text | 34 | Labels wrap without clipping; controls stay reachable. |
+| Connected dirty banner | 32 | Honest reconnect banner replaces any fake applied state. |
+
+`c8d6395` capture-review fixes (require the final CI artifact): `CardGlyph` size forwarding and
+`BackChevron` LTR/RTL swap.
 
 ## screenshot_files
 
-(pending CI artifact download — listed in visual_before_after)
+From CI run `41906598533` (API26), artifact `native-device-api-26`,
+`device-screenshots/identity-evidence/`:
+
+- `30-advanced-defaults-light.png`
+- `31-advanced-dns-custom-expanded.png`
+- `32-advanced-connected-dirty.png`
+- `33-advanced-night-rtl.png`
+- `34-advanced-ar-large-text.png`
+- `35-advanced-device-light.png`
+
+Final `c8d6395` captures are downloaded from the follow-up API26 artifact and reviewed before
+merge; evidence paths remain the same names.
 
 ## known_errors
 
@@ -121,8 +149,9 @@ No new permission. No storage/media access. Store writes stay app-private.
 
 ## PR / CI / merge
 
-- PR: pending
-- CI run: pending
+- PR: [#6](https://github.com/daynightae-cmyk/KX-Private-VPN/pull/6)
+- CI run: `41906598533` (`881cedc`: build PASS, API26 61/61 PASS, API35 documented renderer
+  blocker); follow-up run on `c8d6395`: pending
 - merged_sha: pending
 - remote_main_sha: pending
 - next_task: TASK_08 — real local metrics/trends, after merge.
