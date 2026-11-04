@@ -45,6 +45,18 @@
 - **Still required:** an owned WireGuard gateway/peer to prove end-to-end package traffic through
   and around the tunnel. API35 dialog-teardown renderer loss is unchanged.
 
+## TASK_09 — SECURE CONFIG IMPORT FUNCTIONALLY COMPLETE, VISUAL FIDELITY UNVERIFIED (2026-11-05)
+
+- Import stack (Keystore AES-GCM ProfileStore, strict ConfigValidator, SAF file, QR image via
+  ZXing, clipboard, manual text, FLAG_SECURE, privacy redaction) was already implemented and
+  verified; this slice exposed the missing `import-qr` test tag.
+- Verified: 98 JVM tests, API26 CI device 79/79 (run 41932130083), lint 0 errors, ConfigImportTest
+  and ClientFlowTest (real Activity import persists across recreate and never claims connection).
+- **Still required:** visual fidelity against `09-import-configuration_670a2aea.png` could not be
+  verified this cycle because image-reading tooling is broken; no speculative visual changes were
+  made. Live-camera QR scanning remains deferred (image-picker decode is implemented). API35
+  renderer loss unchanged. No gateway for an end-to-end imported-profile connection test.
+
 ## TASK_08 — REAL MEASURED STATISTICS IMPLEMENTED, EXTERNAL TRAFFIC RECONCILIATION DEFERRED (2026-11-05)
 
 - `StatisticsScreen` and the usage pipeline are merged. Only measured values are stored or shown:
