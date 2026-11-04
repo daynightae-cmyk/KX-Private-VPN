@@ -120,6 +120,6 @@ Comparison notes are appended after the CI API26 artifact is downloaded.
 - CI run: `41888802503` (head `4fd25f3`) — build PASS; API26 device PASS (40 tests, 0 failures, 36.392s); API35 FAIL only on `IdentityTest.arabicRtlLargeText360dp` dialog-teardown renderer loss (known blocker). Earlier runs on `1cd28fd`/`b77225c`/`24a7c62`/`24a7c62` documented the two device-found test defects and their fixes.
 - Unit tests: 55/55 PASS (14 new policy tests, 4 new controller tests)
 - Visual evidence: captures `25`–`29` downloaded from `native-device-api-26` artifact
-- merged_sha: pending
-- remote_main_sha: pending
+- merged_sha: `bae1bc6` (PR #5 merge commit)
+- remote_main_sha: `bae1bc6` (verified in PR #5)
 - next_task: TASK_07 — advanced network configuration (MTU/DNS/keepalive), after merge.

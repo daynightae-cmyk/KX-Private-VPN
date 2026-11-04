@@ -29,6 +29,22 @@
   throughput. Without it, transport/release claims stay deferred. API35 headless rendering remains
   unstable around dialog teardown and is tracked separately.
 
+## TASK_06 — SPLIT TUNNELING IMPLEMENTED, EGRESS NOT VERIFIED (2026-11-04)
+
+- `SplitTunnelScreen` implements the owner reference structure: routing hero, Bypass/Only-through
+  segmented control, search, real `PackageManager` app rows, and a measured bottom summary.
+- Real routing: `ONLY_VPN` → `includingApplications` on the WireGuard interface, `BYPASS` →
+  `excludeApplications`; imported per-app rules replaced; one Android list at a time; stale and
+  invalid package names never reach `VpnService.Builder`; empty allow-list is not sent (Android
+  would route every app) and the UI warns instead of claiming a selection.
+- Persisted intent is package names only in app-private storage; no new permission (Android 11+
+  `<queries>` launcher visibility declaration).
+- Verified: 55 JVM tests, API26 CI device run 40/40 (real-device flow test counts 18 real
+  launchable apps and asserts no connected routing is claimed), lint 0 errors, captures 25–29 vs
+  reference (structure verified; honest disconnected wording differs by design).
+- **Still required:** an owned WireGuard gateway/peer to prove end-to-end package traffic through
+  and around the tunnel. API35 dialog-teardown renderer loss is unchanged.
+
 ## TASK_05 — SECURITY CENTER IMPLEMENTED, FIELD VERIFICATION LIMITED (2026-11-04)
 
 - `SecurityCenterScreen` implements all six owner-reference rows, but only with measured state:
