@@ -217,12 +217,12 @@ class SplitTunnelScreenTest {
         // The fixed bottom sections never scroll away, whatever the font size.
         compose.onNodeWithTag("split-summary-apps").assertIsDisplayed()
         compose.onNodeWithTag("split-note-apply").assertIsDisplayed()
-        // Real user gestures, not internal scroll semantics: the list content must be
-        // reachable the way a person actually scrolls a 1.6x screen.
-        val gestures = compose.onNodeWithTag("split-screen")
-        gestures.performTouchInput { swipeUp() }
+        // Real user gestures straight on the scrollable list, not internal scroll semantics:
+        // the rows must be reachable the way a person actually scrolls a 1.6x screen.
+        val list = compose.onNodeWithTag("split-list")
+        list.performTouchInput { swipeUp() }
         compose.waitForIdle()
-        gestures.performTouchInput { swipeUp() }
+        list.performTouchInput { swipeUp() }
         compose.waitForIdle()
         compose.onNodeWithTag("split-mode-only").assertIsDisplayed()
         compose.onNodeWithTag("split-app-com.example.chat").assertIsDisplayed()

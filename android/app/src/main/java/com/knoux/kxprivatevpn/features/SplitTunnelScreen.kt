@@ -120,7 +120,7 @@ fun SplitTunnelScreen(
         Atmosphere(night, 0f)
         Column(Modifier.fillMaxSize().safeDrawingPadding()) {
             LazyColumn(
-                Modifier.weight(1f).fillMaxWidth(),
+                Modifier.weight(1f).fillMaxWidth().testTag("split-list"),
                 contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 18.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
