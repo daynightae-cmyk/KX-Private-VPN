@@ -374,6 +374,7 @@ private fun UsageChart(
         val chartHeight = size.height - top - bottom
         if (chartWidth <= 0 || chartHeight <= 0) return@Canvas
 
+        val hasData = summary.hasRangeData
         val values = summary.buckets.map { it.bytes.toFloat() }
         val maxValue = values.maxOrNull()?.coerceAtLeast(1f) ?: 1f
         val gridColor = muted.copy(alpha = if (night) .18f else .22f)
@@ -383,11 +384,20 @@ private fun UsageChart(
             val y = top + chartHeight * (1f - fraction)
             drawLine(gridColor, Offset(left, y), Offset(left + chartWidth, y),
                 strokeWidth = 1.dp.toPx())
-            val label = bytesShort((maxValue * fraction).toLong())
-            val layout = measurer.measure(AnnotatedString(label), style = labelStyle)
-            drawText(layout, topLeft = Offset(0f, y - layout.size.height / 2f))
+            // An empty chart gets one zero label; measured charts get real axis values.
+            if (hasData && (index == 0 || index == 3 || maxValue >= 3f)) {
+                // A leading LTR mark keeps "4 MB" number-first inside an RTL paragraph.
+                val label = "\u200E" + bytesShort((maxValue * fraction).toLong())
+                val layout = measurer.measure(AnnotatedString(label), style = labelStyle)
+                drawText(layout, topLeft = Offset(0f, y - layout.size.height / 2f))
+            } else if (!hasData && index == 0) {
+                val layout = measurer.measure(AnnotatedString("\u200E0 B"), style = labelStyle)
+                drawText(layout, topLeft = Offset(0f, y - layout.size.height / 2f))
+            }
         }
 
+        // No line, area, or dots may imply measurement on an empty history.
+        if (!hasData) return@Canvas
         if (values.isEmpty()) return@Canvas
         val step = if (values.size == 1) 0f else chartWidth / (values.size - 1)
         fun point(index: Int): Offset {
@@ -540,9 +550,13 @@ private fun SpeedAndTimeRow(
                 }
                 Spacer(Modifier.width(10.dp))
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                    Text(durationText(context, summary.durationMillis), color = titleColor,
+                    Text(
+                        if (summary.sessions > 0) durationText(context, summary.durationMillis)
+                        else stringResource(R.string.stats_no_data),
+                        color = titleColor,
                         fontSize = 20.sp, fontWeight = FontWeight.ExtraBold,
-                        modifier = Modifier.testTag("stats-time-total"))
+                        modifier = Modifier.testTag("stats-time-total"),
+                    )
                     if (top != null) {
                         LegendRow(accent, top.label, durationText(context, top.durationMillis), muted)
                         LegendRow(

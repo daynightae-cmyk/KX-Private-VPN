@@ -12,6 +12,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -118,6 +119,7 @@ class StatisticsScreenTest {
             val density = LocalDensity.current
             CompositionLocalProvider(
                 LocalContext provides localizedContext,
+                LocalConfiguration provides localizedContext.resources.configuration,
                 LocalDensity provides Density(density.density, fontScale),
                 LocalLayoutDirection provides if (arabic) LayoutDirection.Rtl else LayoutDirection.Ltr,
             ) {
@@ -167,8 +169,9 @@ class StatisticsScreenTest {
         compose.onNodeWithTag("stats-time-value")
             .assertTextEquals(text(R.string.stats_no_data))
         compose.onNodeWithTag("stats-chart-empty").assertIsDisplayed()
-        compose.onNodeWithTag("stats-no-servers").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("stats-time-total").assertTextEquals(text(R.string.stats_no_data))
         capture("36-statistics-defaults-light")
+        compose.onNodeWithTag("stats-no-servers").performScrollTo().assertIsDisplayed()
     }
 
     @Test fun measuredTotalsRateServerAndHistoryComeFromRecords() {
@@ -195,12 +198,12 @@ class StatisticsScreenTest {
         compose.onNodeWithTag("stats-speed-tx").assertTextContains(
             text(R.string.stats_rate_kbps, "2"),
         )
+        capture("37-statistics-populated-light")
         compose.onNodeWithTag("stats-server-row-sg.example:51820").performScrollTo()
             .assertIsDisplayed()
         compose.onNodeWithTag("stats-server-row-de.example:51820").performScrollTo()
             .assertIsDisplayed()
         compose.onNodeWithTag("stats-note").performScrollTo().assertIsDisplayed()
-        capture("37-statistics-populated-light")
     }
 
     @Test fun rangeSelectionRebuildsTheWindowFromStoredRecords() {
@@ -343,10 +346,10 @@ class StatisticsScreenTest {
         screen(state(orderRecords()), arabic = true, fontScale = 1.6f)
 
         compose.onNodeWithTag("stats-total").assertIsDisplayed()
+        capture("40-statistics-ar-large-text")
         compose.onNodeWithTag("stats-chart-card").performScrollTo().assertIsDisplayed()
         compose.onNodeWithTag("stats-note").performScrollTo().assertIsDisplayed()
         compose.onNodeWithTag("stats-nav").assertIsDisplayed()
-        capture("40-statistics-ar-large-text")
     }
 
     private fun orderRecords(): List<UsageRecord> = listOf(
