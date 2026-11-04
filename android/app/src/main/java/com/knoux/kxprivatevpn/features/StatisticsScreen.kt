@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -192,52 +193,72 @@ private fun StatGrid(
     val context = LocalContext.current
     val noSessions = stringResource(R.string.stats_no_sessions)
     val range = rangeLabel(state.range)
+    val cards = listOf(
+        StatSpec(
+            GlyphKind.DATABASE,
+            label = stringResource(R.string.stats_total_data),
+            value = if (summary.hasAnyRecords) bytesText(context, summary.totalBytes) else noSessions,
+            hint = if (summary.hasAnyRecords) comparisonText(context, summary) else range,
+            tag = "stats-total", valueTag = "stats-total-value",
+        ),
+        StatSpec(
+            GlyphKind.SPEED,
+            label = stringResource(R.string.stats_average_speed),
+            value = rateText(context, summary.averageBytesPerSecond),
+            hint = if (summary.sessions > 0)
+                stringResource(R.string.stats_speed_hint, summary.sessions) else noSessions,
+            tag = "stats-speed", valueTag = "stats-speed-value",
+        ),
+        StatSpec(
+            GlyphKind.SERVER,
+            label = stringResource(R.string.stats_most_used),
+            value = summary.mostUsed?.label ?: stringResource(R.string.stats_no_data),
+            hint = summary.mostUsed?.let {
+                stringResource(R.string.stats_server_hint, (it.shareOfDuration * 100).roundToInt())
+            } ?: noSessions,
+            tag = "stats-server", valueTag = "stats-server-value",
+        ),
+        StatSpec(
+            GlyphKind.CLOCK,
+            label = stringResource(R.string.stats_connection_time),
+            value = if (summary.sessions > 0) durationText(context, summary.durationMillis)
+            else stringResource(R.string.stats_no_data),
+            hint = if (summary.sessions > 0) stringResource(R.string.stats_time_hint) else noSessions,
+            tag = "stats-time", valueTag = "stats-time-value",
+        ),
+    )
+    // At large font scales a half-width card cannot fit a full value, so stack the cards.
+    val columns = if (LocalDensity.current.fontScale >= 1.3f) 1 else 2
     Column(
         Modifier.padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            StatCard(
-                night, GlyphKind.DATABASE,
-                label = stringResource(R.string.stats_total_data),
-                value = if (summary.hasAnyRecords) bytesText(context, summary.totalBytes) else noSessions,
-                hint = if (summary.hasAnyRecords) comparisonText(context, summary) else range,
-                tag = "stats-total", valueTag = "stats-total-value",
-                modifier = Modifier.weight(1f),
-            )
-            StatCard(
-                night, GlyphKind.SPEED,
-                label = stringResource(R.string.stats_average_speed),
-                value = rateText(context, summary.averageBytesPerSecond),
-                hint = if (summary.sessions > 0)
-                    stringResource(R.string.stats_speed_hint, summary.sessions) else noSessions,
-                tag = "stats-speed", valueTag = "stats-speed-value",
-                modifier = Modifier.weight(1f),
-            )
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            StatCard(
-                night, GlyphKind.SERVER,
-                label = stringResource(R.string.stats_most_used),
-                value = summary.mostUsed?.label ?: stringResource(R.string.stats_no_data),
-                hint = summary.mostUsed?.let {
-                    stringResource(R.string.stats_server_hint, (it.shareOfDuration * 100).roundToInt())
-                } ?: noSessions,
-                tag = "stats-server", valueTag = "stats-server-value",
-                modifier = Modifier.weight(1f),
-            )
-            StatCard(
-                night, GlyphKind.CLOCK,
-                label = stringResource(R.string.stats_connection_time),
-                value = if (summary.sessions > 0) durationText(context, summary.durationMillis)
-                else stringResource(R.string.stats_no_data),
-                hint = if (summary.sessions > 0) stringResource(R.string.stats_time_hint) else noSessions,
-                tag = "stats-time", valueTag = "stats-time-value",
-                modifier = Modifier.weight(1f),
-            )
+        cards.chunked(columns).forEach { rowCards ->
+            Row(
+                Modifier.height(IntrinsicSize.Min),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                rowCards.forEach { card ->
+                    StatCard(
+                        night, card.glyph,
+                        label = card.label, value = card.value, hint = card.hint,
+                        tag = card.tag, valueTag = card.valueTag,
+                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                    )
+                }
+            }
         }
     }
 }
+
+private data class StatSpec(
+    val glyph: GlyphKind,
+    val label: String,
+    val value: String,
+    val hint: String,
+    val tag: String,
+    val valueTag: String,
+)
 
 @Composable
 private fun StatCard(
@@ -262,10 +283,10 @@ private fun StatCard(
             GlyphPanel(night, glyph, 36.dp)
             Spacer(Modifier.width(9.dp))
             Column(Modifier.weight(1f)) {
-                Text(label, color = muted, fontSize = 10.5.sp, maxLines = 1,
+                Text(label, color = muted, fontSize = 10.5.sp, maxLines = 2,
                     overflow = TextOverflow.Ellipsis)
                 Text(value, color = titleColor, fontSize = 18.sp, fontWeight = FontWeight.ExtraBold,
-                    maxLines = 1, overflow = TextOverflow.Ellipsis,
+                    maxLines = 2, overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.testTag(valueTag))
                 Text(hint, color = muted.copy(alpha = .82f), fontSize = 9.sp, lineHeight = 12.sp,
                     maxLines = 2, overflow = TextOverflow.Ellipsis)
@@ -987,9 +1008,15 @@ private fun bytesText(context: Context, bytes: Long): String =
 
 private fun bytesShort(bytes: Long): String {
     val value = bytes.coerceAtLeast(0).toDouble()
+    // One decimal below 10 units keeps adjacent axis labels distinguishable (2.5 vs 1.7 MB).
+    fun scaled(divisor: Double, unit: String): String {
+        val scaled = value / divisor
+        return if (scaled < 10) String.format(Locale.US, "%.1f %s", scaled, unit)
+        else String.format(Locale.US, "%.0f %s", scaled, unit)
+    }
     return when {
-        value >= 1_073_741_824 -> String.format(Locale.US, "%.0f GB", value / 1_073_741_824)
-        value >= 1_048_576 -> String.format(Locale.US, "%.0f MB", value / 1_048_576)
+        value >= 1_073_741_824 -> scaled(1_073_741_824.0, "GB")
+        value >= 1_048_576 -> scaled(1_048_576.0, "MB")
         value >= 1_024 -> String.format(Locale.US, "%.0f KB", value / 1_024)
         else -> "${bytes.coerceAtLeast(0)} B"
     }
