@@ -223,10 +223,14 @@ class VpnController(
             rxBytes = traffic.rxBytes,
             txBytes = traffic.txBytes,
             latestHandshakeMillis = traffic.latestHandshakeMillis,
-            dnsServers = iface?.dnsServers?.mapNotNull { it.hostAddress }?.sorted().orEmpty(),
+             dnsServers = iface?.dnsServers?.mapNotNull { it.hostAddress }?.sorted().orEmpty(),
             addresses = iface?.addresses?.map { it.toString() }?.sorted().orEmpty(),
             allowedIps = config?.peers?.flatMap { it.allowedIps }?.map { it.toString() }?.distinct()?.sorted().orEmpty(),
             mtu = iface?.mtu?.orElse(null),
+            keepaliveSeconds = config?.peers
+                ?.mapNotNull { it.persistentKeepalive.orElse(null) }
+                ?.distinct()
+                ?.singleOrNull(),
             backendVersion = version,
         )
     }

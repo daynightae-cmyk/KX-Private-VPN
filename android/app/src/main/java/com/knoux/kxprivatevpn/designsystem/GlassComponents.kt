@@ -129,8 +129,9 @@ private fun BackChevron(color: Color) {
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     Canvas(Modifier.size(20.dp)) {
         val stroke = 2.4.dp.toPx()
-        val near = if (rtl) size.width * .66f else size.width * .34f
-        val far = if (rtl) size.width * .34f else size.width * .66f
+        // Back points toward the reading start: left in LTR, right in RTL.
+        val near = if (rtl) size.width * .34f else size.width * .66f
+        val far = if (rtl) size.width * .66f else size.width * .34f
         drawLine(color, Offset(near, size.height * .18f), Offset(far, size.height * .5f),
             strokeWidth = stroke, cap = StrokeCap.Round)
         drawLine(color, Offset(far, size.height * .5f), Offset(near, size.height * .82f),
