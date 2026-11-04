@@ -82,4 +82,8 @@
     <string name="storage_settings">Open Android storage settings</string>
     <string name="refresh">Refresh measurements</string>
     <string name="measured_at">Measured at %1$s</string>
+    <string name="pref_notifications_unavailable">Notifications: unavailable in this build. No notification permission is declared, so KX never posts alerts.</string>
+    <string name="pref_reset">Reset preferences</string>
+    <string name="pref_reset_hint">Language and theme go back to system defaults.</string>
+    <string name="pref_privacy">Privacy: profiles are encrypted with the Android Keystore and excluded from backup. No account or subscription is configured. No analytics or network calls are made by this screen.</string>
 </resources>

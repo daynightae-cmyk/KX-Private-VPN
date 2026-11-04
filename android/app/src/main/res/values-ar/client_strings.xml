@@ -82,4 +82,8 @@
     <string name="storage_settings">افتح إعدادات التخزين في Android</string>
     <string name="refresh">حدّث القياسات</string>
     <string name="measured_at">وقت القياس %1$s</string>
+    <string name="pref_notifications_unavailable">الإشعارات: غير متاحة في هذا الإصدار. لم يُعرَّف إذن إشعارات، لذا KX لا يرسل أي تنبيهات.</string>
+    <string name="pref_reset">إعادة تعيين التفضيلات</string>
+    <string name="pref_reset_hint">اللغة والمظهر يعودان إلى إعدادات النظام.</string>
+    <string name="pref_privacy">الخصوصية: الملفات مشفرة بـ Android Keystore ومُستبعدة من النسخ الاحتياطي. لا يوجد حساب أو اشتراك. هذه الشاشة لا تجري أي تحليلات أو اتصالات.</string>
 </resources>
