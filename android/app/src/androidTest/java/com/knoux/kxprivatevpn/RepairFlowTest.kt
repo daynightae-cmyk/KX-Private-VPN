@@ -38,17 +38,16 @@ class RepairFlowTest {
                 compose.onAllNodes(hasTestTag("repair-volume")).fetchSemanticsNodes().isNotEmpty()
             }
             compose.onNodeWithTag("repair-services-count").assertTextEquals(
-                context.getString(R.string.repair_services_count, 4, 10),
+                context.getString(R.string.repair_services_count, 5, 10),
             )
             capture("46-repair-lab-flow")
 
             compose.onNodeWithTag("repair-card-duplicate").performScrollTo().performClick()
             compose.waitUntil(10_000) {
-                compose.onAllNodes(hasText(context.getString(R.string.repair_unavailable_body)))
-                    .fetchSemanticsNodes().isNotEmpty()
+                compose.onAllNodes(hasTestTag("route-duplicate")).fetchSemanticsNodes().isNotEmpty()
             }
-            compose.onNodeWithTag("repair-card-duplicate").assertDoesNotExist()
-            capture("47-repair-unavailable-flow")
+            compose.onNodeWithTag("route-duplicate").assertExists()
+            capture("47-repair-duplicate-flow")
             scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
             compose.waitUntil(10_000) {
                 compose.onAllNodes(hasTestTag("repair-lab")).fetchSemanticsNodes().isNotEmpty()
