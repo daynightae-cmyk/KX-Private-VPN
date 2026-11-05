@@ -174,7 +174,6 @@ class GhostHunterScreenTest {
         compose.onNodeWithTag("ghost-confirm").performClick()
         assertEquals(1, confirmed)
         assertEquals(0, dismissed)
-        capture("54-ghost-confirm")
     }
 
     @Test fun selectAllAndClearAreRealActions() {
@@ -195,6 +194,7 @@ class GhostHunterScreenTest {
         compose.onNodeWithTag("ghost-cleanup").assertDoesNotExist()
         compose.onNodeWithTag("ghost-regrant").performScrollTo().performClick()
         assertEquals(1, regrant)
+        capture("54-ghost-read-only")
     }
 
     @Test fun emptyScanHasAnHonestEmptyState() {
