@@ -102,7 +102,7 @@
     <string name="repair_cache_missing">KX cache scan unavailable</string>
     <string name="repair_preview_missing">KX cache review unavailable</string>
     <string name="repair_storage_free">%1$s free of %2$s</string>
-    <string name="repair_storage_used">%1$s used by accessible data and the system</string>
+    <string name="repair_storage_used">%1$s used on this volume, including data Android does not expose to KX</string>
     <string name="repair_kx_cache">KX cache · %1$s</string>
     <string name="repair_kx_cache_files">%1$d files · %2$s</string>
     <string name="repair_cache_preview_limited">The first 500 KX cache files are listed. The byte total covers the whole KX cache.</string>

@@ -25,6 +25,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -473,21 +474,25 @@ private fun ServiceCard(
             fontSize = 11.sp, lineHeight = 15.sp, color = foreground.copy(alpha = .74f),
             maxLines = 2, overflow = TextOverflow.Ellipsis,
         )
+        val detailTone = if (night) accent else lerp(accent, Color(0xFF171050), .55f)
         Text(detail, fontSize = 10.sp, lineHeight = 14.sp,
-            color = if (available) accent else foreground.copy(alpha = .6f),
+            color = if (available) detailTone else foreground.copy(alpha = .6f),
             fontWeight = FontWeight.SemiBold)
     }
 }
 
 @Composable
 private fun StatusPill(label: String, accent: Color, night: Boolean) {
+    // Cyan and pearl accents are legible on the night glass, but they wash out on the light
+    // atmosphere; day mode darkens the same accent instead of dropping the color identity.
+    val tone = if (night) accent else lerp(accent, Color(0xFF171050), .55f)
     Box(
         Modifier.clip(RoundedCornerShape(50))
-            .background(accent.copy(alpha = if (night) .18f else .14f))
-            .border(.8.dp, accent.copy(alpha = .55f), RoundedCornerShape(50))
+            .background(tone.copy(alpha = if (night) .18f else .12f))
+            .border(.8.dp, tone.copy(alpha = .55f), RoundedCornerShape(50))
             .padding(horizontal = 6.dp, vertical = 3.dp),
     ) {
-        Text(label, fontSize = 8.sp, lineHeight = 10.sp, color = accent,
+        Text(label, fontSize = 8.sp, lineHeight = 10.sp, color = tone,
             fontWeight = FontWeight.SemiBold, maxLines = 2, textAlign = TextAlign.Center)
     }
 }

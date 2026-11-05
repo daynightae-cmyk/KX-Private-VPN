@@ -102,7 +102,7 @@
     <string name="repair_cache_missing">تعذر مسح كاش KX</string>
     <string name="repair_preview_missing">تعذرت مراجعة كاش KX</string>
     <string name="repair_storage_free">متاح %1$s من %2$s</string>
-    <string name="repair_storage_used">%1$s مستخدمة بواسطة البيانات المتاحة والنظام</string>
+    <string name="repair_storage_used">%1$s مستخدمة على وحدة التخزين، بما في ذلك بيانات لا يعرضها Android لـ KX</string>
     <string name="repair_kx_cache">كاش KX · %1$s</string>
     <string name="repair_kx_cache_files">%1$d ملفًا · %2$s</string>
     <string name="repair_cache_preview_limited">تُعرض أول ٥٠٠ ملف من كاش KX. إجمالي البايتات يغطي كاش KX كاملًا.</string>
