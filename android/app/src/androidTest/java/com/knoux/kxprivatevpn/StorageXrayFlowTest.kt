@@ -35,6 +35,12 @@ class StorageXrayFlowTest {
                 compose.onAllNodes(hasTestTag("storage-measured-at")).fetchSemanticsNodes().isNotEmpty()
             }
             compose.onNodeWithTag("storage-kx").assertExists()
+            compose.waitUntil(20_000) {
+                compose.onAllNodes(hasTestTag("storage-category-images")).fetchSemanticsNodes()
+                    .isNotEmpty() ||
+                    compose.onAllNodes(hasTestTag("storage-media-permission")).fetchSemanticsNodes()
+                        .isNotEmpty()
+            }
             compose.onNodeWithTag("storage-read-only").performScrollTo().assertIsDisplayed()
             val categories = compose.onAllNodes(hasTestTag("storage-category-images"))
                 .fetchSemanticsNodes().isNotEmpty()

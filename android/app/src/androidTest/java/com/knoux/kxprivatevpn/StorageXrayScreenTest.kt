@@ -164,7 +164,7 @@ class StorageXrayScreenTest {
         compose.onNodeWithTag("storage-category-images")
             .assertTextContains("120", substring = true)
         compose.onNodeWithTag("storage-category-documents")
-            .assertTextContains(text(R.string.storage_category_not_permitted), substring = true)
+            .assertTextContains(text(R.string.storage_category_version_limited), substring = true)
         val accessible = 2L * 1024 * 1024 * 1024 + 1024 * 1024 * 1024 +
             500L * 1024 * 1024 + 5L * 1024 * 1024
         compose.onNodeWithTag("storage-accessible").assertTextEquals(
