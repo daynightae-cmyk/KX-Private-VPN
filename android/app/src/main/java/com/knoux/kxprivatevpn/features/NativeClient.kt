@@ -58,6 +58,24 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
     MaterialTheme(colorScheme = if (night) darkColorScheme(primary = Color(0xFF99EBFF))
         else lightColorScheme(primary = Color(0xFF4420B3))) {
         CompositionLocalProvider(LocalContentColor provides foreground) {
+            if (route == "home") {
+                KxHomeScreen(
+                    night = night,
+                    snapshot = state.snapshot,
+                    busy = state.busy,
+                    vpn = vpn,
+                    onConnect = { model.prepareConnect()?.let(consent::launch) },
+                    onDisconnect = { model.disconnectVpn() },
+                    onSession = { navigate("session") },
+                    onDismissIssue = { model.dismissVpnIssue() },
+                    onNavigate = navigate,
+                )
+                return@CompositionLocalProvider
+            }
+            if (route == "servers") {
+                ServerSelectionRoute(state, model, night, back) { navigate("import") }
+                return@CompositionLocalProvider
+            }
             if (route == "security") {
                 SecurityRoute(model, vpn, night, onBack = back, onSession = { navigate("session") })
                 return@CompositionLocalProvider

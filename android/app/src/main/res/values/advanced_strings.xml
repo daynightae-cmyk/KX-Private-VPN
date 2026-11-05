@@ -1,5 +1,5 @@
 <resources>
-    <string name="adv_title">Advanced Network</string>
+    <string name="adv_title">Advanced network</string>
     <string name="adv_hero_title">Fine-tune the tunnel.</string>
     <string name="adv_hero_body">Protocol selection and advanced network controls for higher performance, privacy, and stability.</string>
     <string name="adv_section_protocol">Protocol</string>

@@ -38,14 +38,14 @@ class SecurityFlowTest {
                     compose.onAllNodes(hasTestTag("security-screen")).fetchSemanticsNodes().isNotEmpty()
                 }
                 compose.waitUntil(15_000) {
-                    compose.onAllNodes(hasText(context.getString(R.string.security_hero_inactive)))
+                    compose.onAllNodes(hasText(strings(context).getString(R.string.security_hero_inactive)))
                         .fetchSemanticsNodes().isNotEmpty()
                 }
                 compose.onNodeWithTag("security-posture")
-                    .assertTextEquals(context.getString(R.string.security_hero_inactive))
+                    .assertTextEquals(strings(context).getString(R.string.security_hero_inactive))
                 compose.onNodeWithTag("security-row-tracker-status")
                     .performScrollTo()
-                    .assertTextEquals(context.getString(R.string.security_state_unavailable))
+                    .assertTextEquals(strings(context).getString(R.string.security_state_unavailable))
                 compose.onNodeWithTag("security-hero").performScrollTo()
                 val folder = File(context.getExternalFilesDir(null), "identity-evidence").apply { mkdirs() }
                 File(folder, "24-security-center-device-light.png").outputStream().use { stream ->

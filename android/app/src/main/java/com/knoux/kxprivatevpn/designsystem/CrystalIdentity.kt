@@ -208,8 +208,10 @@ private fun DrawScope.star(p: Offset, radius: Float, alpha: Float) {
 @Composable
 fun GlassAction(label: String, modifier: Modifier = Modifier, enabled: Boolean = true, onClick: () -> Unit) {
     val shape = RoundedCornerShape(40.dp)
+    // The stops are deliberately deep: white label text needs >=3:1 against the
+    // lightest end of the fill even in day theme, where the page behind is pale.
     Box(modifier.fillMaxWidth().heightIn(min = 58.dp).clip(shape).alpha(if (enabled) 1f else .5f)
-        .background(Brush.linearGradient(listOf(Violet.copy(alpha = .9f), Color(0xFF4930D6), Cyan.copy(alpha = .8f))))
+        .background(Brush.linearGradient(listOf(Color(0xFF8A4BFF), Color(0xFF4930D6), Color(0xFF1580C8))))
         .border(1.5.dp, Brush.linearGradient(listOf(Pearl, Cyan, Violet, Pearl)), shape)
         .clickable(enabled = enabled, role = Role.Button, onClick = onClick).padding(horizontal = 24.dp, vertical = 16.dp),
         contentAlignment = Alignment.Center) {

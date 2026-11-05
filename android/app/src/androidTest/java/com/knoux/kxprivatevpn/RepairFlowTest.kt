@@ -22,11 +22,16 @@ class RepairFlowTest {
 
     @Test fun repairLabMeasuresRoutesAndNeverFakesUnavailableTools() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val preferences = LaunchPreferences(context)
+        val original = runBlocking { preferences.settings() }
         runBlocking {
-            LaunchPreferences(context).markSeen()
-            LaunchPreferences(context).completeOnboarding()
+            preferences.markSeen()
+            preferences.completeOnboarding()
+            // Pin the appearance: the flow below asserts against it, and a previous test in the
+            // same run may have left the persisted language on purpose.
+            preferences.appearance("en", "day")
         }
-        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+        try { ActivityScenario.launch(MainActivity::class.java).use { scenario ->
             compose.waitUntil(10_000) {
                 compose.onAllNodes(hasTestTag("route-home")).fetchSemanticsNodes().isNotEmpty()
             }
@@ -38,7 +43,7 @@ class RepairFlowTest {
                 compose.onAllNodes(hasTestTag("repair-volume")).fetchSemanticsNodes().isNotEmpty()
             }
             compose.onNodeWithTag("repair-services-count").assertTextEquals(
-                context.getString(R.string.repair_services_count, 5, 10),
+                strings(context).getString(R.string.repair_services_count, 5, 10),
             )
             capture("46-repair-lab-flow")
 
@@ -70,6 +75,8 @@ class RepairFlowTest {
                 compose.onAllNodes(hasTestTag("repair-measured-at")).fetchSemanticsNodes().isNotEmpty()
             }
             compose.onNodeWithTag("repair-measured-at").performScrollTo().assertIsDisplayed()
+        } } finally {
+            runBlocking { preferences.appearance(original.language, original.theme) }
         }
     }
 

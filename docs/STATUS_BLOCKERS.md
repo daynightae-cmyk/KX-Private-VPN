@@ -1,5 +1,27 @@
 # KX Private VPN — current blockers
 
+## VISUAL TRANSFORMATION IMPLEMENTED ON DEVICE, LIVE CONNECTED SESSION STILL NOT FIELD-PROVEN (2026-11-05)
+
+- The owner handoff UI is implemented natively in Compose: consumer Home with the glass orb, one
+  Connect action, the real saved-profile selector, measured-or-`—` metrics, the KX Care summary,
+  the tool grid and a five-tab bottom bar; a Server Selection screen over imported profiles only;
+  a compacted Repair Lab grid whose cards announce one honest status; consumer-facing Arabic and
+  English service names; and a primary action deep enough to keep white labels readable in day
+  theme. Routes and internal API names did not change.
+- Verified against the 11 hash-checked references on the physical API 35 acceptance phone: 27
+  captures covering Arabic/English × day/night, 360/411 dp, font scale 1.0/1.3 and reduced motion.
+  148 JVM tests, lint 0 errors, and the full instrumentation suite on the phone (134 tests,
+  1 skipped, 0 failed). See [visual evidence](evidence/VISUAL_TRANSFORMATION_20261105.md).
+- **Still required:** a real connected session on the phone. The device holds no imported
+  WireGuard profile, so Home legitimately shows `مفيش إعدادات محفوظة` / no configurations and
+  `—` metrics; the connected layout is only proven by instrumented previews that render the
+  production composables with injected state. That is not a tunnel claim. The reference renders'
+  countries, ping, load percentages, tunnel IP and "fully protected" shield remain deliberately
+  unimplemented because there is no fleet, probe or leak test behind them.
+- Unchanged and still open: no foreground-service owner, notification or type (A-P0-01);
+  unbounded `ProfileStore` read (A-P1-04); no owned gateway and no release signing; API 35
+  emulator renderer loss; TASK_15–21 not started, so those care cards stay honestly unavailable.
+
 ## TASK_13 — GHOST HUNTER MERGED, REAL PROVIDER DELETE FIELD PROOF DEFERRED (2026-11-05)
 
 - `GhostHunterScreen` scans only the user-authorized SAF tree. Candidates are reported 0-byte files

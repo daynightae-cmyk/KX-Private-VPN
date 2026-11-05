@@ -1,5 +1,5 @@
 <resources>
-    <string name="cache_surgeon">Cache Surgeon</string>
+    <string name="cache_surgeon">Temporary files</string>
     <string name="cache_scope">Review temporary files owned by KX only. Other apps’ caches and saved VPN configurations are excluded. Select files, then explicitly approve removal. Changed files are skipped. No undo is available.</string>
     <string name="cache_scan">Inspect KX cache</string>
     <string name="cache_none">No removable KX cache files found.</string>

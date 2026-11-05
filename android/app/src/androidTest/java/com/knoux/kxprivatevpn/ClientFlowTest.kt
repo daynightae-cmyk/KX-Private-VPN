@@ -44,7 +44,7 @@ class ClientFlowTest {
                     compose.onRoot().captureToImage().asAndroidBitmap().compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it)
                 }
                 compose.onNodeWithText("English").performScrollTo().performClick()
-                compose.waitUntil(10000) { compose.onAllNodes(hasText(context.getString(R.string.language))).fetchSemanticsNodes().isNotEmpty() }
+                compose.waitUntil(10000) { compose.onAllNodes(hasText(strings(context).getString(R.string.language))).fetchSemanticsNodes().isNotEmpty() }
             }
             val restored = runBlocking { preferences.settings() }
             org.junit.Assert.assertEquals("en", restored.language)
@@ -59,7 +59,14 @@ class ClientFlowTest {
         val key = Base64.getEncoder().encodeToString(ByteArray(32) { (it + 1).toByte() })
         val config = "[Interface]\nPrivateKey = $key\nAddress = 10.7.0.2/32\n" +
             "[Peer]\nPublicKey = $key\nEndpoint = 192.0.2.1:51820\nAllowedIPs = 0.0.0.0/0"
-        runBlocking { LaunchPreferences(context).markSeen(); LaunchPreferences(context).completeOnboarding() }
+        val preferences = LaunchPreferences(context)
+        val appearanceBefore = runBlocking { preferences.settings() }
+        runBlocking {
+            preferences.markSeen(); preferences.completeOnboarding()
+            // Pin the appearance so the Home status asserted below is not inherited from
+            // whichever language another test happened to leave persisted.
+            preferences.appearance("en", "day")
+        }
         try {
             ActivityScenario.launch(MainActivity::class.java).use { scenario ->
                 compose.waitUntil(10000) { compose.onAllNodes(hasTestTag("route-home")).fetchSemanticsNodes().isNotEmpty() }
@@ -71,7 +78,7 @@ class ClientFlowTest {
                 compose.waitUntil(10000) { compose.onAllNodes(hasTestTag("route-home")).fetchSemanticsNodes().isNotEmpty() }
                 // Home is a scrollable page and resets to the top on navigation by design.
                 compose.onNodeWithText(name).performScrollTo().assertIsDisplayed()
-                compose.onNodeWithText(context.getString(R.string.disconnected)).performScrollTo().assertIsDisplayed()
+                compose.onNodeWithText(strings(context).getString(R.string.disconnected)).performScrollTo().assertIsDisplayed()
                 val folder = File(context.getExternalFilesDir(null), "identity-evidence").apply { mkdirs() }
                 File(folder, "08-native-home-imported.png").outputStream().use {
                     compose.onRoot().captureToImage().asAndroidBitmap().compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it)
@@ -84,6 +91,7 @@ class ClientFlowTest {
             }
         } finally {
             runBlocking {
+                preferences.appearance(appearanceBefore.language, appearanceBefore.theme)
                 store.load().profiles.filter { it.name == name }.forEach { store.remove(it.id) }
                 original.selectedId?.let { store.select(it) }
             }

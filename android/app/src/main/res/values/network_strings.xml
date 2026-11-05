@@ -1,5 +1,5 @@
 <resources>
-    <string name="network_doctor">Network Doctor</string>
+    <string name="network_doctor">Network check</string>
     <string name="network_scope">Live Android network capabilities and DNS addresses. VPN transport may belong to another app and is not proof of KX protection. HTTPS duration measures one request, not ICMP ping or VPN speed.</string>
     <string name="network_present">An active Android network is present</string>
     <string name="network_absent">No active Android network</string>
