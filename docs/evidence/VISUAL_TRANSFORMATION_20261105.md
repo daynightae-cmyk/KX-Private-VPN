@@ -4,7 +4,8 @@
 **branch:** `codex/visual-consumer-ui`
 **acceptance device:** itel S686LN, Android 15 (API 35), `1334825549012211`, 1080×2436 @ 480 dpi
 (360 dp width), system locale `ar-EG`
-**status:** PENDING — PR / CI / merge recorded at the bottom of this file
+**status:** MERGED — main `3c8abfe`, PR #14, API 26 CI green (134 tests), physical API 35 phone
+green (134 tests, 1 skipped, 0 failed); API 35 emulator remains the documented renderer blocker
 
 ## 1. Reference set verified by hash and by eye
 
@@ -178,10 +179,15 @@ returned to their original values.
   and `run-as` traversal into `/storage/emulated/0/Android/data/<pkg>/files`, so the on-device
   previews come from the CI artifact instead. The eight new Home/Server instrumentation tests were
   still executed on the phone (`am instrument … OK (8 tests)`).
-- merged_sha: PENDING
+- merged_sha: `3c8abfee0e4b07ce605dfdd53e3ff79a692b8f96` (PR #14 merged into main; remote main
+  verified at that SHA)
+- CI run for the merged head `d23e7c1`: `42039507246` — build PASS, SonarCloud PASS,
+  **device (26) PASS with 134 tests**, device (35) still the documented
+  `IdentityTest.arabicRtlLargeText360dp` emulator blocker.
 - final APK SHA-256: `d2fbff212851d4f343556db1ad8b9b2059a2f6e2b9a2dba3f80d9e36e65cdf75`
   (JVM 148/148, lint 0 errors, full instrumentation suite green on the phone). The
   `abdac0fa…` build was the intermediate polish pass; `eb0e51a4…` added the hero spacing and the
   explicit server-card action colours, and `d2fbff21…` additionally colours the Import button so
   it does not depend on the ambient Material colour scheme.
+
 

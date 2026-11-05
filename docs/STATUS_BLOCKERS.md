@@ -1,6 +1,6 @@
 # KX Private VPN — current blockers
 
-## VISUAL TRANSFORMATION IMPLEMENTED ON DEVICE, LIVE CONNECTED SESSION STILL NOT FIELD-PROVEN (2026-11-05)
+## VISUAL TRANSFORMATION MERGED, LIVE CONNECTED SESSION STILL NOT FIELD-PROVEN (2026-11-05)
 
 - The owner handoff UI is implemented natively in Compose: consumer Home with the glass orb, one
   Connect action, the real saved-profile selector, measured-or-`—` metrics, the KX Care summary,
@@ -12,6 +12,8 @@
   captures covering Arabic/English × day/night, 360/411 dp, font scale 1.0/1.3 and reduced motion.
   148 JVM tests, lint 0 errors, and the full instrumentation suite on the phone (134 tests,
   1 skipped, 0 failed). See [visual evidence](evidence/VISUAL_TRANSFORMATION_20261105.md).
+- Merged: PR #14 → main `3c8abfee0e4b07ce605dfdd53e3ff79a692b8f96`, CI run `42039507246`
+  (build + Sonar + API 26 device 134 tests green; API 35 emulator still the known renderer loss).
 - **Still required:** a real connected session on the phone. The device holds no imported
   WireGuard profile, so Home legitimately shows `مفيش إعدادات محفوظة` / no configurations and
   `—` metrics; the connected layout is only proven by instrumented previews that render the
