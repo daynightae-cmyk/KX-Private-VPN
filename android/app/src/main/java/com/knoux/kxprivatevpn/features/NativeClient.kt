@@ -89,6 +89,14 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                 })
                 return@CompositionLocalProvider
             }
+            if (route == "repair") {
+                RepairLabRoute(night, onBack = back, onNavigate = navigate)
+                return@CompositionLocalProvider
+            }
+            if (route.startsWith("repair/")) {
+                RepairServiceRoute(route, night, onBack = back)
+                return@CompositionLocalProvider
+            }
             Box(Modifier.fillMaxSize()) {
                 Atmosphere(night, 0f)
                 Column(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 20.dp)
@@ -152,6 +160,7 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                                 onSession = { navigate("session") },
                                 onDismissIssue = { model.dismissVpnIssue() })
                             GlassAction(stringResource(R.string.import_config), Modifier.testTag("open-import")) { navigate("import") }
+                            GlassAction(stringResource(R.string.repair_lab), Modifier.testTag("open-repair")) { navigate("repair") }
                             listOf("security" to R.string.security_center,
                                 "split" to R.string.split_title,
                                 "advanced" to R.string.adv_title,
