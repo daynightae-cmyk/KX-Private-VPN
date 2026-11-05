@@ -538,6 +538,7 @@ private fun JournalRow(
                 stringResource(when (entry.action) {
                     ACTION_CACHE_REMOVE -> R.string.repair_action_cache_remove
                     ACTION_GHOST_CLEANUP -> R.string.ghost_action
+                    ACTION_DUPLICATE_CLEANUP -> R.string.dna_action
                     else -> R.string.repair_action_other
                 }),
                 fontSize = 11.sp, color = foreground.copy(alpha = .72f),
@@ -621,3 +622,4 @@ fun RepairServiceRoute(route: String, night: Boolean, onBack: () -> Unit) {
 
 private const val ACTION_CACHE_REMOVE = "cache_remove"
 private const val ACTION_GHOST_CLEANUP = "ghost_cleanup"
+private const val ACTION_DUPLICATE_CLEANUP = "duplicate_cleanup"

@@ -92,6 +92,10 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                 GhostHunterRoute(night, onBack = back)
                 return@CompositionLocalProvider
             }
+            if (route == "duplicate") {
+                DuplicateDnaRoute(night, onBack = back)
+                return@CompositionLocalProvider
+            }
             if (route.startsWith("repair/")) {
                 RepairServiceRoute(route, night, onBack = back)
                 return@CompositionLocalProvider

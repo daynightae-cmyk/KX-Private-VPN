@@ -276,4 +276,43 @@
     <string name="ghost_privacy">Only the authorized tree is read. Other apps’ private storage is inaccessible. Empty-folder confidence is medium because a provider may hide children.</string>
     <string name="ghost_empty">No zero-byte files or empty folders were found in this tree.</string>
     <string name="ghost_action">Ghost cleanup</string>
+
+    <!-- Duplicate DNA (TASK_14) -->
+    <string name="dna_subtitle">Exact duplicates found by streaming SHA-256 — only files that are byte-for-byte identical.</string>
+    <string name="dna_tree_none">Choose a folder. Duplicate DNA only reads the tree you authorize.</string>
+    <string name="dna_scan">Find duplicates</string>
+    <string name="dna_rescan">Rescan for duplicates</string>
+    <string name="dna_scanning">Scanning… %1$d files · %2$d hashed</string>
+    <string name="dna_scan_failed">The folder could not be scanned. Nothing is fabricated.</string>
+    <string name="dna_cancelled">Scan cancelled; partial results are shown and labeled.</string>
+    <string name="dna_scope">Only files in the authorized tree are read and hashed. Zero-byte files are excluded (use Ghost Hunter). No file is modified.</string>
+    <string name="dna_results_title">Scan results</string>
+    <string name="dna_scan_counts">%1$d files scanned · %2$d hashed for duplicates</string>
+    <string name="dna_groups_label">Duplicate groups</string>
+    <string name="dna_reclaimable_label">Reclaimable</string>
+    <string name="dna_review_title">Duplicate groups</string>
+    <string name="dna_selected">%1$d selected</string>
+    <string name="dna_group_label">Group %1$d</string>
+    <string name="dna_reclaimable_bytes">saves %1$s</string>
+    <string name="dna_sha_prefix">SHA-256: %1$s…</string>
+    <string name="dna_keep_label">Keep (oldest copy)</string>
+    <string name="dna_select_group">Select group</string>
+    <string name="dna_display_limit">Showing the first %1$d groups; counts cover all groups found.</string>
+    <string name="dna_cleanup_title">Confirmed cleanup</string>
+    <string name="dna_cleanup_body">KX re-checks every selected file before deletion. A file whose byte count changed since the scan is skipped. No file marked Keep is ever deleted.</string>
+    <string name="dna_no_selection">Select duplicates to review</string>
+    <string name="dna_review_cleanup">Review selected cleanup</string>
+    <string name="dna_cleaning">Deleting selected duplicates.</string>
+    <string name="dna_dialog_title">Delete selected duplicates?</string>
+    <string name="dna_dialog_body">KX will delete only the %1$d selected files. Every file is re-verified; changed files are skipped. No undo.</string>
+    <string name="dna_confirm">Delete selected</string>
+    <string name="dna_cleanup_cancel">Keep files</string>
+    <string name="dna_receipt_title">Cleanup result</string>
+    <string name="dna_receipt">Deleted %1$d · skipped %2$d · failed %3$d</string>
+    <string name="dna_receipt_reclaimed">%1$s reclaimed</string>
+    <string name="dna_cleanup_partial">Cleanup stopped early; only completed deletions are counted.</string>
+    <string name="dna_cleanup_failed">The cleanup operation could not complete. Nothing was deleted silently.</string>
+    <string name="dna_privacy">Only the authorized tree is read and hashed. No content leaves the device. Near-duplicates are not offered: only byte-identical files appear.</string>
+    <string name="dna_empty">No exact duplicate groups were found in this tree.</string>
+    <string name="dna_action">Duplicate cleanup</string>
 </resources>

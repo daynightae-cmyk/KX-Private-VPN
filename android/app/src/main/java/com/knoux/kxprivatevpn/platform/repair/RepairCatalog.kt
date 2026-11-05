@@ -13,7 +13,7 @@ import com.knoux.kxprivatevpn.R
 enum class RepairServiceId(val key: String, val route: String, val available: Boolean) {
     STORAGE("storage", "storage", true),
     GHOST("ghost", "ghost", true),
-    DUPLICATE("duplicate", "repair/duplicate", false),
+    DUPLICATE("duplicate", "duplicate", true),
     HEAVYWEIGHT("heavyweight", "repair/heavyweight", false),
     CACHE("cache", "cache", true),
     MEDIA("media", "repair/media", false),

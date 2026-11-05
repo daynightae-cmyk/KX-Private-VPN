@@ -276,4 +276,44 @@
     <string name="ghost_privacy">تُقرأ الشجرة المصرّح بها فقط. التخزين الخاص بتطبيقات أخرى غير متاح. ثقة المجلد الفارغ متوسطة لأن المزود قد يخفي الأبناء.</string>
     <string name="ghost_empty">لا ملفات بحجم صفر أو مجلدات فارغة في هذه الشجرة.</string>
     <string name="ghost_action">تنظيف الأشباح</string>
+
+    <!-- Duplicate DNA (TASK_14) -->
+    <string name="dna_subtitle">تكرارات دقيقة تُكتشف بـSHA-256 تدفقي — فقط الملفات المتطابقة بايتًا ببايت.</string>
+    <string name="dna_tree_none">اختر مجلدًا. كاشف التكرار يقرأ فقط الشجرة التي تصرّح بها.</string>
+    <string name="dna_scan">البحث عن التكرارات</string>
+    <string name="dna_rescan">إعادة البحث عن التكرارات</string>
+    <string name="dna_scanning">جارٍ المسح… %1$d ملفًا · %2$d مشفرًا</string>
+    <string name="dna_scan_failed">تعذر مسح المجلد. لا يُختلق شيء.</string>
+    <string name="dna_cancelled">أُلغي المسح؛ تُعرض النتائج الجزئية وتُوسم.</string>
+    <string name="dna_scope">تُقرأ وتُشفَّر فقط الملفات في الشجرة المصرّح بها. ملفات بحجم صفر مستبعدة (استخدم صائد الأشباح). لا يُعدَّل أي ملف.</string>
+    <string name="dna_results_title">نتائج المسح</string>
+    <string name="dna_scan_counts">%1$d ملفًا ممسوحًا · %2$d مشفرًا للتكرار</string>
+    <string name="dna_groups_label">مجموعات التكرار</string>
+    <string name="dna_reclaimable_label">قابل للاسترداد</string>
+    <string name="dna_review_title">مجموعات التكرار</string>
+    <string name="dna_selected">%1$d محددًا</string>
+    <string name="dna_group_label">المجموعة %1$d</string>
+    <string name="dna_reclaimable_bytes">توفير %1$s</string>
+    <string name="dna_sha_prefix">SHA-256: %1$s…</string>
+    <string name="dna_keep_label">احتفظ (أقدم نسخة)</string>
+    <string name="dna_select_group">تحديد المجموعة</string>
+    <string name="dna_display_limit">تُعرض أول %1$d مجموعة؛ الأعداد تغطي كل المجموعات.</string>
+    <string name="dna_cleanup_title">حذف مؤكد</string>
+    <string name="dna_cleanup_body">تتحقق KX من كل ملف محدد قبل الحذف. ملف تغيّر حجمه منذ المسح يُتخطى. لا تُحذف نسخة الاحتفاظ أبدًا.</string>
+    <string name="dna_no_selection">حدد التكرارات للمراجعة</string>
+    <string name="dna_review_cleanup">مراجعة الحذف المحدد</string>
+    <string name="dna_cleaning">جارٍ حذف التكرارات المحددة…</string>
+    <string name="dna_dialog_title">حذف التكرارات المحددة؟</string>
+    <string name="dna_dialog_body">ستحذف KX فقط %1$d ملفًا محددًا. يُعاد التحقق من كل ملف؛ تُتخطى الملفات المتغيرة. لا تراجع.</string>
+    <string name="dna_confirm">حذف المحدد</string>
+    <string name="dna_cleanup_cancel">الإبقاء على الملفات</string>
+    <string name="dna_receipt_title">نتيجة الحذف</string>
+    <string name="dna_receipt">حُذف %1$d · تُخطي %2$d · فشل %3$d</string>
+    <string name="dna_receipt_reclaimed">استُردّ %1$s</string>
+    <string name="dna_cleanup_partial">توقف الحذف مبكرًا؛ تُعرض فقط عمليات الحذف المكتملة.</string>
+    <string name="dna_cleanup_failed">تعذرت عملية الحذف. لم يُحذف أي شيء بصمت.</string>
+    <string name="dna_privacy">تُقرأ وتُشفَّر فقط الشجرة المصرّح بها. لا محتوى يغادر الجهاز. التكرارات شبه المتطابقة غير مطروحة: تظهر فقط الملفات المتطابقة بايتًا ببايت.</string>
+    <string name="dna_empty">لم تُعثر على مجموعات تكرار دقيقة في هذه الشجرة.</string>
+    <string name="dna_action">تنظيف التكرارات</string>
 </resources>
+

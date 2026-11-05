@@ -115,12 +115,12 @@ class RepairLabScreenTest {
             compose.onNodeWithTag("repair-card-$it").assertExists()
         }
         compose.onNodeWithTag("repair-services-count")
-            .assertTextEquals(text(R.string.repair_services_count, 4, 10))
+            .assertTextEquals(text(R.string.repair_services_count, 5, 10))
         compose.onNodeWithTag("repair-card-duplicate")
             .assert(hasContentDescription(
                 "${text(R.string.repair_service_duplicate)}. " +
-                    "${text(R.string.repair_status_unavailable)}. " +
-                    text(R.string.repair_status_unavailable), substring = true))
+                    "${text(R.string.repair_status_available)}. " +
+                    text(R.string.repair_status_ready), substring = true))
         compose.onNodeWithTag("repair-volume").assertTextContains("free of", substring = true)
         compose.onNodeWithTag("repair-cache").assertTextContains("5 files", substring = true)
         compose.onNodeWithTag("repair-measured-at").assertExists()
@@ -215,17 +215,17 @@ class RepairLabScreenTest {
     @Test fun unavailableDetailStatesNoSimulation() {
         compose.setContent {
             Box(Modifier.fillMaxSize()) {
-                RepairServiceRoute("repair/duplicate", night = false, onBack = {})
+                RepairServiceRoute("repair/heavyweight", night = false, onBack = {})
             }
         }
 
-        compose.onNodeWithText(context.getString(R.string.repair_service_duplicate)).assertExists()
+        compose.onNodeWithText(context.getString(R.string.repair_service_heavyweight)).assertExists()
         compose.onNodeWithText(context.getString(R.string.repair_unavailable_body)).assertExists()
         compose.onNodeWithText(
             context.getString(R.string.repair_requires,
                 context.getString(R.string.repair_requires_saf)),
         ).assertExists()
         compose.onNodeWithText(context.getString(R.string.repair_unavailable)).assertExists()
-        capture("45-repair-unavailable-ghost")
+        capture("45-repair-unavailable-heavyweight")
     }
 }
