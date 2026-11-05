@@ -1,5 +1,20 @@
 # KX Private VPN — current blockers
 
+## TASK_12 — STORAGE X-RAY MERGED, SYSTEM PICKER FIELD PROOF DEFERRED (2026-11-05)
+
+- `StorageXrayScreen` implements the owner composition: measured concentric storage core, real
+  volume and KX-owned data, MediaStore categories, permission education, SAF folder card,
+  reconciliation and read-only scope copy.
+- MediaStore queries only with the real permission; Android 13+ granular permissions are declared
+  and Android 14+ partial visual access is honored with an explicit label. Documents are queried
+  only on Android 10–12 where MediaStore exposes them; other versions direct to SAF.
+- SAF scanning is bounded (10k entries, depth 12), cancellable with partial results, persists the
+  user grant and offers breadcrumb drill-down. Nothing is deleted or written by this screen.
+- Verified: 122 JVM tests, API26 CI 100/100, build + SonarCloud PASS, lint 0 errors. Captures 48–52
+  reviewed; duplicate category sizes and English Arabic timestamps were fixed and re-captured.
+- **Still required:** a manual user-picked tree to field-prove the DocumentsContract reader path;
+  the scanner itself is JVM-tested with the same code. API35 renderer loss unchanged. No gateway.
+
 ## TASK_11 — REPAIR LAB DASHBOARD MERGED, SEVEN TOOLS HONESTLY UNAVAILABLE (2026-11-05)
 
 - `RepairLabScreen` implements the owner composition: glass-orb hero, ten-node diagnostic ring

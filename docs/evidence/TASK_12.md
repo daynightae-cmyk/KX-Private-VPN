@@ -2,8 +2,9 @@
 
 **baseline_sha:** `490c65c` (main after TASK_11 docs)
 **branch:** `codex/task-12-storage-xray`
-**implementation_sha:** pending
-**status:** IMPLEMENTED · LOCAL GATES PASS · DEVICE/VISUAL/CI PENDING
+**implementation_sha:** `d9c5008` + `ef252bf` + `542c380` + `0fa9dad` + `f5ae806` (head)
+**merged_sha:** `5e1ec69`
+**status:** MERGED · API26 DEVICE 100/100 · BUILD AND SONAR GREEN · API35 KNOWN RENDERER BLOCKER
 
 ## Scope
 Replaces the basic StatFs card with a real Storage X-Ray:
@@ -38,12 +39,24 @@ Replaces the basic StatFs card with a real Storage X-Ray:
 
 ## Verification
 - Local: `testDebugUnitTest` 122/122, 0 failures (13 new JVM tests); `lintDebug` 0 errors;
-  `assembleDebug` PASS; `compileDebugAndroidTestKotlin` PASS.
-- Device tests cover the real MediaStore permission matrix with `pm grant`/`pm revoke` on API 26
-  and assert denied categories stay null. SAF traversal is covered with a deterministic fake tree
-  (depth, entry cap, cancellation, unreadable branch, cycle guard).
-- Device and visual captures are pending the CI API26 run: planned `48*`, `49`, `50`, `51`,
-  `52`. The new screen will be compared against the KX reference identity, not Gemini.
+  `assembleDebug` PASS; `compileDebugAndroidTestKotlin` PASS. All five gates re-ran PASS on the
+  merged `main` tree (`5e1ec69`).
+- CI run `41947508625` (PR #11, head `f5ae806`): build PASS, SonarCloud PASS, API26 device PASS
+  100/100 (0 failures, 0 skipped), API35 FAIL only on the documented
+  `IdentityTest.arabicRtlLargeText360dp` renderer loss.
+- Device tests grant the real media permission through a waited shell command and prove the
+  version matrix; each unpermitted category stays null. SAF traversal is covered with a
+  deterministic fake tree (depth, entry cap, cancellation, unreadable branch, cycle guard).
+- Captures (local CI artifact `native-device-api-26`, under
+  `device-screenshots/identity-evidence/`): `48-storage-xray-day.png`,
+  `48b-storage-xray-folder-empty.png`, `49-storage-xray-permission.png`,
+  `50-storage-xray-folder-scan.png`, `51-storage-xray-night-ar-large.png`,
+  `52-storage-xray-flow.png`.
+- Visual review found and fixed two real defects: duplicate byte figures per MediaStore category
+  and English timestamps inside the Arabic screen. `0fa9dad` localizes timestamps through the
+  active configuration locale and keeps one size + one count per category; re-captured `48`/`50`/
+  `51` confirm both fixes. The glass storage core, category hierarchy and sandbox copy match the
+  KX identity; no Repair-specific owner art exists.
 
 ## Known limits (honest)
 - The real system folder picker is not automated; SAF traversal correctness is proven on the
@@ -56,7 +69,8 @@ Replaces the basic StatFs card with a real Storage X-Ray:
 - API35 headless renderer loss is unchanged. No gateway; unrelated to storage.
 
 ## PR / CI / merge
-- PR: pending
-- merged_sha: pending
-- remote_main_sha: pending
+- PR: #11
+- CI: https://github.com/daynightae-cmyk/KX-Private-VPN/actions/runs/41947508625
+- merged_sha: `5e1ec69a3c05b3503d2974ab333aba6bff6f782b`
+- remote_main_sha: `5e1ec69` (fast-forward verified locally after merge)
 - next_task: TASK_13 — Ghost Hunter.
