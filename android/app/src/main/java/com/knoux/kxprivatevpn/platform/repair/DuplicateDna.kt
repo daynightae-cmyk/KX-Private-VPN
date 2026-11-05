@@ -225,19 +225,23 @@ class DuplicateScanner(
 /**
  * Confirmed duplicate cleanup.
  *
- * Every candidate is re-verified immediately before deletion: its current byte count is fetched
- * and compared to the scanned value. A file whose size changed is skipped, not deleted, because
- * the SHA-256 computed during the scan may no longer represent its content. A successful provider
- * delete is followed by an absence check before the receipt calls it deleted.
+ * Every group is re-verified immediately before deletion:
+ *  1. the keeper still exists, has the scanned byte count, and re-hashes to the group digest;
+ *  2. each selected duplicate still exists, has the scanned byte count, and re-hashes to the
+ *     same digest.
+ * A same-size content change is therefore skipped, not deleted. A successful provider delete is
+ * followed by an absence check before the receipt calls it deleted.
  */
 class DuplicateCleanup(
     private val source: MutableDocumentSource,
+    private val contentSource: DuplicateContentSource,
 ) {
     @Volatile private var cancelRequested = false
     fun requestCancel() { cancelRequested = true }
 
     suspend fun remove(
-        candidates: List<DuplicateEntry>,
+        groups: List<DuplicateGroup>,
+        selectedDocumentIds: Set<String>,
         onProgress: (Int) -> Unit = {},
     ): DuplicateCleanupReceipt {
         cancelRequested = false
@@ -248,58 +252,90 @@ class DuplicateCleanup(
         val failed = mutableListOf<String>()
         var processed = 0
 
-        for (entry in candidates) {
+        for (group in groups) {
             coroutineContext.ensureActive()
             if (cancelRequested) break
-            processed++
-
-            // Re-verify: current byte count must still match what was hashed.
-            val current = try {
-                source.document(entry.documentId)
-            } catch (e: CancellationException) {
-                throw e
-            } catch (_: Exception) {
-                null
+            val selected = group.entries.filter {
+                !it.keep && it.documentId in selectedDocumentIds
             }
-            if (current == null || current.bytes != entry.bytes) {
-                skipped += entry.relativePath
+            if (selected.isEmpty()) continue
+
+            // The keeper must still be the same file; otherwise removing a duplicate could
+            // destroy the only remaining copy of this content.
+            val keeper = group.entries.firstOrNull { it.keep }
+            val keeperValid = keeper != null && verify(group, keeper)
+            if (!keeperValid) {
+                skipped += selected.map { it.relativePath }
+                processed += selected.size
                 onProgress(processed)
                 continue
             }
 
-            val removed = try {
-                source.delete(entry.documentId)
-            } catch (e: CancellationException) {
-                throw e
-            } catch (_: Exception) {
-                false
-            }
-            if (!removed) {
-                failed += entry.relativePath
-                onProgress(processed)
-                continue
-            }
+            for (entry in selected) {
+                coroutineContext.ensureActive()
+                if (cancelRequested) break
+                processed++
+                if (!verify(group, entry)) {
+                    skipped += entry.relativePath
+                    onProgress(processed)
+                    continue
+                }
 
-            val absent = try {
-                source.document(entry.documentId) == null
-            } catch (e: CancellationException) {
-                throw e
-            } catch (_: Exception) {
-                false
+                val removed = try {
+                    source.delete(entry.documentId)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (_: Exception) {
+                    false
+                }
+                if (!removed) {
+                    failed += entry.relativePath
+                    onProgress(processed)
+                    continue
+                }
+
+                val absent = try {
+                    source.document(entry.documentId) == null
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (_: Exception) {
+                    false
+                }
+                if (absent) {
+                    deleted++
+                    verified++
+                    bytesReclaimed += entry.bytes
+                } else {
+                    failed += entry.relativePath
+                }
+                onProgress(processed)
             }
-            if (absent) {
-                deleted++
-                verified++
-                bytesReclaimed += entry.bytes
-            } else {
-                failed += entry.relativePath
-            }
-            onProgress(processed)
         }
 
         return DuplicateCleanupReceipt(
             deleted, skipped, failed, verified, bytesReclaimed, !cancelRequested
         )
+    }
+
+    private suspend fun verify(group: DuplicateGroup, entry: DuplicateEntry): Boolean {
+        val current = try {
+            source.document(entry.documentId)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            return false
+        }
+        if (current == null || current.bytes != group.bytes || current.bytes != entry.bytes) {
+            return false
+        }
+        val digest = try {
+            contentSource.hash(entry.documentId)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            return false
+        }
+        return digest.toHex() == group.sha256
     }
 }
 

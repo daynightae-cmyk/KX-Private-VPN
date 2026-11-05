@@ -75,9 +75,15 @@ class DuplicateDnaTest {
 
     /** Fake content source backed by a byte-array map. */
     private class FakeContentSource(
-        private val content: Map<String, ByteArray>,
+        content: Map<String, ByteArray>,
     ) : DuplicateContentSource {
+        private val content: MutableMap<String, ByteArray> = content.toMutableMap()
         var hashCalls = 0
+
+        fun replace(documentId: String, bytes: ByteArray) {
+            content[documentId] = bytes
+        }
+
         override suspend fun hash(documentId: String): ByteArray {
             hashCalls++
             val bytes = content[documentId] ?: error("No content for $documentId")
@@ -279,8 +285,9 @@ class DuplicateDnaTest {
         val (tree, contentSource) = fixture()
         val scan = DuplicateScanner(tree, contentSource).scan("root", 1_000)
         val toDelete = scan.groups.flatMap { g -> g.entries.filter { !it.keep } }
+        val selected = toDelete.map { it.documentId }.toSet()
 
-        val receipt = DuplicateCleanup(tree).remove(toDelete)
+        val receipt = DuplicateCleanup(tree, contentSource).remove(scan.groups, selected)
 
         assertEquals(toDelete.size, receipt.deleted)
         assertEquals(toDelete.size, receipt.verifiedAbsent)
@@ -302,7 +309,8 @@ class DuplicateDnaTest {
         tree.entries[firstTarget.documentId] =
             tree.entries.getValue(firstTarget.documentId).copy(bytes = firstTarget.bytes + 1)
 
-        val receipt = DuplicateCleanup(tree).remove(toDelete)
+        val selected = toDelete.map { it.documentId }.toSet()
+        val receipt = DuplicateCleanup(tree, contentSource).remove(scan.groups, selected)
 
         assertEquals(1, receipt.skipped.size)
         assertEquals(toDelete.size - 1, receipt.deleted)
@@ -317,8 +325,9 @@ class DuplicateDnaTest {
         val toDelete = scan.groups.flatMap { g -> g.entries.filter { !it.keep } }
 
         tree.deleteFails += toDelete.first().documentId
+        val selected = toDelete.map { it.documentId }.toSet()
 
-        val receipt = DuplicateCleanup(tree).remove(toDelete)
+        val receipt = DuplicateCleanup(tree, contentSource).remove(scan.groups, selected)
 
         assertTrue(receipt.failed.contains(toDelete.first().relativePath))
         assertEquals(toDelete.size - 1, receipt.deleted)
@@ -330,8 +339,9 @@ class DuplicateDnaTest {
         val toDelete = scan.groups.flatMap { g -> g.entries.filter { !it.keep } }
 
         tree.deleteWithoutRemoving += toDelete.first().documentId
+        val selected = toDelete.map { it.documentId }.toSet()
 
-        val receipt = DuplicateCleanup(tree).remove(toDelete)
+        val receipt = DuplicateCleanup(tree, contentSource).remove(scan.groups, selected)
 
         assertTrue(receipt.failed.isNotEmpty())
         // verifiedAbsent should be less than deleted+skipped
@@ -343,20 +353,64 @@ class DuplicateDnaTest {
         val scan = DuplicateScanner(tree, contentSource).scan("root", 1_000)
         val toDelete = scan.groups.flatMap { g -> g.entries.filter { !it.keep } }
 
-        val cleanup = DuplicateCleanup(tree)
-        val receipt = cleanup.remove(toDelete) { cleanup.requestCancel() }
+        val selected = toDelete.map { it.documentId }.toSet()
+        val cleanup = DuplicateCleanup(tree, contentSource)
+        val receipt = cleanup.remove(scan.groups, selected) { cleanup.requestCancel() }
 
         assertFalse(receipt.complete)
         assertTrue(receipt.deleted <= 1)
         assertEquals(receipt.deleted, receipt.verifiedAbsent)
     }
 
+    @Test fun sameSizeContentMutationIsSkippedAndPreserved() = runTest {
+        val (tree, contentSource) = fixture()
+        val scan = DuplicateScanner(tree, contentSource).scan("root", 1_000)
+        val selected = scan.groups.flatMap { g -> g.entries.filter { !it.keep } }
+            .map { it.documentId }.toSet()
+        val first = selected.first()
+        // Same byte count, different content: size-only checks would have deleted this.
+        contentSource.replace(first, ByteArray(100) { 0x11 })
+        val receipt = DuplicateCleanup(tree, contentSource)
+            .remove(scan.groups, selected)
+        assertTrue(receipt.skipped.contains("a2.bin") || receipt.skipped.contains("a3.bin"))
+        assertTrue(tree.document(first) != null)
+        assertEquals(selected.size - 1, receipt.deleted)
+    }
+
+    @Test fun changedKeeperBlocksAllDeletionInItsGroup() = runTest {
+        val (tree, contentSource) = fixture()
+        val scan = DuplicateScanner(tree, contentSource).scan("root", 1_000)
+        val selected = scan.groups.flatMap { g -> g.entries.filter { !it.keep } }
+            .map { it.documentId }.toSet()
+        // The keeper changed but kept the same size; deleting the duplicates would lose data.
+        contentSource.replace("a1", ByteArray(100) { 0x22 })
+        val receipt = DuplicateCleanup(tree, contentSource).remove(scan.groups, selected)
+        assertEquals(0, receipt.deleted)
+        assertEquals(selected.size, receipt.skipped.size)
+        selected.forEach { assertTrue(tree.document(it) != null) }
+    }
+
+    @Test fun missingKeeperBlocksAllDeletionInItsGroup() = runTest {
+        val (tree, contentSource) = fixture()
+        val scan = DuplicateScanner(tree, contentSource).scan("root", 1_000)
+        val selected = scan.groups.flatMap { g -> g.entries.filter { !it.keep } }
+            .map { it.documentId }.toSet()
+        // Simulate the keeper being removed/changed externally after the scan.
+        tree.entries.remove("a1")
+        tree.parent.remove("a1")?.let { tree.children[it]?.remove("a1") }
+        val receipt = DuplicateCleanup(tree, contentSource).remove(scan.groups, selected)
+        assertEquals(0, receipt.deleted)
+        assertEquals(selected.size, receipt.skipped.size)
+        selected.forEach { assertTrue(tree.document(it) != null) }
+    }
+
     @Test fun bytesReclaimedMatchDeletedCount() = runTest {
         val (tree, contentSource) = fixture()
         val scan = DuplicateScanner(tree, contentSource).scan("root", 1_000)
         val toDelete = scan.groups.flatMap { g -> g.entries.filter { !it.keep } }
+        val selected = toDelete.map { it.documentId }.toSet()
 
-        val receipt = DuplicateCleanup(tree).remove(toDelete)
+        val receipt = DuplicateCleanup(tree, contentSource).remove(scan.groups, selected)
 
         assertEquals(receipt.deleted * 100L, receipt.bytesReclaimed)
     }

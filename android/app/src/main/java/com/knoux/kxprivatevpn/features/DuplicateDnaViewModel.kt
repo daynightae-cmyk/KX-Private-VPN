@@ -123,29 +123,7 @@ class DuplicateDnaViewModel(app: Application) : AndroidViewModel(app) {
         }
         val treeUri = Uri.parse(uriString)
         val docSource = AndroidDocumentSource(getApplication(), treeUri)
-        val contentSource = object : DuplicateContentSource {
-            override suspend fun hash(documentId: String): ByteArray =
-                withContext(Dispatchers.IO) {
-                    val fileUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId)
-                    val digest = MessageDigest.getInstance("SHA-256")
-                    getApplication<Application>().contentResolver.openInputStream(fileUri)
-                        ?.use { stream ->
-                            val buf = ByteArray(HASH_BUFFER_SIZE)
-                            var read = stream.read(buf)
-                            while (read >= 0) {
-                                ensureActive()
-                                digest.update(buf, 0, read)
-                                read = stream.read(buf)
-                            }
-                        } ?: error("Could not open $documentId")
-                    digest.digest()
-                }
-
-            override suspend fun currentBytes(documentId: String): Long? =
-                withContext(Dispatchers.IO) {
-                    docSource.document(documentId)?.bytes
-                }
-        }
+        val contentSource = contentSource(treeUri, docSource)
         val scanner = DuplicateScanner(docSource, contentSource)
         activeScanner = scanner
         scanJob = viewModelScope.launch {
@@ -204,6 +182,33 @@ class DuplicateDnaViewModel(app: Application) : AndroidViewModel(app) {
         mutable.update { it.copy(selectedDocumentIds = it.selectedDocumentIds + newIds) }
     }
 
+    private fun contentSource(
+        treeUri: Uri,
+        docSource: AndroidDocumentSource,
+    ): DuplicateContentSource = object : DuplicateContentSource {
+        override suspend fun hash(documentId: String): ByteArray =
+            withContext(Dispatchers.IO) {
+                val fileUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId)
+                val digest = MessageDigest.getInstance("SHA-256")
+                getApplication<Application>().contentResolver.openInputStream(fileUri)
+                    ?.use { stream ->
+                        val buf = ByteArray(HASH_BUFFER_SIZE)
+                        var read = stream.read(buf)
+                        while (read >= 0) {
+                            ensureActive()
+                            digest.update(buf, 0, read)
+                            read = stream.read(buf)
+                        }
+                    } ?: error("Could not open $documentId")
+                digest.digest()
+            }
+
+        override suspend fun currentBytes(documentId: String): Long? =
+            withContext(Dispatchers.IO) {
+                docSource.document(documentId)?.bytes
+            }
+    }
+
     fun clearSelection() = mutable.update { it.copy(selectedDocumentIds = emptySet()) }
 
     // --- Cleanup ---
@@ -224,21 +229,24 @@ class DuplicateDnaViewModel(app: Application) : AndroidViewModel(app) {
         val uriString = state.treeUri
         if (uriString == null || !state.writable) return
 
-        val toDelete: List<DuplicateEntry> = scan.groups
-            .flatMap { it.entries }
-            .filter { it.documentId in state.selectedDocumentIds && !it.keep }
-
-        if (toDelete.isEmpty()) return
+        val selectedIds = state.selectedDocumentIds.toSet()
+        val hasSelectedDuplicate = scan.groups.any { group ->
+            group.entries.any { !it.keep && it.documentId in selectedIds }
+        }
+        if (!hasSelectedDuplicate) return
         mutable.update {
             it.copy(confirming = false, cleaning = true, cleanupFailed = false,
                 journalFailed = false, receipt = null)
         }
-        val source = AndroidDocumentSource(getApplication(), Uri.parse(uriString))
-        val cleanup = DuplicateCleanup(source)
+        val treeUri = Uri.parse(uriString)
+        val source = AndroidDocumentSource(getApplication(), treeUri)
+        val cleanup = DuplicateCleanup(source, contentSource(treeUri, source))
         activeCleanup = cleanup
         cleanupJob = viewModelScope.launch {
             try {
-                val receipt = withContext(Dispatchers.IO) { cleanup.remove(toDelete) }
+                val receipt = withContext(Dispatchers.IO) {
+                    cleanup.remove(scan.groups, state.selectedDocumentIds.toSet())
+                }
                 val recordFailed = try {
                     journal.append(
                         RepairJournalEntry(
