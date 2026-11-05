@@ -61,7 +61,7 @@ jobs:
           emulator-build: 15004761
           # API35 cold boots can exceed three minutes on hosted KVM runners.
           emulator-boot-timeout: 600
-          emulator-options: -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader_indirect -feature -Vulkan -skin 720x1280 -camera-back none -camera-front none
+          emulator-options: -no-window -no-audio -no-boot-anim -no-snapshot -gpu software -skin 720x1280 -camera-back none -camera-front none
           disable-animations: false
           working-directory: android
           script: bash scripts/verify-device.sh
