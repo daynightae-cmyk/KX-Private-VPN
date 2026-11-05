@@ -43,8 +43,8 @@ class RepairJournalDeviceTest {
             assertTrue(journal.load().isEmpty())
             assertEquals("not a journal", file.readText())
         } finally {
-            file.delete()
-            backup.delete()
+            assertTrue(!file.exists() || file.delete())
+            assertTrue(!backup.exists() || backup.delete())
         }
     }
 }

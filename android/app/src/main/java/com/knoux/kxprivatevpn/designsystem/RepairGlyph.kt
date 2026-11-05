@@ -69,9 +69,9 @@ fun RepairGlyph(id: RepairServiceId, modifier: Modifier = Modifier) {
         when (id) {
             RepairServiceId.STORAGE -> drawStorage(c, u, ink, stroke)
             RepairServiceId.GHOST -> drawGhost(c, u, ink, strokeSoft, accent.first)
-            RepairServiceId.DUPLICATE -> drawDuplicate(c, u, ink, strokeSoft, accent)
+            RepairServiceId.DUPLICATE -> drawDuplicate(c, u, strokeSoft, accent)
             RepairServiceId.HEAVYWEIGHT -> drawHeavyweight(c, u, ink, accent)
-            RepairServiceId.CACHE -> drawCache(c, u, ink, stroke, strokeSoft, accent)
+            RepairServiceId.CACHE -> drawCache(c, u, ink, soft = strokeSoft, accent = accent)
             RepairServiceId.MEDIA -> drawMedia(c, u, ink, strokeSoft, accent)
             RepairServiceId.DOWNLOAD -> drawDownload(c, u, ink, stroke, strokeSoft, accent)
             RepairServiceId.SESSION -> drawSession(c, u, ink, stroke, accent)
@@ -115,7 +115,7 @@ private fun DrawScope.drawGhost(c: Offset, u: Float, ink: Brush, stroke: Stroke,
     }
 }
 
-private fun DrawScope.drawDuplicate(c: Offset, u: Float, ink: Brush, stroke: Stroke,
+private fun DrawScope.drawDuplicate(c: Offset, u: Float, stroke: Stroke,
                                    accent: Pair<Color, Color>) {
     val left = hexPath(Offset(c.x - u * .13f, c.y - u * .04f), u * .17f)
     val right = hexPath(Offset(c.x + u * .13f, c.y + u * .04f), u * .17f)
@@ -160,7 +160,7 @@ private fun DrawScope.drawHeavyweight(c: Offset, u: Float, ink: Brush, accent: P
     }
 }
 
-private fun DrawScope.drawCache(c: Offset, u: Float, ink: Brush, stroke: Stroke,
+private fun DrawScope.drawCache(c: Offset, u: Float, ink: Brush,
                                 soft: Stroke, accent: Pair<Color, Color>) {
     val crystal = Path().apply {
         moveTo(c.x, c.y - u * .20f)

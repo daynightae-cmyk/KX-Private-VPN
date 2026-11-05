@@ -504,7 +504,7 @@ private fun JournalCard(night: Boolean, entries: List<RepairJournalEntry>, foreg
                 modifier = Modifier.testTag("repair-journal-empty"))
         } else {
             entries.take(4).forEach { entry ->
-                JournalRow(entry, night, foreground, context)
+                JournalRow(entry, foreground, context)
             }
         }
     }
@@ -513,7 +513,6 @@ private fun JournalCard(night: Boolean, entries: List<RepairJournalEntry>, foreg
 @Composable
 private fun JournalRow(
     entry: RepairJournalEntry,
-    night: Boolean,
     foreground: Color,
     context: Context,
 ) {

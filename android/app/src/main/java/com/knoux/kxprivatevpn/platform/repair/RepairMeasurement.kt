@@ -36,63 +36,67 @@ class AndroidRepairMeasurer(
     private val cacheDir: File,
     private val now: () -> Long = System::currentTimeMillis,
 ) {
-    suspend fun measure(): RepairMeasurement = withContext(Dispatchers.IO) {
-        var total: Long? = null
-        var available: Long? = null
-        try {
-            val stat = StatFs(filesDir.absolutePath)
-            total = stat.totalBytes
-            available = stat.availableBytes
-        } catch (e: CancellationException) {
-            throw e
-        } catch (_: Exception) {
-            // Leave null: the UI must say "unavailable", not zero.
-        }
+    private data class Volume(val total: Long?, val available: Long?)
+    private data class CacheWalk(val bytes: Long?, val files: Int, val limited: Boolean)
+    private data class PreviewResult(val value: CachePreview?, val failed: Boolean)
 
-        var cacheBytes: Long? = null
-        var cacheFiles = 0
+    suspend fun measure(): RepairMeasurement = withContext(Dispatchers.IO) {
+        val volume = measureVolume()
+        val cache = measureCache()
+        val preview = measurePreview()
+        RepairMeasurement(
+            totalBytes = volume.total,
+            availableBytes = volume.available,
+            cacheBytes = cache.bytes,
+            cacheFileCount = cache.files,
+            cacheWalkLimited = cache.limited,
+            preview = preview.value,
+            previewFailed = preview.failed,
+            atMillis = now(),
+        )
+    }
+
+    private fun measureVolume(): Volume = try {
+        val stat = StatFs(filesDir.absolutePath)
+        Volume(stat.totalBytes, stat.availableBytes)
+    } catch (e: CancellationException) {
+        throw e
+    } catch (_: Exception) {
+        // Leave null: the UI must say "unavailable", not zero.
+        Volume(null, null)
+    }
+
+    private suspend fun measureCache(): CacheWalk {
+        var files = 0
         var limited = false
-        try {
-            val root = cacheDir.canonicalFile
+        return try {
             var bytes = 0L
+            val root = cacheDir.canonicalFile
             if (root.exists()) {
                 for (file in root.walkTopDown().onEnter {
                     !Files.isSymbolicLink(it.toPath()) && it.canonicalFile.toPath().startsWith(root.toPath())
                 }) {
                     coroutineContext.ensureActive()
                     if (!file.isFile) continue
-                    if (cacheFiles >= MAX_CACHE_FILES) { limited = true; break }
-                    cacheFiles++
+                    if (files >= MAX_CACHE_FILES) { limited = true; break }
+                    files++
                     bytes += file.length()
                 }
             }
-            cacheBytes = bytes
+            CacheWalk(bytes, files, limited)
         } catch (e: CancellationException) {
             throw e
         } catch (_: Exception) {
-            cacheFiles = 0
+            CacheWalk(null, 0, false)
         }
+    }
 
-        var preview: CachePreview? = null
-        var previewFailed = false
-        try {
-            preview = CacheMaintenance(cacheDir).preview()
-        } catch (e: CancellationException) {
-            throw e
-        } catch (_: Exception) {
-            previewFailed = true
-        }
-
-        RepairMeasurement(
-            totalBytes = total,
-            availableBytes = available,
-            cacheBytes = cacheBytes,
-            cacheFileCount = cacheFiles,
-            cacheWalkLimited = limited,
-            preview = preview,
-            previewFailed = previewFailed,
-            atMillis = now(),
-        )
+    private suspend fun measurePreview(): PreviewResult = try {
+        PreviewResult(CacheMaintenance(cacheDir).preview(), false)
+    } catch (e: CancellationException) {
+        throw e
+    } catch (_: Exception) {
+        PreviewResult(null, true)
     }
 
     companion object {
