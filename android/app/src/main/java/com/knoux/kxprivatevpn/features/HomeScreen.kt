@@ -44,6 +44,7 @@ import com.knoux.kxprivatevpn.designsystem.GlassAction
 import com.knoux.kxprivatevpn.designsystem.GlassSurface
 import com.knoux.kxprivatevpn.designsystem.KxBrandLockup
 import com.knoux.kxprivatevpn.designsystem.KxOrb
+import com.knoux.kxprivatevpn.designsystem.KxServiceGlyph
 import com.knoux.kxprivatevpn.designsystem.RepairGlyph
 import com.knoux.kxprivatevpn.designsystem.repairAccent
 import com.knoux.kxprivatevpn.launch.IntroTimeline
@@ -484,12 +485,22 @@ private fun ToolTile(
         verticalArrangement = Arrangement.spacedBy(4.dp),
         horizontalAlignment = Alignment.Start,
     ) {
-        when (kind) {
-            ToolKind.STORAGE -> RepairGlyph(RepairServiceId.STORAGE, Modifier.size(22.dp))
-            ToolKind.CACHE -> RepairGlyph(RepairServiceId.CACHE, Modifier.size(22.dp))
-            ToolKind.NETWORK -> RepairGlyph(RepairServiceId.NETWORK, Modifier.size(22.dp))
-            else -> ToolGlyph(kind, if (night) accent else Color(0xFF3B2AA8), Modifier.size(22.dp))
-        }
+        // One glyph family across Home tools, so adjacent tiles share stroke weight and
+        // optical size instead of mixing repair-specific art with generic tool shapes.
+        KxServiceGlyph(
+            kind = when (kind) {
+                ToolKind.STORAGE -> "storage"
+                ToolKind.CACHE -> "cache"
+                ToolKind.NETWORK -> "network"
+                ToolKind.SECURITY -> "security"
+                ToolKind.STATS -> "stats"
+                ToolKind.SPLIT -> "split"
+                ToolKind.ADVANCED -> "advanced"
+                ToolKind.IMPORT -> "import"
+            },
+            tint = if (night) accent else Color(0xFF3B2AA8),
+            modifier = Modifier.size(22.dp),
+        )
         Text(label, fontSize = 9.sp, lineHeight = 11.sp, maxLines = 2,
             overflow = TextOverflow.Ellipsis, color = foreground,
             fontWeight = FontWeight.Medium)

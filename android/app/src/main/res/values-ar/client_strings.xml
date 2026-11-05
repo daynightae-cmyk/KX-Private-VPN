@@ -93,7 +93,7 @@
     <string name="repair_snapshot">لمحة عن الجهاز</string>
     <string name="repair_analyze">تحليل هاتفي</string>
     <string name="repair_analyzing">جارٍ قياس البيانات المتاحة…</string>
-    <string name="repair_measure_scope">هذا الإجراء يقيس وحدة التخزين الداخلية فقط عبر Android StatFs، وكاش KX الخاص، وسجل الإصلاح. التخزين الخاص بتطبيقات أخرى غير متاح ولا يتم الإبلاغ عنه.</string>
+    <string name="repair_measure_scope">يقرأ هذا الإجراء مساحة تخزين الهاتف وكاش KX وسجل الإصلاح. بيانات التطبيقات الأخرى غير متاحة ولا تُبلَّغ أبدًا.</string>
     <string name="repair_measured_at">قيس في %1$s</string>
     <string name="repair_never_measured">لم يُقس بعد</string>
     <string name="repair_measure_failed">فشل القياس. لا تُعرض أي قيم لم تُقرأ من Android.</string>
@@ -111,9 +111,9 @@
     <string name="repair_review_cache">المراجعة في جرّاح الكاش</string>
     <string name="repair_cleanup_empty">لم يُقس أي كاش KX قابل للاسترداد. لا شيء للمراجعة.</string>
     <string name="repair_cleanup_unavailable">فشلت معاينة كاش KX، لذا لا يُقدَّم أي ادعاء بتنظيف.</string>
-    <string name="repair_services">الخدمات المميزة</string>
-    <string name="repair_services_count">%1$d من %2$d جاهزة</string>
-    <string name="repair_status_available">جاهز</string>
+    <string name="repair_services">أدوات الإصلاح</string>
+    <string name="repair_services_count">%1$d من %2$d أدوات جاهزة</string>
+    <string name="repair_status_available">متاح</string>
     <string name="repair_status_unavailable">غير متاح</string>
     <string name="repair_status_measured">مقاس</string>
     <string name="repair_status_ready">جاهز</string>
@@ -128,7 +128,7 @@
     <string name="repair_action_other">عملية مسجلة</string>
     <string name="repair_privacy">تُستخدم بيانات KX والقياسات من Android فقط. لا يُقرأ التخزين الخاص بأي تطبيق آخر. لوحة التحكم لا تحذف أي ملفات.</string>
     <string name="repair_unavailable">غير متاح حاليًا</string>
-    <string name="repair_unavailable_body">هذه الخدمة لم تُنفَّذ بعد. لا تعرض KX أي نتائج محاكاة أو تقديرات أو تقدّم لها.</string>
+    <string name="repair_unavailable_body">هذه الأداة غير جاهزة في هذا الإصدار. لن تعرض KX نتائج أو تقديرات مخترعة.</string>
     <string name="repair_scope">النطاق: %1$s</string>
     <string name="repair_requires">يتطلب: %1$s</string>
     <string name="repair_requires_none">لا إذن جديد</string>
@@ -144,7 +144,7 @@
     <string name="repair_service_ghost">الملفات الفارغة</string>
     <string name="repair_service_duplicate">الملفات المكررة</string>
     <string name="repair_service_heavyweight">الملفات الكبيرة</string>
-    <string name="repair_service_cache">الملفات المؤقتة</string>
+    <string name="repair_service_cache">تنظيف الملفات المؤقتة</string>
     <string name="repair_service_media">ضغط الصور والفيديو</string>
     <string name="repair_service_download">فحص التنزيلات</string>
     <string name="repair_service_session">خصوصية الجلسات</string>
