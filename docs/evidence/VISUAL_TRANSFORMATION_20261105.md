@@ -159,7 +159,26 @@ returned to their original values.
 
 ## 6. PR / CI / merge
 
-- PR: PENDING
-- CI: PENDING
+- Branch head under review: `263548b` (first slice) then the polish commit below.
+- PR: #14 — https://github.com/daynightae-cmyk/KX-Private-VPN/pull/14
+- CI run `42031183078` on `263548b`: build PASS, SonarCloud PASS, Gitar PASS,
+  **device (26) PASS — 134 instrumentation tests**, device (35) FAIL at exactly the documented
+  blocker `IdentityTest.arabicRtlLargeText360dp` (emulator renderer loss; 51 tests had already
+  passed by that point and no new API 35 failure appeared).
+- Fresh API 26 captures reviewed from the `native-device-api-26` artifact: `70-home-disconnected-en`,
+  `71-home-night-ar`, `72-home-connected-en`, `73-servers-imported`, `74-servers-empty-ar`.
+  Two defects were visible only there, because the phone has no imported profile to reach them:
+  - the connected hero stacked "Tunnel active", the Session details button and the Disconnect
+    action with no internal spacing, so the label touched the button edge — the hero column now
+    spaces its children by 10 dp;
+  - the server card's `Use this server` / `Remove` labels inherited the ambient Material colour
+    scheme, which is only correct inside the app's `MaterialTheme`; they are now coloured
+    explicitly so they stay readable wherever the screen is rendered.
+- Instrumented bitmaps could not be pulled off the phone itself: Android 15 denies `adb shell`
+  and `run-as` traversal into `/storage/emulated/0/Android/data/<pkg>/files`, so the on-device
+  previews come from the CI artifact instead. The eight new Home/Server instrumentation tests were
+  still executed on the phone (`am instrument … OK (8 tests)`).
 - merged_sha: PENDING
-- final APK SHA-256: PENDING
+- final APK SHA-256: `eb0e51a4c2c66c0ed256525071d196f584b6d5c58676f5781ea561230bf7ecee`
+  (polish build; JVM 148/148, lint 0 errors, Home + Server instrumentation 8/8 on the phone)
+

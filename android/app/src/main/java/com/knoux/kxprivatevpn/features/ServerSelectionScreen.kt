@@ -219,7 +219,13 @@ private fun ServerCard(
                     onClick = onSelect,
                     enabled = !busy,
                     modifier = Modifier.heightIn(min = 48.dp).testTag("server-select-${profile.id}"),
-                ) { Text(stringResource(R.string.server_select), fontSize = 11.sp) }
+                ) {
+                    // Explicit colour: the label must stay readable on the dark card even when
+                    // the screen is rendered outside the app's MaterialTheme (instrumented runs).
+                    Text(stringResource(R.string.server_select), fontSize = 11.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = if (night) Color(0xFF8FF3FF) else Color(0xFF2A6DE0))
+                }
             }
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
@@ -227,7 +233,10 @@ private fun ServerCard(
                 onClick = onRemove,
                 enabled = !busy,
                 modifier = Modifier.heightIn(min = 40.dp).testTag("server-remove-${profile.id}"),
-            ) { Text(stringResource(R.string.server_remove), fontSize = 11.sp) }
+            ) {
+                Text(stringResource(R.string.server_remove), fontSize = 11.sp,
+                    color = foreground.copy(alpha = .78f))
+            }
         }
     }
 }

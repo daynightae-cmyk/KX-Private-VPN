@@ -167,7 +167,11 @@ private fun HomeHero(
         VpnPhase.DISCONNECTING -> stringResource(R.string.disconnecting)
         else -> stringResource(R.string.disconnected)
     }
-    Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(
+        Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
         Box(Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
             KxOrb(1f, IntroTimeline.frame(1f), Modifier.size(176.dp))
             StatusPill(
