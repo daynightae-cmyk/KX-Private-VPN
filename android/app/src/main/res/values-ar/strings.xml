@@ -9,4 +9,5 @@
     <string name="scope_notice">الإصدار ده لاختبار تجربة فتح KX. اتصال VPN ومختبر الصيانة لسه مش متاحين. مفيش اتصال أو حماية نشطة.</string>
     <string name="close">إغلاق</string>
     <string name="save_error">تعذر حفظ تفضيلات البداية. ممكن المقدمة تتكرر في التشغيل الجاي.</string>
+    <string name="tap_kx_orb_to_enter">اضغط على شعار KX للدخول</string>
 </resources>

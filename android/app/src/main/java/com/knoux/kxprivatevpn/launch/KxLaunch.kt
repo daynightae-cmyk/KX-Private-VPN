@@ -4,6 +4,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -19,6 +20,9 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -51,9 +55,11 @@ fun KxLaunch() {
     val client: ClientViewModel = viewModel()
     val state by client.state.collectAsStateWithLifecycle()
     var stack by rememberSaveable { mutableStateOf(listOf("welcome")) }
+    var entryAccepted by rememberSaveable { mutableStateOf(false) }
     var routingInitialized by rememberSaveable { mutableStateOf(false) }
-    LaunchedEffect(state.loaded) {
-        if (state.loaded && !routingInitialized) {
+    // Do not send returning users directly to Home: the person must tap the KX emblem.
+    LaunchedEffect(state.loaded, entryAccepted) {
+        if (state.loaded && entryAccepted && !routingInitialized) {
             if (state.settings.onboarded || state.snapshot.profiles.isNotEmpty()) stack = listOf("home")
             routingInitialized = true
         }
@@ -70,7 +76,8 @@ fun KxLaunch() {
     LaunchedEffect(Unit) {
         try {
             val seen = withTimeoutOrNull(1500) { preferences.hasSeenIntro() }
-            if (seen == true) introFinished = true
+            // A previous successful launch must not bypass the owner's entry screen.
+            // Keep the bounded read for honest storage-error reporting only.
             if (seen == null) error = true
         } catch (e: CancellationException) { throw e }
         catch (_: Exception) { error = true }
@@ -100,9 +107,13 @@ fun KxLaunch() {
         BackHandler(enabled = stack.size > 1 || state.busy) {
             if (!state.busy && stack.size > 1) stack = stack.dropLast(1)
         }
-        if (stack.last() == "welcome") IdentityExperience(
-            ready = initialRead, finished = introFinished, reducedMotion = rememberReducedMotion(),
+        if (!entryAccepted || stack.last() == "welcome") IdentityExperience(
+            ready = initialRead && state.loaded,
+            finished = entryAccepted || introFinished,
+            reducedMotion = rememberReducedMotion(),
             night = night, saveError = error, onFinished = { introFinished = true },
+            onEnter = if (!entryAccepted) ({ entryAccepted = true }) else null,
+            showWelcomeControls = entryAccepted,
             onGetStarted = { stack = stack + "education" }, onImport = { stack = stack + "import" },
         ) else key(stack.last()) { NativeClient(stack.last(), state, client, night,
             navigate = { stack = stack + it }, back = {
@@ -116,10 +127,12 @@ fun IdentityExperience(
     ready: Boolean = true, finished: Boolean = false, reducedMotion: Boolean = false,
     night: Boolean = true, saveError: Boolean = false, onFinished: () -> Unit = {},
     onGetStarted: (() -> Unit)? = null, onImport: (() -> Unit)? = null,
+    onEnter: (() -> Unit)? = null, showWelcomeControls: Boolean = true,
 ) {
     val progress = remember { Animatable(if (finished || reducedMotion) 1f else 0f) }
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     var skipped by rememberSaveable { mutableStateOf(false) }
+    var entryFired by remember { mutableStateOf(false) }
     var disclosure by rememberSaveable { mutableStateOf(false) }
     val currentFinished by rememberUpdatedState(onFinished)
     LaunchedEffect(ready, finished, reducedMotion, skipped, lifecycle) {
@@ -146,6 +159,7 @@ fun IdentityExperience(
     val disclosureTitle = stringResource(R.string.welcome)
     val disclosureBody = stringResource(R.string.scope_notice)
     val disclosureClose = stringResource(R.string.close)
+    val entryHint = stringResource(R.string.tap_kx_orb_to_enter)
     MaterialTheme(colorScheme = if (night) darkColorScheme() else lightColorScheme()) {
         BoxWithConstraints(Modifier.fillMaxSize().testTag("identity")) {
             // Stable zero pulse lets Compose retain the background through photon/ribbon motion.
@@ -153,8 +167,30 @@ fun IdentityExperience(
             val orb = minOf(maxWidth * .88f, maxHeight * .46f, 410.dp)
             // One shared orb across intro and Welcome: no image replacement or positional cut.
             Box(Modifier.fillMaxWidth().padding(top = maxHeight * .09f), contentAlignment = Alignment.TopCenter) {
+                // The same native glass orb is the entry button, not an extra generic CTA.
+                // Visual choreography stays 3D; a reduced-motion setting bypasses animation,
+                // never the explicit user click.
+                val enterable = onEnter != null && ready && progress.value >= 1f && !entryFired
+                val emblemModifier = Modifier.size(orb)
+                    .testTag("entry-orb")
+                    .graphicsLayer {
+                        rotationY = -16f * (1f - progress.value)
+                        rotationX = 9f * (1f - progress.value)
+                        cameraDistance = 1200f * density
+                    }
+                    .then(
+                        if (onEnter != null) Modifier
+                            .semantics { contentDescription = entryHint }
+                            .clickable(enabled = enterable, role = Role.Button) {
+                                if (!entryFired) {
+                                    entryFired = true
+                                    onEnter()
+                                }
+                            }
+                        else Modifier
+                    )
                 KxOrb(progress = if (!ready) 0f else progress.value, frame = frame,
-                    modifier = Modifier.size(orb))
+                    modifier = emblemModifier)
             }
             Column(
                 Modifier.fillMaxWidth().padding(top = maxHeight * .53f)
@@ -170,7 +206,14 @@ fun IdentityExperience(
                 Spacer(Modifier.height(16.dp))
                 Text(stringResource(R.string.tagline), color = text, fontSize = 18.sp,
                     fontStyle = FontStyle.Italic, textAlign = TextAlign.Center)
-                if (frame.welcome > 0f) {
+                if (onEnter != null && frame.welcome > 0f) {
+                    Spacer(Modifier.height(22.dp))
+                    Text(entryHint, color = text, fontSize = 17.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.testTag("entry-hint")
+                            .graphicsLayer { alpha = frame.welcome })
+                }
+                if (showWelcomeControls && frame.welcome > 0f) {
                     Column(Modifier.fillMaxWidth().graphicsLayer { alpha = frame.welcome },
                         horizontalAlignment = Alignment.CenterHorizontally) {
                         Spacer(Modifier.height(28.dp))

@@ -111,9 +111,9 @@
     <string name="repair_review_cache">المراجعة في جرّاح الكاش</string>
     <string name="repair_cleanup_empty">لم يُقس أي كاش KX قابل للاسترداد. لا شيء للمراجعة.</string>
     <string name="repair_cleanup_unavailable">فشلت معاينة كاش KX، لذا لا يُقدَّم أي ادعاء بتنظيف.</string>
-    <string name="repair_services">الخدمات المميزة</string>
+    <string name="repair_services">أدوات الإصلاح</string>
     <string name="repair_services_count">%1$d من %2$d جاهزة</string>
-    <string name="repair_status_available">جاهز</string>
+    <string name="repair_status_available">متاح</string>
     <string name="repair_status_unavailable">غير متاح</string>
     <string name="repair_status_measured">مقاس</string>
     <string name="repair_status_ready">جاهز</string>
@@ -144,7 +144,7 @@
     <string name="repair_service_ghost">الملفات الفارغة</string>
     <string name="repair_service_duplicate">الملفات المكررة</string>
     <string name="repair_service_heavyweight">الملفات الكبيرة</string>
-    <string name="repair_service_cache">الملفات المؤقتة</string>
+    <string name="repair_service_cache">تنظيف الملفات المؤقتة</string>
     <string name="repair_service_media">ضغط الصور والفيديو</string>
     <string name="repair_service_download">فحص التنزيلات</string>
     <string name="repair_service_session">خصوصية الجلسات</string>

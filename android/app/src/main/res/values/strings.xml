@@ -9,4 +9,5 @@
     <string name="scope_notice">This build verifies the KX launch experience. VPN connectivity and Repair Lab are not available yet. No connection or protection is active.</string>
     <string name="close">Close</string>
     <string name="save_error">Could not save launch preferences. Your next launch may replay the intro.</string>
+    <string name="tap_kx_orb_to_enter">Tap the KX emblem to enter</string>
 </resources>
