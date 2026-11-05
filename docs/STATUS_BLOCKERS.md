@@ -1,5 +1,23 @@
 # KX Private VPN — current blockers
 
+## TASK_11 — REPAIR LAB DASHBOARD MERGED, SEVEN TOOLS HONESTLY UNAVAILABLE (2026-11-05)
+
+- `RepairLabScreen` implements the owner composition: glass-orb hero, ten-node diagnostic ring
+  animated once per real measurement, ten frosted service cards with original Canvas glyphs, an
+  energy spine, measured volume/KX-cache summary, cleanup review routing and a persisted journal.
+- Only `Storage X-Ray`, `Cache Surgeon` and `Network Doctor` are marked available. The other seven
+  cards open real detail routes that state the missing implementation and future scope; no fake
+  results, progress or savings. `RepairCatalogTest` enforces this availability set.
+- Measurement is real: StatFs volume, bounded KX cache walk, `CacheMaintenance.preview()`.
+  Failures stay null and surface as partial measurement. No storage permission is requested.
+- `RepairJournal` records completed Cache Surgeon removals with measured item/byte counts; it is
+  app-private, capped at 50 entries and stores no paths or profile data. CacheFlowTest verifies the
+  entry and the absence of fixture paths.
+- Verified: 109 JVM tests, API26 CI 89/89, build + SonarCloud PASS, lint 0 errors. CI captures 43–47
+  reviewed; first review found low-contrast day mode status text, fixed in `869744e` and re-captured.
+- **Still required:** TASK_12–21 to replace the seven unavailable screens with real tools. A
+  cancelled cache cleanup is not journaled yet. API35 renderer loss is unchanged. No gateway.
+
 ## TASK_00 — PARTIALLY VERIFIED (2026-11-03)
 
 - Local debug APK and Android test APK build; three JVM tests pass; lint passes with dependency/icon warnings.

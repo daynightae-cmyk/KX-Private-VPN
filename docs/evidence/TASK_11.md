@@ -2,8 +2,9 @@
 
 **baseline_sha:** `424c718` (main after TASK_10 merge and docs)
 **branch:** `codex/task-11-repair-lab`
-**implementation_sha:** pending
-**status:** IMPLEMENTED · LOCAL GATES PASS · DEVICE/VISUAL/CI PENDING
+**implementation_sha:** `942a1a1` + `f1de74a` + `5e8b4de` + `869744e` (head)
+**merged_sha:** `12961ea`
+**status:** MERGED · API26 DEVICE 89/89 · BUILD AND SONAR GREEN · API35 KNOWN RENDERER BLOCKER
 
 ## Scope
 Adds the native Repair Lab foundation and dashboard:
@@ -41,13 +42,21 @@ Adds the native Repair Lab foundation and dashboard:
 
 ## Verification
 - Local: `testDebugUnitTest` 109/109, 0 failures (11 new JVM tests); `lintDebug` 0 errors;
-  `assembleDebug` PASS; `compileDebugAndroidTestKotlin` PASS.
-- Device and visual evidence: pending CI API26 run (this environment cannot boot the local
-  emulator). Planned captures: `43*`, `44*` (night Arabic large text), `45` (honest unavailable
-  service), `46`/`47` (real Activity flow).
-- The visual comparison against the owner VPN reference set will be recorded after the CI captures
-  are reviewed. No Repair-specific owner artwork exists; this is an original native design in the
-  same KX palette, as the visual contract allows.
+  `assembleDebug` PASS; `compileDebugAndroidTestKotlin` PASS. All five gates re-ran PASS on the
+  merged `main` tree (`12961ea`).
+- CI run `41939620370` (PR #10, head `869744e`): build PASS, SonarCloud PASS, API26 device PASS
+  89/89 (0 failures, 0 skipped), API35 FAIL only on the documented
+  `IdentityTest.arabicRtlLargeText360dp` SwiftShader renderer loss.
+- Device captures (local CI artifact `native-device-api-26`, paths under
+  `device-screenshots/identity-evidence/`): `43-repair-lab-day-light.png`,
+  `43b-repair-lab-services-day.png`, `44-repair-lab-night-ar-large-top.png`,
+  `44b-repair-lab-night-ar-large-services.png`, `45-repair-unavailable-ghost.png`,
+  `46-repair-lab-flow.png`, `47-repair-unavailable-flow.png`.
+- Visual review vs the owner KX reference set: the dashboard preserves the glass-orb hero,
+  pastel night/day atmosphere, cyan-violet energy language and frosted card hierarchy. Because no
+  Repair-specific owner artwork exists, the composition is original and documented as such. The
+  first capture review found low-contrast day-mode status text; `869744e` darkens day accents
+  without dropping their identity, and the re-captured `43*` set confirms the fix.
 
 ## Known limits (honest)
 - TASK_12–21 remain unimplemented; their cards say so. No fake scans.
@@ -57,7 +66,8 @@ Adds the native Repair Lab foundation and dashboard:
 - API35 headless renderer loss is the same documented blocker; API26 is the device gate.
 
 ## PR / CI / merge
-- PR: pending
-- merged_sha: pending
-- remote_main_sha: pending
+- PR: #10
+- CI: https://github.com/daynightae-cmyk/KX-Private-VPN/actions/runs/41939620370
+- merged_sha: `12961eab1d8b662ece78012b4026713cd8bb748f`
+- remote_main_sha: `12961ea` (fast-forward verified locally after merge)
 - next_task: TASK_12 — Measured Storage X-Ray.
