@@ -246,7 +246,7 @@
     <string name="ghost_scan_counts">%1$d files · %2$d folders scanned</string>
     <string name="ghost_zero_title">Zero-byte files</string>
     <string name="ghost_dirs_title">Empty folders</string>
-    <string name="ghost_excluded">%1$d known sentinel files were not offered.</string>
+    <string name="ghost_excluded">Known sentinel files not offered: %1$d</string>
     <string name="ghost_review_title">Review candidates</string>
     <string name="ghost_selected">%1$d selected</string>
     <string name="ghost_select_all">Select all</string>

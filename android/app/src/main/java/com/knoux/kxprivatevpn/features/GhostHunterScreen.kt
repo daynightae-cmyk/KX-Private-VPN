@@ -27,6 +27,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
@@ -299,9 +300,9 @@ private fun ScanSummary(night: Boolean, scan: GhostScan, state: GhostUiState, fo
             modifier = Modifier.testTag("ghost-scan-counts"))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             SummaryTile(stringResource(R.string.ghost_zero_title), scan.zeroByteCount,
-                Modifier.weight(1f), foreground, Color(0xFF64EEFF), "ghost-zero-count")
+                Modifier.weight(1f), foreground, night, Color(0xFF64EEFF), "ghost-zero-count")
             SummaryTile(stringResource(R.string.ghost_dirs_title), scan.emptyDirectoryCount,
-                Modifier.weight(1f), foreground, Color(0xFFAD71FF), "ghost-dir-count")
+                Modifier.weight(1f), foreground, night, Color(0xFFAD71FF), "ghost-dir-count")
         }
         if (scan.excludedSentinels > 0) {
             Text(stringResource(R.string.ghost_excluded, scan.excludedSentinels), fontSize = 11.sp,
@@ -322,12 +323,14 @@ private fun SummaryTile(
     value: Int,
     modifier: Modifier,
     foreground: Color,
+    night: Boolean,
     accent: Color,
     tag: String,
 ) {
-    Column(modifier.background(accent.copy(alpha = .12f), RoundedCornerShape(16.dp))
+    val tone = if (night) accent else lerp(accent, Color(0xFF171050), .55f)
+    Column(modifier.background(tone.copy(alpha = .12f), RoundedCornerShape(16.dp))
         .padding(10.dp)) {
-        Text(value.toString(), fontSize = 24.sp, fontWeight = FontWeight.Bold, color = accent,
+        Text(value.toString(), fontSize = 24.sp, fontWeight = FontWeight.Bold, color = tone,
             modifier = Modifier.testTag(tag))
         Text(label, fontSize = 11.sp, color = foreground.copy(alpha = .8f))
     }
@@ -368,13 +371,13 @@ private fun CandidateCard(
             Text(stringResource(R.string.ghost_zero_title), fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold, color = foreground.copy(alpha = .85f),
                 modifier = Modifier.padding(top = 4.dp))
-            zero.forEach { CandidateRow(it, state, foreground, context, onToggle) }
+            zero.forEach { CandidateRow(it, state, night, foreground, context, onToggle) }
         }
         if (directories.isNotEmpty()) {
             Text(stringResource(R.string.ghost_dirs_title), fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold, color = foreground.copy(alpha = .85f),
                 modifier = Modifier.padding(top = 4.dp))
-            directories.forEach { CandidateRow(it, state, foreground, context, onToggle) }
+            directories.forEach { CandidateRow(it, state, night, foreground, context, onToggle) }
         }
         if (scan.candidates.size > GhostHunterViewModel.MAX_DISPLAYED) {
             Text(stringResource(R.string.ghost_display_limit, GhostHunterViewModel.MAX_DISPLAYED),
@@ -388,6 +391,7 @@ private fun CandidateCard(
 private fun CandidateRow(
     candidate: GhostCandidate,
     state: GhostUiState,
+    night: Boolean,
     foreground: Color,
     context: android.content.Context,
     onToggle: (GhostCandidate) -> Unit,
@@ -415,9 +419,11 @@ private fun CandidateRow(
             Text(candidate.relativePath, fontSize = 13.sp, fontWeight = FontWeight.SemiBold,
                 color = foreground, maxLines = 2, overflow = TextOverflow.Ellipsis)
             Text(reason, fontSize = 10.sp, color = foreground.copy(alpha = .7f))
-            Text(confidence, fontSize = 9.sp,
-                color = if (candidate.confidence == GhostConfidence.HIGH) Color(0xFF64EEFF)
-                else Color(0xFFFFC98A))
+            val confidenceAccent = if (candidate.confidence == GhostConfidence.HIGH)
+                Color(0xFF64EEFF) else Color(0xFFFFC98A)
+            Text(confidence, fontSize = 10.sp,
+                color = if (night) confidenceAccent
+                else lerp(confidenceAccent, Color(0xFF171050), .55f))
         }
         if (candidate.kind == GhostKind.ZERO_BYTE_FILE) {
             Text(Formatter.formatFileSize(context, 0), fontSize = 11.sp,

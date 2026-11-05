@@ -246,7 +246,7 @@
     <string name="ghost_scan_counts">%1$d ملفًا · %2$d مجلدًا ممسوحًا</string>
     <string name="ghost_zero_title">ملفات بحجم صفر</string>
     <string name="ghost_dirs_title">مجلدات فارغة</string>
-    <string name="ghost_excluded">لم تُعرض %1$d ملفات علامات معروفة.</string>
+    <string name="ghost_excluded">ملفات العلامات المعروفة غير المعروضة: %1$d</string>
     <string name="ghost_review_title">مراجعة المرشحين</string>
     <string name="ghost_selected">%1$d محددة</string>
     <string name="ghost_select_all">تحديد الكل</string>
