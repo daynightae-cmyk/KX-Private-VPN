@@ -238,7 +238,8 @@ private fun TreeCard(
             Text(
                 stringResource(if (state.writable) R.string.ghost_writable else R.string.ghost_read_only),
                 fontSize = 11.sp, lineHeight = 16.sp,
-                color = if (state.writable) Color(0xFF64EEFF) else Color(0xFFFFC98A),
+                color = statusTone(if (state.writable) Color(0xFF64EEFF) else Color(0xFFFFC98A),
+                    night),
                 modifier = Modifier.testTag(if (state.writable) "ghost-writable" else "ghost-read-only"),
             )
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -270,7 +271,8 @@ private fun TreeCard(
             }
             if (state.scanFailed) {
                 Text(stringResource(R.string.ghost_scan_failed), fontSize = 13.sp,
-                    color = Color(0xFFFFB4B4), modifier = Modifier.testTag("ghost-scan-failed"))
+                    color = statusTone(Color(0xFFFFB4B4), night),
+                    modifier = Modifier.testTag("ghost-scan-failed"))
             }
             if (state.scanCancelled) {
                 Text(stringResource(R.string.ghost_cancelled), fontSize = 12.sp,
@@ -292,7 +294,8 @@ private fun ScanSummary(night: Boolean, scan: GhostScan, state: GhostUiState, fo
                 fontSize = 18.sp, color = foreground, modifier = Modifier.weight(1f))
             if (scan.truncated) {
                 Text(stringResource(R.string.ghost_limited_badge), fontSize = 9.sp,
-                    color = Color(0xFFFFC98A), modifier = Modifier.testTag("ghost-partial"))
+                    color = statusTone(Color(0xFFFFC98A), night),
+                    modifier = Modifier.testTag("ghost-partial"))
             }
         }
         Text(stringResource(R.string.ghost_scan_counts, scan.scannedFiles, scan.scannedDirectories),
@@ -449,7 +452,8 @@ private fun CleanupActions(
             color = foreground.copy(alpha = .8f))
         if (!state.writable) {
             Text(stringResource(R.string.ghost_not_deletable), fontSize = 12.sp,
-                color = Color(0xFFFFC98A), modifier = Modifier.testTag("ghost-cleanup-read-only"))
+                color = statusTone(Color(0xFFFFC98A), night),
+                modifier = Modifier.testTag("ghost-cleanup-read-only"))
             OutlinedButton(onClick = onChooseFolder,
                 modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
                     .testTag("ghost-regrant")) {
@@ -488,13 +492,14 @@ private fun ReceiptCard(night: Boolean, state: GhostUiState, foreground: Color) 
             modifier = Modifier.testTag("ghost-receipt"),
         )
         Text(stringResource(R.string.ghost_receipt_verified, receipt.verifiedAbsent),
-            fontSize = 12.sp, color = Color(0xFF64EEFF))
+            fontSize = 12.sp, color = statusTone(Color(0xFF64EEFF), night))
         if (!receipt.complete) {
             Text(stringResource(R.string.ghost_cleanup_partial), fontSize = 12.sp,
-                color = Color(0xFFFFC98A), modifier = Modifier.testTag("ghost-receipt-partial"))
+                color = statusTone(Color(0xFFFFC98A), night),
+                modifier = Modifier.testTag("ghost-receipt-partial"))
         }
         receipt.failed.take(5).forEach {
-            Text(it, fontSize = 11.sp, color = Color(0xFFFFB4B4))
+            Text(it, fontSize = 11.sp, color = statusTone(Color(0xFFFFB4B4), night))
         }
         receipt.skipped.take(5).forEach {
             Text(stringResource(R.string.ghost_skipped, it), fontSize = 11.sp,
@@ -504,10 +509,14 @@ private fun ReceiptCard(night: Boolean, state: GhostUiState, foreground: Color) 
             color = foreground.copy(alpha = .7f))
         if (state.journalFailed) {
             Text(stringResource(R.string.ghost_journal_failed), fontSize = 11.sp,
-                color = Color(0xFFFFC98A), modifier = Modifier.testTag("ghost-journal-failed"))
+                color = statusTone(Color(0xFFFFC98A), night),
+                modifier = Modifier.testTag("ghost-journal-failed"))
         }
     }
 }
+
+private fun statusTone(color: Color, night: Boolean): Color =
+    if (night) color else lerp(color, Color(0xFF171050), .55f)
 
 private fun formatDate(context: android.content.Context, atMillis: Long): String {
     val locale = context.resources.configuration.locales.get(0) ?: Locale.getDefault()
