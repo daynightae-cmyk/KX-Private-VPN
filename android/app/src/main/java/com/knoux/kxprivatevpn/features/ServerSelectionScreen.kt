@@ -164,7 +164,10 @@ fun ServerSelectionScreen(
                 onClick = onImport,
                 modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)
                     .testTag("server-import"),
-            ) { Text(stringResource(R.string.server_import)) }
+            ) {
+                Text(stringResource(R.string.server_import), fontWeight = FontWeight.SemiBold,
+                    color = if (night) Color(0xFF8FF3FF) else Color(0xFF2A6DE0))
+            }
             Text(
                 stringResource(R.string.server_card_scope),
                 fontSize = 10.sp,

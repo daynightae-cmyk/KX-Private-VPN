@@ -110,8 +110,8 @@ returned to their original values.
 
 - JVM: `testDebugUnitTest` **148/148**, 0 failures. Lint: 0 errors. `assembleDebug`: PASS.
 - Instrumentation on the physical API 35 phone (`connectedDebugAndroidTest`):
-  **134 tests, 133 run, 1 skipped, 0 failed — BUILD SUCCESSFUL** against
-  `app-debug.apk` SHA-256 `abdac0fa4f3ccd6b18523f574f726fe34b9a54e788c6a9e0431a69618824d8f4`.
+  **134 tests, 133 run, 1 skipped, 0 failed — BUILD SUCCESSFUL**, re-run against the final
+  `app-debug.apk` SHA-256 `d2fbff212851d4f343556db1ad8b9b2059a2f6e2b9a2dba3f80d9e36e65cdf75`.
 - The first on-device run reported 15 failures. Four were genuine test defects that the phone
   caught and that the API 26 emulator had never seen, because the new screens had never run there:
   - `home-profile` and `server-selected` live inside clickable cards, so their semantics merge
@@ -179,6 +179,9 @@ returned to their original values.
   previews come from the CI artifact instead. The eight new Home/Server instrumentation tests were
   still executed on the phone (`am instrument … OK (8 tests)`).
 - merged_sha: PENDING
-- final APK SHA-256: `eb0e51a4c2c66c0ed256525071d196f584b6d5c58676f5781ea561230bf7ecee`
-  (polish build; JVM 148/148, lint 0 errors, Home + Server instrumentation 8/8 on the phone)
+- final APK SHA-256: `d2fbff212851d4f343556db1ad8b9b2059a2f6e2b9a2dba3f80d9e36e65cdf75`
+  (JVM 148/148, lint 0 errors, full instrumentation suite green on the phone). The
+  `abdac0fa…` build was the intermediate polish pass; `eb0e51a4…` added the hero spacing and the
+  explicit server-card action colours, and `d2fbff21…` additionally colours the Import button so
+  it does not depend on the ambient Material colour scheme.
 
