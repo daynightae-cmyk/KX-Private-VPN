@@ -24,6 +24,7 @@ class StorageXrayFlowTest {
             LaunchPreferences(context).completeOnboarding()
         }
         ActivityScenario.launch(MainActivity::class.java).use {
+                enterKxFromSplash(compose)
             compose.waitUntil(10_000) {
                 compose.onAllNodes(hasTestTag("route-home")).fetchSemanticsNodes().isNotEmpty()
             }

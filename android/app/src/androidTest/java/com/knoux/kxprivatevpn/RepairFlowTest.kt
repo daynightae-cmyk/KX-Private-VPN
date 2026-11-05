@@ -32,6 +32,7 @@ class RepairFlowTest {
             preferences.appearance("en", "day")
         }
         try { ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+                enterKxFromSplash(compose)
             compose.waitUntil(10_000) {
                 compose.onAllNodes(hasTestTag("route-home")).fetchSemanticsNodes().isNotEmpty()
             }

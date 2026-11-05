@@ -35,6 +35,7 @@ class CacheFlowTest {
         }
         try {
             ActivityScenario.launch(MainActivity::class.java).use {
+                enterKxFromSplash(compose)
                 compose.waitUntil(10000) { compose.onAllNodes(hasTestTag("route-home")).fetchSemanticsNodes().isNotEmpty() }
                 compose.onNodeWithTag("open-cache").performScrollTo().performClick()
                 compose.waitUntil(10000) {

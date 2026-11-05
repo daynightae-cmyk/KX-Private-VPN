@@ -21,6 +21,7 @@ class StartupTest {
             LaunchPreferences(context).completeOnboarding()
         }
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+                enterKxFromSplash(compose)
             compose.waitUntil(5000) {
                 compose.onAllNodes(androidx.compose.ui.test.hasTestTag("route-home"))
                     .fetchSemanticsNodes().isNotEmpty()

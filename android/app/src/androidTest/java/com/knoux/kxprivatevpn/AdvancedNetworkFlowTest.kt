@@ -44,6 +44,7 @@ class AdvancedNetworkFlowTest {
         }
         try {
             ActivityScenario.launch(MainActivity::class.java).use {
+                enterKxFromSplash(compose)
                 compose.waitUntil(15_000) {
                     compose.onAllNodes(hasTestTag("route-home")).fetchSemanticsNodes().isNotEmpty()
                 }
