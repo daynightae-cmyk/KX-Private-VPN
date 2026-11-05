@@ -2,9 +2,6 @@ package com.knoux.kxprivatevpn.features
 
 import android.content.ClipboardManager
 import android.content.Context
-import android.content.Intent
-import android.os.StatFs
-import android.provider.Settings
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -34,12 +31,6 @@ import com.knoux.kxprivatevpn.designsystem.Atmosphere
 import com.knoux.kxprivatevpn.designsystem.GlassAction
 import com.knoux.kxprivatevpn.designsystem.KxOrb
 import com.knoux.kxprivatevpn.launch.IntroTimeline
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.withContext
-import java.text.DateFormat
-import java.util.Date
-import kotlin.coroutines.coroutineContext
 
 @Composable
 internal fun CrystalPanel(content: @Composable ColumnScope.() -> Unit) {
@@ -93,6 +84,10 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                 RepairLabRoute(night, onBack = back, onNavigate = navigate)
                 return@CompositionLocalProvider
             }
+            if (route == "storage") {
+                StorageXrayRoute(night, onBack = back)
+                return@CompositionLocalProvider
+            }
             if (route.startsWith("repair/")) {
                 RepairServiceRoute(route, night, onBack = back)
                 return@CompositionLocalProvider
@@ -141,7 +136,6 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                         "import" -> ImportScreen(state, model)
                         "servers" -> ProfileList(state, model)
                         "settings" -> PreferenceScreen(state, model)
-                        "storage" -> StorageScreen()
                         "cache" -> CacheScreen { repairBusy = it }
                         "network" -> NetworkScreen()
                         "session" -> VpnSessionScreen(vpn) { model.disconnectVpn() }
@@ -291,49 +285,5 @@ private fun PreferenceScreen(state: ClientState, model: ClientViewModel) {
         }
         Text(stringResource(R.string.pref_reset_hint), fontSize = 11.sp)
         Text(stringResource(R.string.pref_privacy), fontSize = 11.sp, modifier = Modifier.testTag("pref-privacy"))
-    }
-}
-
-private data class StorageReading(val total: Long, val available: Long, val cache: Long, val at: String)
-@Composable
-private fun StorageScreen() {
-    val context = LocalContext.current
-    var refresh by remember { mutableIntStateOf(0) }
-    var reading by remember { mutableStateOf<StorageReading?>(null) }
-    var failed by remember { mutableStateOf(false) }
-    LaunchedEffect(refresh) {
-        reading = null; failed = false
-        try {
-            reading = withContext(Dispatchers.IO) {
-                val stat = StatFs(context.filesDir.absolutePath)
-                var bytes = 0L
-                context.cacheDir.walkTopDown().forEach {
-                    coroutineContext.ensureActive()
-                    if (it.isFile) bytes += it.length()
-                }
-                StorageReading(stat.totalBytes, stat.availableBytes, bytes,
-                    DateFormat.getDateTimeInstance().format(Date()))
-            }
-        } catch (e: kotlinx.coroutines.CancellationException) { throw e }
-        catch (_: Exception) { failed = true }
-    }
-    CrystalPanel {
-        Text(stringResource(R.string.storage_scope))
-        val value = reading
-        if (value == null) Text(stringResource(if (failed) R.string.input_error else R.string.loading))
-        else {
-            listOf(R.string.volume_total to value.total, R.string.volume_available to value.available,
-                R.string.own_cache to value.cache).forEach { (label, count) ->
-                Text(stringResource(label), fontSize = 14.sp)
-                Text(android.text.format.Formatter.formatFileSize(context, count), fontSize = 24.sp, fontWeight = FontWeight.Bold)
-            }
-            Text(stringResource(R.string.measured_at, value.at), fontSize = 12.sp)
-            if (failed) Text(stringResource(R.string.input_error))
-        }
-        OutlinedButton(onClick = { refresh++ }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text(stringResource(R.string.refresh)) }
-        OutlinedButton(onClick = {
-            try { context.startActivity(Intent(Settings.ACTION_INTERNAL_STORAGE_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
-            catch (_: Exception) { failed = true }
-        }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text(stringResource(R.string.storage_settings)) }
     }
 }
