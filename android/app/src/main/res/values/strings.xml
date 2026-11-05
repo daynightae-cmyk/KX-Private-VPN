@@ -6,7 +6,8 @@
     <string name="welcome">Welcome to KX</string>
     <string name="continue_label">Continue</string>
     <string name="preview_notice">Native identity preview</string>
-    <string name="scope_notice">This build verifies the KX launch experience. VPN connectivity and Repair Lab are not available yet. No connection or protection is active.</string>
+    <string name="scope_notice">KX can connect using a valid WireGuard profile that you supply. A connected tunnel and device protection must be verified; opening KX does not activate VPN automatically. Repair tools report only actions they actually support.</string>
     <string name="close">Close</string>
     <string name="save_error">Could not save launch preferences. Your next launch may replay the intro.</string>
+    <string name="tap_kx_orb_to_enter">Tap the KX emblem to enter</string>
 </resources>

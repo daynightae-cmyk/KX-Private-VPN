@@ -93,7 +93,7 @@
     <string name="repair_snapshot">Device snapshot</string>
     <string name="repair_analyze">Analyze My Phone</string>
     <string name="repair_analyzing">Measuring accessible data…</string>
-    <string name="repair_measure_scope">This reads your phone storage size, the KX cache and the KX repair history. Other apps’ private data is inaccessible and is never reported.</string>
+    <string name="repair_measure_scope">This action measures only the internal volume with Android StatFs, the KX-owned cache, and the KX repair journal. Private storage of other apps is inaccessible and is never reported.</string>
     <string name="repair_measured_at">Measured %1$s</string>
     <string name="repair_never_measured">Not measured yet</string>
     <string name="repair_measure_failed">Measurement failed. No values are shown that were not read from Android.</string>
@@ -128,7 +128,7 @@
     <string name="repair_action_other">Recorded operation</string>
     <string name="repair_privacy">Only KX-owned data and Android measurements are used. Private storage of other apps is never read. This dashboard never deletes files.</string>
     <string name="repair_unavailable">Not available yet</string>
-    <string name="repair_unavailable_body">This tool is not ready in this build. KX will not show invented results, estimates or progress.</string>
+    <string name="repair_unavailable_body">This service is not implemented yet. KX shows no simulated results, estimates or progress for it.</string>
     <string name="repair_scope">Scope: %1$s</string>
     <string name="repair_requires">Requires: %1$s</string>
     <string name="repair_requires_none">no new permission</string>

@@ -89,6 +89,37 @@ class IdentityTest {
         compose.onNodeWithTag("continue").assertIsDisplayed()
         capture("05-day-reduced")
     }
+    @Test fun explicitOrbTapIsRequiredAndAcceptedOnce() {
+        var enters = 0
+        compose.setContent {
+            IdentityExperience(
+                ready = true,
+                finished = true,
+                reducedMotion = true,
+                onEnter = { enters++ },
+                showWelcomeControls = false,
+            )
+        }
+        compose.onNodeWithTag("entry-hint").assertIsDisplayed()
+        compose.onNodeWithTag("continue").assertDoesNotExist()
+        compose.runOnIdle { assertEquals("no implicit entry", 0, enters) }
+        compose.onNodeWithTag("entry-orb").assertHasClickAction().assertIsEnabled().performClick()
+        compose.runOnIdle { assertEquals(1, enters) }
+        compose.onNodeWithTag("entry-orb").assertIsNotEnabled()
+    }
+
+    @Test fun orbCannotEnterBeforeReady() {
+        var enters = 0
+        compose.setContent {
+            IdentityExperience(
+                ready = false, finished = false, reducedMotion = true,
+                onEnter = { enters++ }, showWelcomeControls = false,
+            )
+        }
+        compose.onNodeWithTag("entry-orb").assertIsNotEnabled()
+        compose.runOnIdle { assertEquals(0, enters) }
+    }
+
     @Test fun seenPreferenceSurvivesRepositoryRecreation() = runBlocking {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         LaunchPreferences(context).markSeen()

@@ -6,7 +6,8 @@
     <string name="welcome">أهلًا بيك في KX</string>
     <string name="continue_label">متابعة</string>
     <string name="preview_notice">معاينة الهوية الأصلية</string>
-    <string name="scope_notice">الإصدار ده لاختبار تجربة فتح KX. اتصال VPN ومختبر الصيانة لسه مش متاحين. مفيش اتصال أو حماية نشطة.</string>
+    <string name="scope_notice">يمكن تشغيل KX باستخدام إعداد WireGuard صالح توفّره بنفسك. فتح التطبيق وحده لا يشغّل VPN أو يثبت الحماية؛ يجب التحقق من الاتصال. أدوات الصيانة تعرض فقط ما تدعمه فعليًا.</string>
     <string name="close">إغلاق</string>
     <string name="save_error">تعذر حفظ تفضيلات البداية. ممكن المقدمة تتكرر في التشغيل الجاي.</string>
+    <string name="tap_kx_orb_to_enter">اضغط على شعار KX للدخول</string>
 </resources>
