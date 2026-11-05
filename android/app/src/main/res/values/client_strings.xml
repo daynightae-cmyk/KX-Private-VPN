@@ -225,4 +225,5 @@
     <string name="storage_category_version_limited">Not available on this Android version</string>
     <string name="storage_media_partial">Only the photos and videos you selected are measured. Grant full media access to measure the whole library.</string>
     <string name="storage_analyzing">Measuring…</string>
+    <string name="storage_category_counts">%1$d files</string>
 </resources>

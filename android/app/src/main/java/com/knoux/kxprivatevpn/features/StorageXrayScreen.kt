@@ -55,6 +55,7 @@ import com.knoux.kxprivatevpn.platform.storage.reconcileStorage
 import android.os.Build
 import java.text.DateFormat
 import java.util.Date
+import java.util.Locale
 import kotlin.math.min
 
 @Composable
@@ -233,9 +234,7 @@ private fun VolumeSummary(night: Boolean, state: StorageXrayUiState, foreground:
                 fontSize = 15.sp, color = foreground,
             )
             Text(
-                stringResource(R.string.storage_measured_at,
-                    DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT)
-                        .format(Date(volume.atMillis))),
+                stringResource(R.string.storage_measured_at, formatDate(context, volume.atMillis)),
                 fontSize = 11.sp, color = foreground.copy(alpha = .7f),
                 modifier = Modifier.testTag("storage-measured-at"),
             )
@@ -381,8 +380,8 @@ private fun MediaCategoryRow(
                         !StoragePermissions.documentsAvailable(Build.VERSION.SDK_INT) ->
                         stringResource(R.string.storage_category_version_limited)
                     !category.permitted -> stringResource(R.string.storage_category_not_permitted)
-                    category.bytes != null -> stringResource(R.string.storage_category_bytes,
-                        Formatter.formatFileSize(context, category.bytes), category.files)
+                    category.bytes != null -> stringResource(R.string.storage_category_counts,
+                        category.files)
                     else -> stringResource(R.string.storage_category_unavailable)
                 },
                 fontSize = 11.sp, color = foreground.copy(alpha = .72f),
@@ -394,6 +393,12 @@ private fun MediaCategoryRow(
                 fontWeight = FontWeight.SemiBold, color = foreground)
         }
     }
+}
+
+private fun formatDate(context: android.content.Context, atMillis: Long): String {
+    val locale = context.resources.configuration.locales.get(0) ?: Locale.getDefault()
+    return DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, locale)
+        .format(Date(atMillis))
 }
 
 private fun categoryName(category: StorageCategory): Int = when (category) {
@@ -481,8 +486,7 @@ private fun FolderCard(
                 )
                 Text(
                     stringResource(R.string.storage_folder_measured_at,
-                        DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT)
-                            .format(Date(scan.atMillis))),
+                        formatDate(context, scan.atMillis)),
                     fontSize = 11.sp, color = foreground.copy(alpha = .7f),
                 )
                 ScanCategories(scan, foreground, context)

@@ -225,4 +225,5 @@
     <string name="storage_category_version_limited">غير متاحة على إصدار Android هذا</string>
     <string name="storage_media_partial">تُقاس فقط الصور ومقاطع الفيديو التي اخترتها. امنح وصولًا كاملًا للوسائط لقياس المكتبة بأكملها.</string>
     <string name="storage_analyzing">جارٍ القياس…</string>
+    <string name="storage_category_counts">%1$d ملفًا</string>
 </resources>
