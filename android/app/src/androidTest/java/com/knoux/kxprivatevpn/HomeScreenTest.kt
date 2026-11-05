@@ -91,6 +91,7 @@ class HomeScreenTest {
         compose.onNodeWithTag("home-profile", useUnmergedTree = true)
             .assertTextEquals(context.getString(R.string.no_profiles))
         compose.onNodeWithTag("vpn-connect").assertIsNotEnabled()
+        compose.onNodeWithTag("vpn-orb-action").assertIsNotEnabled()
         compose.onNodeWithTag("vpn-connected").assertDoesNotExist()
         listOf("metric-handshake", "metric-received", "metric-sent", "metric-tunnel")
             .forEach {
@@ -125,6 +126,7 @@ class HomeScreenTest {
 
         compose.onNodeWithTag("vpn-connected").assertIsDisplayed()
         compose.onNodeWithTag("vpn-disconnect").assertIsEnabled()
+        compose.onNodeWithTag("vpn-orb-action").assertIsEnabled()
         compose.onNodeWithTag("open-session").assertIsDisplayed()
         compose.onNodeWithTag("vpn-connect").assertDoesNotExist()
         compose.onNodeWithTag("metric-received")

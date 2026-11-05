@@ -2,9 +2,11 @@ package com.knoux.kxprivatevpn.launch
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -46,6 +48,7 @@ import com.knoux.kxprivatevpn.designsystem.GlassAction
 import com.knoux.kxprivatevpn.designsystem.KxOrb
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.launch
 
 @Composable
 fun KxLaunch() {
@@ -133,6 +136,8 @@ fun IdentityExperience(
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     var skipped by rememberSaveable { mutableStateOf(false) }
     var entryFired by remember { mutableStateOf(false) }
+    val tapSpin = remember { Animatable(0f) }
+    val scope = rememberCoroutineScope()
     var disclosure by rememberSaveable { mutableStateOf(false) }
     val currentFinished by rememberUpdatedState(onFinished)
     LaunchedEffect(ready, finished, reducedMotion, skipped, lifecycle) {
@@ -152,7 +157,10 @@ fun IdentityExperience(
             }
         }
     }
-    val frame = IntroTimeline.frame(if (finished || reducedMotion || skipped) 1f else progress.value)
+    val stage = if (finished || reducedMotion || skipped) 1f else progress.value
+    val frame = IntroTimeline.frame(stage)
+    // Dark opening frame: show only the actual emblem first, then reveal the page.
+    val appearance = ((stage - .16f) / .66f).coerceIn(0f, 1f).let { it * it * (3f - 2f * it) }
     val text = if (night) Color(0xFFF5F0FF) else Color(0xFF161050)
     // Dialog owns a separate Android window/context. Resolve copy in the selected locale here,
     // so that its portal cannot fall back to the underlying Activity's previous resources.
@@ -161,10 +169,13 @@ fun IdentityExperience(
     val disclosureClose = stringResource(R.string.close)
     val entryHint = stringResource(R.string.tap_kx_orb_to_enter)
     MaterialTheme(colorScheme = if (night) darkColorScheme() else lightColorScheme()) {
-        BoxWithConstraints(Modifier.fillMaxSize().testTag("identity")) {
-            // Stable zero pulse lets Compose retain the background through photon/ribbon motion.
-            Atmosphere(night, frame.pulse)
+        BoxWithConstraints(Modifier.fillMaxSize().background(Color(0xFF080B28)).testTag("identity")) {
+            // Only the logo exists on the first Compose frame; the approved scene gradually appears.
+            Box(Modifier.fillMaxSize().graphicsLayer { alpha = appearance }) {
+                Atmosphere(night, frame.pulse)
+            }
             val orb = minOf(maxWidth * .88f, maxHeight * .46f, 410.dp)
+            val travel = maxHeight * .18f
             // One shared orb across intro and Welcome: no image replacement or positional cut.
             Box(Modifier.fillMaxWidth().padding(top = maxHeight * .09f), contentAlignment = Alignment.TopCenter) {
                 // The same native glass orb is the entry button, not an extra generic CTA.
@@ -174,9 +185,15 @@ fun IdentityExperience(
                 val emblemModifier = Modifier.size(orb)
                     .testTag("entry-orb")
                     .graphicsLayer {
-                        rotationY = -16f * (1f - progress.value)
-                        rotationX = 9f * (1f - progress.value)
-                        cameraDistance = 1200f * density
+                        val distance = 1f - stage
+                        // Fly in from the distant center before the background becomes visible.
+                        scaleX = .33f + .67f * appearance
+                        scaleY = .33f + .67f * appearance
+                        translationY = travel.value * density * distance
+                        alpha = (.35f + .65f * (stage * 4f).coerceIn(0f, 1f))
+                        rotationY = -38f * distance + tapSpin.value
+                        rotationX = 17f * distance
+                        cameraDistance = 1500f * density
                     }
                     .then(
                         if (onEnter != null) Modifier
@@ -184,13 +201,22 @@ fun IdentityExperience(
                             .clickable(enabled = enterable, role = Role.Button) {
                                 if (!entryFired) {
                                     entryFired = true
-                                    onEnter()
+                                    if (reducedMotion) {
+                                        onEnter()
+                                    } else {
+                                        scope.launch {
+                                            tapSpin.animateTo(360f, tween(680, easing = FastOutSlowInEasing))
+                                            onEnter()
+                                        }
+                                    }
                                 }
                             }
                         else Modifier
                     )
-                KxOrb(progress = if (!ready) 0f else progress.value, frame = frame,
-                    modifier = emblemModifier)
+                // Byte-preserved owner KX artwork is visible even before the ribbon formation.
+                // Unlike the legacy system icon, KxOrb crops the outside square corners.
+                val formedFrame = frame.copy(artwork = maxOf(frame.artwork, .65f))
+                KxOrb(progress = stage, frame = formedFrame, modifier = emblemModifier)
             }
             Column(
                 Modifier.fillMaxWidth().padding(top = maxHeight * .53f)

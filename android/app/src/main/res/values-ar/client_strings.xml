@@ -348,5 +348,20 @@
     <string name="home_connected_hint">عدّادات WireGuard حقيقية؛ الوصول للإنترنت غير متحقق منه.</string>
     <string name="home_no_profile_hint">استورد إعدادات WireGuard للاتصال.</string>
     <string name="more_tools">أدوات إضافية</string>
+    <string name="app_inventory_title">التطبيقات المثبتة</string>
+    <string name="app_inventory_scan">اضغط على شعار KX لفحص التطبيقات الظاهرة</string>
+    <string name="app_inventory_scope">يعرض KX التطبيقات القابلة للتشغيل والمتاحة له فقط، وليس حزم Android المخفية. الفحص لا يحذف أي تطبيق.</string>
+    <string name="app_inventory_failure">تعذّر قراءة التطبيقات المتاحة.</string>
+    <string name="app_inventory_all_settings">عرض جميع التطبيقات في إعدادات Android</string>
+    <string name="app_inventory_counts">%1$d تطبيق مستخدم · %2$d تطبيق نظام محمي ظاهر</string>
+    <string name="app_inventory_filter_all">الكل</string>
+    <string name="app_inventory_filter_user">المستخدم</string>
+    <string name="app_inventory_filter_system">النظام</string>
+    <string name="app_inventory_system_protected">تطبيق نظام محمي — لا يمكن حذفه من هنا</string>
+    <string name="app_inventory_user_app">تطبيق مثبّت للمستخدم</string>
+    <string name="app_inventory_app_info">معلومات التطبيق</string>
+    <string name="app_inventory_uninstall">إلغاء التثبيت</string>
+    <string name="app_inventory_confirm_title">فتح تأكيد إزالة التطبيق من النظام؟</string>
+    <string name="app_inventory_confirm_body">سيطلب Android موافقتك لإزالة %1$s. لا يستطيع KX إزالة التطبيقات دون تأكيد.</string>
 </resources>
 

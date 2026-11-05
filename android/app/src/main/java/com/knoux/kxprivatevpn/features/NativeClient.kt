@@ -106,6 +106,10 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                 StorageXrayRoute(night, onBack = back)
                 return@CompositionLocalProvider
             }
+            if (route == "apps") {
+                InstalledAppsRoute(night, onBack = back)
+                return@CompositionLocalProvider
+            }
             if (route == "ghost") {
                 GhostHunterRoute(night, onBack = back)
                 return@CompositionLocalProvider

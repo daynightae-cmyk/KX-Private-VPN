@@ -174,7 +174,21 @@ private fun HomeHero(
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         Box(Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
-            KxOrb(1f, IntroTimeline.frame(1f), Modifier.size(176.dp))
+            val orbEnabled = !busy && when (vpn.phase) {
+                VpnPhase.CONNECTED -> true
+                VpnPhase.IDLE, VpnPhase.ERROR -> profileName != null
+                else -> false
+            }
+            val actionLabel = stringResource(
+                if (vpn.phase == VpnPhase.CONNECTED) R.string.disconnect else R.string.connect)
+            KxOrb(1f, IntroTimeline.frame(1f), Modifier.size(176.dp)
+                .testTag("vpn-orb-action")
+                .semantics { contentDescription = actionLabel }
+                .clickable(enabled = orbEnabled, role = Role.Button,
+                    onClick = {
+                        if (vpn.phase == VpnPhase.CONNECTED) onDisconnect()
+                        else onConnect()
+                    }))
             StatusPill(
                 status = status,
                 connected = vpn.phase == VpnPhase.CONNECTED,
@@ -339,7 +353,7 @@ private fun MetricGrid(night: Boolean, vpn: VpnState, foreground: Color) {
 }
 
 private enum class MetricKind { HANDSHAKE, RECEIVED, SENT, TUNNEL }
-private enum class ToolKind { STORAGE, CACHE, NETWORK, SECURITY, STATS, SPLIT, ADVANCED, IMPORT }
+private enum class ToolKind { STORAGE, CACHE, NETWORK, SECURITY, STATS, SPLIT, ADVANCED, IMPORT, APPS }
 private enum class NavKind { HOME, SERVERS, SECURITY, STATS, SETTINGS }
 
 @Composable
@@ -428,7 +442,7 @@ private fun KxCareCard(night: Boolean, foreground: Color, onNavigate: (String) -
 private fun ToolsGrid(night: Boolean, foreground: Color, onNavigate: (String) -> Unit) {
     // Four across fits at normal text size. Under a large font scale the same tiles would
     // break words mid-label, so the grid drops to two wider tiles per row.
-    val perRow = if (LocalDensity.current.fontScale >= 1.15f) 2 else 4
+    val perRow = 2 // Readable square service cards at normal and large font scales.
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(stringResource(R.string.more_tools), fontSize = 13.sp,
             fontWeight = FontWeight.Bold, color = foreground.copy(alpha = .86f))
@@ -441,6 +455,7 @@ private fun ToolsGrid(night: Boolean, foreground: Color, onNavigate: (String) ->
             ToolKind.SPLIT to ("split" to R.string.split_title),
             ToolKind.ADVANCED to ("advanced" to R.string.adv_title),
             ToolKind.IMPORT to ("import" to R.string.import_config),
+            ToolKind.APPS to ("apps" to R.string.app_inventory_title),
         )
         tools.chunked(perRow).forEach { row ->
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -474,9 +489,10 @@ private fun ToolTile(
         ToolKind.SPLIT -> Color(0xFFFF8AD8)
         ToolKind.ADVANCED -> Color(0xFFAD71FF)
         ToolKind.IMPORT -> Color(0xFFB9E9FF)
+        ToolKind.APPS -> Color(0xFF64EEFF)
     }
     Column(
-        modifier.heightIn(min = 72.dp).clip(RoundedCornerShape(18.dp))
+        modifier.heightIn(min = 112.dp).clip(RoundedCornerShape(18.dp))
             .background(Color.White.copy(alpha = if (night) .08f else .42f))
             .border(1.dp, Color.White.copy(alpha = if (night) .22f else .72f),
                 RoundedCornerShape(18.dp))
@@ -487,6 +503,8 @@ private fun ToolTile(
     ) {
         // One glyph family across Home tools, so adjacent tiles share stroke weight and
         // optical size instead of mixing repair-specific art with generic tool shapes.
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween) {
         KxServiceGlyph(
             kind = when (kind) {
                 ToolKind.STORAGE -> "storage"
@@ -497,11 +515,15 @@ private fun ToolTile(
                 ToolKind.SPLIT -> "split"
                 ToolKind.ADVANCED -> "advanced"
                 ToolKind.IMPORT -> "import"
+                ToolKind.APPS -> "security"
             },
             tint = if (night) accent else Color(0xFF3B2AA8),
-            modifier = Modifier.size(22.dp),
+            modifier = Modifier.size(27.dp),
         )
-        Text(label, fontSize = 9.sp, lineHeight = 11.sp, maxLines = 2,
+        // The visible KX emblem is part of every tap surface for consistent branding.
+        KxOrb(1f, IntroTimeline.frame(1f), Modifier.size(42.dp))
+        }
+        Text(label, fontSize = 13.sp, lineHeight = 16.sp, maxLines = 2,
             overflow = TextOverflow.Ellipsis, color = foreground,
             fontWeight = FontWeight.Medium)
     }
