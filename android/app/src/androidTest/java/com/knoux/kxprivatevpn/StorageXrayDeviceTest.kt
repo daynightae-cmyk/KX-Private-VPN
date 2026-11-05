@@ -1,7 +1,9 @@
 package com.knoux.kxprivatevpn
 
 import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Build
+import androidx.core.content.ContextCompat
 import androidx.test.platform.app.InstrumentationRegistry
 import com.knoux.kxprivatevpn.platform.storage.MediaStoreInventory
 import com.knoux.kxprivatevpn.platform.storage.StorageCategory
@@ -23,9 +25,17 @@ class StorageXrayDeviceTest {
         assumeTrue(Build.VERSION.SDK_INT <= 32)
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val ui = InstrumentationRegistry.getInstrumentation().uiAutomation
-        ui.executeShellCommand(
-            "pm grant ${context.packageName} ${Manifest.permission.READ_EXTERNAL_STORAGE}",
-        ).close()
+        try {
+            ui.grantRuntimePermission(context.packageName,
+                Manifest.permission.READ_EXTERNAL_STORAGE)
+        } catch (_: Exception) {
+            // Fall through to the poll: the assertion reports the real permission state.
+        }
+        val deadline = System.currentTimeMillis() + 5_000
+        while (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE)
+            != PackageManager.PERMISSION_GRANTED && System.currentTimeMillis() < deadline) {
+            Thread.sleep(100)
+        }
         try {
             val inventory = runBlocking { MediaStoreInventory(context).scan() }
             assertEquals(4, inventory.categories.size)
@@ -36,23 +46,28 @@ class StorageXrayDeviceTest {
             assertEquals(StoragePermissions.documentsAvailable(Build.VERSION.SDK_INT),
                 documents.permitted)
         } finally {
-            ui.executeShellCommand(
-                "pm revoke ${context.packageName} ${Manifest.permission.READ_EXTERNAL_STORAGE}",
-            ).close()
+            try {
+                ui.revokeRuntimePermission(context.packageName,
+                    Manifest.permission.READ_EXTERNAL_STORAGE)
+            } catch (_: Exception) {
+                // Best effort restoration for the next test.
+            }
         }
     }
 
     @Test fun withoutPermissionCategoriesAreNotReportedAsZero() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val ui = InstrumentationRegistry.getInstrumentation().uiAutomation
-        ui.executeShellCommand(
-            "pm revoke ${context.packageName} ${Manifest.permission.READ_EXTERNAL_STORAGE}",
-        ).close()
-        if (Build.VERSION.SDK_INT >= 33) {
-            listOf(Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO,
-                Manifest.permission.READ_MEDIA_AUDIO).forEach {
-                ui.executeShellCommand("pm revoke ${context.packageName} $it").close()
-            }
+        val permissions = if (Build.VERSION.SDK_INT >= 34) listOf(
+            Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO,
+            Manifest.permission.READ_MEDIA_AUDIO,
+            Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED,
+        ) else if (Build.VERSION.SDK_INT >= 33) listOf(
+            Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO,
+            Manifest.permission.READ_MEDIA_AUDIO,
+        ) else listOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+        permissions.forEach {
+            try { ui.revokeRuntimePermission(context.packageName, it) } catch (_: Exception) { }
         }
         val inventory = runBlocking { MediaStoreInventory(context).scan() }
         val media = inventory.categories.filter { it.category != StorageCategory.DOCUMENTS }

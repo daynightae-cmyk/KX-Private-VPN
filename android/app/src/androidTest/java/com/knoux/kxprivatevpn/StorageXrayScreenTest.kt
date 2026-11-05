@@ -27,6 +27,7 @@ import com.knoux.kxprivatevpn.platform.storage.StorageCategory
 import com.knoux.kxprivatevpn.platform.storage.StorageEntry
 import com.knoux.kxprivatevpn.platform.storage.StorageScan
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import java.io.File
@@ -258,7 +259,8 @@ class StorageXrayScreenTest {
             media = null, treeUri = "content://tree", treeName = "Downloads", scanFailed = true))
 
         compose.onNodeWithTag("storage-scan-failed").performScrollTo().assertIsDisplayed()
-        compose.onNodeWithText(text(R.string.storage_volume_unavailable)).assertExists()
+        assertTrue(compose.onAllNodesWithText(text(R.string.storage_volume_unavailable))
+            .fetchSemanticsNodes().isNotEmpty())
         compose.onNodeWithText(text(R.string.storage_reconcile_unavailable)).assertExists()
         compose.onNodeWithTag("storage-accessible").assertDoesNotExist()
     }
