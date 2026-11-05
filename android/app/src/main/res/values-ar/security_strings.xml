@@ -1,7 +1,7 @@
 <resources>
     <string name="security_center">مركز الأمان</string>
-    <string name="security_hero_verified">محمي بالكامل</string>
-    <string name="security_hero_verified_body">تم التحقق من النفق وDNS وتوجيه IPv6 على هذا الجهاز.</string>
+    <string name="security_hero_verified">تم التحقق من النفق</string>
+    <string name="security_hero_verified_body">تم قياس النفق وDNS ومسارات IPv6. حماية المرور والتسريب غير متحقق منها.</string>
     <string name="security_hero_unverified">النفق نشط · التحقق معلّق</string>
     <string name="security_hero_unverified_body">النفق نشط، لكن بعض الحمايات لم يتم التحقق منها بعد.</string>
     <string name="security_hero_inactive">غير محمي</string>

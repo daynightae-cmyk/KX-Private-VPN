@@ -452,32 +452,33 @@ private fun ServiceCard(
             .clickable(role = Role.Button,
                 onClickLabel = context.getString(R.string.repair_open_service, title, status),
                 onClick = onClick)
-            .semantics(mergeDescendants = true) { contentDescription = "$title. $status. $detail" }
-            .padding(13.dp)
+            .semantics(mergeDescendants = true) { contentDescription = "$title. $detail" }
+            .padding(horizontal = 12.dp, vertical = 11.dp)
             .testTag("repair-card-${service.id.key}"),
         verticalArrangement = Arrangement.spacedBy(7.dp),
     ) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
-            RepairGlyph(service.id, Modifier.size(46.dp))
-            Spacer(Modifier.weight(1f))
-            StatusPill(
-                label = if (available) stringResource(R.string.repair_status_available)
-                else stringResource(R.string.repair_status_unavailable),
-                accent = if (available) accent else Color(0xFF9A94C9).copy(alpha = .8f),
-                night = night,
-            )
+        Row(
+            Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(9.dp),
+        ) {
+            RepairGlyph(service.id, Modifier.size(32.dp))
+            Text(title, fontWeight = FontWeight.Bold, fontSize = 13.sp, lineHeight = 16.sp,
+                color = foreground, maxLines = 2, overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f))
         }
-        Text(title, fontWeight = FontWeight.Bold, fontSize = 15.sp, lineHeight = 19.sp,
-            color = foreground)
-        Text(
-            stringResource(service.descriptionRes),
-            fontSize = 11.sp, lineHeight = 15.sp, color = foreground.copy(alpha = .74f),
-            maxLines = 2, overflow = TextOverflow.Ellipsis,
-        )
         val detailTone = if (night) accent else lerp(accent, Color(0xFF171050), .55f)
-        Text(detail, fontSize = 10.sp, lineHeight = 14.sp,
-            color = if (available) detailTone else foreground.copy(alpha = .6f),
-            fontWeight = FontWeight.SemiBold)
+        val dotTone = if (available) detailTone else foreground.copy(alpha = .45f)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(5.dp),
+        ) {
+            Box(Modifier.size(6.dp).clip(CircleShape).background(
+                dotTone.copy(alpha = if (available) .95f else .5f)))
+            Text(detail, fontSize = 9.sp, lineHeight = 12.sp,
+                color = if (available) detailTone else foreground.copy(alpha = .58f),
+                fontWeight = FontWeight.SemiBold)
+        }
     }
 }
 

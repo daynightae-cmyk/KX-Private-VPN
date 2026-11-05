@@ -47,7 +47,7 @@ class StatisticsFlowTest {
                 }
                 compose.onNodeWithTag("stats-error").assertDoesNotExist()
                 compose.onNodeWithTag("stats-total-value")
-                    .assertTextEquals(context.getString(R.string.stats_no_sessions))
+                    .assertTextEquals(strings(context).getString(R.string.stats_no_sessions))
                 compose.onNodeWithTag("stats-chart-empty").assertIsDisplayed()
                 compose.onNodeWithTag("stats-nav").assertIsDisplayed()
                 val folder = File(context.getExternalFilesDir(null), "identity-evidence")

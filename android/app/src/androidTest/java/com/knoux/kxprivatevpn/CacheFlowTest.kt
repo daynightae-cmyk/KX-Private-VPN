@@ -25,7 +25,14 @@ class CacheFlowTest {
         val sentinel = File(folder, "sentinel.tmp").apply { writeText("keep") }
         val privateSentinel = File(context.noBackupFilesDir, "$prefix.keep").apply { writeText("outside cache") }
         val started = System.currentTimeMillis()
-        runBlocking { LaunchPreferences(context).markSeen(); LaunchPreferences(context).completeOnboarding() }
+        val preferences = LaunchPreferences(context)
+        val original = runBlocking { preferences.settings() }
+        runBlocking {
+            preferences.markSeen(); preferences.completeOnboarding()
+            // The receipt string is asserted below, so the appearance has to be pinned
+            // rather than inherited from whichever language a previous test left behind.
+            preferences.appearance("en", "day")
+        }
         try {
             ActivityScenario.launch(MainActivity::class.java).use {
                 compose.waitUntil(10000) { compose.onAllNodes(hasTestTag("route-home")).fetchSemanticsNodes().isNotEmpty() }
@@ -42,8 +49,8 @@ class CacheFlowTest {
                 assertTrue(target.exists()) // Preview and dialog do not delete anything.
                 compose.onNodeWithTag("cache-confirm").performClick()
                 compose.waitUntil(10000) { !target.exists() }
-                val receipt = context.getString(R.string.cache_receipt, 1,
-                    android.text.format.Formatter.formatFileSize(context, 64), 0, 0)
+                val receipt = strings(context).getString(R.string.cache_receipt, 1,
+                    android.text.format.Formatter.formatFileSize(strings(context), 64), 0, 0)
                 compose.waitUntil(10000) { compose.onAllNodes(hasText(receipt)).fetchSemanticsNodes().isNotEmpty() }
                 compose.onNodeWithText(receipt).performScrollTo().assertIsDisplayed()
                 assertEquals("keep", sentinel.readText())
@@ -70,6 +77,7 @@ class CacheFlowTest {
                 }
             }
         } finally {
+            runBlocking { preferences.appearance(original.language, original.theme) }
             // Only this test's owned fixtures; never a recursive cache clear.
             target.delete(); sentinel.delete(); folder.delete(); privateSentinel.delete()
         }

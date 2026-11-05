@@ -1,5 +1,5 @@
 <resources>
-    <string name="adv_title">إعدادات الشبكة المتقدمة</string>
+    <string name="adv_title">شبكة متقدمة</string>
     <string name="adv_hero_title">اضبط النفق بتفصيل.</string>
     <string name="adv_hero_body">اختيار البروتوكول وضوابط شبكة متقدمة لأداء وخصوصية واستقرار أعلى.</string>
     <string name="adv_section_protocol">البروتوكول</string>

@@ -49,8 +49,15 @@ class StatisticsScreenTest {
     private val today = LocalDate.now()
     private val zone: ZoneId = ZoneId.systemDefault()
     private val now = today.atTime(12, 0).atZone(zone).toInstant().toEpochMilli()
-    private val context: Context
+    private val base: Context
         get() = InstrumentationRegistry.getInstrumentation().targetContext
+
+    /**
+     * Rendering and assertions share one pinned English locale so an Arabic-locale acceptance
+     * device does not compare Arabic-Indic numerals against Latin-digit fixtures.
+     */
+    private val context: Context
+        get() = localized(base, "en")
 
     private fun record(
         daysAgo: Long = 0,
@@ -114,8 +121,7 @@ class StatisticsScreenTest {
         onNavigate: (String) -> Unit = {},
     ) {
         compose.setContent {
-            val base = InstrumentationRegistry.getInstrumentation().targetContext
-            val localizedContext = if (arabic) localized(base, "ar") else base
+            val localizedContext = if (arabic) localized(base, "ar") else localized(base, "en")
             val density = LocalDensity.current
             CompositionLocalProvider(
                 LocalContext provides localizedContext,
@@ -207,8 +213,11 @@ class StatisticsScreenTest {
         )
         var range by mutableStateOf(StatsRange.WEEK)
         compose.setContent {
+            val english = localized(base, "en")
             val density = LocalDensity.current
             CompositionLocalProvider(
+                LocalContext provides english,
+                LocalConfiguration provides english.resources.configuration,
                 LocalDensity provides Density(density.density, 1f),
                 LocalLayoutDirection provides LayoutDirection.Ltr,
             ) {
@@ -245,8 +254,11 @@ class StatisticsScreenTest {
         var confirmed = 0
         var dismissed = 0
         compose.setContent {
+            val english = localized(base, "en")
             val density = LocalDensity.current
             CompositionLocalProvider(
+                LocalContext provides english,
+                LocalConfiguration provides english.resources.configuration,
                 LocalDensity provides Density(density.density, 1f),
                 LocalLayoutDirection provides LayoutDirection.Ltr,
             ) {

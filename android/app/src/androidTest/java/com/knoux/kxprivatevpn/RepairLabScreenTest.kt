@@ -14,6 +14,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.Density
@@ -39,8 +40,16 @@ import java.util.Locale
  */
 class RepairLabScreenTest {
     @get:Rule val compose = createComposeRule()
-    private val context: Context
+
+    /**
+     * The unlabelled runs pin English for both rendering and assertions. Several fixtures here
+     * are Latin-digit strings ("free of", "5 files"), and a device whose system locale is
+     * Arabic would otherwise render Arabic-Indic numerals and fail on formatting alone.
+     */
+    private val base: Context
         get() = InstrumentationRegistry.getInstrumentation().targetContext
+    private val context: Context
+        get() = localized(base, "en")
     private val now = 1_760_000_000_000L
 
     private fun preview(files: Int = 2, limited: Boolean = false): CachePreview =
@@ -77,8 +86,7 @@ class RepairLabScreenTest {
         onNavigate: (String) -> Unit = {},
     ) {
         compose.setContent {
-            val base = InstrumentationRegistry.getInstrumentation().targetContext
-            val localizedContext = if (arabic) localized(base, "ar") else base
+            val localizedContext = if (arabic) localized(base, "ar") else localized(base, "en")
             val density = LocalDensity.current
             CompositionLocalProvider(
                 LocalContext provides localizedContext,
@@ -116,11 +124,14 @@ class RepairLabScreenTest {
         }
         compose.onNodeWithTag("repair-services-count")
             .assertTextEquals(text(R.string.repair_services_count, 5, 10))
-        compose.onNodeWithTag("repair-card-duplicate")
-            .assert(hasContentDescription(
-                "${text(R.string.repair_service_duplicate)}. " +
-                    "${text(R.string.repair_status_available)}. " +
-                    text(R.string.repair_status_ready), substring = true))
+        // The compacted card announces the service once, with exactly one tiny status.
+        val ready = text(R.string.repair_status_ready)
+        val duplicateDescription = compose.onNodeWithTag("repair-card-duplicate")
+            .fetchSemanticsNode().config[SemanticsProperties.ContentDescription].joinToString()
+        assertEquals(
+            "${text(R.string.repair_service_duplicate)}. $ready", duplicateDescription,
+        )
+        assertEquals(1, duplicateDescription.split(ready).size - 1)
         compose.onNodeWithTag("repair-volume").assertTextContains("free of", substring = true)
         compose.onNodeWithTag("repair-cache").assertTextContains("5 files", substring = true)
         compose.onNodeWithTag("repair-measured-at").assertExists()
@@ -169,8 +180,11 @@ class RepairLabScreenTest {
     @Test fun journalShowsOnlyRecordedOperationsAndAnHonestEmptyState() {
         val state = mutableStateOf(RepairUiState(loading = false, measurement = measurement()))
         compose.setContent {
+            val english = localized(base, "en")
             val density = LocalDensity.current
             CompositionLocalProvider(
+                LocalContext provides english,
+                LocalConfiguration provides english.resources.configuration,
                 LocalDensity provides Density(density.density, 1f),
                 LocalLayoutDirection provides LayoutDirection.Ltr,
             ) {
@@ -214,8 +228,15 @@ class RepairLabScreenTest {
 
     @Test fun unavailableDetailStatesNoSimulation() {
         compose.setContent {
-            Box(Modifier.fillMaxSize()) {
-                RepairServiceRoute("repair/heavyweight", night = false, onBack = {})
+            val english = localized(base, "en")
+            CompositionLocalProvider(
+                LocalContext provides english,
+                LocalConfiguration provides english.resources.configuration,
+                LocalLayoutDirection provides LayoutDirection.Ltr,
+            ) {
+                Box(Modifier.fillMaxSize()) {
+                    RepairServiceRoute("repair/heavyweight", night = false, onBack = {})
+                }
             }
         }
 

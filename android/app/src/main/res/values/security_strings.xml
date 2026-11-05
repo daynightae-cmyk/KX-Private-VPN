@@ -1,7 +1,7 @@
 <resources>
     <string name="security_center">Security Center</string>
-    <string name="security_hero_verified">Fully protected</string>
-    <string name="security_hero_verified_body">Tunnel, DNS and IPv6 routing are verified on this device.</string>
+    <string name="security_hero_verified">Tunnel verified</string>
+    <string name="security_hero_verified_body">Tunnel, DNS and IPv6 routes are measured. Traffic and leak protection are not verified.</string>
     <string name="security_hero_unverified">Tunnel up · verification pending</string>
     <string name="security_hero_unverified_body">The tunnel is active. Some protections could not be verified yet.</string>
     <string name="security_hero_inactive">Not protected</string>

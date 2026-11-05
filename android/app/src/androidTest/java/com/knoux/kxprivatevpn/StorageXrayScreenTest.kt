@@ -39,8 +39,16 @@ import java.util.Locale
  */
 class StorageXrayScreenTest {
     @get:Rule val compose = createComposeRule()
-    private val context: Context
+
+    /**
+     * Rendering and assertions share one pinned English locale. Several fixtures are Latin
+     * digits ("120", "4"), which an Arabic-locale device renders as Arabic-Indic — the test
+     * must not fail on numeral shape alone.
+     */
+    private val base: Context
         get() = InstrumentationRegistry.getInstrumentation().targetContext
+    private val context: Context
+        get() = localized(base, "en")
     private val now = 1_760_000_000_000L
 
     private fun media(
@@ -119,8 +127,7 @@ class StorageXrayScreenTest {
         onUp: () -> Unit = {},
     ) {
         compose.setContent {
-            val base = InstrumentationRegistry.getInstrumentation().targetContext
-            val localizedContext = if (arabic) localized(base, "ar") else base
+            val localizedContext = if (arabic) localized(base, "ar") else localized(base, "en")
             val density = LocalDensity.current
             CompositionLocalProvider(
                 LocalContext provides localizedContext,

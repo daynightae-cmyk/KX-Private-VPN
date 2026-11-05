@@ -1,5 +1,5 @@
 <resources>
-    <string name="cache_surgeon">جراح الكاش</string>
+    <string name="cache_surgeon">الملفات المؤقتة</string>
     <string name="cache_scope">راجع ملفات KX المؤقتة بس. كاش التطبيقات التانية وإعدادات VPN المحفوظة خارج النطاق. اختار الملفات وبعدها وافق صراحة على الإزالة. أي ملف اتغيّر بيتساب. مفيش تراجع.</string>
     <string name="cache_scan">افحص كاش KX</string>
     <string name="cache_none">مفيش ملفات كاش KX متاحة للإزالة.</string>

@@ -1,5 +1,5 @@
 <resources>
-    <string name="network_doctor">طبيب الشبكة</string>
+    <string name="network_doctor">فحص الشبكة</string>
     <string name="network_scope">إمكانيات شبكة Android وعناوين DNS الفعلية. نفق VPN ممكن يخص تطبيق تاني، ومش دليل على حماية KX. المدة المقاسة لطلب HTTPS واحد، مش ping أو سرعة VPN.</string>
     <string name="network_present">في شبكة Android نشطة</string>
     <string name="network_absent">مفيش شبكة Android نشطة</string>
