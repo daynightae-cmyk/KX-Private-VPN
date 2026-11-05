@@ -115,10 +115,10 @@ class RepairLabScreenTest {
             compose.onNodeWithTag("repair-card-$it").assertExists()
         }
         compose.onNodeWithTag("repair-services-count")
-            .assertTextEquals(text(R.string.repair_services_count, 3, 10))
-        compose.onNodeWithTag("repair-card-ghost")
+            .assertTextEquals(text(R.string.repair_services_count, 4, 10))
+        compose.onNodeWithTag("repair-card-duplicate")
             .assert(hasContentDescription(
-                "${text(R.string.repair_service_ghost)}. " +
+                "${text(R.string.repair_service_duplicate)}. " +
                     "${text(R.string.repair_status_unavailable)}. " +
                     text(R.string.repair_status_unavailable), substring = true))
         compose.onNodeWithTag("repair-volume").assertTextContains("free of", substring = true)
@@ -215,11 +215,11 @@ class RepairLabScreenTest {
     @Test fun unavailableDetailStatesNoSimulation() {
         compose.setContent {
             Box(Modifier.fillMaxSize()) {
-                RepairServiceRoute("repair/ghost", night = false, onBack = {})
+                RepairServiceRoute("repair/duplicate", night = false, onBack = {})
             }
         }
 
-        compose.onNodeWithText(context.getString(R.string.repair_service_ghost)).assertExists()
+        compose.onNodeWithText(context.getString(R.string.repair_service_duplicate)).assertExists()
         compose.onNodeWithText(context.getString(R.string.repair_unavailable_body)).assertExists()
         compose.onNodeWithText(
             context.getString(R.string.repair_requires,

@@ -24,6 +24,12 @@ interface DocumentSource {
     suspend fun list(documentId: String): List<DocumentEntry>
 }
 
+/** Read/write seam used only by confirmed cleanup flows. Implementations must stay in-tree. */
+interface MutableDocumentSource : DocumentSource {
+    suspend fun document(documentId: String): DocumentEntry?
+    suspend fun delete(documentId: String): Boolean
+}
+
 /**
  * Depth-first SAF walk. Only user-granted tree documents are read, every result is a real
  * DocumentsContract row, and the walk stops at a bounded entry count with `truncated = true`.
@@ -69,7 +75,8 @@ class SafStorageScanner(
                     if (depth < maxDepth) stack.addLast(child.documentId to path)
                     else truncated = true
                 } else if (child.bytes >= 0) {
-                    entries += StorageEntry(path, child.bytes, child.mime, child.lastModified)
+                    entries += StorageEntry(path, child.bytes, child.mime, child.lastModified,
+                        child.documentId)
                     if (entries.size % 50 == 0) onProgress(entries.size)
                 }
             }
@@ -91,7 +98,7 @@ class SafStorageScanner(
 class AndroidDocumentSource(
     private val context: Context,
     private val treeUri: Uri,
-) : DocumentSource {
+) : MutableDocumentSource {
     override suspend fun list(documentId: String): List<DocumentEntry> = withContext(Dispatchers.IO) {
         val childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, documentId)
         val projection = arrayOf(
@@ -120,10 +127,37 @@ class AndroidDocumentSource(
         }
     }
 
-    fun takePersistablePermission() {
-        context.contentResolver.takePersistableUriPermission(
-            treeUri, Intent.FLAG_GRANT_READ_URI_PERMISSION,
+    fun takePersistablePermission(readWrite: Boolean = false) {
+        var flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+        if (readWrite) flags = flags or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+        context.contentResolver.takePersistableUriPermission(treeUri, flags)
+    }
+
+    fun hasWritePermission(): Boolean = context.contentResolver.persistedUriPermissions.any {
+        it.uri == treeUri && it.isWritePermission
+    }
+
+    override suspend fun document(documentId: String): DocumentEntry? = withContext(Dispatchers.IO) {
+        val uri = DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId)
+        val projection = arrayOf(
+            DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+            DocumentsContract.Document.COLUMN_DISPLAY_NAME,
+            DocumentsContract.Document.COLUMN_MIME_TYPE,
+            DocumentsContract.Document.COLUMN_SIZE,
+            DocumentsContract.Document.COLUMN_LAST_MODIFIED,
         )
+        context.contentResolver.query(uri, projection, null, null, null)?.use { cursor ->
+            if (cursor.moveToFirst()) cursor.toEntry() else null
+        }
+    }
+
+    override suspend fun delete(documentId: String): Boolean = withContext(Dispatchers.IO) {
+        try {
+            DocumentsContract.deleteDocument(context.contentResolver,
+                DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId))
+        } catch (_: Exception) {
+            false
+        }
     }
 
     private fun Cursor.toEntry(): DocumentEntry {

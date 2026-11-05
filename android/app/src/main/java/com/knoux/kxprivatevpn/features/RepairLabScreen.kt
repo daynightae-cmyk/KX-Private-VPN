@@ -535,8 +535,11 @@ private fun JournalRow(
             Text(service?.let { stringResource(it.titleRes) } ?: stringResource(R.string.repair_lab),
                 fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = foreground)
             Text(
-                stringResource(if (entry.action == ACTION_CACHE_REMOVE)
-                    R.string.repair_action_cache_remove else R.string.repair_action_other),
+                stringResource(when (entry.action) {
+                    ACTION_CACHE_REMOVE -> R.string.repair_action_cache_remove
+                    ACTION_GHOST_CLEANUP -> R.string.ghost_action
+                    else -> R.string.repair_action_other
+                }),
                 fontSize = 11.sp, color = foreground.copy(alpha = .72f),
             )
             Text(
@@ -617,3 +620,4 @@ fun RepairServiceRoute(route: String, night: Boolean, onBack: () -> Unit) {
 }
 
 private const val ACTION_CACHE_REMOVE = "cache_remove"
+private const val ACTION_GHOST_CLEANUP = "ghost_cleanup"

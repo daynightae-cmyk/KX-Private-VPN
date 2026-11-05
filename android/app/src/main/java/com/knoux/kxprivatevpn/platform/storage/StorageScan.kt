@@ -12,6 +12,8 @@ data class StorageEntry(
     val bytes: Long,
     val mime: String,
     val lastModified: Long = 0,
+    /** SAF document id when this entry came from a tree; empty for synthetic test data. */
+    val documentId: String = "",
 )
 
 data class CategoryTotal(val category: StorageCategory, val bytes: Long, val files: Int)

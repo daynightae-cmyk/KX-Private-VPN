@@ -24,8 +24,9 @@ class RepairCatalogTest {
 
     @Test fun onlyImplementedToolsAreAvailable() {
         val ready = RepairCatalog.services.filter { it.id.available }.map { it.id }.toSet()
-        assertEquals(setOf(RepairServiceId.STORAGE, RepairServiceId.CACHE, RepairServiceId.NETWORK), ready)
-        assertEquals(3, RepairCatalog.available())
+        assertEquals(setOf(RepairServiceId.STORAGE, RepairServiceId.GHOST,
+            RepairServiceId.CACHE, RepairServiceId.NETWORK), ready)
+        assertEquals(4, RepairCatalog.available())
     }
 
     @Test fun unavailableToolsHaveDedicatedHonestRoutes() {
