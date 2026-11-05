@@ -2,8 +2,9 @@
 
 **baseline_sha:** `6c911a1` (main after TASK_13)
 **branch:** `task14-duplicate-dna`
-**implementation_sha:** `b885f28` + safety follow-up (pending)
-**status:** REVIEW BEFORE MERGE · API26/build green on `b885f28` · API35 known renderer blocker
+**implementation_sha:** `b885f28` + `fa99f88` (safety)
+**merged_sha:** `8b0d716`
+**status:** MERGED · API26 126/126 · build+Sonar green · API35 known renderer blocker
 
 ## Scope
 - Two-pass SAF scan: size buckets first, then streaming SHA-256 over the real document stream.
@@ -36,7 +37,7 @@
   `IdentityTest.arabicRtlLargeText360dp` renderer loss.
 - Device captures from the PR artifact: `60-dna-groups`, `61-dna-read-only`, `62-dna-receipt`,
   `63-dna-night-ar-large`.
-- Safety follow-up must pass a fresh CI run before merge; record the exact final SHA.
+- Safety follow-up `fa99f88` passed CI run `41991174369` (build + Sonar + API26 126/126); PR #13 merged as `8b0d716`.
 
 ## Known limits
 - The system SAF picker is not automated; the real `DocumentsContract.deleteDocument` path still
@@ -47,5 +48,7 @@
 
 ## PR / CI / merge
 - PR: #13
-- merged_sha: pending until the safety follow-up CI passes and the PR is merged
+- CI: https://github.com/daynightae-cmyk/KX-Private-VPN/actions/runs/41991174369
+- merged_sha: `8b0d716ee4bffc5d3c81d07cbec5048dad6f2753`
+- remote_main_sha: `8b0d716` (verified after merge)
 - next_task: visual transformation per owner handoff
