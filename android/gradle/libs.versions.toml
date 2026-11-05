@@ -26,3 +26,4 @@ android-test = { module = "androidx.test.ext:junit", version = "1.2.1" }
 test-runner = { module = "androidx.test:runner", version = "1.6.2" }
 wireguard = { module = "com.wireguard.android:tunnel", version = "1.0.20260102" }
 zxing = { module = "com.google.zxing:core", version = "3.5.3" }
+json = { module = "org.json:json", version = "20240303" }

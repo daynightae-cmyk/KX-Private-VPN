@@ -27,6 +27,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.knoux.kxprivatevpn.R
+import com.knoux.kxprivatevpn.platform.repair.RepairJournal
+import com.knoux.kxprivatevpn.platform.repair.RepairJournalEntry
+import com.knoux.kxprivatevpn.platform.repair.RepairOutcome
+import com.knoux.kxprivatevpn.platform.repair.RepairServiceId
 import com.knoux.kxprivatevpn.platform.storage.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -39,6 +43,7 @@ data class CacheState(val busy: Boolean = false, val preview: CachePreview? = nu
 class CacheViewModel(app: Application) : AndroidViewModel(app) {
     private val tool = CacheMaintenance(app.cacheDir)
     private val journal = AtomicFile(File(app.noBackupFilesDir, "cache-last-operation.json"))
+    private val repairJournal = RepairJournal(File(app.noBackupFilesDir, "repair-journal.json"))
     private val mutable = MutableStateFlow(CacheState(busy = true))
     private companion object { val journalLock = Any() }
     val state = mutable.asStateFlow()
@@ -77,9 +82,27 @@ class CacheViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             try {
                 withContext(Dispatchers.IO) {
-                    tool.removeApproved(preview, paths, true) { value, complete ->
+                    val result = tool.removeApproved(preview, paths, true) { value, complete ->
                         write(value, complete)
                         mutable.update { it.copy(receipt = value, interrupted = !complete) }
+                    }
+                    // A completed cleanup becomes a real journal entry. The journal is evidence,
+                    // so a journal write failure never changes the cleanup result shown above.
+                    try {
+                        repairJournal.append(RepairJournalEntry(
+                            atMillis = System.currentTimeMillis(),
+                            serviceKey = RepairServiceId.CACHE.key,
+                            action = "cache_remove",
+                            outcome = when {
+                                result.deleted == 0 && result.failed.isNotEmpty() -> RepairOutcome.FAILED
+                                result.failed.isNotEmpty() || result.skipped.isNotEmpty() -> RepairOutcome.PARTIAL
+                                else -> RepairOutcome.COMPLETE
+                            },
+                            items = result.deleted,
+                            bytes = result.removedFileBytes,
+                        ))
+                    } catch (_: Exception) {
+                        // The in-screen receipt still reports exactly what was removed.
                     }
                 }
                 mutable.update { it.copy(preview = null) }

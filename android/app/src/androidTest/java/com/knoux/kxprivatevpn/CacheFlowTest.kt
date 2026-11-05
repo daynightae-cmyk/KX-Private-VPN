@@ -6,6 +6,8 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
 import com.knoux.kxprivatevpn.launch.LaunchPreferences
+import com.knoux.kxprivatevpn.platform.repair.RepairJournal
+import com.knoux.kxprivatevpn.platform.repair.RepairServiceId
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Rule
@@ -22,6 +24,7 @@ class CacheFlowTest {
         val target = File(folder, "target.tmp").apply { writeBytes(ByteArray(64)) }
         val sentinel = File(folder, "sentinel.tmp").apply { writeText("keep") }
         val privateSentinel = File(context.noBackupFilesDir, "$prefix.keep").apply { writeText("outside cache") }
+        val started = System.currentTimeMillis()
         runBlocking { LaunchPreferences(context).markSeen(); LaunchPreferences(context).completeOnboarding() }
         try {
             ActivityScenario.launch(MainActivity::class.java).use {
@@ -45,6 +48,22 @@ class CacheFlowTest {
                 compose.onNodeWithText(receipt).performScrollTo().assertIsDisplayed()
                 assertEquals("keep", sentinel.readText())
                 assertEquals("outside cache", privateSentinel.readText())
+                // The dashboard journal is real evidence: this operation is recorded with its
+                // measured bytes, and no file path is ever written into the journal.
+                val journalFile = File(context.noBackupFilesDir, "repair-journal.json")
+                val journal = RepairJournal(journalFile)
+                val deadline = System.currentTimeMillis() + 10_000
+                var recorded = false
+                while (!recorded && System.currentTimeMillis() < deadline) {
+                    recorded = journal.load().any {
+                        it.serviceKey == RepairServiceId.CACHE.key && it.atMillis >= started &&
+                            it.items >= 1 && it.bytes >= 64
+                    }
+                    if (!recorded) Thread.sleep(100)
+                }
+                assertTrue(journalFile.exists())
+                assertTrue("completed cleanup must be journaled", recorded)
+                assertFalse(journalFile.readText().contains(prefix))
                 val output = File(context.getExternalFilesDir(null), "identity-evidence").apply { mkdirs() }
                 File(output, "09-cache-verified-receipt.png").outputStream().use { stream ->
                     compose.onRoot().captureToImage().asAndroidBitmap().compress(android.graphics.Bitmap.CompressFormat.PNG, 100, stream)
