@@ -2,8 +2,9 @@
 
 **baseline_sha:** `48bd28b` (main after TASK_12 docs)
 **branch:** `codex/task-13-ghost-hunter`
-**implementation_sha:** pending
-**status:** IMPLEMENTED · LOCAL GATES PASS · DEVICE/VISUAL/CI PENDING
+**implementation_sha:** `f5865bc` + `71afadb` + `71a7176` + `bd0a343` (head)
+**merged_sha:** `df3b396`
+**status:** MERGED · API26 DEVICE 111/111 · BUILD AND SONAR GREEN · API35 KNOWN RENDERER BLOCKER
 
 ## Scope
 Implements the Ghost Hunter service on the shared SAF foundation:
@@ -40,14 +41,22 @@ Implements the Ghost Hunter service on the shared SAF foundation:
 
 ## Verification
 - Local: `testDebugUnitTest` 129/129, 0 failures (7 new ghost tests + catalog updates);
-  `compileDebugKotlin` PASS; `lintDebug` 0 errors; `assembleDebug` PASS;
-  `compileDebugAndroidTestKotlin` PASS.
+  `lintDebug` 0 errors; `assembleDebug` PASS; `compileDebugAndroidTestKotlin` PASS. All five gates
+  re-ran PASS on the merged `main` tree (`df3b396`).
 - JVM tests use a mutable fake tree to prove: sentinel exclusion, empty/non-empty directories,
   truncation, cancellation, unreadable branches, selective deletion, changed-item skipping,
   provider failure, vanished-success verification and partial cancellation receipts.
-- Screen tests cover evidence, selection, confirmation, read-only regrant, empty/no-tree states,
-  partial/cancelled/failed scans, receipt/journal failure and night Arabic large text.
-- Device/visual captures pending the CI API26 run: planned `53`–`56`.
+- CI run `41954025923` (PR #12, head `bd0a343`): build PASS, SonarCloud PASS, API26 device PASS
+  111/111 (0 failures, 0 skipped), API35 FAIL only on the documented
+  `IdentityTest.arabicRtlLargeText360dp` renderer loss.
+- Captures (local CI artifact `native-device-api-26`, under
+  `device-screenshots/identity-evidence/`): `53-ghost-evidence.png`,
+  `54-ghost-read-only.png`, `55-ghost-night-ar-large.png`, `56-ghost-flow.png`.
+- Visual review found and fixed real day-mode defects: pale confidence/summary/warning tones were
+  darkened in `71a7176` and `bd0a343`; the sentinel sentence was replaced with a count label. The
+  dialog capture was removed from the test because API26 cannot capture a separate dialog window;
+  the confirmation assertion remains. The spectral hero, evidence rows and receipt hierarchy match
+  the KX identity.
 
 ## Known limits (honest)
 - The system folder picker is not automated, so the real `DocumentsContract.deleteDocument`
@@ -59,7 +68,8 @@ Implements the Ghost Hunter service on the shared SAF foundation:
 - API35 renderer loss unchanged. No gateway.
 
 ## PR / CI / merge
-- PR: pending
-- merged_sha: pending
-- remote_main_sha: pending
+- PR: #12
+- CI: https://github.com/daynightae-cmyk/KX-Private-VPN/actions/runs/41954025923
+- merged_sha: `df3b3965db36a475af23c38d43f4a7ef3007da17`
+- remote_main_sha: `df3b396` (fast-forward verified locally after merge)
 - next_task: TASK_14 — Duplicate DNA.

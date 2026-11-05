@@ -1,5 +1,21 @@
 # KX Private VPN — current blockers
 
+## TASK_13 — GHOST HUNTER MERGED, REAL PROVIDER DELETE FIELD PROOF DEFERRED (2026-11-05)
+
+- `GhostHunterScreen` scans only the user-authorized SAF tree. Candidates are reported 0-byte files
+  and directories that returned no children; `.nomedia`, `.gitkeep` and `.gitignore` are excluded
+  and counted. Reasons and high/medium confidence are shown; nothing is inferred from age or type.
+- Cleanup requires selection plus a confirmation dialog, re-verifies each item immediately before
+  deletion, skips changed files/folders, and only counts a deletion after a real absence check.
+  Receipts report deleted/skipped/failed/verified; partial and failed operations never appear as
+  completed. Completed counts are journaled; journal failure is disclosed.
+- Repair Lab now marks Ghost Hunter available and routes to it (4/10 tools).
+- Verified: 129 JVM tests, API26 CI 111/111, build + SonarCloud PASS, lint 0 errors. Captures 53–56
+  reviewed; day-mode evidence/status contrast and the sentinel sentence were fixed and re-captured.
+- **Still required:** a manual user-picked tree to field-prove `DocumentsContract.deleteDocument`
+  against a real provider; the identical cleanup gate is proven with a mutable fake source.
+  Read-only trees show a regrant CTA. API35 renderer loss unchanged. No gateway.
+
 ## TASK_12 — STORAGE X-RAY MERGED, SYSTEM PICKER FIELD PROOF DEFERRED (2026-11-05)
 
 - `StorageXrayScreen` implements the owner composition: measured concentric storage core, real
