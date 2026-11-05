@@ -1,8 +1,8 @@
 # KX Private VPN — safe main convergence, 2026-11-06
 
-**Product repository:** `https://github.com/daynightae-cmyk/KX-Private-VPN`  
-**Canonical checkout:** `K:\KX-Private-VPN`  
-**Integrated baseline:** `6b3f2a8620a32449cf22d6836d9e17f37d7c39a3` (`main` / `origin/main` on inspection).  
+**Product repository:** `https://github.com/daynightae-cmyk/KX-Private-VPN`
+**Canonical checkout:** `K:\KX-Private-VPN`
+**Integrated baseline:** `6b3f2a8620a32449cf22d6836d9e17f37d7c39a3` (`main` / `origin/main` on inspection).
 **Safe integration worktree:** `D:\KX-CONSOLIDATE-20261106` / `integration/kx-consolidation-20261106`.
 
 ## Verified reality
@@ -25,10 +25,10 @@
 | `daynightae-cmyk/KX` task/06 dirty | Independent implementation under different package | Preserve separately, no destructive repo-to-repo merge |
 
 ## Preservation
-Read-only snapshots: `D:\KX-PRESERVE-20261106\entry.patch`, `entry-latest.patch`, `alt-kx.patch`, `task07.patch`, `QODER-ServiceGlyph.kt`.  
+Read-only snapshots: `D:\KX-PRESERVE-20261106\entry.patch`, `entry-latest.patch`, `alt-kx.patch`, `task07.patch`, `QODER-ServiceGlyph.kt`.
 The phone's installed, debug-signed APK was pulled safely to `D:\KX-PRESERVE-20261106\phone-kxprivatevpn-before.apk`, SHA-256 `D2FBFF212851D4F343556DB1AD8B9B2059A2F6E2B9A2DBA3F80D9E36E65CDF75`. No app data, branches, stash, worktrees, or files were wiped.
 
-Installed APK **signing certificate SHA-256** `c07168d455a86f8c792ef44ebf213ab63ec327226589692bcad69231e67c085e`.  
+Installed APK **signing certificate SHA-256** `c07168d455a86f8c792ef44ebf213ab63ec327226589692bcad69231e67c085e`.
 Convergence build APK same signing certificate SHA-256 verified. Package ID identical `com.knoux.kxprivatevpn`, enabling an in-place update **without uninstall or data wipe** when device smoke is authorized.
 
 ## Verification ledger (do not overclaim)
