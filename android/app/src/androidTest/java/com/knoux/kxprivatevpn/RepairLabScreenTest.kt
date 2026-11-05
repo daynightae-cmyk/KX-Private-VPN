@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.LocalConfiguration
@@ -169,12 +167,28 @@ class RepairLabScreenTest {
     }
 
     @Test fun journalShowsOnlyRecordedOperationsAndAnHonestEmptyState() {
-        var state by mutableStateOf(RepairUiState(loading = false, measurement = measurement()))
-        screen(state)
+        val state = mutableStateOf(RepairUiState(loading = false, measurement = measurement()))
+        compose.setContent {
+            val density = LocalDensity.current
+            CompositionLocalProvider(
+                LocalDensity provides Density(density.density, 1f),
+                LocalLayoutDirection provides LayoutDirection.Ltr,
+            ) {
+                Box(Modifier.fillMaxSize()) {
+                    RepairLabScreen(
+                        night = false,
+                        state = state.value,
+                        onBack = {},
+                        onAnalyze = {},
+                        onNavigate = {},
+                    )
+                }
+            }
+        }
         compose.onNodeWithTag("repair-journal-empty")
             .assertTextEquals(text(R.string.repair_journal_empty))
 
-        state = state.copy(journal = listOf(RepairJournalEntry(
+        state.value = state.value.copy(journal = listOf(RepairJournalEntry(
             now, "cache", "cache_remove", RepairOutcome.COMPLETE, 2, 4096)))
         compose.waitForIdle()
         compose.onNodeWithText(text(R.string.repair_journal_complete)).assertExists()
