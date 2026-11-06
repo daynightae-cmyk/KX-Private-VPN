@@ -2,9 +2,9 @@
 
 **baseline_sha:** `c54a361` (main after PR #20 / TASK_15)
 **branch:** `task16-cache-audit`
-**implementation_sha:** `6e17887` (`b56a05e` UI/test work, `1da1d32` evidence, `6e17887` API 35 test fix)
-**merged_sha:** pending
-**status:** GREEN — exact-SHA CI passed (build, API 26, API 35, Sonar); merge pending
+**implementation_sha:** `a384c05` (`b56a05e` UI/test work, `1da1d32` evidence, `6e17887` API 35 test fix, `a384c05` phone captures/evidence)
+**merged_sha:** `5746bc34c9e3702ce14c4426f89c2e99ddcff5c2`
+**status:** GREEN — merged to main; exact-SHA CI passed (build, API 26, API 35, Sonar)
 
 ## Scope
 
@@ -183,8 +183,10 @@ No cache-specific owner reference image exists, so parity is style-level, not pi
 ## PR / CI / merge
 
 - PR: `https://github.com/daynightae-cmyk/KX-Private-VPN/pull/21`
-- head SHA: `6e178871ec69de61ad9e5195509f65aebe15de6a`
-- CI: run `42265090058` — build, device (26), device (35) and SonarCloud all SUCCESS
-- merged_sha: pending
-- remote_main_sha: pending
+- head SHA: `a384c053d6fc60252c54f48e66711d0303e38d01`
+- CI: run `42268090643` — build, device (26), device (35) and SonarCloud all SUCCESS
+  (earlier green run `42265090058` on `6e17887` covered the API 35 fix before evidence/captures)
+- merged_at: `2026-11-06T18:22:41Z`
+- merged_sha: `5746bc34c9e3702ce14c4426f89c2e99ddcff5c2`
+- remote_main_sha: `5746bc34c9e3702ce14c4426f89c2e99ddcff5c2`
 - next_task: TASK_17 Media Slim Studio
