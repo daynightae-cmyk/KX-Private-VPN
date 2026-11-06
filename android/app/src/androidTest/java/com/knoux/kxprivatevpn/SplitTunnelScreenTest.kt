@@ -171,11 +171,15 @@ class SplitTunnelScreenTest {
         // empty or unchanged, so split-no-match never rendered (flaky in runs 41906598533 and
         // 42141963135, green in 42135553590). Filtering itself is still exercised end to end.
         compose.onNodeWithTag("split-search").performTextReplacement("whatsapp")
+        // The focused search field opens the soft keyboard, which shortens the lazy list
+        // viewport on the API35 emulator. Scroll the list itself so the result item is
+        // composed instead of relying on it already being on screen.
         compose.onNodeWithTag("split-app-com.example.chat").performScrollTo().assertIsDisplayed()
         compose.onNodeWithTag("split-app-com.example.browser").assertDoesNotExist()
 
         compose.onNodeWithTag("split-search").performTextReplacement("no such app")
-        compose.onNodeWithTag("split-no-match").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("split-list").performScrollToNode(hasTestTag("split-no-match"))
+        compose.onNodeWithTag("split-no-match").assertIsDisplayed()
     }
 
     @Test fun toggleAndModeClicksReportOnlyTheTouchedValue() {
