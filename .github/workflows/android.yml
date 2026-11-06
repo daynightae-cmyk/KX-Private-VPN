@@ -34,7 +34,12 @@ jobs:
             android/app/build/outputs/apk
   device:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # The bounded inner path is emulator boot (600s) + install (6m) + tests (8m) = 24m,
+    # so a 20m job budget cancels a slow-but-healthy boot before verify-device.sh can
+    # finish or upload evidence. Run 42186391691 (main fa34b67) was cancelled at 20m
+    # with no artifact and no test XML for exactly this reason. 30m keeps the bounds
+    # above enforceable while never masking a test failure as a timeout.
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
