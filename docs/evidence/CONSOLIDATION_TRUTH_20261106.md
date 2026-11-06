@@ -20,6 +20,7 @@ Pro service, store release, or visual parity that was not observed.
 | PR #15 | CLOSED as superseded; unique glyph file is byte-identical in `main`, patch preserved |
 | PR #18 | MERGED as `fa34b671c5975c1e54f0af4ef40d8d5286efd147` (parents `ae8b7b4` + `d4123d4`); verified by run `42146411681`; contains no production-source change |
 | PR #18 tree equality | `fa34b67^{tree}` = `d4123d4^{tree}` = `bea2138c7be1dfee36f6f4710d501d352cf1e5da` |
+| PR #19 | MERGED as `1d2e49948aa121c5c4e82a705958a8d313cdeb69` (parents `fa34b67` + `a73d71d`); head `a73d71d` verified by run `42192806914`; post-merge run `42197489233` all green; CI budget + docs only, no app or test source change |
 | Stashes | none |
 | Unreachable commits | none (two unreachable trees only) |
 
@@ -120,13 +121,25 @@ A slow boot therefore cancels the job before it can finish or upload evidence, a
 does not retain logs for the cancelled job. The rerun of the identical commit completed in
 6m49s. This PR raises the budget to 30m so the existing inner bounds stay enforceable.
 
-### Final gate
+### PR #19 and final gate
 
-The verified application and test state is `fa34b67`, whose CI passed at run `42186391691`
-after the documented API 26 rerun. This document and the 30-minute device-job budget are the
-only changes in the PR that publishes them; neither touches app or test sources. The CI run
-triggered by that merge is the final `main` gate, and its exact SHA and conclusion are
-reported with this document at merge time.
+PR #19 (`fix/device-job-budget-20261106`) raised the device job timeout from 20m to 30m and
+published this truth table. Its head `a73d71d` passed run `42192806914` (build, device 26,
+device 35, SonarCloud). It was merged as `1d2e499`; the merge commit changes only the CI
+workflow and docs, not app or test sources.
+
+The post-merge CI run `42197489233` at exact SHA `1d2e49948aa121c5c4e82a705958a8d313cdeb69`
+completed on 2026-11-06 and is the final `main` gate:
+
+| Job | Result | Duration |
+|---|---|---|
+| build | PASS | 2m25s |
+| device API 26 | PASS | 6m07s |
+| device API 35 | PASS | 9m25s |
+
+All three jobs reported `success`; no job was cancelled, rerun or skipped as a whole. This is
+the verified application state before TASK_15 starts. TASK_15 is recorded separately in
+`docs/evidence/TASK_15.md` and does not alter any earlier result in this table.
 
 ### Physical device — itel S686LN, Android 15 / API 35
 

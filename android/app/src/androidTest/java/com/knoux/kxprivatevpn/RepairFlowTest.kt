@@ -44,7 +44,7 @@ class RepairFlowTest {
                 compose.onAllNodes(hasTestTag("repair-volume")).fetchSemanticsNodes().isNotEmpty()
             }
             compose.onNodeWithTag("repair-services-count").assertTextEquals(
-                strings(context).getString(R.string.repair_services_count, 5, 10),
+                strings(context).getString(R.string.repair_services_count, 6, 10),
             )
             capture("46-repair-lab-flow")
 
