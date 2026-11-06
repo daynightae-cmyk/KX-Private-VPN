@@ -14,7 +14,7 @@ enum class RepairServiceId(val key: String, val route: String, val available: Bo
     STORAGE("storage", "storage", true),
     GHOST("ghost", "ghost", true),
     DUPLICATE("duplicate", "duplicate", true),
-    HEAVYWEIGHT("heavyweight", "repair/heavyweight", false),
+    HEAVYWEIGHT("heavyweight", "heavyweight", true),
     CACHE("cache", "cache", true),
     MEDIA("media", "repair/media", false),
     DOWNLOAD("download", "repair/download", false),

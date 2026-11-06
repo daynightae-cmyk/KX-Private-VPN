@@ -141,6 +141,10 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                 DuplicateDnaRoute(night, onBack = back)
                 return@CompositionLocalProvider
             }
+            if (route == "heavyweight") {
+                HeavyweightRoute(night, onBack = back)
+                return@CompositionLocalProvider
+            }
             if (route.startsWith("repair/")) {
                 RepairServiceRoute(route, night, onBack = back)
                 return@CompositionLocalProvider
