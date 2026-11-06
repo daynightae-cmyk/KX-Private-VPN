@@ -229,6 +229,12 @@ class RepairLabScreenTest {
         capture("44b-repair-lab-night-ar-large-services")
     }
 
+    /**
+     * A tool that has no implementation yet must open an honest unavailable panel: no invented
+     * measurement, no simulated progress. The media tool left this set in TASK 17 because it
+     * now performs real work behind its own screen, so the download tool is the honest subject
+     * of this assertion.
+     */
     @Test fun unavailableDetailStatesNoSimulation() {
         compose.setContent {
             val english = localized(base, "en")
@@ -238,18 +244,18 @@ class RepairLabScreenTest {
                 LocalLayoutDirection provides LayoutDirection.Ltr,
             ) {
                 Box(Modifier.fillMaxSize()) {
-                    RepairServiceRoute("repair/media", night = false, onBack = {})
+                    RepairServiceRoute("repair/download", night = false, onBack = {})
                 }
             }
         }
 
-        compose.onNodeWithText(context.getString(R.string.repair_service_media)).assertExists()
+        compose.onNodeWithText(context.getString(R.string.repair_service_download)).assertExists()
         compose.onNodeWithText(context.getString(R.string.repair_unavailable_body)).assertExists()
         compose.onNodeWithText(
             context.getString(R.string.repair_requires,
                 context.getString(R.string.repair_requires_saf)),
         ).assertExists()
         compose.onNodeWithText(context.getString(R.string.repair_unavailable)).assertExists()
-        capture("45-repair-unavailable-media")
+        capture("45-repair-unavailable-download")
     }
 }
