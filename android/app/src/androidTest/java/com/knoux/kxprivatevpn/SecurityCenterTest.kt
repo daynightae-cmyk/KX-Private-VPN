@@ -2,22 +2,18 @@ package com.knoux.kxprivatevpn
 
 import android.content.Context
 import android.content.res.Configuration
-import android.graphics.Bitmap
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
-import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.LayoutDirection
@@ -33,7 +29,6 @@ import com.knoux.kxprivatevpn.platform.vpn.VpnPhase
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
-import java.io.File
 import java.util.Locale
 
 /**
@@ -103,12 +98,7 @@ class SecurityCenterTest {
     }
 
     private fun capture(name: String) {
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val folder = File(context.getExternalFilesDir(null), "identity-evidence").apply { mkdirs() }
-        File(folder, "$name.png").outputStream().use { stream ->
-            check(compose.onRoot().captureToImage().asAndroidBitmap()
-                .compress(Bitmap.CompressFormat.PNG, 100, stream))
-        }
+        captureEvidence(InstrumentationRegistry.getInstrumentation().targetContext, compose, name)
     }
 
     @Test fun disconnectedStateNeverClaimsProtection() {

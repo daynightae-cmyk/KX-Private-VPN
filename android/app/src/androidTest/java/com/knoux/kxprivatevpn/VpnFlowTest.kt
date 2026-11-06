@@ -1,19 +1,15 @@
 package com.knoux.kxprivatevpn
 
-import android.graphics.Bitmap
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.test.platform.app.InstrumentationRegistry
 import com.knoux.kxprivatevpn.data.config.Profile
@@ -26,7 +22,6 @@ import com.knoux.kxprivatevpn.platform.vpn.VpnSession
 import com.knoux.kxprivatevpn.platform.vpn.VpnState
 import org.junit.Rule
 import org.junit.Test
-import java.io.File
 
 /** UI truthfulness: no profile means no connect claim, and CONNECTED appears only with a session. */
 class VpnFlowTest {
@@ -54,12 +49,7 @@ class VpnFlowTest {
         InstrumentationRegistry.getInstrumentation().targetContext.getString(id)
 
     private fun capture(name: String) {
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val folder = File(context.getExternalFilesDir(null), "identity-evidence").apply { mkdirs() }
-        File(folder, "$name.png").outputStream().use { stream ->
-            check(compose.onRoot().captureToImage().asAndroidBitmap()
-                .compress(Bitmap.CompressFormat.PNG, 100, stream))
-        }
+        captureEvidence(InstrumentationRegistry.getInstrumentation().targetContext, compose, name)
     }
 
     @Test fun emptyStateShowsNoProfileAndDisablesConnect() {
