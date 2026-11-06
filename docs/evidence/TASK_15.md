@@ -4,7 +4,7 @@
 **branch:** `task15-heavyweight-finder`
 **implementation_sha:** `6cc9d6d`
 **merged_sha:** pending
-**status:** IN_REVIEW — local build/tests/lint green; exact-SHA CI and merge pending
+**status:** CI_GREEN at `500ea67` — ready to merge
 
 ## Scope
 
@@ -91,8 +91,22 @@ no file mutation, no-grant state, cancellable scanning state, and night Arabic l
   `D:\KX-QODER-VISUAL-HANDOFF-20261105\DEVICE-EVIDENCE-20261106\task15-phone-20261106\identity-evidence\`:
   `59-heavy-ranking.png`, `59b-heavy-selected-card.png`, `59b-heavy-selected.png`,
   `59c-heavy-night-ar-large.png`, `59d-heavy-night-ar-results.png`.
-- CI reruns the full suite on API 26 and API 35 emulators with the exact SHA; results are
-  added to this document after the run.
+### Exact-SHA CI
+
+CI run [`42201616729`](https://github.com/daynightae-cmyk/KX-Private-VPN/actions/runs/42201616729)
+at branch head `500ea6760a7f49100a1257f66c6c547b6418cf63` (implementation `6cc9d6d` + docs):
+
+| Job | Result | Detail |
+|---|---|---|
+| build | PASS in 3m24s | 158 JVM tests, 0 failures; lint 0 errors; debug + androidTest APKs assembled |
+| device API 26 | PASS in 6m22s | **149 tests, 0 failures, 0 skipped** |
+| device API 35 | PASS in 8m00s | **149 tests, 0 failures, 2 skipped**; `display-contract.txt` = 720x1280 @ 280dpi = 411dp; IMEs disabled |
+
+API 35 skips are the two documented emulator-only cases, reported as SKIPPED, never PASS:
+`IdentityTest.arabicRtlLargeText360dp` and
+`StorageXrayDeviceTest.mediaInventoryRespectsGrantedPermissionAndVersionMatrix`.
+The CI artifacts contain all five `59*` captures; the API 35 English ranking capture was
+reviewed and shows the measured summary, filters, heatmap and ranking at 411dp.
 
 ## Permission tests
 
@@ -136,8 +150,8 @@ was supplied.
 
 ## PR / CI / merge
 
-- PR: pending
-- CI: pending
+- PR: #20
+- CI: https://github.com/daynightae-cmyk/KX-Private-VPN/actions/runs/42201616729
 - merged_sha: pending
 - remote_main_sha: pending
 - next_task: TASK_16 Cache acceptance audit, then the remaining Repair services
