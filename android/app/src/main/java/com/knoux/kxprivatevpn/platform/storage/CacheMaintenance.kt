@@ -12,8 +12,15 @@ data class CacheCandidate(val path: String, val bytes: Long, val modified: Long,
 data class CachePreview(val files: List<CacheCandidate>, val limited: Boolean)
 data class CacheReceipt(val deleted: Int, val removedFileBytes: Long, val skipped: List<String>, val failed: List<String>)
 
-/** Production callers supply Context.cacheDir only. Never scans or deletes other app data. */
-class CacheMaintenance(private val cacheDirectory: File) {
+/**
+ * Production callers supply Context.cacheDir only. Never scans or deletes other app data.
+ * [deleteFile] is injectable so permission-denied deletion can be tested without weakening
+ * the production filesystem checks.
+ */
+class CacheMaintenance(
+    private val cacheDirectory: File,
+    private val deleteFile: (File) -> Boolean = { it.delete() },
+) {
     private val root get() = cacheDirectory.canonicalFile
     private companion object { val mutex = Mutex() }
     private fun safe(relative: String): File? {
@@ -79,7 +86,7 @@ class CacheMaintenance(private val cacheDirectory: File) {
             }
             try {
                 if (digest(file) != item.sha256) { skipped += item.path; checkpoint(receipt(), false); continue }
-                if (file.delete() && !file.exists()) { deleted++; bytes += item.bytes }
+                if (deleteFile(file) && !file.exists()) { deleted++; bytes += item.bytes }
                 else failed += item.path
             } catch (e: kotlinx.coroutines.CancellationException) { throw e }
             catch (_: Exception) { failed += item.path }

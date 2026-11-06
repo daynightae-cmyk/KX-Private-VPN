@@ -41,11 +41,15 @@ class CacheFlowTest {
                 compose.waitUntil(10000) {
                     try { compose.onNodeWithTag("cache-scan").assertIsEnabled(); true } catch (_: AssertionError) { false }
                 }
+                compose.onNodeWithTag("cache-system-settings").performScrollTo().assertIsDisplayed()
                 compose.onNodeWithTag("cache-scan").performScrollTo().performClick()
                 compose.waitUntil(10000) { compose.onAllNodes(hasText("$prefix/target.tmp")).fetchSemanticsNodes().isNotEmpty() }
                 compose.onNodeWithTag("cache-remove").performScrollTo().assertIsNotEnabled()
                 assertTrue(target.exists())
                 compose.onNodeWithText("$prefix/target.tmp").performScrollTo().performClick()
+                compose.onNodeWithTag("cache-selected-summary").performScrollTo().assertTextEquals(
+                    strings(context).getString(R.string.cache_selected_summary, 1,
+                        android.text.format.Formatter.formatFileSize(strings(context), 64)))
                 compose.onNodeWithTag("cache-remove").performScrollTo().performClick()
                 assertTrue(target.exists()) // Preview and dialog do not delete anything.
                 compose.onNodeWithTag("cache-confirm").performClick()
@@ -81,6 +85,79 @@ class CacheFlowTest {
             runBlocking { preferences.appearance(original.language, original.theme) }
             // Only this test's owned fixtures; never a recursive cache clear.
             target.delete(); sentinel.delete(); folder.delete(); privateSentinel.delete()
+        }
+    }
+
+    /**
+     * TASK_16 acceptance in the owner's night Arabic identity: the scope, the official
+     * Settings route and the measured selection must all remain present and legible.
+     */
+    @Test fun nightArabicCacheExplainsOwnershipAndMeasuredSelection() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val ar = strings(context, "ar")
+        val prefix = "ci_cache_ar_" + UUID.randomUUID().toString().take(8)
+        val folder = File(context.cacheDir, prefix).apply { mkdirs() }
+        val target = File(folder, "night.tmp").apply { writeBytes(ByteArray(128)) }
+        val preferences = LaunchPreferences(context)
+        val original = runBlocking { preferences.settings() }
+        // A previous test's completed receipt is persisted app state. Keep the night capture
+        // about this run by saving and restoring the real journal bytes around the test.
+        val journalFile = File(context.noBackupFilesDir, "cache-last-operation.json")
+        val journalBackup = File(context.noBackupFilesDir, "cache-last-operation.json.bak")
+        val savedJournal = journalFile.takeIf { it.exists() }?.readBytes()
+        val savedBackup = journalBackup.takeIf { it.exists() }?.readBytes()
+        journalFile.delete(); journalBackup.delete()
+        runBlocking {
+            preferences.markSeen(); preferences.completeOnboarding()
+            preferences.appearance("ar", "night")
+        }
+        try {
+            ActivityScenario.launch(MainActivity::class.java).use {
+                enterKxFromSplash(compose)
+                compose.waitUntil(10000) {
+                    compose.onAllNodes(hasTestTag("route-home")).fetchSemanticsNodes().isNotEmpty()
+                }
+                compose.onNodeWithTag("open-cache").performScrollTo().performClick()
+                compose.waitUntil(10000) {
+                    try { compose.onNodeWithTag("cache-scan").assertIsEnabled(); true }
+                    catch (_: AssertionError) { false }
+                }
+                compose.onNodeWithTag("cache-system-settings").performScrollTo().assertIsDisplayed()
+                compose.onNodeWithText(ar.getString(R.string.cache_other_apps_action)).assertExists()
+                val output = File(context.getExternalFilesDir(null), "identity-evidence").apply { mkdirs() }
+                File(output, "60-cache-night-ar-scope.png").outputStream().use { stream ->
+                    compose.onRoot().captureToImage().asAndroidBitmap()
+                        .compress(android.graphics.Bitmap.CompressFormat.PNG, 100, stream)
+                }
+                compose.onNodeWithTag("cache-scan").performScrollTo().performClick()
+                compose.waitUntil(10000) {
+                    compose.onAllNodes(hasText("$prefix/night.tmp")).fetchSemanticsNodes().isNotEmpty()
+                }
+                compose.onNodeWithText("$prefix/night.tmp").performScrollTo().performClick()
+                compose.onNodeWithTag("cache-selected-summary").performScrollTo().assertTextEquals(
+                    ar.getString(R.string.cache_selected_summary, 1,
+                        android.text.format.Formatter.formatFileSize(ar, 128)))
+                File(output, "60b-cache-night-ar-selected.png").outputStream().use { stream ->
+                    compose.onRoot().captureToImage().asAndroidBitmap()
+                        .compress(android.graphics.Bitmap.CompressFormat.PNG, 100, stream)
+                }
+                compose.onNodeWithTag("cache-remove").performScrollTo().performClick()
+                compose.onNodeWithText(ar.getString(R.string.cache_confirm)).assertExists()
+                compose.waitForIdle()
+                val dialogShot = InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()
+                assertNotNull("dialog screenshot must be captured", dialogShot)
+                File(output, "60c-cache-night-ar-confirm.png").outputStream().use { stream ->
+                    dialogShot!!.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, stream)
+                }
+                compose.onNodeWithText(ar.getString(R.string.cancel)).performClick()
+                assertTrue(target.exists())
+            }
+        } finally {
+            runBlocking { preferences.appearance(original.language, original.theme) }
+            target.delete(); folder.delete()
+            journalFile.delete(); journalBackup.delete()
+            savedJournal?.let { journalFile.writeBytes(it) }
+            savedBackup?.let { journalBackup.writeBytes(it) }
         }
     }
 }
