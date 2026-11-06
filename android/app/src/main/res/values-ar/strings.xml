@@ -10,4 +10,9 @@
     <string name="close">إغلاق</string>
     <string name="save_error">تعذر حفظ تفضيلات البداية. ممكن المقدمة تتكرر في التشغيل الجاي.</string>
     <string name="tap_kx_orb_to_enter">اضغط على شعار KX للدخول</string>
+    <string name="vpn_notification_channel">جلسة VPN</string>
+    <string name="vpn_notification_channel_description">حالة مستمرة أثناء نشاط نفق WireGuard</string>
+    <string name="vpn_notification_title">جلسة KX VPN نشطة</string>
+    <string name="vpn_notification_no_profile">نفق WireGuard</string>
+    <string name="vpn_notification_hint">يطلب Android إذن الإشعارات ليبقى الاتصال النشط ظاهرًا. رفض الإذن لا يوقف النفق.</string>
 </resources>

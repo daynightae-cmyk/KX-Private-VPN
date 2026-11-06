@@ -10,4 +10,9 @@
     <string name="close">Close</string>
     <string name="save_error">Could not save launch preferences. Your next launch may replay the intro.</string>
     <string name="tap_kx_orb_to_enter">Tap the KX emblem to enter</string>
+    <string name="vpn_notification_channel">VPN session</string>
+    <string name="vpn_notification_channel_description">Ongoing status while a WireGuard tunnel is active</string>
+    <string name="vpn_notification_title">KX VPN session active</string>
+    <string name="vpn_notification_no_profile">WireGuard tunnel</string>
+    <string name="vpn_notification_hint">Android asks for notification permission so the active session stays visible. Denying it does not block the tunnel.</string>
 </resources>

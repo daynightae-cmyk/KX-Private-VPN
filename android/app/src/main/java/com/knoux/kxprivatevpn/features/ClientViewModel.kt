@@ -106,6 +106,20 @@ class ClientViewModel(app: Application) : AndroidViewModel(app) {
                 } catch (_: Exception) {
                     // The session hint is advisory; a failed write must not break the tunnel.
                 }
+                // The WireGuard library never calls startForeground, so mirror only the
+                // measured CONNECTED transition into the companion foreground service.
+                // Reconnect and byte-count updates must not restart the notification.
+                if (value.phase == VpnPhase.CONNECTED && previousPhase != VpnPhase.CONNECTED) {
+                    VpnSessionService.start(
+                        getApplication(),
+                        value.session?.profileName,
+                        value.session?.startedAtMillis,
+                    )
+                } else if (value.phase != VpnPhase.CONNECTED &&
+                    previousPhase == VpnPhase.CONNECTED
+                ) {
+                    VpnSessionService.stop(getApplication())
+                }
                 syncSplitState(
                     phase = value.phase,
                     captureApplied = value.phase == VpnPhase.CONNECTING &&
