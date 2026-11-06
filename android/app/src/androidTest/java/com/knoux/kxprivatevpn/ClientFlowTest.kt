@@ -74,6 +74,8 @@ class ClientFlowTest {
                 compose.waitUntil(10000) { compose.onAllNodes(hasTestTag("route-home")).fetchSemanticsNodes().isNotEmpty() }
                 compose.onNodeWithTag("open-import").performScrollTo().performClick()
                 compose.onNodeWithTag("profile-name").performTextInput(name)
+                // CI disables the soft keyboard for this run (see scripts/verify-device.sh):
+                // its IME covered the manual tab and swallowed the click in run 42143462462.
                 compose.onNodeWithTag("manual").performScrollTo().performClick()
                 compose.onNodeWithTag("config-text").performScrollTo().performTextInput(config)
                 compose.onNodeWithTag("save-profile").performScrollTo().performClick()

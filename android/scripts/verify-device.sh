@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# CI emulator gate (android-emulator-runner). Not for physical devices.
 # Preserve actual device evidence even when a test fails; propagate the Gradle result.
 set -u
 adb_cmd() { timeout --signal=TERM --kill-after=3s 20s adb "$@"; }
@@ -63,10 +64,51 @@ if (( logical_width < 360 )); then
     echo "Emulator logical width ${logical_width}dp is below the 360dp design minimum" >&2
     exit 3
 fi
+# The hosted API35 AVD opens the soft keyboard when a test field takes focus. It covers
+# controls below the field and makes coordinate taps race the IME animation; runs
+# 42141963135 and 42143462462 failed that way in SplitTunnelScreenTest and ClientFlowTest
+# while the same tests passed on API26 and the physical phone. performTextInput drives
+# Compose semantics, not the system keyboard, so disable every IME for this run.
+# Emulator-only: never mutate input settings on an owner's physical device.
+is_emulator=false
+if [ "$(adb_cmd shell getprop ro.kernel.qemu | tr -d '\r')" = "1" ]; then is_emulator=true; fi
+case "$(adb_cmd shell getprop ro.hardware | tr -d '\r')" in
+    goldfish*|ranchu*) is_emulator=true ;;
+esac
+if [ "$is_emulator" = true ]; then
+    adb_cmd shell settings put secure show_ime_with_hard_keyboard 0 || true
+    while IFS= read -r ime; do
+        ime="${ime%$'\r'}"
+        [ -n "$ime" ] || continue
+        adb_cmd shell ime disable "$ime" >/dev/null 2>&1 || true
+    done < <(adb_cmd shell ime list -s 2>/dev/null || true)
+    {
+        printf 'ime_disable_applied=true\nenabled_imes_after_disable:\n'
+        adb_cmd shell ime list -s 2>&1 || true
+        printf 'default_input_method_after_disable: '
+        adb_cmd shell settings get secure default_input_method 2>&1 || true
+    } > device-screenshots/ime-disabled.txt
+else
+    printf 'ime_disable_applied=false\nreason=physical_device\n' > device-screenshots/ime-disabled.txt
+fi
 timeout --kill-after=15s 8m bash ./gradlew "${gradle_flags[@]}" :app:connectedDebugAndroidTest -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true
 test_result=$?
 free -m > device-screenshots/host-memory-after.txt
 sudo dmesg > device-screenshots/host-kernel.txt 2>&1 || true
+# A lost emulator produces an empty <failure> element and a truncated test count.
+# Record the loss explicitly so it can never be read as a product assertion failure.
+if ! adb_cmd get-state > /dev/null 2>&1; then
+    {
+        printf 'emulator_lost_during_test=true\n'
+        printf 'gradle_exit_code=%s\n' "$test_result"
+        adb devices -l 2>&1 || true
+        for utp in app/build/outputs/androidTest-results/connected/debug/*/utp.0.log; do
+            [ -f "$utp" ] || continue
+            printf '\n--- %s ---\n' "$utp"
+            tail -n 15 "$utp"
+        done
+    } > device-screenshots/emulator-loss.txt
+fi
 adb_cmd pull /sdcard/Android/data/com.knoux.kxprivatevpn/files/identity-evidence ./device-screenshots/
 capture_result=$?
 adb_cmd logcat -d > device-screenshots/logcat.txt
