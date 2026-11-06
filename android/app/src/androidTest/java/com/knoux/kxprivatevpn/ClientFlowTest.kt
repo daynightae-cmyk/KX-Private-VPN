@@ -3,6 +3,7 @@ package com.knoux.kxprivatevpn
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
 import com.knoux.kxprivatevpn.data.config.ProfileStore
@@ -35,10 +36,17 @@ class ClientFlowTest {
                 compose.onNodeWithTag("open-settings").performScrollTo().performClick()
                 compose.onNodeWithText("العربية").performScrollTo().performClick()
                 compose.waitUntil(10000) { compose.onAllNodes(hasText(ar.getString(R.string.language))).fetchSemanticsNodes().isNotEmpty() }
+                // The language write flips the header before the previous operation clears
+                // busy, so the appearance radios are briefly disabled while the new locale is
+                // already visible. Clicking in that window is swallowed (CI run 42205808894);
+                // wait until the night row is both enabled and still unselected, then wait for
+                // the persisted selection instead of assuming it is synchronous.
+                awaitRadio(ar.getString(R.string.night), selected = false)
                 compose.onNodeWithText(ar.getString(R.string.night)).performScrollTo().performClick()
+                awaitRadio(ar.getString(R.string.night), selected = true)
                 compose.onNodeWithText(ar.getString(R.string.night)).assertIsSelected()
                 scenario.recreate()
-                compose.waitForIdle()
+                awaitRadio(ar.getString(R.string.night), selected = true)
                 compose.onNodeWithText(ar.getString(R.string.night)).assertIsSelected()
                 val folder = File(context.getExternalFilesDir(null), "identity-evidence").apply { mkdirs() }
                 File(folder, "11-settings-ar-night.png").outputStream().use {
@@ -52,6 +60,52 @@ class ClientFlowTest {
             org.junit.Assert.assertEquals("night", restored.theme)
         } finally { runBlocking { preferences.appearance(original.language, original.theme) } }
     }
+    /**
+     * Regression for CI run 42205808894: a second appearance tap must not be dispatched while
+     * the locale write is still holding the rows disabled, and the selection must already be
+     * persisted when the row reports selected.
+     */
+    @Test fun appearanceTapIsNotLostWhileTheLocaleWriteSettles() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val preferences = LaunchPreferences(context)
+        val original = runBlocking { preferences.settings() }
+        val ar = context.createConfigurationContext(Configuration(context.resources.configuration).apply {
+            setLocale(Locale.forLanguageTag("ar"))
+        })
+        runBlocking {
+            preferences.markSeen(); preferences.completeOnboarding(); preferences.appearance("en", "day")
+        }
+        try {
+            ActivityScenario.launch(MainActivity::class.java).use {
+                enterKxFromSplash(compose)
+                compose.waitUntil(10000) { compose.onAllNodes(hasTestTag("route-home")).fetchSemanticsNodes().isNotEmpty() }
+                compose.onNodeWithTag("open-settings").performScrollTo().performClick()
+                compose.onNodeWithText("\u0627\u0644\u0639\u0631\u0628\u064A\u0629").performScrollTo().performClick()
+                compose.waitUntil(10000) { compose.onAllNodes(hasText(ar.getString(R.string.language))).fetchSemanticsNodes().isNotEmpty() }
+                awaitRadio(ar.getString(R.string.night), selected = false)
+                compose.onNodeWithText(ar.getString(R.string.night)).performScrollTo().performClick()
+                awaitRadio(ar.getString(R.string.night), selected = true)
+                compose.onNodeWithText(ar.getString(R.string.night)).assertIsSelected()
+                val persisted = runBlocking { preferences.settings() }
+                org.junit.Assert.assertEquals("ar", persisted.language)
+                org.junit.Assert.assertEquals("night", persisted.theme)
+            }
+        } finally { runBlocking { preferences.appearance(original.language, original.theme) } }
+    }
+
+    /**
+     * Waits for a selectable row to reflect [selected] while it is enabled. This pins the real
+     * asynchronous preference write and the busy gate instead of racing them.
+     */
+    private fun awaitRadio(text: String, selected: Boolean) {
+        compose.waitUntil(10000) {
+            compose.onAllNodesWithText(text).fetchSemanticsNodes().any { node ->
+                runCatching { node.config[SemanticsProperties.Selected] }.getOrNull() == selected &&
+                    runCatching { node.config[SemanticsProperties.Disabled] }.isFailure
+            }
+        }
+    }
+
     @Test fun manualImportPersistsAndNeverClaimsConnection() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val store = ProfileStore(context)
