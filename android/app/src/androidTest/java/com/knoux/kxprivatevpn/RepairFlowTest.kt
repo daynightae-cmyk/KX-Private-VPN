@@ -1,7 +1,5 @@
 package com.knoux.kxprivatevpn
 
-import android.graphics.Bitmap
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.test.core.app.ActivityScenario
@@ -10,7 +8,6 @@ import com.knoux.kxprivatevpn.launch.LaunchPreferences
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
-import java.io.File
 
 /**
  * Real Activity flow: Home opens the Repair Lab, the dashboard performs a real StatFs/cache
@@ -82,11 +79,6 @@ class RepairFlowTest {
     }
 
     private fun capture(name: String) {
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val folder = File(context.getExternalFilesDir(null), "identity-evidence").apply { mkdirs() }
-        File(folder, "$name.png").outputStream().use { stream ->
-            check(compose.onRoot().captureToImage().asAndroidBitmap()
-                .compress(Bitmap.CompressFormat.PNG, 100, stream))
-        }
+        captureEvidence(InstrumentationRegistry.getInstrumentation().targetContext, compose, name)
     }
 }

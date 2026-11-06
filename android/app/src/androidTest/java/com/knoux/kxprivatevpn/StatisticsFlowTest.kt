@@ -1,7 +1,5 @@
 package com.knoux.kxprivatevpn
 
-import android.graphics.Bitmap
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.test.core.app.ActivityScenario
@@ -11,7 +9,6 @@ import com.knoux.kxprivatevpn.launch.LaunchPreferences
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
-import java.io.File
 
 /**
  * Real-device path: the statistics destination is reachable from Home, reads the app-private
@@ -51,12 +48,7 @@ class StatisticsFlowTest {
                     .assertTextEquals(strings(context).getString(R.string.stats_no_sessions))
                 compose.onNodeWithTag("stats-chart-empty").assertIsDisplayed()
                 compose.onNodeWithTag("stats-nav").assertIsDisplayed()
-                val folder = File(context.getExternalFilesDir(null), "identity-evidence")
-                    .apply { mkdirs() }
-                File(folder, "41-statistics-device-light.png").outputStream().use { stream ->
-                    check(compose.onRoot().captureToImage().asAndroidBitmap()
-                        .compress(Bitmap.CompressFormat.PNG, 100, stream))
-                }
+                captureEvidence(context, compose, "41-statistics-device-light")
                 compose.onNodeWithTag("stats-nav-home").performClick()
                 compose.waitUntil(15_000) {
                     compose.onAllNodes(hasTestTag("route-home"))

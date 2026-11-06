@@ -31,12 +31,7 @@ import java.util.Locale
 class IdentityTest {
     @get:Rule val compose = createComposeRule()
     private fun capture(name: String) {
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val folder = File(context.getExternalFilesDir(null), "identity-evidence").apply { mkdirs() }
-        File(folder, "$name.png").outputStream().buffered().use { stream ->
-            check(compose.onRoot().captureToImage().asAndroidBitmap()
-                .compress(Bitmap.CompressFormat.PNG, 100, stream))
-        }
+        captureEvidence(InstrumentationRegistry.getInstrumentation().targetContext, compose, name)
     }
     private fun captureWindow(name: String) {
         // Any readback of the separate dialog window (UiAutomation or PixelCopy) makes the

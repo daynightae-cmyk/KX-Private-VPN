@@ -2,7 +2,6 @@ package com.knoux.kxprivatevpn
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
@@ -11,7 +10,6 @@ import com.knoux.kxprivatevpn.launch.LaunchPreferences
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
-import java.io.File
 import java.util.Base64
 import java.util.UUID
 import android.content.res.Configuration
@@ -48,10 +46,7 @@ class ClientFlowTest {
                 scenario.recreate()
                 awaitRadio(ar.getString(R.string.night), selected = true)
                 compose.onNodeWithText(ar.getString(R.string.night)).assertIsSelected()
-                val folder = File(context.getExternalFilesDir(null), "identity-evidence").apply { mkdirs() }
-                File(folder, "11-settings-ar-night.png").outputStream().use {
-                    compose.onRoot().captureToImage().asAndroidBitmap().compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it)
-                }
+                captureEvidence(context, compose, "11-settings-ar-night")
                 compose.onNodeWithText("English").performScrollTo().performClick()
                 compose.waitUntil(10000) { compose.onAllNodes(hasText(strings(context).getString(R.string.language))).fetchSemanticsNodes().isNotEmpty() }
             }
@@ -137,10 +132,7 @@ class ClientFlowTest {
                 // Home is a scrollable page and resets to the top on navigation by design.
                 compose.onNodeWithText(name).performScrollTo().assertIsDisplayed()
                 compose.onNodeWithText(strings(context).getString(R.string.disconnected)).performScrollTo().assertIsDisplayed()
-                val folder = File(context.getExternalFilesDir(null), "identity-evidence").apply { mkdirs() }
-                File(folder, "08-native-home-imported.png").outputStream().use {
-                    compose.onRoot().captureToImage().asAndroidBitmap().compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it)
-                }
+                captureEvidence(context, compose, "08-native-home-imported")
                 scenario.recreate()
                 compose.waitUntil(10000) { compose.onAllNodes(hasText(name)).fetchSemanticsNodes().isNotEmpty() }
                 compose.onNodeWithText(name).performScrollTo().assertIsDisplayed()

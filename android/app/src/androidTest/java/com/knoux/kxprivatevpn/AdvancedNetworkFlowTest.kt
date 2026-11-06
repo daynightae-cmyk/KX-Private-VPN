@@ -1,8 +1,6 @@
 package com.knoux.kxprivatevpn
 
 import android.content.Context
-import android.graphics.Bitmap
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
@@ -14,7 +12,6 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
-import java.io.File
 
 /**
  * Real-device path: the screen loads the stored settings (plus any selected profile
@@ -64,11 +61,7 @@ class AdvancedNetworkFlowTest {
                 compose.onNodeWithTag("adv-protocol-wireguard").performScrollTo().assertIsSelected()
                 compose.onNodeWithTag("adv-protocol-openvpn").assertDisabled()
                 compose.onNodeWithTag("adv-protocol-automatic").assertDisabled()
-                val folder = File(context.getExternalFilesDir(null), "identity-evidence").apply { mkdirs() }
-                File(folder, "35-advanced-device-light.png").outputStream().use { stream ->
-                    check(compose.onRoot().captureToImage().asAndroidBitmap()
-                        .compress(Bitmap.CompressFormat.PNG, 100, stream))
-                }
+                captureEvidence(context, compose, "35-advanced-device-light")
                 // The honest apply-on-next-start note sits at the very bottom: reach it
                 // explicitly instead of asserting against clipped content.
                 compose.onNodeWithTag("adv-note-apply").performScrollTo().assertIsDisplayed()

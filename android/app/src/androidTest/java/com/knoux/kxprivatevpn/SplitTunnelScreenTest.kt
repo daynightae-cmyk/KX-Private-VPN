@@ -2,12 +2,10 @@ package com.knoux.kxprivatevpn
 
 import android.content.Context
 import android.content.res.Configuration
-import android.graphics.Bitmap
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -25,7 +23,6 @@ import com.knoux.kxprivatevpn.platform.vpn.SplitTunnelSelection
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
-import java.io.File
 import java.util.Locale
 
 /**
@@ -98,12 +95,7 @@ class SplitTunnelScreenTest {
     }
 
     private fun capture(name: String) {
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val folder = File(context.getExternalFilesDir(null), "identity-evidence").apply { mkdirs() }
-        File(folder, "$name.png").outputStream().use { stream ->
-            check(compose.onRoot().captureToImage().asAndroidBitmap()
-                .compress(Bitmap.CompressFormat.PNG, 100, stream))
-        }
+        captureEvidence(InstrumentationRegistry.getInstrumentation().targetContext, compose, name)
     }
 
     private fun localized(base: Context, language: String): Context {

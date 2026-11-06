@@ -2,7 +2,6 @@ package com.knoux.kxprivatevpn
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
 import com.knoux.kxprivatevpn.launch.LaunchPreferences
@@ -76,10 +75,7 @@ class CacheFlowTest {
                 assertTrue(journalFile.exists())
                 assertTrue("completed cleanup must be journaled", recorded)
                 assertFalse(journalFile.readText().contains(prefix))
-                val output = File(context.getExternalFilesDir(null), "identity-evidence").apply { mkdirs() }
-                File(output, "09-cache-verified-receipt.png").outputStream().use { stream ->
-                    compose.onRoot().captureToImage().asAndroidBitmap().compress(android.graphics.Bitmap.CompressFormat.PNG, 100, stream)
-                }
+                captureEvidence(context, compose, "09-cache-verified-receipt")
             }
         } finally {
             runBlocking { preferences.appearance(original.language, original.theme) }
@@ -124,11 +120,7 @@ class CacheFlowTest {
                 }
                 compose.onNodeWithTag("cache-system-settings").performScrollTo().assertIsDisplayed()
                 compose.onNodeWithText(ar.getString(R.string.cache_other_apps_action)).assertExists()
-                val output = File(context.getExternalFilesDir(null), "identity-evidence").apply { mkdirs() }
-                File(output, "60-cache-night-ar-scope.png").outputStream().use { stream ->
-                    compose.onRoot().captureToImage().asAndroidBitmap()
-                        .compress(android.graphics.Bitmap.CompressFormat.PNG, 100, stream)
-                }
+                captureEvidence(context, compose, "60-cache-night-ar-scope")
                 compose.onNodeWithTag("cache-scan").performScrollTo().performClick()
                 compose.waitUntil(10000) {
                     compose.onAllNodes(hasText("$prefix/night.tmp")).fetchSemanticsNodes().isNotEmpty()
@@ -137,15 +129,13 @@ class CacheFlowTest {
                 compose.onNodeWithTag("cache-selected-summary").performScrollTo().assertTextEquals(
                     ar.getString(R.string.cache_selected_summary, 1,
                         android.text.format.Formatter.formatFileSize(ar, 128)))
-                File(output, "60b-cache-night-ar-selected.png").outputStream().use { stream ->
-                    compose.onRoot().captureToImage().asAndroidBitmap()
-                        .compress(android.graphics.Bitmap.CompressFormat.PNG, 100, stream)
-                }
+                captureEvidence(context, compose, "60b-cache-night-ar-selected")
                 compose.onNodeWithTag("cache-remove").performScrollTo().performClick()
                 compose.onNodeWithText(ar.getString(R.string.cache_confirm)).assertExists()
                 compose.waitForIdle()
                 val dialogShot = InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()
                 assertNotNull("dialog screenshot must be captured", dialogShot)
+                val output = File(context.getExternalFilesDir(null), "identity-evidence").apply { mkdirs() }
                 File(output, "60c-cache-night-ar-confirm.png").outputStream().use { stream ->
                     dialogShot!!.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, stream)
                 }
