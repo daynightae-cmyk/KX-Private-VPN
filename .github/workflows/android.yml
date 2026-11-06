@@ -61,7 +61,11 @@ jobs:
           emulator-build: 15004761
           # API35 cold boots can exceed three minutes on hosted KVM runners.
           emulator-boot-timeout: 600
-          emulator-options: -no-window -no-audio -no-boot-anim -no-snapshot -gpu software -skin 720x1280 -camera-back none -camera-front none
+          # `-gpu software` renders through guest SwiftShader, which repeatedly killed the
+          # emulator mid-suite on push runs (device vanished at test 53 of 138 with an empty
+          # failure element). Host-side SwiftShader is the emulator-runner default and keeps
+          # the same headless behaviour, so the API35 gate stays a real 138-test run.
+          emulator-options: -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader_indirect -skin 720x1280 -camera-back none -camera-front none
           disable-animations: false
           working-directory: android
           script: bash scripts/verify-device.sh
