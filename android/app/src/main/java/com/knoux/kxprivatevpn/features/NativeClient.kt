@@ -145,6 +145,10 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                 HeavyweightRoute(night, onBack = back)
                 return@CompositionLocalProvider
             }
+            if (route == "media") {
+                MediaSlimRoute(night, onBack = back)
+                return@CompositionLocalProvider
+            }
             if (route.startsWith("repair/")) {
                 RepairServiceRoute(route, night, onBack = back)
                 return@CompositionLocalProvider
