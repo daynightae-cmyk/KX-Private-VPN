@@ -30,6 +30,7 @@ class ClientFlowTest {
         })
         try {
             ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+                enterKxFromSplash(compose)
                 compose.waitUntil(10000) { compose.onAllNodes(hasTestTag("route-home")).fetchSemanticsNodes().isNotEmpty() }
                 compose.onNodeWithTag("open-settings").performScrollTo().performClick()
                 compose.onNodeWithText("العربية").performScrollTo().performClick()
@@ -69,6 +70,7 @@ class ClientFlowTest {
         }
         try {
             ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+                enterKxFromSplash(compose)
                 compose.waitUntil(10000) { compose.onAllNodes(hasTestTag("route-home")).fetchSemanticsNodes().isNotEmpty() }
                 compose.onNodeWithTag("open-import").performScrollTo().performClick()
                 compose.onNodeWithTag("profile-name").performTextInput(name)

@@ -206,7 +206,10 @@ class RepairLabScreenTest {
             now, "cache", "cache_remove", RepairOutcome.COMPLETE, 2, 4096)))
         compose.waitForIdle()
         compose.onNodeWithText(text(R.string.repair_journal_complete)).assertExists()
-        compose.onNodeWithText(text(R.string.repair_action_cache_remove)).assertExists()
+        // The same human-readable label can appear on several service cards.
+        // Assert the specific recorded journal action, not an arbitrary text match.
+        compose.onNodeWithTag("repair-journal-action")
+            .assertTextEquals(text(R.string.repair_action_cache_remove))
         compose.onNodeWithText(
             text(R.string.repair_journal_measure, 2, Formatter.formatFileSize(context, 4096)),
         ).assertExists()

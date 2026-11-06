@@ -111,9 +111,9 @@
     <string name="repair_review_cache">Review in Cache Surgeon</string>
     <string name="repair_cleanup_empty">No reclaimable KX cache was measured. Nothing to review.</string>
     <string name="repair_cleanup_unavailable">The KX cache preview failed, so no cleanup claim is made.</string>
-    <string name="repair_services">Signature services</string>
-    <string name="repair_services_count">%1$d of %2$d ready</string>
-    <string name="repair_status_available">Ready</string>
+    <string name="repair_services">Repair tools</string>
+    <string name="repair_services_count">%1$d of %2$d tools ready</string>
+    <string name="repair_status_available">Available</string>
     <string name="repair_status_unavailable">Not available</string>
     <string name="repair_status_measured">Measured</string>
     <string name="repair_status_ready">Ready</string>
@@ -140,11 +140,11 @@
     <string name="repair_scope_session">KX-owned profiles and diagnostic records only</string>
     <string name="repair_scope_network">Android connectivity and consented endpoint probes</string>
     <string name="repair_scope_autopilot">proposals from other repair tools, approved one by one</string>
-    <string name="repair_service_storage">Storage</string>
+    <string name="repair_service_storage">Storage analysis</string>
     <string name="repair_service_ghost">Empty files</string>
     <string name="repair_service_duplicate">Duplicate files</string>
     <string name="repair_service_heavyweight">Large files</string>
-    <string name="repair_service_cache">Temporary files</string>
+    <string name="repair_service_cache">Cache cleanup</string>
     <string name="repair_service_media">Photos &amp; video</string>
     <string name="repair_service_download">Downloads</string>
     <string name="repair_service_session">Session privacy</string>
@@ -348,4 +348,19 @@
     <string name="home_connected_hint">Real WireGuard counters; Internet reachability is not verified.</string>
     <string name="home_no_profile_hint">Import a WireGuard configuration to connect.</string>
     <string name="more_tools">More tools</string>
+    <string name="app_inventory_title">Installed apps</string>
+    <string name="app_inventory_scan">Tap the KX orb to scan visible apps</string>
+    <string name="app_inventory_scope">Launchable apps visible to KX, not hidden Android packages. No app is deleted by scanning.</string>
+    <string name="app_inventory_failure">Could not read the accessible app inventory.</string>
+    <string name="app_inventory_all_settings">See all apps in Android Settings</string>
+    <string name="app_inventory_counts">%1$d user apps · %2$d protected system apps visible</string>
+    <string name="app_inventory_filter_all">All</string>
+    <string name="app_inventory_filter_user">User</string>
+    <string name="app_inventory_filter_system">System</string>
+    <string name="app_inventory_system_protected">Protected system app — uninstall disabled here</string>
+    <string name="app_inventory_user_app">User-installed app</string>
+    <string name="app_inventory_app_info">App info</string>
+    <string name="app_inventory_uninstall">Uninstall</string>
+    <string name="app_inventory_confirm_title">Open system uninstall confirmation?</string>
+    <string name="app_inventory_confirm_body">Android will ask you to confirm removal of %1$s. KX cannot uninstall silently.</string>
 </resources>

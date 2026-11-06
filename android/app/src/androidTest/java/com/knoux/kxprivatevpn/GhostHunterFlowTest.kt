@@ -23,6 +23,7 @@ class GhostHunterFlowTest {
             LaunchPreferences(context).completeOnboarding()
         }
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+                enterKxFromSplash(compose)
             compose.waitUntil(10_000) {
                 compose.onAllNodes(hasTestTag("route-home")).fetchSemanticsNodes().isNotEmpty()
             }

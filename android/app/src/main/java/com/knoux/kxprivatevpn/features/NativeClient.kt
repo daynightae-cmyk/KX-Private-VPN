@@ -1,7 +1,10 @@
 package com.knoux.kxprivatevpn.features
 
+import android.Manifest
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -12,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -25,6 +29,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.knoux.kxprivatevpn.R
 import com.knoux.kxprivatevpn.designsystem.Atmosphere
@@ -54,6 +59,24 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
     val reconnectConsent = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == android.app.Activity.RESULT_OK) model.reconnectSelected()
     }
+    val context = LocalContext.current
+    // Ask once per process, before the VPN consent dialog. A denial never blocks the tunnel;
+    // it only hides the ongoing session notification.
+    var notificationAsked by rememberSaveable { mutableStateOf(false) }
+    val notificationPermission = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { model.prepareConnect()?.let(consent::launch) }
+    fun connectWithPermission() {
+        val missing = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
+            PackageManager.PERMISSION_GRANTED
+        if (missing && !notificationAsked) {
+            notificationAsked = true
+            notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            model.prepareConnect()?.let(consent::launch)
+        }
+    }
     val foreground = if (night) Color(0xFFF7F3FF) else Color(0xFF171050)
     MaterialTheme(colorScheme = if (night) darkColorScheme(primary = Color(0xFF99EBFF))
         else lightColorScheme(primary = Color(0xFF4420B3))) {
@@ -64,7 +87,7 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                     snapshot = state.snapshot,
                     busy = state.busy,
                     vpn = vpn,
-                    onConnect = { model.prepareConnect()?.let(consent::launch) },
+                    onConnect = { connectWithPermission() },
                     onDisconnect = { model.disconnectVpn() },
                     onSession = { navigate("session") },
                     onDismissIssue = { model.dismissVpnIssue() },
@@ -104,6 +127,10 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
             }
             if (route == "storage") {
                 StorageXrayRoute(night, onBack = back)
+                return@CompositionLocalProvider
+            }
+            if (route == "apps") {
+                InstalledAppsRoute(night, onBack = back)
                 return@CompositionLocalProvider
             }
             if (route == "ghost") {
@@ -175,7 +202,7 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                             }), fontSize = 26.sp,
                                 fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.CenterHorizontally))
                             VpnHomePanel(state.snapshot, state.busy, vpn,
-                                onConnect = { model.prepareConnect()?.let(consent::launch) },
+                                onConnect = { connectWithPermission() },
                                 onDisconnect = { model.disconnectVpn() },
                                 onSession = { navigate("session") },
                                 onDismissIssue = { model.dismissVpnIssue() })

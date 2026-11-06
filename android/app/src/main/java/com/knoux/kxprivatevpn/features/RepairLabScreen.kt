@@ -542,6 +542,7 @@ private fun JournalRow(
                     ACTION_DUPLICATE_CLEANUP -> R.string.dna_action
                     else -> R.string.repair_action_other
                 }),
+                modifier = Modifier.testTag("repair-journal-action"),
                 fontSize = 11.sp, color = foreground.copy(alpha = .72f),
             )
             Text(
