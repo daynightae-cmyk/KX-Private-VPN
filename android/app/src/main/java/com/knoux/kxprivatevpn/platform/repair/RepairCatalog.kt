@@ -16,7 +16,7 @@ enum class RepairServiceId(val key: String, val route: String, val available: Bo
     DUPLICATE("duplicate", "duplicate", true),
     HEAVYWEIGHT("heavyweight", "heavyweight", true),
     CACHE("cache", "cache", true),
-    MEDIA("media", "repair/media", false),
+    MEDIA("media", "media", true),
     DOWNLOAD("download", "repair/download", false),
     SESSION("session", "repair/session", false),
     NETWORK("network", "network", true),
