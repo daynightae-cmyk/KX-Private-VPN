@@ -1,6 +1,10 @@
 <resources>
     <string name="cache_surgeon">الملفات المؤقتة</string>
     <string name="cache_scope">راجع ملفات KX المؤقتة بس. كاش التطبيقات التانية وإعدادات VPN المحفوظة خارج النطاق. اختار الملفات وبعدها وافق صراحة على الإزالة. أي ملف اتغيّر بيتساب. مفيش تراجع.</string>
+    <string name="cache_other_apps_body">KX بيقيس ويشيل الكاش اللي بيملكه بس. عشان تمسح تخزين تطبيق تاني، افتح قائمة تطبيقات Android واختار التطبيق ده؛ KX عمره ما بيقرأ أو بيحذف بيانات تطبيقات تانية.</string>
+    <string name="cache_other_apps_action">افتح إعدادات تطبيقات Android</string>
+    <string name="cache_settings_failed">إعدادات Android مافتحتش على الجهاز ده.</string>
+    <string name="cache_selected_summary">المختار: %1$d ملف · %2$s</string>
     <string name="cache_scan">افحص كاش KX</string>
     <string name="cache_none">مفيش ملفات كاش KX متاحة للإزالة.</string>
     <string name="cache_limit">أول ٥٠٠ ملف مرشح ظاهرين. اعمل فحص تاني بعد الإزالة لباقي الملفات.</string>

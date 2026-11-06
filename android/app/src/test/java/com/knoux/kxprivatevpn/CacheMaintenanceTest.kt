@@ -38,6 +38,16 @@ class CacheMaintenanceTest {
         try { tool.removeApproved(preview, setOf("../sentinel"), true); fail() } catch (_: IllegalArgumentException) { }
         assertTrue(target.exists()); assertTrue(outside.exists())
     }
+    @Test fun permissionDeniedDeletionIsReportedWithoutCountingBytes() = runBlocking {
+        val cache = temp.newFolder("cache")
+        val target = File(cache, "locked.tmp").apply { writeText("keep") }
+        val tool = CacheMaintenance(cache) { false }
+        val result = tool.removeApproved(tool.preview(), setOf("locked.tmp"), true)
+        assertEquals(0, result.deleted)
+        assertEquals(0L, result.removedFileBytes)
+        assertEquals(listOf("locked.tmp"), result.failed)
+        assertTrue(target.exists())
+    }
     @Test fun emptySelectionIsAnHonestNoOp() = runBlocking {
         val cache = temp.newFolder("cache")
         val target = File(cache, "x").apply { writeText("keep") }

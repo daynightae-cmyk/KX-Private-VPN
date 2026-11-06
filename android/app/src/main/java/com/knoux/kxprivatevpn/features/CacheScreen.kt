@@ -1,6 +1,8 @@
 package com.knoux.kxprivatevpn.features
 
 import android.app.Application
+import android.content.Intent
+import android.provider.Settings
 import android.util.AtomicFile
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -26,6 +28,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.knoux.kxprivatevpn.R
 import com.knoux.kxprivatevpn.platform.repair.RepairJournal
 import com.knoux.kxprivatevpn.platform.repair.RepairJournalEntry
@@ -37,6 +40,13 @@ import kotlinx.coroutines.flow.*
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
+
+/**
+ * Android's own app list. It is the only supported route for another app's storage; KX never
+ * reads or deletes third-party data even when this button is used.
+ */
+fun cacheSystemSettingsIntent(): Intent = Intent(Settings.ACTION_MANAGE_APPLICATIONS_SETTINGS)
+    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
 data class CacheState(val busy: Boolean = false, val preview: CachePreview? = null,
     val receipt: CacheReceipt? = null, val interrupted: Boolean = false, val failed: Boolean = false)
@@ -118,8 +128,37 @@ fun CacheScreen(onBusy: (Boolean) -> Unit) {
     val model: CacheViewModel = viewModel()
     val state by model.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    var settingsFailed by remember { mutableStateOf(false) }
+    CacheScreenContent(
+        state = state,
+        onBusy = onBusy,
+        onScan = model::scan,
+        onRemove = model::remove,
+        onOpenSettings = {
+            settingsFailed = !runCatching { context.startActivity(cacheSystemSettingsIntent()) }
+                .isSuccess
+        },
+        settingsFailed = settingsFailed,
+    )
+}
+
+/**
+ * Stateless composition so the confirmation gate, the measured selection and the bilingual
+ * large-text layout can be exercised without a live cache or a real Settings launch.
+ */
+@Composable
+internal fun CacheScreenContent(
+    state: CacheState,
+    onBusy: (Boolean) -> Unit,
+    onScan: () -> Unit,
+    onRemove: (Set<String>) -> Unit,
+    onOpenSettings: () -> Unit,
+    settingsFailed: Boolean = false,
+) {
+    val context = LocalContext.current
     var selected by remember { mutableStateOf(emptySet<String>()) }
     var confirm by remember { mutableStateOf(false) }
+    val selectedBytes = state.preview?.files?.filter { it.path in selected }?.sumOf { it.bytes } ?: 0L
     LaunchedEffect(state.busy) { onBusy(state.busy) }
     BackHandler(enabled = state.busy) { }
     val title = stringResource(R.string.cache_confirm)
@@ -141,6 +180,14 @@ fun CacheScreen(onBusy: (Boolean) -> Unit) {
                 Offset(size.width * .65f, size.height * .15f), 2.dp.toPx(), StrokeCap.Round)
         }
         Text(stringResource(R.string.cache_scope))
+        Text(stringResource(R.string.cache_other_apps_body), fontSize = 13.sp,
+            lineHeight = 18.sp)
+        OutlinedButton(onClick = onOpenSettings,
+            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+            .testTag("cache-system-settings")) {
+            Text(stringResource(R.string.cache_other_apps_action))
+        }
+        if (settingsFailed) Text(stringResource(R.string.cache_settings_failed))
         if (state.busy) LinearProgressIndicator(Modifier.fillMaxWidth())
         if (state.failed) Text(stringResource(R.string.save_failed))
         if (state.interrupted && !state.busy) Text(stringResource(R.string.cache_interrupted))
@@ -149,7 +196,7 @@ fun CacheScreen(onBusy: (Boolean) -> Unit) {
                 android.text.format.Formatter.formatFileSize(context, value.removedFileBytes), value.skipped.size, value.failed.size))
             Text(stringResource(R.string.cache_bytes_note))
         }
-        OutlinedButton(onClick = { selected = emptySet(); model.scan() }, enabled = !state.busy,
+        OutlinedButton(onClick = { selected = emptySet(); onScan() }, enabled = !state.busy,
             modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("cache-scan")) { Text(stringResource(R.string.cache_scan)) }
         state.preview?.let { preview ->
             if (preview.limited) Text(stringResource(R.string.cache_limit))
@@ -166,12 +213,22 @@ fun CacheScreen(onBusy: (Boolean) -> Unit) {
                     }
                 }
             }
+            if (selected.isNotEmpty()) {
+                Text(stringResource(R.string.cache_selected_summary, selected.size,
+                    android.text.format.Formatter.formatFileSize(context, selectedBytes)),
+                    modifier = Modifier.testTag("cache-selected-summary"))
+            }
             Button(onClick = { confirm = true }, enabled = !state.busy && selected.isNotEmpty(),
                 modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp).testTag("cache-remove")) { Text(remove) }
         }
     }
     if (confirm) AlertDialog(onDismissRequest = { confirm = false }, title = { Text(title) },
-        text = { Text(body, Modifier.verticalScroll(rememberScrollState())) },
-        confirmButton = { TextButton(onClick = { confirm = false; model.remove(selected) }, modifier = Modifier.testTag("cache-confirm")) { Text(remove) } },
+        text = { Column(Modifier.verticalScroll(rememberScrollState())) {
+            Text(body)
+            Spacer(Modifier.height(12.dp))
+            Text(stringResource(R.string.cache_selected_summary, selected.size,
+                android.text.format.Formatter.formatFileSize(context, selectedBytes)))
+        } },
+        confirmButton = { TextButton(onClick = { confirm = false; onRemove(selected) }, modifier = Modifier.testTag("cache-confirm")) { Text(remove) } },
         dismissButton = { TextButton(onClick = { confirm = false }) { Text(cancel) } })
 }

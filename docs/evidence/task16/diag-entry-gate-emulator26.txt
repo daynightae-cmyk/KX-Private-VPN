@@ -1,0 +1,913 @@
+settings-before=UiPreferences(onboarded=true, language=system, theme=system)
+=== step 0 ===
+Printing with useUnmergedTree = 'false'
+Node #1 at (l=0.0, t=0.0, r=1080.0, b=1920.0)px
+ |-Node #23 at (l=0.0, t=63.0, r=1080.0, b=1446.0)px, Tag: 'route-home'
+ | IsTraversalGroup = 'true'
+ | VerticalScrollAxisRange = 'ScrollAxisRange(value=0.0, maxValue=1109.0, reverseScrolling=false)'
+ | Actions = [ScrollBy, ScrollByOffset]
+ |  |-Node #26 at (l=42.0, t=90.0, r=126.0, b=174.0)px
+ |  | ContentDescription = '[KX glass orb emblem]'
+ |  |-Node #28 at (l=144.0, t=94.0, r=235.0, b=171.0)px
+ |  | Text = '[KX]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #30 at (l=256.0, t=100.0, r=445.0, b=163.0)px
+ |  | Text = '[PRIVATE VPN]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #32 at (l=912.0, t=69.0, r=1038.0, b=195.0)px, Tag: 'open-settings'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Actions = [OnClick, RequestFocus]
+ |  | MergeDescendants = 'true'
+ |  |-Node #36 at (l=309.0, t=264.0, r=771.0, b=726.0)px
+ |  | ContentDescription = '[KX glass orb emblem]'
+ |  |-Node #40 at (l=457.0, t=668.0, r=659.0, b=731.0)px
+ |  | Text = '[Disconnected]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #41 at (l=42.0, t=783.0, r=1038.0, b=935.0)px, Tag: 'vpn-connect'
+ |  | Role = 'Button'
+ |  | Text = '[Connect tunnel]'
+ |  | [Disabled]
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #43 at (l=238.0, t=961.0, r=843.0, b=1024.0)px
+ |  | Text = '[Import a WireGuard configuration to connect.]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #44 at (l=42.0, t=1056.0, r=1038.0, b=1293.0)px, Tag: 'open-servers'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[SELECTED SERVER, No configurations yet, Tap to choose a real imported endpoint]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #60 at (l=135.0, t=1351.0, r=275.0, b=1414.0)px
+ |  | Text = '[Handshake]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #61 at (l=74.0, t=1422.0, r=103.0, b=1485.0)px, Tag: 'metric-handshake'
+ |  | Text = '[—]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #66 at (l=643.0, t=1351.0, r=759.0, b=1414.0)px
+ |  | Text = '[Received]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #67 at (l=582.0, t=1422.0, r=611.0, b=1485.0)px, Tag: 'metric-received'
+ |  | Text = '[—]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #73 at (l=135.0, t=1558.0, r=193.0, b=1621.0)px
+ |  | Text = '[Sent]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #74 at (l=74.0, t=1629.0, r=103.0, b=1692.0)px, Tag: 'metric-sent'
+ |  | Text = '[—]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #79 at (l=643.0, t=1558.0, r=761.0, b=1621.0)px
+ |  | Text = '[Tunnel IP]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #80 at (l=582.0, t=1629.0, r=611.0, b=1692.0)px, Tag: 'metric-tunnel'
+ |  | Text = '[—]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #81 at (l=42.0, t=1750.0, r=1038.0, b=1934.0)px, Tag: 'open-repair'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[KX Care, 5 of 10 ready, Storage, cleanup and duplicate checks]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #91 at (l=42.0, t=1966.0, r=216.0, b=2029.0)px
+ |  | Text = '[More tools]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #93 at (l=42.0, t=2050.0, r=276.0, b=2239.0)px, Tag: 'open-storage'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Storage]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #96 at (l=297.0, t=2050.0, r=530.0, b=2239.0)px, Tag: 'open-cache'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Temporary files]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #99 at (l=551.0, t=2050.0, r=784.0, b=2239.0)px, Tag: 'open-network'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Network check]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #102 at (l=805.0, t=2050.0, r=1038.0, b=2239.0)px, Tag: 'open-security'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Security Center]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #106 at (l=42.0, t=2260.0, r=276.0, b=2449.0)px, Tag: 'open-stats'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Statistics]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #109 at (l=297.0, t=2260.0, r=530.0, b=2449.0)px, Tag: 'open-split'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Split Tunneling]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #112 at (l=551.0, t=2260.0, r=784.0, b=2449.0)px, Tag: 'open-advanced'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Advanced network]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #115 at (l=805.0, t=2260.0, r=1038.0, b=2449.0)px, Tag: 'open-import'
+ |    Focused = 'false'
+ |    Role = 'Button'
+ |    Text = '[Import Configuration]'
+ |    Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |    MergeDescendants = 'true'
+ |-Node #120 at (l=58.0, t=1611.0, r=246.0, b=1755.0)px, Tag: 'nav-home'
+ | Focused = 'false'
+ | Role = 'Button'
+ | Text = '[Home]'
+ | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ | MergeDescendants = 'true'
+ |-Node #123 at (l=251.0, t=1611.0, r=440.0, b=1755.0)px, Tag: 'nav-servers'
+ | Focused = 'false'
+ | Role = 'Button'
+ | Text = '[Servers]'
+ | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ | MergeDescendants = 'true'
+ |-Node #126 at (l=445.0, t=1611.0, r=634.0, b=1755.0)px, Tag: 'nav-security'
+ | Focused = 'false'
+ | Role = 'Button'
+ | Text = '[Security]'
+ | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ | MergeDescendants = 'true'
+ |-Node #129 at (l=639.0, t=1611.0, r=828.0, b=1755.0)px, Tag: 'nav-stats'
+ | Focused = 'false'
+ | Role = 'Button'
+ | Text = '[Stats]'
+ | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ | MergeDescendants = 'true'
+ |-Node #132 at (l=833.0, t=1611.0, r=1022.0, b=1755.0)px, Tag: 'nav-settings'
+   Focused = 'false'
+   Role = 'Button'
+   Text = '[Settings]'
+   Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+   MergeDescendants = 'true'
+orb-count=0
+=== step 1 ===
+Printing with useUnmergedTree = 'false'
+Node #1 at (l=0.0, t=0.0, r=1080.0, b=1920.0)px
+ |-Node #23 at (l=0.0, t=63.0, r=1080.0, b=1446.0)px, Tag: 'route-home'
+ | IsTraversalGroup = 'true'
+ | VerticalScrollAxisRange = 'ScrollAxisRange(value=0.0, maxValue=1109.0, reverseScrolling=false)'
+ | Actions = [ScrollBy, ScrollByOffset]
+ |  |-Node #26 at (l=42.0, t=90.0, r=126.0, b=174.0)px
+ |  | ContentDescription = '[KX glass orb emblem]'
+ |  |-Node #28 at (l=144.0, t=94.0, r=235.0, b=171.0)px
+ |  | Text = '[KX]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #30 at (l=256.0, t=100.0, r=445.0, b=163.0)px
+ |  | Text = '[PRIVATE VPN]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #32 at (l=912.0, t=69.0, r=1038.0, b=195.0)px, Tag: 'open-settings'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Actions = [OnClick, RequestFocus]
+ |  | MergeDescendants = 'true'
+ |  |-Node #36 at (l=309.0, t=264.0, r=771.0, b=726.0)px
+ |  | ContentDescription = '[KX glass orb emblem]'
+ |  |-Node #40 at (l=457.0, t=668.0, r=659.0, b=731.0)px
+ |  | Text = '[Disconnected]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #41 at (l=42.0, t=783.0, r=1038.0, b=935.0)px, Tag: 'vpn-connect'
+ |  | Role = 'Button'
+ |  | Text = '[Connect tunnel]'
+ |  | [Disabled]
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #43 at (l=238.0, t=961.0, r=843.0, b=1024.0)px
+ |  | Text = '[Import a WireGuard configuration to connect.]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #44 at (l=42.0, t=1056.0, r=1038.0, b=1293.0)px, Tag: 'open-servers'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[SELECTED SERVER, No configurations yet, Tap to choose a real imported endpoint]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #60 at (l=135.0, t=1351.0, r=275.0, b=1414.0)px
+ |  | Text = '[Handshake]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #61 at (l=74.0, t=1422.0, r=103.0, b=1485.0)px, Tag: 'metric-handshake'
+ |  | Text = '[—]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #66 at (l=643.0, t=1351.0, r=759.0, b=1414.0)px
+ |  | Text = '[Received]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #67 at (l=582.0, t=1422.0, r=611.0, b=1485.0)px, Tag: 'metric-received'
+ |  | Text = '[—]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #73 at (l=135.0, t=1558.0, r=193.0, b=1621.0)px
+ |  | Text = '[Sent]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #74 at (l=74.0, t=1629.0, r=103.0, b=1692.0)px, Tag: 'metric-sent'
+ |  | Text = '[—]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #79 at (l=643.0, t=1558.0, r=761.0, b=1621.0)px
+ |  | Text = '[Tunnel IP]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #80 at (l=582.0, t=1629.0, r=611.0, b=1692.0)px, Tag: 'metric-tunnel'
+ |  | Text = '[—]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #81 at (l=42.0, t=1750.0, r=1038.0, b=1934.0)px, Tag: 'open-repair'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[KX Care, 5 of 10 ready, Storage, cleanup and duplicate checks]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #91 at (l=42.0, t=1966.0, r=216.0, b=2029.0)px
+ |  | Text = '[More tools]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #93 at (l=42.0, t=2050.0, r=276.0, b=2239.0)px, Tag: 'open-storage'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Storage]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #96 at (l=297.0, t=2050.0, r=530.0, b=2239.0)px, Tag: 'open-cache'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Temporary files]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #99 at (l=551.0, t=2050.0, r=784.0, b=2239.0)px, Tag: 'open-network'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Network check]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #102 at (l=805.0, t=2050.0, r=1038.0, b=2239.0)px, Tag: 'open-security'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Security Center]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #106 at (l=42.0, t=2260.0, r=276.0, b=2449.0)px, Tag: 'open-stats'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Statistics]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #109 at (l=297.0, t=2260.0, r=530.0, b=2449.0)px, Tag: 'open-split'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Split Tunneling]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #112 at (l=551.0, t=2260.0, r=784.0, b=2449.0)px, Tag: 'open-advanced'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Advanced network]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #115 at (l=805.0, t=2260.0, r=1038.0, b=2449.0)px, Tag: 'open-import'
+ |    Focused = 'false'
+ |    Role = 'Button'
+ |    Text = '[Import Configuration]'
+ |    Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |    MergeDescendants = 'true'
+ |-Node #120 at (l=58.0, t=1611.0, r=246.0, b=1755.0)px, Tag: 'nav-home'
+ | Focused = 'false'
+ | Role = 'Button'
+ | Text = '[Home]'
+ | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ | MergeDescendants = 'true'
+ |-Node #123 at (l=251.0, t=1611.0, r=440.0, b=1755.0)px, Tag: 'nav-servers'
+ | Focused = 'false'
+ | Role = 'Button'
+ | Text = '[Servers]'
+ | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ | MergeDescendants = 'true'
+ |-Node #126 at (l=445.0, t=1611.0, r=634.0, b=1755.0)px, Tag: 'nav-security'
+ | Focused = 'false'
+ | Role = 'Button'
+ | Text = '[Security]'
+ | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ | MergeDescendants = 'true'
+ |-Node #129 at (l=639.0, t=1611.0, r=828.0, b=1755.0)px, Tag: 'nav-stats'
+ | Focused = 'false'
+ | Role = 'Button'
+ | Text = '[Stats]'
+ | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ | MergeDescendants = 'true'
+ |-Node #132 at (l=833.0, t=1611.0, r=1022.0, b=1755.0)px, Tag: 'nav-settings'
+   Focused = 'false'
+   Role = 'Button'
+   Text = '[Settings]'
+   Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+   MergeDescendants = 'true'
+orb-count=0
+=== step 2 ===
+Printing with useUnmergedTree = 'false'
+Node #1 at (l=0.0, t=0.0, r=1080.0, b=1920.0)px
+ |-Node #23 at (l=0.0, t=63.0, r=1080.0, b=1446.0)px, Tag: 'route-home'
+ | IsTraversalGroup = 'true'
+ | VerticalScrollAxisRange = 'ScrollAxisRange(value=0.0, maxValue=1109.0, reverseScrolling=false)'
+ | Actions = [ScrollBy, ScrollByOffset]
+ |  |-Node #26 at (l=42.0, t=90.0, r=126.0, b=174.0)px
+ |  | ContentDescription = '[KX glass orb emblem]'
+ |  |-Node #28 at (l=144.0, t=94.0, r=235.0, b=171.0)px
+ |  | Text = '[KX]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #30 at (l=256.0, t=100.0, r=445.0, b=163.0)px
+ |  | Text = '[PRIVATE VPN]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #32 at (l=912.0, t=69.0, r=1038.0, b=195.0)px, Tag: 'open-settings'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Actions = [OnClick, RequestFocus]
+ |  | MergeDescendants = 'true'
+ |  |-Node #36 at (l=309.0, t=264.0, r=771.0, b=726.0)px
+ |  | ContentDescription = '[KX glass orb emblem]'
+ |  |-Node #40 at (l=457.0, t=668.0, r=659.0, b=731.0)px
+ |  | Text = '[Disconnected]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #41 at (l=42.0, t=783.0, r=1038.0, b=935.0)px, Tag: 'vpn-connect'
+ |  | Role = 'Button'
+ |  | Text = '[Connect tunnel]'
+ |  | [Disabled]
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #43 at (l=238.0, t=961.0, r=843.0, b=1024.0)px
+ |  | Text = '[Import a WireGuard configuration to connect.]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #44 at (l=42.0, t=1056.0, r=1038.0, b=1293.0)px, Tag: 'open-servers'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[SELECTED SERVER, No configurations yet, Tap to choose a real imported endpoint]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #60 at (l=135.0, t=1351.0, r=275.0, b=1414.0)px
+ |  | Text = '[Handshake]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #61 at (l=74.0, t=1422.0, r=103.0, b=1485.0)px, Tag: 'metric-handshake'
+ |  | Text = '[—]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #66 at (l=643.0, t=1351.0, r=759.0, b=1414.0)px
+ |  | Text = '[Received]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #67 at (l=582.0, t=1422.0, r=611.0, b=1485.0)px, Tag: 'metric-received'
+ |  | Text = '[—]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #73 at (l=135.0, t=1558.0, r=193.0, b=1621.0)px
+ |  | Text = '[Sent]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #74 at (l=74.0, t=1629.0, r=103.0, b=1692.0)px, Tag: 'metric-sent'
+ |  | Text = '[—]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #79 at (l=643.0, t=1558.0, r=761.0, b=1621.0)px
+ |  | Text = '[Tunnel IP]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #80 at (l=582.0, t=1629.0, r=611.0, b=1692.0)px, Tag: 'metric-tunnel'
+ |  | Text = '[—]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #81 at (l=42.0, t=1750.0, r=1038.0, b=1934.0)px, Tag: 'open-repair'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[KX Care, 5 of 10 ready, Storage, cleanup and duplicate checks]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #91 at (l=42.0, t=1966.0, r=216.0, b=2029.0)px
+ |  | Text = '[More tools]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #93 at (l=42.0, t=2050.0, r=276.0, b=2239.0)px, Tag: 'open-storage'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Storage]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #96 at (l=297.0, t=2050.0, r=530.0, b=2239.0)px, Tag: 'open-cache'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Temporary files]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #99 at (l=551.0, t=2050.0, r=784.0, b=2239.0)px, Tag: 'open-network'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Network check]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #102 at (l=805.0, t=2050.0, r=1038.0, b=2239.0)px, Tag: 'open-security'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Security Center]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #106 at (l=42.0, t=2260.0, r=276.0, b=2449.0)px, Tag: 'open-stats'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Statistics]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #109 at (l=297.0, t=2260.0, r=530.0, b=2449.0)px, Tag: 'open-split'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Split Tunneling]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #112 at (l=551.0, t=2260.0, r=784.0, b=2449.0)px, Tag: 'open-advanced'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Advanced network]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #115 at (l=805.0, t=2260.0, r=1038.0, b=2449.0)px, Tag: 'open-import'
+ |    Focused = 'false'
+ |    Role = 'Button'
+ |    Text = '[Import Configuration]'
+ |    Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |    MergeDescendants = 'true'
+ |-Node #120 at (l=58.0, t=1611.0, r=246.0, b=1755.0)px, Tag: 'nav-home'
+ | Focused = 'false'
+ | Role = 'Button'
+ | Text = '[Home]'
+ | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ | MergeDescendants = 'true'
+ |-Node #123 at (l=251.0, t=1611.0, r=440.0, b=1755.0)px, Tag: 'nav-servers'
+ | Focused = 'false'
+ | Role = 'Button'
+ | Text = '[Servers]'
+ | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ | MergeDescendants = 'true'
+ |-Node #126 at (l=445.0, t=1611.0, r=634.0, b=1755.0)px, Tag: 'nav-security'
+ | Focused = 'false'
+ | Role = 'Button'
+ | Text = '[Security]'
+ | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ | MergeDescendants = 'true'
+ |-Node #129 at (l=639.0, t=1611.0, r=828.0, b=1755.0)px, Tag: 'nav-stats'
+ | Focused = 'false'
+ | Role = 'Button'
+ | Text = '[Stats]'
+ | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ | MergeDescendants = 'true'
+ |-Node #132 at (l=833.0, t=1611.0, r=1022.0, b=1755.0)px, Tag: 'nav-settings'
+   Focused = 'false'
+   Role = 'Button'
+   Text = '[Settings]'
+   Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+   MergeDescendants = 'true'
+orb-count=0
+=== step 3 ===
+Printing with useUnmergedTree = 'false'
+Node #1 at (l=0.0, t=0.0, r=1080.0, b=1920.0)px
+ |-Node #23 at (l=0.0, t=63.0, r=1080.0, b=1446.0)px, Tag: 'route-home'
+ | IsTraversalGroup = 'true'
+ | VerticalScrollAxisRange = 'ScrollAxisRange(value=0.0, maxValue=1109.0, reverseScrolling=false)'
+ | Actions = [ScrollBy, ScrollByOffset]
+ |  |-Node #26 at (l=42.0, t=90.0, r=126.0, b=174.0)px
+ |  | ContentDescription = '[KX glass orb emblem]'
+ |  |-Node #28 at (l=144.0, t=94.0, r=235.0, b=171.0)px
+ |  | Text = '[KX]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #30 at (l=256.0, t=100.0, r=445.0, b=163.0)px
+ |  | Text = '[PRIVATE VPN]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #32 at (l=912.0, t=69.0, r=1038.0, b=195.0)px, Tag: 'open-settings'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Actions = [OnClick, RequestFocus]
+ |  | MergeDescendants = 'true'
+ |  |-Node #36 at (l=309.0, t=264.0, r=771.0, b=726.0)px
+ |  | ContentDescription = '[KX glass orb emblem]'
+ |  |-Node #40 at (l=457.0, t=668.0, r=659.0, b=731.0)px
+ |  | Text = '[Disconnected]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #41 at (l=42.0, t=783.0, r=1038.0, b=935.0)px, Tag: 'vpn-connect'
+ |  | Role = 'Button'
+ |  | Text = '[Connect tunnel]'
+ |  | [Disabled]
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #43 at (l=238.0, t=961.0, r=843.0, b=1024.0)px
+ |  | Text = '[Import a WireGuard configuration to connect.]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #44 at (l=42.0, t=1056.0, r=1038.0, b=1293.0)px, Tag: 'open-servers'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[SELECTED SERVER, No configurations yet, Tap to choose a real imported endpoint]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #60 at (l=135.0, t=1351.0, r=275.0, b=1414.0)px
+ |  | Text = '[Handshake]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #61 at (l=74.0, t=1422.0, r=103.0, b=1485.0)px, Tag: 'metric-handshake'
+ |  | Text = '[—]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #66 at (l=643.0, t=1351.0, r=759.0, b=1414.0)px
+ |  | Text = '[Received]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #67 at (l=582.0, t=1422.0, r=611.0, b=1485.0)px, Tag: 'metric-received'
+ |  | Text = '[—]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #73 at (l=135.0, t=1558.0, r=193.0, b=1621.0)px
+ |  | Text = '[Sent]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #74 at (l=74.0, t=1629.0, r=103.0, b=1692.0)px, Tag: 'metric-sent'
+ |  | Text = '[—]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #79 at (l=643.0, t=1558.0, r=761.0, b=1621.0)px
+ |  | Text = '[Tunnel IP]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #80 at (l=582.0, t=1629.0, r=611.0, b=1692.0)px, Tag: 'metric-tunnel'
+ |  | Text = '[—]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #81 at (l=42.0, t=1750.0, r=1038.0, b=1934.0)px, Tag: 'open-repair'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[KX Care, 5 of 10 ready, Storage, cleanup and duplicate checks]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #91 at (l=42.0, t=1966.0, r=216.0, b=2029.0)px
+ |  | Text = '[More tools]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #93 at (l=42.0, t=2050.0, r=276.0, b=2239.0)px, Tag: 'open-storage'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Storage]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #96 at (l=297.0, t=2050.0, r=530.0, b=2239.0)px, Tag: 'open-cache'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Temporary files]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #99 at (l=551.0, t=2050.0, r=784.0, b=2239.0)px, Tag: 'open-network'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Network check]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #102 at (l=805.0, t=2050.0, r=1038.0, b=2239.0)px, Tag: 'open-security'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Security Center]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #106 at (l=42.0, t=2260.0, r=276.0, b=2449.0)px, Tag: 'open-stats'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Statistics]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #109 at (l=297.0, t=2260.0, r=530.0, b=2449.0)px, Tag: 'open-split'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Split Tunneling]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #112 at (l=551.0, t=2260.0, r=784.0, b=2449.0)px, Tag: 'open-advanced'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Advanced network]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #115 at (l=805.0, t=2260.0, r=1038.0, b=2449.0)px, Tag: 'open-import'
+ |    Focused = 'false'
+ |    Role = 'Button'
+ |    Text = '[Import Configuration]'
+ |    Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |    MergeDescendants = 'true'
+ |-Node #120 at (l=58.0, t=1611.0, r=246.0, b=1755.0)px, Tag: 'nav-home'
+ | Focused = 'false'
+ | Role = 'Button'
+ | Text = '[Home]'
+ | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ | MergeDescendants = 'true'
+ |-Node #123 at (l=251.0, t=1611.0, r=440.0, b=1755.0)px, Tag: 'nav-servers'
+ | Focused = 'false'
+ | Role = 'Button'
+ | Text = '[Servers]'
+ | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ | MergeDescendants = 'true'
+ |-Node #126 at (l=445.0, t=1611.0, r=634.0, b=1755.0)px, Tag: 'nav-security'
+ | Focused = 'false'
+ | Role = 'Button'
+ | Text = '[Security]'
+ | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ | MergeDescendants = 'true'
+ |-Node #129 at (l=639.0, t=1611.0, r=828.0, b=1755.0)px, Tag: 'nav-stats'
+ | Focused = 'false'
+ | Role = 'Button'
+ | Text = '[Stats]'
+ | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ | MergeDescendants = 'true'
+ |-Node #132 at (l=833.0, t=1611.0, r=1022.0, b=1755.0)px, Tag: 'nav-settings'
+   Focused = 'false'
+   Role = 'Button'
+   Text = '[Settings]'
+   Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+   MergeDescendants = 'true'
+orb-count=0
+=== step 4 ===
+Printing with useUnmergedTree = 'false'
+Node #1 at (l=0.0, t=0.0, r=1080.0, b=1920.0)px
+ |-Node #23 at (l=0.0, t=63.0, r=1080.0, b=1446.0)px, Tag: 'route-home'
+ | IsTraversalGroup = 'true'
+ | VerticalScrollAxisRange = 'ScrollAxisRange(value=0.0, maxValue=1109.0, reverseScrolling=false)'
+ | Actions = [ScrollBy, ScrollByOffset]
+ |  |-Node #26 at (l=42.0, t=90.0, r=126.0, b=174.0)px
+ |  | ContentDescription = '[KX glass orb emblem]'
+ |  |-Node #28 at (l=144.0, t=94.0, r=235.0, b=171.0)px
+ |  | Text = '[KX]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #30 at (l=256.0, t=100.0, r=445.0, b=163.0)px
+ |  | Text = '[PRIVATE VPN]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #32 at (l=912.0, t=69.0, r=1038.0, b=195.0)px, Tag: 'open-settings'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Actions = [OnClick, RequestFocus]
+ |  | MergeDescendants = 'true'
+ |  |-Node #36 at (l=309.0, t=264.0, r=771.0, b=726.0)px
+ |  | ContentDescription = '[KX glass orb emblem]'
+ |  |-Node #40 at (l=457.0, t=668.0, r=659.0, b=731.0)px
+ |  | Text = '[Disconnected]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #41 at (l=42.0, t=783.0, r=1038.0, b=935.0)px, Tag: 'vpn-connect'
+ |  | Role = 'Button'
+ |  | Text = '[Connect tunnel]'
+ |  | [Disabled]
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #43 at (l=238.0, t=961.0, r=843.0, b=1024.0)px
+ |  | Text = '[Import a WireGuard configuration to connect.]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #44 at (l=42.0, t=1056.0, r=1038.0, b=1293.0)px, Tag: 'open-servers'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[SELECTED SERVER, No configurations yet, Tap to choose a real imported endpoint]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #60 at (l=135.0, t=1351.0, r=275.0, b=1414.0)px
+ |  | Text = '[Handshake]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #61 at (l=74.0, t=1422.0, r=103.0, b=1485.0)px, Tag: 'metric-handshake'
+ |  | Text = '[—]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #66 at (l=643.0, t=1351.0, r=759.0, b=1414.0)px
+ |  | Text = '[Received]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #67 at (l=582.0, t=1422.0, r=611.0, b=1485.0)px, Tag: 'metric-received'
+ |  | Text = '[—]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #73 at (l=135.0, t=1558.0, r=193.0, b=1621.0)px
+ |  | Text = '[Sent]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #74 at (l=74.0, t=1629.0, r=103.0, b=1692.0)px, Tag: 'metric-sent'
+ |  | Text = '[—]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #79 at (l=643.0, t=1558.0, r=761.0, b=1621.0)px
+ |  | Text = '[Tunnel IP]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #80 at (l=582.0, t=1629.0, r=611.0, b=1692.0)px, Tag: 'metric-tunnel'
+ |  | Text = '[—]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #81 at (l=42.0, t=1750.0, r=1038.0, b=1934.0)px, Tag: 'open-repair'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[KX Care, 5 of 10 ready, Storage, cleanup and duplicate checks]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #91 at (l=42.0, t=1966.0, r=216.0, b=2029.0)px
+ |  | Text = '[More tools]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #93 at (l=42.0, t=2050.0, r=276.0, b=2239.0)px, Tag: 'open-storage'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Storage]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #96 at (l=297.0, t=2050.0, r=530.0, b=2239.0)px, Tag: 'open-cache'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Temporary files]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #99 at (l=551.0, t=2050.0, r=784.0, b=2239.0)px, Tag: 'open-network'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Network check]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #102 at (l=805.0, t=2050.0, r=1038.0, b=2239.0)px, Tag: 'open-security'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Security Center]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #106 at (l=42.0, t=2260.0, r=276.0, b=2449.0)px, Tag: 'open-stats'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Statistics]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #109 at (l=297.0, t=2260.0, r=530.0, b=2449.0)px, Tag: 'open-split'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Split Tunneling]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #112 at (l=551.0, t=2260.0, r=784.0, b=2449.0)px, Tag: 'open-advanced'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Advanced network]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #115 at (l=805.0, t=2260.0, r=1038.0, b=2449.0)px, Tag: 'open-import'
+ |    Focused = 'false'
+ |    Role = 'Button'
+ |    Text = '[Import Configuration]'
+ |    Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |    MergeDescendants = 'true'
+ |-Node #120 at (l=58.0, t=1611.0, r=246.0, b=1755.0)px, Tag: 'nav-home'
+ | Focused = 'false'
+ | Role = 'Button'
+ | Text = '[Home]'
+ | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ | MergeDescendants = 'true'
+ |-Node #123 at (l=251.0, t=1611.0, r=440.0, b=1755.0)px, Tag: 'nav-servers'
+ | Focused = 'false'
+ | Role = 'Button'
+ | Text = '[Servers]'
+ | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ | MergeDescendants = 'true'
+ |-Node #126 at (l=445.0, t=1611.0, r=634.0, b=1755.0)px, Tag: 'nav-security'
+ | Focused = 'false'
+ | Role = 'Button'
+ | Text = '[Security]'
+ | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ | MergeDescendants = 'true'
+ |-Node #129 at (l=639.0, t=1611.0, r=828.0, b=1755.0)px, Tag: 'nav-stats'
+ | Focused = 'false'
+ | Role = 'Button'
+ | Text = '[Stats]'
+ | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ | MergeDescendants = 'true'
+ |-Node #132 at (l=833.0, t=1611.0, r=1022.0, b=1755.0)px, Tag: 'nav-settings'
+   Focused = 'false'
+   Role = 'Button'
+   Text = '[Settings]'
+   Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+   MergeDescendants = 'true'
+orb-count=0
+=== step 5 ===
+Printing with useUnmergedTree = 'false'
+Node #1 at (l=0.0, t=0.0, r=1080.0, b=1920.0)px
+ |-Node #23 at (l=0.0, t=63.0, r=1080.0, b=1446.0)px, Tag: 'route-home'
+ | IsTraversalGroup = 'true'
+ | VerticalScrollAxisRange = 'ScrollAxisRange(value=0.0, maxValue=1109.0, reverseScrolling=false)'
+ | Actions = [ScrollBy, ScrollByOffset]
+ |  |-Node #26 at (l=42.0, t=90.0, r=126.0, b=174.0)px
+ |  | ContentDescription = '[KX glass orb emblem]'
+ |  |-Node #28 at (l=144.0, t=94.0, r=235.0, b=171.0)px
+ |  | Text = '[KX]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #30 at (l=256.0, t=100.0, r=445.0, b=163.0)px
+ |  | Text = '[PRIVATE VPN]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #32 at (l=912.0, t=69.0, r=1038.0, b=195.0)px, Tag: 'open-settings'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Actions = [OnClick, RequestFocus]
+ |  | MergeDescendants = 'true'
+ |  |-Node #36 at (l=309.0, t=264.0, r=771.0, b=726.0)px
+ |  | ContentDescription = '[KX glass orb emblem]'
+ |  |-Node #40 at (l=457.0, t=668.0, r=659.0, b=731.0)px
+ |  | Text = '[Disconnected]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #41 at (l=42.0, t=783.0, r=1038.0, b=935.0)px, Tag: 'vpn-connect'
+ |  | Role = 'Button'
+ |  | Text = '[Connect tunnel]'
+ |  | [Disabled]
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #43 at (l=238.0, t=961.0, r=843.0, b=1024.0)px
+ |  | Text = '[Import a WireGuard configuration to connect.]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #44 at (l=42.0, t=1056.0, r=1038.0, b=1293.0)px, Tag: 'open-servers'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[SELECTED SERVER, No configurations yet, Tap to choose a real imported endpoint]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #60 at (l=135.0, t=1351.0, r=275.0, b=1414.0)px
+ |  | Text = '[Handshake]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #61 at (l=74.0, t=1422.0, r=103.0, b=1485.0)px, Tag: 'metric-handshake'
+ |  | Text = '[—]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #66 at (l=643.0, t=1351.0, r=759.0, b=1414.0)px
+ |  | Text = '[Received]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #67 at (l=582.0, t=1422.0, r=611.0, b=1485.0)px, Tag: 'metric-received'
+ |  | Text = '[—]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #73 at (l=135.0, t=1558.0, r=193.0, b=1621.0)px
+ |  | Text = '[Sent]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #74 at (l=74.0, t=1629.0, r=103.0, b=1692.0)px, Tag: 'metric-sent'
+ |  | Text = '[—]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #79 at (l=643.0, t=1558.0, r=761.0, b=1621.0)px
+ |  | Text = '[Tunnel IP]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #80 at (l=582.0, t=1629.0, r=611.0, b=1692.0)px, Tag: 'metric-tunnel'
+ |  | Text = '[—]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #81 at (l=42.0, t=1750.0, r=1038.0, b=1934.0)px, Tag: 'open-repair'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[KX Care, 5 of 10 ready, Storage, cleanup and duplicate checks]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #91 at (l=42.0, t=1966.0, r=216.0, b=2029.0)px
+ |  | Text = '[More tools]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
+ |  |-Node #93 at (l=42.0, t=2050.0, r=276.0, b=2239.0)px, Tag: 'open-storage'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Storage]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #96 at (l=297.0, t=2050.0, r=530.0, b=2239.0)px, Tag: 'open-cache'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Temporary files]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #99 at (l=551.0, t=2050.0, r=784.0, b=2239.0)px, Tag: 'open-network'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Network check]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #102 at (l=805.0, t=2050.0, r=1038.0, b=2239.0)px, Tag: 'open-security'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Security Center]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #106 at (l=42.0, t=2260.0, r=276.0, b=2449.0)px, Tag: 'open-stats'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Statistics]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #109 at (l=297.0, t=2260.0, r=530.0, b=2449.0)px, Tag: 'open-split'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Split Tunneling]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #112 at (l=551.0, t=2260.0, r=784.0, b=2449.0)px, Tag: 'open-advanced'
+ |  | Focused = 'false'
+ |  | Role = 'Button'
+ |  | Text = '[Advanced network]'
+ |  | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |  | MergeDescendants = 'true'
+ |  |-Node #115 at (l=805.0, t=2260.0, r=1038.0, b=2449.0)px, Tag: 'open-import'
+ |    Focused = 'false'
+ |    Role = 'Button'
+ |    Text = '[Import Configuration]'
+ |    Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ |    MergeDescendants = 'true'
+ |-Node #120 at (l=58.0, t=1611.0, r=246.0, b=1755.0)px, Tag: 'nav-home'
+ | Focused = 'false'
+ | Role = 'Button'
+ | Text = '[Home]'
+ | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ | MergeDescendants = 'true'
+ |-Node #123 at (l=251.0, t=1611.0, r=440.0, b=1755.0)px, Tag: 'nav-servers'
+ | Focused = 'false'
+ | Role = 'Button'
+ | Text = '[Servers]'
+ | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ | MergeDescendants = 'true'
+ |-Node #126 at (l=445.0, t=1611.0, r=634.0, b=1755.0)px, Tag: 'nav-security'
+ | Focused = 'false'
+ | Role = 'Button'
+ | Text = '[Security]'
+ | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ | MergeDescendants = 'true'
+ |-Node #129 at (l=639.0, t=1611.0, r=828.0, b=1755.0)px, Tag: 'nav-stats'
+ | Focused = 'false'
+ | Role = 'Button'
+ | Text = '[Stats]'
+ | Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+ | MergeDescendants = 'true'
+ |-Node #132 at (l=833.0, t=1611.0, r=1022.0, b=1755.0)px, Tag: 'nav-settings'
+   Focused = 'false'
+   Role = 'Button'
+   Text = '[Settings]'
+   Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
+   MergeDescendants = 'true'
+orb-count=0
