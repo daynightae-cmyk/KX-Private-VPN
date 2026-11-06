@@ -2,9 +2,9 @@
 
 **baseline_sha:** `c54a361` (main after PR #20 / TASK_15)
 **branch:** `task16-cache-audit`
-**implementation_sha:** `b56a05e` (plus `1da1d32`, both on top of the `origin/main` merge)
-**merged_sha:** pending
-**status:** LOCAL GREEN — exact-SHA CI and merge pending
+**implementation_sha:** `a384c05` (`b56a05e` UI/test work, `1da1d32` evidence, `6e17887` API 35 test fix, `a384c05` phone captures/evidence)
+**merged_sha:** `5746bc34c9e3702ce14c4426f89c2e99ddcff5c2`
+**status:** GREEN — merged to main; exact-SHA CI passed (build, API 26, API 35, Sonar)
 
 ## Scope
 
@@ -63,6 +63,31 @@ The audited deletion path is unchanged in its safety model:
 
 ## Verification
 
+### API 35 CI blocker — root cause and fix
+
+The first exact-SHA API 35 job (`42205808894`) failed in
+`ClientFlowTest.languageAndThemePersistAcrossActivityRecreation` at the **first**
+`assertIsSelected()` on the night-appearance row, before activity recreation. The downloaded
+UIAutomator XML showed the real state:
+
+```
+node Role='RadioButton' Selected='false' [Disabled] Text='[ليلي]'
+```
+
+Selecting Arabic starts an asynchronous locale write. The header updated one recomposition
+before `busy=false` cleared, so the night row was still disabled when the test tapped it and the
+click was swallowed. This was a test synchronization defect, not a product defect:
+
+- The test now waits until the night row is enabled **and** unselected, then clicks it and waits
+  for selected.
+- Regression `appearanceTapIsNotLostWhileTheLocaleWriteSettles` repeats an appearance tap while
+  the locale write settles.
+- No product logic, timeout, skip or assertion was weakened. The fix is
+  `6e178871ec69de61ad9e5195509f65aebe15de6a`.
+
+The failure XML is preserved at `D:\Temp\opencode\task16-api35-artifact`; phone runs below could
+not reproduce it, which is consistent with a timing race that the new wait removes.
+
 ### Local build and tests
 
 ```powershell
@@ -80,11 +105,16 @@ androidTest APK 1,449,844 bytes.
 adb -s 1334825549012211 shell am instrument -w \
   -e class com.knoux.kxprivatevpn.CacheSettingsIntentTest,\
 com.knoux.kxprivatevpn.CacheFlowTest,\
-com.knoux.kxprivatevpn.CacheScreenContractTest \
+com.knoux.kxprivatevpn.CacheScreenContractTest,\
+com.knoux.kxprivatevpn.ClientFlowTest \
   com.knoux.kxprivatevpn.test/androidx.test.runner.AndroidJUnitRunner
 ```
 
-Result: **OK (5 tests) in 25.474s**, 0 failures.
+Result: **OK (4 tests) in 38.362s** for `CacheFlowTest` + `ClientFlowTest`; the three-test
+`ClientFlowTest` regression run was **OK (3 tests) in 27.262s**; the fixed single appearance test
+was **OK (1 test) in 12.075s**. Raw runner output is committed under
+`docs/evidence/task16/phone-clientflow-regression.txt`,
+`phone-clientflow-fixed.txt`, `phone-cache-client-fixed.txt` and `phone-clientflow-repro.txt`.
 
 - Installed APK: 29,326,627 bytes, SHA-256
   `9a206bdfbd62e371add4b8fbef7de2cf7f33bb2a184a7ec9f342b038bbbc1978`.
@@ -92,6 +122,21 @@ Result: **OK (5 tests) in 25.474s**, 0 failures.
   `c07168d455a86f8c792ef44ebf213ab63ec327226589692bcad69231e67c085e` (existing debug
   certificate; installed in place).
 - `firstInstallTime` unchanged at 2026-11-05 18:02:46; `lastUpdateTime` 2026-11-06 14:48:26.
+- Rollback copy of the previously installed base APK:
+  `docs/evidence/task16/phone-rollback/installed-base.apk` (same SHA-256 as installed).
+
+### Exact-SHA CI — `6e178871ec69de61ad9e5195509f65aebe15de6a`
+
+Run `https://github.com/daynightae-cmyk/KX-Private-VPN/actions/runs/42265090058`:
+
+| Job | Result |
+|---|---|
+| build (JVM tests + lint + APKs) | SUCCESS |
+| device (26) | SUCCESS |
+| device (35) | SUCCESS |
+| SonarCloud Code Analysis | SUCCESS |
+
+The earlier run `42205808894` failed only on the pre-fix API 35 test; no other job failed.
 
 ## Visual before / after
 
@@ -112,8 +157,11 @@ route for another app's cache and no selected-total summary. After:
 - `61b-cache-night-ar-large-selected.png` — Arabic night at 1.6x: selected row, measured
   summary and Remove action remain visible.
 
-Files are under
-`D:\KX-QODER-VISUAL-HANDOFF-20261105\DEVICE-EVIDENCE-20261106\task16-phone-20261106\`.
+Files are committed under `docs/evidence/task16/phone-evidence/` (50 captures, including the
+splash/onboarding, home, server, cache, security/split/advanced/statistics, repair and settings
+evidence above). The same captures were also pulled to
+`D:\KX-QODER-VISUAL-HANDOFF-20261105\DEVICE-EVIDENCE-20261106\task16-phone-20261106\` for the
+owner handoff.
 
 The composition follows the owner KX orb/glass identity already used across the native app.
 No cache-specific owner reference image exists, so parity is style-level, not pixel-level.
@@ -134,8 +182,11 @@ No cache-specific owner reference image exists, so parity is style-level, not pi
 
 ## PR / CI / merge
 
-- PR: pending
-- CI: pending (exact-SHA API 26 / API 35 + build required before merge)
-- merged_sha: pending
-- remote_main_sha: pending
+- PR: `https://github.com/daynightae-cmyk/KX-Private-VPN/pull/21`
+- head SHA: `a384c053d6fc60252c54f48e66711d0303e38d01`
+- CI: run `42268090643` — build, device (26), device (35) and SonarCloud all SUCCESS
+  (earlier green run `42265090058` on `6e17887` covered the API 35 fix before evidence/captures)
+- merged_at: `2026-11-06T18:22:41Z`
+- merged_sha: `5746bc34c9e3702ce14c4426f89c2e99ddcff5c2`
+- remote_main_sha: `5746bc34c9e3702ce14c4426f89c2e99ddcff5c2`
 - next_task: TASK_17 Media Slim Studio
