@@ -18,6 +18,12 @@ if [[ ! "$sdk" =~ ^[0-9]+$ ]]; then
     exit 2
 fi
 if (( sdk >= 35 )); then
+    # The hosted AVD boots a 720x1280 skin at 480dpi = 240dp wide, below the owner's
+    # 360dp design minimum, so below-fold content becomes unreachable and the
+    # instrumented suite fails on layout, not behavior. Both API levels must run the
+    # tests at the same 411dp reference width (720px / 1.75 = 411.4dp).
+    adb_cmd shell wm size 720x1280
+    adb_cmd shell wm density 280
     printf '%s\n' "API${sdk}: headless screenrecord/framebuffer capture skipped (renderer instability), NOT visual PASS" > device-screenshots/capture-scope.txt
     adb_cmd shell am start -W -n com.knoux.kxprivatevpn/.MainActivity > device-screenshots/cold-start.txt
     adb_cmd shell wm size > device-screenshots/display-api35.txt
@@ -43,6 +49,19 @@ else
     adb_cmd shell wm density 280
     adb_cmd shell wm size > device-screenshots/display-411.txt
     adb_cmd shell wm density >> device-screenshots/display-411.txt
+fi
+# Never let an incorrectly sized emulator masquerade as a product regression.
+display_size="$(adb_cmd shell wm size | tr -d '\r' | awk -F'[:x]' '/:/{gsub(/ /,"",$2); gsub(/ /,"",$3); print $2" "$3}' | tail -n 1)"
+display_density="$(adb_cmd shell wm density | tr -d '\r' | awk -F':' '/:/{gsub(/ /,"",$2); print $2}' | tail -n 1)"
+read -r display_width display_height <<<"$display_size"
+logical_width="$(awk -v px="${display_width:-0}" -v dpi="${display_density:-1}" 'BEGIN { printf "%d", px * 160 / dpi }')"
+{
+    printf 'width=%s height=%s density=%s logical_width=%sdp\n' \
+        "${display_width:-unknown}" "${display_height:-unknown}" "${display_density:-unknown}" "$logical_width"
+} | tee device-screenshots/display-contract.txt
+if (( logical_width < 360 )); then
+    echo "Emulator logical width ${logical_width}dp is below the 360dp design minimum" >&2
+    exit 3
 fi
 timeout --kill-after=15s 8m bash ./gradlew "${gradle_flags[@]}" :app:connectedDebugAndroidTest -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true
 test_result=$?
