@@ -166,12 +166,15 @@ class SplitTunnelScreenTest {
     @Test fun searchFiltersByLabelAndReportsNoMatch() {
         screen(state())
 
-        compose.onNodeWithTag("split-search").performTextInput("whatsapp")
+        // Drive the field through the semantics replacement action. Clearing and then typing
+        // through the IME raced on the hosted API35 emulator: the field occasionally ended
+        // empty or unchanged, so split-no-match never rendered (flaky in runs 41906598533 and
+        // 42141963135, green in 42135553590). Filtering itself is still exercised end to end.
+        compose.onNodeWithTag("split-search").performTextReplacement("whatsapp")
         compose.onNodeWithTag("split-app-com.example.chat").performScrollTo().assertIsDisplayed()
         compose.onNodeWithTag("split-app-com.example.browser").assertDoesNotExist()
 
-        compose.onNodeWithTag("split-search").performTextClearance()
-        compose.onNodeWithTag("split-search").performTextInput("no such app")
+        compose.onNodeWithTag("split-search").performTextReplacement("no such app")
         compose.onNodeWithTag("split-no-match").performScrollTo().assertIsDisplayed()
     }
 
