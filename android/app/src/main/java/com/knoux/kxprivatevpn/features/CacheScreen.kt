@@ -128,9 +128,36 @@ fun CacheScreen(onBusy: (Boolean) -> Unit) {
     val model: CacheViewModel = viewModel()
     val state by model.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    var settingsFailed by remember { mutableStateOf(false) }
+    CacheScreenContent(
+        state = state,
+        onBusy = onBusy,
+        onScan = model::scan,
+        onRemove = model::remove,
+        onOpenSettings = {
+            settingsFailed = !runCatching { context.startActivity(cacheSystemSettingsIntent()) }
+                .isSuccess
+        },
+        settingsFailed = settingsFailed,
+    )
+}
+
+/**
+ * Stateless composition so the confirmation gate, the measured selection and the bilingual
+ * large-text layout can be exercised without a live cache or a real Settings launch.
+ */
+@Composable
+internal fun CacheScreenContent(
+    state: CacheState,
+    onBusy: (Boolean) -> Unit,
+    onScan: () -> Unit,
+    onRemove: (Set<String>) -> Unit,
+    onOpenSettings: () -> Unit,
+    settingsFailed: Boolean = false,
+) {
+    val context = LocalContext.current
     var selected by remember { mutableStateOf(emptySet<String>()) }
     var confirm by remember { mutableStateOf(false) }
-    var settingsFailed by remember { mutableStateOf(false) }
     val selectedBytes = state.preview?.files?.filter { it.path in selected }?.sumOf { it.bytes } ?: 0L
     LaunchedEffect(state.busy) { onBusy(state.busy) }
     BackHandler(enabled = state.busy) { }
@@ -155,10 +182,8 @@ fun CacheScreen(onBusy: (Boolean) -> Unit) {
         Text(stringResource(R.string.cache_scope))
         Text(stringResource(R.string.cache_other_apps_body), fontSize = 13.sp,
             lineHeight = 18.sp)
-        OutlinedButton(onClick = {
-            settingsFailed = !runCatching { context.startActivity(cacheSystemSettingsIntent()) }
-                .isSuccess
-        }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+        OutlinedButton(onClick = onOpenSettings,
+            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
             .testTag("cache-system-settings")) {
             Text(stringResource(R.string.cache_other_apps_action))
         }
@@ -171,7 +196,7 @@ fun CacheScreen(onBusy: (Boolean) -> Unit) {
                 android.text.format.Formatter.formatFileSize(context, value.removedFileBytes), value.skipped.size, value.failed.size))
             Text(stringResource(R.string.cache_bytes_note))
         }
-        OutlinedButton(onClick = { selected = emptySet(); model.scan() }, enabled = !state.busy,
+        OutlinedButton(onClick = { selected = emptySet(); onScan() }, enabled = !state.busy,
             modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("cache-scan")) { Text(stringResource(R.string.cache_scan)) }
         state.preview?.let { preview ->
             if (preview.limited) Text(stringResource(R.string.cache_limit))
@@ -204,6 +229,6 @@ fun CacheScreen(onBusy: (Boolean) -> Unit) {
             Text(stringResource(R.string.cache_selected_summary, selected.size,
                 android.text.format.Formatter.formatFileSize(context, selectedBytes)))
         } },
-        confirmButton = { TextButton(onClick = { confirm = false; model.remove(selected) }, modifier = Modifier.testTag("cache-confirm")) { Text(remove) } },
+        confirmButton = { TextButton(onClick = { confirm = false; onRemove(selected) }, modifier = Modifier.testTag("cache-confirm")) { Text(remove) } },
         dismissButton = { TextButton(onClick = { confirm = false }) { Text(cancel) } })
 }
