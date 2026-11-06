@@ -123,7 +123,7 @@ class RepairLabScreenTest {
             compose.onNodeWithTag("repair-card-$it").assertExists()
         }
         compose.onNodeWithTag("repair-services-count")
-            .assertTextEquals(text(R.string.repair_services_count, 5, 10))
+            .assertTextEquals(text(R.string.repair_services_count, 6, 10))
         // The compacted card announces the service once, with exactly one tiny status.
         val ready = text(R.string.repair_status_ready)
         val duplicateDescription = compose.onNodeWithTag("repair-card-duplicate")
@@ -238,18 +238,18 @@ class RepairLabScreenTest {
                 LocalLayoutDirection provides LayoutDirection.Ltr,
             ) {
                 Box(Modifier.fillMaxSize()) {
-                    RepairServiceRoute("repair/heavyweight", night = false, onBack = {})
+                    RepairServiceRoute("repair/media", night = false, onBack = {})
                 }
             }
         }
 
-        compose.onNodeWithText(context.getString(R.string.repair_service_heavyweight)).assertExists()
+        compose.onNodeWithText(context.getString(R.string.repair_service_media)).assertExists()
         compose.onNodeWithText(context.getString(R.string.repair_unavailable_body)).assertExists()
         compose.onNodeWithText(
             context.getString(R.string.repair_requires,
                 context.getString(R.string.repair_requires_saf)),
         ).assertExists()
         compose.onNodeWithText(context.getString(R.string.repair_unavailable)).assertExists()
-        capture("45-repair-unavailable-heavyweight")
+        capture("45-repair-unavailable-media")
     }
 }
