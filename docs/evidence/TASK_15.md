@@ -3,8 +3,8 @@
 **baseline_sha:** `1d2e499` (main after PR #19)
 **branch:** `task15-heavyweight-finder`
 **implementation_sha:** `6cc9d6d`
-**merged_sha:** pending
-**status:** CI_GREEN at `500ea67` — ready to merge
+**merged_sha:** `c54a361`
+**status:** MERGED — exact-SHA CI and post-merge `main` CI green
 
 ## Scope
 
@@ -108,6 +108,18 @@ API 35 skips are the two documented emulator-only cases, reported as SKIPPED, ne
 The CI artifacts contain all five `59*` captures; the API 35 English ranking capture was
 reviewed and shows the measured summary, filters, heatmap and ranking at 411dp.
 
+### Post-merge `main`
+
+PR #20 merged into `main` as `c54a3610d9ca255cadd5baa3fefc5fc1fe430ad8`. The post-merge CI
+run [`42204252025`](https://github.com/daynightae-cmyk/KX-Private-VPN/actions/runs/42204252025)
+at that exact SHA completed with all jobs `success`:
+
+| Job | Result | Duration |
+|---|---|---|
+| build | PASS | 3m09s |
+| device API 26 | PASS | 6m59s |
+| device API 35 | PASS | 9m14s |
+
 ## Permission tests
 
 - No tree: the screen asks for a folder and offers no scan; it never falls back to broad
@@ -151,7 +163,8 @@ was supplied.
 ## PR / CI / merge
 
 - PR: #20
-- CI: https://github.com/daynightae-cmyk/KX-Private-VPN/actions/runs/42201616729
-- merged_sha: pending
-- remote_main_sha: pending
+- CI: https://github.com/daynightae-cmyk/KX-Private-VPN/actions/runs/42201616729 (implementation)
+- Docs-head CI: https://github.com/daynightae-cmyk/KX-Private-VPN/actions/runs/42202987779 (`b1dbcd1`, green)
+- merged_sha: `c54a3610d9ca255cadd5baa3fefc5fc1fe430ad8`
+- remote_main_sha: `c54a361` (verified after merge)
 - next_task: TASK_16 Cache acceptance audit, then the remaining Repair services

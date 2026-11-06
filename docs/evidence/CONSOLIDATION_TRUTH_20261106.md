@@ -21,6 +21,7 @@ Pro service, store release, or visual parity that was not observed.
 | PR #18 | MERGED as `fa34b671c5975c1e54f0af4ef40d8d5286efd147` (parents `ae8b7b4` + `d4123d4`); verified by run `42146411681`; contains no production-source change |
 | PR #18 tree equality | `fa34b67^{tree}` = `d4123d4^{tree}` = `bea2138c7be1dfee36f6f4710d501d352cf1e5da` |
 | PR #19 | MERGED as `1d2e49948aa121c5c4e82a705958a8d313cdeb69` (parents `fa34b67` + `a73d71d`); head `a73d71d` verified by run `42192806914`; post-merge run `42197489233` all green; CI budget + docs only, no app or test source change |
+| PR #20 (TASK_15) | MERGED as `c54a3610d9ca255cadd5baa3fefc5fc1fe430ad8` (parents `1d2e499` + `b1dbcd1`); implementation `6cc9d6d`, head `b1dbcd1` verified by run `42202987779`; post-merge run `42204252025` all green |
 | Stashes | none |
 | Unreachable commits | none (two unreachable trees only) |
 
@@ -32,7 +33,9 @@ verification script, so the installed app APK bytes are unchanged by it.
 
 | Branch | Tip | Ahead of `origin/main` | Pushed | Disposition |
 |---|---|---|---|---|
-| `main` | `fa34b67` | 0 | yes | canonical |
+| `main` | `c54a361` | 0 | yes | canonical |
+| `task15-heavyweight-finder` | `b1dbcd1` | 0 | yes | merged via PR #20 |
+| `task16-cache-audit` | local | ahead | pending | TASK_16, this branch |
 | `fix/api35-emulator-stability` | `d4123d4` | 0 | yes | merged via PR #18 |
 | `codex/task-00-native-cinematic` | `4879c81` | 2 | yes | superseded by PR #17; patch preserved |
 | `feature/kx-touch-to-enter-physical-20261106` | `ae5861e` | 1 | yes | PR #15 closed as superseded; glyph identical; patch preserved |
@@ -137,9 +140,23 @@ completed on 2026-11-06 and is the final `main` gate:
 | device API 26 | PASS | 6m07s |
 | device API 35 | PASS | 9m25s |
 
-All three jobs reported `success`; no job was cancelled, rerun or skipped as a whole. This is
-the verified application state before TASK_15 starts. TASK_15 is recorded separately in
+All three jobs reported `success`; no job was cancelled, rerun or skipped as a whole. This was
+the verified application state before TASK_15 started. TASK_15 is recorded separately in
 `docs/evidence/TASK_15.md` and does not alter any earlier result in this table.
+
+### PR #20 (TASK_15) and current `main`
+
+PR #20 (`task15-heavyweight-finder`) merged as `c54a3610d9ca255cadd5baa3fefc5fc1fe430ad8`
+(parents `1d2e499` + `b1dbcd1`). Its head `b1dbcd1` passed run `42202987779` (build, device 26,
+device 35). The post-merge run `42204252025` at exact SHA `c54a361` is the current `main` gate:
+
+| Job | Result | Duration |
+|---|---|---|
+| build | PASS | 3m09s |
+| device API 26 | PASS | 6m59s |
+| device API 35 | PASS | 9m14s |
+
+`origin/main` is `c54a361`; TASK_16 is based on that verified state.
 
 ### Physical device — itel S686LN, Android 15 / API 35
 
