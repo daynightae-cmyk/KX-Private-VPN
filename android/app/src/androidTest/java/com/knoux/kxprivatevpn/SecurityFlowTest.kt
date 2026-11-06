@@ -1,7 +1,5 @@
 package com.knoux.kxprivatevpn
 
-import android.graphics.Bitmap
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.test.core.app.ActivityScenario
@@ -10,7 +8,6 @@ import com.knoux.kxprivatevpn.launch.LaunchPreferences
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
-import java.io.File
 
 /**
  * Real-device path: opening the Security Center reads VpnService, Settings.Secure,
@@ -48,11 +45,7 @@ class SecurityFlowTest {
                     .performScrollTo()
                     .assertTextEquals(strings(context).getString(R.string.security_state_unavailable))
                 compose.onNodeWithTag("security-hero").performScrollTo()
-                val folder = File(context.getExternalFilesDir(null), "identity-evidence").apply { mkdirs() }
-                File(folder, "24-security-center-device-light.png").outputStream().use { stream ->
-                    check(compose.onRoot().captureToImage().asAndroidBitmap()
-                        .compress(Bitmap.CompressFormat.PNG, 100, stream))
-                }
+                captureEvidence(context, compose, "24-security-center-device-light")
             }
         } finally {
             runBlocking { preferences.appearance(original.language, original.theme) }

@@ -14,7 +14,6 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -32,7 +31,6 @@ import com.knoux.kxprivatevpn.platform.storage.CachePreview
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
-import java.io.File
 import java.util.Locale
 
 /**
@@ -101,11 +99,7 @@ class CacheScreenContractTest {
 
     private fun capture(name: String) {
         compose.waitForIdle()
-        val output = File(context.getExternalFilesDir(null), "identity-evidence").apply { mkdirs() }
-        File(output, "$name.png").outputStream().use { stream ->
-            compose.onRoot().captureToImage().asAndroidBitmap()
-                .compress(android.graphics.Bitmap.CompressFormat.PNG, 100, stream)
-        }
+        captureEvidence(context, compose, name)
     }
 
     @Test fun confirmationReceivesExactlyTheSelectedPathsAndSettingsRouteFires() {
