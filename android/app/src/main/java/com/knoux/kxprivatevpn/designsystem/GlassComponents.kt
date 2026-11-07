@@ -9,7 +9,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,6 +36,25 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.knoux.kxprivatevpn.launch.IntroTimeline
+
+fun glassForeground(night: Boolean): Color =
+    if (night) Color(0xFFF7F3FF) else Color(0xFF171050)
+
+/** A screen's explicit mode owns Material controls as well as its custom glass. */
+@Composable
+fun KxGlassTheme(night: Boolean, content: @Composable () -> Unit) {
+    val foreground = glassForeground(night)
+    val scheme = if (night) darkColorScheme(
+        primary = Color(0xFF99EBFF), onPrimary = Color(0xFF101638),
+        onSurface = foreground, onBackground = foreground,
+    ) else lightColorScheme(
+        primary = Color(0xFF4420B3), onPrimary = Color.White,
+        onSurface = foreground, onBackground = foreground,
+    )
+    MaterialTheme(colorScheme = scheme) {
+        CompositionLocalProvider(LocalContentColor provides foreground, content = content)
+    }
+}
 
 /** Shared native glass surface used by sub-pages; layered gradient plus a light rim. */
 @Composable
@@ -56,13 +80,16 @@ fun GlassSurface(
         listOf(Color.White.copy(alpha = .92f), Color(0xFF8FDFFF).copy(alpha = .48f),
             Color(0xFFD8B9FF).copy(alpha = .72f))
     }
-    Column(
-        modifier.fillMaxWidth()
-            .background(Brush.linearGradient(fill), shape)
-            .border(1.dp, Brush.linearGradient(rim), shape)
-            .padding(contentPadding),
-        content = content,
-    )
+    // A standalone glass card must not inherit black text from an unrelated host theme.
+    CompositionLocalProvider(LocalContentColor provides glassForeground(night)) {
+        Column(
+            modifier.fillMaxWidth()
+                .background(Brush.linearGradient(fill), shape)
+                .border(1.dp, Brush.linearGradient(rim), shape)
+                .padding(contentPadding),
+            content = content,
+        )
+    }
 }
 
 @Composable
@@ -89,7 +116,12 @@ fun KxPageHeader(
     Column(modifier.fillMaxWidth()) {
         Row(Modifier.fillMaxWidth().heightIn(min = 56.dp),
             verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(48.dp), contentAlignment = Alignment.Center) {
+            Box(
+                Modifier.size(48.dp)
+                    .clickable(role = Role.Button, onClickLabel = backLabel, onClick = onBack)
+                    .semantics { contentDescription = backLabel },
+                contentAlignment = Alignment.Center,
+            ) {
                 Box(
                     Modifier.size(44.dp).clip(CircleShape)
                         .background(
@@ -100,9 +132,7 @@ fun KxPageHeader(
                                     Color(0xFFB6C9FF).copy(alpha = .34f)),
                             ),
                         )
-                        .border(1.dp, Color.White.copy(alpha = if (night) .38f else .85f), CircleShape)
-                        .clickable(role = Role.Button, onClickLabel = backLabel, onClick = onBack)
-                        .semantics { contentDescription = backLabel },
+                        .border(1.dp, Color.White.copy(alpha = if (night) .38f else .85f), CircleShape),
                     contentAlignment = Alignment.Center,
                 ) { BackChevron(foreground) }
             }

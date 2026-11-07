@@ -4,6 +4,7 @@ import android.text.format.Formatter
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -13,6 +14,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.semantics.Role
+import com.knoux.kxprivatevpn.designsystem.KxGlassTheme
+import com.knoux.kxprivatevpn.designsystem.glassForeground
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -58,6 +64,7 @@ fun AutopilotRoute(night: Boolean, onBack: () -> Unit) {
 }
 
 /** The stateless screen. Every value comes from [state]; every action is a callback. */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun AutopilotScreen(
     night: Boolean,
@@ -73,8 +80,11 @@ fun AutopilotScreen(
     onCancel: () -> Unit,
 ) {
     val context = LocalContext.current
-    val foreground = if (night) Color(0xFFF7F3FF) else Color(0xFF171050)
+    val foreground = glassForeground(night)
+    val warning = if (night) Color(0xFFFFD7A8) else Color(0xFF633600)
+    val error = if (night) Color(0xFFFFC9D0) else Color(0xFF941A32)
     val plan = state.plan
+    KxGlassTheme(night) {
     Box(Modifier.fillMaxSize().testTag("route-autopilot")) {
         Atmosphere(night, 0f)
         Column(
@@ -94,7 +104,7 @@ fun AutopilotScreen(
             }
             Text(
                 stringResource(R.string.autopilot_body),
-                fontSize = 14.sp, lineHeight = 20.sp, color = foreground.copy(alpha = .84f),
+                fontSize = 14.sp, lineHeight = 20.sp, color = foreground.copy(alpha = .92f),
             )
 
             GlassSurface(night) {
@@ -105,10 +115,10 @@ fun AutopilotScreen(
                 }
                 when {
                     state.failure -> Text(stringResource(R.string.autopilot_failure), fontSize = 13.sp,
-                        color = Color(0xFFFFB4B4), modifier = Modifier.testTag("autopilot-failure"))
+                        color = error, modifier = Modifier.testTag("autopilot-failure"))
                     plan == null -> Text(stringResource(R.string.autopilot_failure), fontSize = 13.sp)
                     plan.isEmpty -> Text(stringResource(R.string.autopilot_empty), fontSize = 13.sp,
-                        color = foreground.copy(alpha = .82f), modifier = Modifier.testTag("autopilot-empty"))
+                        color = foreground.copy(alpha = .92f), modifier = Modifier.testTag("autopilot-empty"))
                     else -> {
                         Text(
                             stringResource(R.string.autopilot_plan_summary, plan.targets.size,
@@ -119,40 +129,44 @@ fun AutopilotScreen(
                         Text(
                             stringResource(R.string.autopilot_selected, state.selected.size,
                                 Formatter.formatFileSize(context, plan.selectedBytes(state.selected))),
-                            fontSize = 13.sp, color = foreground.copy(alpha = .8f),
+                            fontSize = 13.sp, color = foreground.copy(alpha = .92f),
                             modifier = Modifier.testTag("autopilot-selected"),
                         )
                         if (!plan.cacheMeasured) {
                             Text(stringResource(R.string.autopilot_cache_unavailable), fontSize = 12.sp,
-                                color = Color(0xFFFFC98A), modifier = Modifier.testTag("autopilot-cache-unavailable"))
+                                color = warning, modifier = Modifier.testTag("autopilot-cache-unavailable"))
                         }
                         if (plan.cacheLimited) {
                             Text(stringResource(R.string.autopilot_cache_limited), fontSize = 11.sp,
-                                color = foreground.copy(alpha = .7f))
+                                color = foreground.copy(alpha = .92f))
                         }
                         Text(
                             stringResource(R.string.autopilot_measured_at,
                                 DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT)
                                     .format(Date(plan.measuredAtMillis))),
-                            fontSize = 11.sp, color = foreground.copy(alpha = .7f),
+                            fontSize = 11.sp, color = foreground.copy(alpha = .92f),
                             modifier = Modifier.testTag("autopilot-measured-at"),
                         )
                     }
                 }
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    maxItemsInEachRow = if (androidx.compose.ui.platform.LocalDensity.current.fontScale >= 1.3f) 1 else 3,
+                ) {
                     OutlinedButton(
                         onClick = onMeasure,
-                        enabled = !state.busy && !state.measuring,
+                        enabled = !state.busy && !state.measuring && !state.confirming,
                         modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("autopilot-measure"),
                     ) { Text(stringResource(R.string.autopilot_measure)) }
                     OutlinedButton(
                         onClick = onSelectAll,
-                        enabled = !state.busy && plan != null && !plan.isEmpty,
+                        enabled = state.canEdit && plan != null && !plan.isEmpty,
                         modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("autopilot-select-all"),
                     ) { Text(stringResource(R.string.autopilot_select_all)) }
                     OutlinedButton(
                         onClick = onClearSelection,
-                        enabled = !state.busy,
+                        enabled = state.canEdit,
                         modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("autopilot-clear"),
                     ) { Text(stringResource(R.string.autopilot_clear)) }
                 }
@@ -166,7 +180,7 @@ fun AutopilotScreen(
                         target = target,
                         plan = plan,
                         selected = target.id in state.selected,
-                        busy = state.busy,
+                        busy = !state.canEdit,
                         onToggle = { onToggle(target.id) },
                     )
                 }
@@ -174,7 +188,7 @@ fun AutopilotScreen(
 
             state.message?.let {
                 Text(stringResource(R.string.autopilot_no_selection), fontSize = 12.sp,
-                    color = Color(0xFFFFC98A), modifier = Modifier.testTag("autopilot-message"))
+                    color = warning, modifier = Modifier.testTag("autopilot-message"))
             }
 
             if (state.busy) {
@@ -191,7 +205,7 @@ fun AutopilotScreen(
                 GlassAction(
                     label = stringResource(R.string.autopilot_run),
                     modifier = Modifier.testTag("autopilot-run"),
-                    enabled = plan != null && !plan.isEmpty && state.selected.isNotEmpty(),
+                    enabled = state.canEdit && plan != null && !plan.isEmpty && state.selected.isNotEmpty(),
                 ) { onRequestRun() }
             }
 
@@ -215,19 +229,19 @@ fun AutopilotScreen(
                     )
                     if (receipt.skipped.isNotEmpty()) {
                         Text(stringResource(R.string.autopilot_receipt_skipped, receipt.skipped.size),
-                            fontSize = 12.sp, color = foreground.copy(alpha = .8f),
+                            fontSize = 12.sp, color = foreground.copy(alpha = .92f),
                             modifier = Modifier.testTag("autopilot-receipt-skipped"))
                     }
                     if (receipt.failed.isNotEmpty()) {
                         Text(stringResource(R.string.autopilot_receipt_failed, receipt.failed.size),
-                            fontSize = 12.sp, color = Color(0xFFFFB4B4),
+                            fontSize = 12.sp, color = error,
                             modifier = Modifier.testTag("autopilot-receipt-failed"))
                     }
                 }
             }
 
             Text(stringResource(R.string.autopilot_scope), fontSize = 11.sp, lineHeight = 16.sp,
-                color = foreground.copy(alpha = .72f), modifier = Modifier.testTag("autopilot-scope"))
+                color = foreground.copy(alpha = .92f), modifier = Modifier.testTag("autopilot-scope"))
             Spacer(Modifier.height(24.dp))
         }
     }
@@ -253,6 +267,7 @@ fun AutopilotScreen(
             },
         )
     }
+    }
 }
 
 @Composable
@@ -266,7 +281,8 @@ private fun AutopilotTargetCard(
     onToggle: () -> Unit,
 ) {
     val context = LocalContext.current
-    val foreground = if (night) Color(0xFFF7F3FF) else Color(0xFF171050)
+    val foreground = glassForeground(night)
+    val warning = if (night) Color(0xFFFFD7A8) else Color(0xFF633600)
     val isHistory = target.kind == AutopilotKind.HISTORY
     val title = if (isHistory) stringResource(R.string.autopilot_history_title) else target.title
     val detail = if (isHistory) {
@@ -275,21 +291,24 @@ private fun AutopilotTargetCard(
         stringResource(R.string.autopilot_cache_detail, Formatter.formatFileSize(context, target.bytes))
     }
     GlassSurface(night, modifier = Modifier.testTag("autopilot-target-$index")) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Checkbox(
-                checked = selected,
-                onCheckedChange = { onToggle() },
-                enabled = !busy,
-                modifier = Modifier.testTag("autopilot-select-$index"),
-            )
-            Column(Modifier.weight(1f)) {
-                Text(title, fontWeight = FontWeight.Bold, fontSize = 14.sp, maxLines = 2,
+        // One labelled checkbox target, not an unlabelled tiny checkbox beside inert text.
+        Row(
+            Modifier.fillMaxWidth().heightIn(min = 48.dp)
+                .toggleable(value = selected, enabled = !busy, role = Role.Checkbox) { onToggle() }
+                .testTag("autopilot-select-$index"),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Checkbox(checked = selected, onCheckedChange = null, enabled = !busy,
+                modifier = Modifier.size(48.dp))
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(title, color = foreground, fontWeight = FontWeight.Bold, fontSize = 14.sp,
+                    style = TextStyle(textDirection = if (isHistory) TextDirection.Content else TextDirection.ContentOrLtr),
                     modifier = Modifier.testTag("autopilot-target-title-$index"))
-                Text(detail, fontSize = 12.sp, color = foreground.copy(alpha = .78f),
+                Text(detail, fontSize = 12.sp, color = foreground.copy(alpha = .92f),
                     modifier = Modifier.testTag("autopilot-target-detail-$index"))
                 if (target.destructive) {
                     Text(stringResource(R.string.autopilot_destructive), fontSize = 11.sp,
-                        color = if (night) Color(0xFFFFC98A) else Color(0xFF8A5A00))
+                        color = warning, modifier = Modifier.testTag("autopilot-approval-$index"))
                 }
             }
         }

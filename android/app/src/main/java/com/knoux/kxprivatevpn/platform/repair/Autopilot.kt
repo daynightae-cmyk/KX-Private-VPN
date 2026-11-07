@@ -46,6 +46,9 @@ data class AutopilotPlan(
     val agedJournal: Int = 0,
     val agedUsage: Int = 0,
     val retentionDays: Int = ShieldRetention.DEFAULT_DAYS,
+    /** Exact, detached records approved by this measurement, not a future retention query. */
+    val approvedJournal: List<RepairJournalEntry> = emptyList(),
+    val approvedUsage: List<UsageRecord> = emptyList(),
 ) {
     val isEmpty: Boolean get() = targets.isEmpty()
     val cacheTargets: List<AutopilotTarget> get() = targets.filter { it.kind == AutopilotKind.CACHE_FILE }
@@ -97,8 +100,14 @@ object AutopilotPlanner {
                     destructive = true,
                 )
             }
-        val agedJournal = journal.count { ShieldRetention.isExpired(it.atMillis, nowMillis, days) }
-        val agedUsage = usage.count { ShieldRetention.isExpired(it.startedAtMillis, nowMillis, days) }
+        val approvedJournal = java.util.Collections.unmodifiableList(
+            journal.filter { ShieldRetention.isExpired(it.atMillis, nowMillis, days) },
+        )
+        val approvedUsage = java.util.Collections.unmodifiableList(
+            usage.filter { ShieldRetention.isExpired(it.startedAtMillis, nowMillis, days) },
+        )
+        val agedJournal = approvedJournal.size
+        val agedUsage = approvedUsage.size
         val targets = cacheTargets.toMutableList()
         if (agedJournal + agedUsage > 0) {
             targets += AutopilotTarget(
@@ -111,13 +120,27 @@ object AutopilotPlanner {
             )
         }
         return AutopilotPlan(
-            targets = targets,
+            targets = java.util.Collections.unmodifiableList(targets),
             measuredAtMillis = nowMillis,
             cacheMeasured = cache != null,
             cacheLimited = cache?.limited ?: false,
             agedJournal = agedJournal,
             agedUsage = agedUsage,
             retentionDays = days,
+            approvedJournal = approvedJournal,
+            approvedUsage = approvedUsage,
         )
+    }
+}
+
+/** Exact multiset subtraction: changed/new records survive, including excess duplicate copies. */
+internal fun <T> survivorsAfterApproval(current: List<T>, approved: List<T>): List<T> {
+    val remaining = approved.groupingBy { it }.eachCount().toMutableMap()
+    return current.filter { record ->
+        val count = remaining[record] ?: 0
+        if (count == 0) true else {
+            remaining[record] = count - 1
+            false
+        }
     }
 }

@@ -10,10 +10,13 @@ import com.knoux.kxprivatevpn.platform.repair.AutopilotReceipt
 import com.knoux.kxprivatevpn.platform.repair.RepairJournal
 import com.knoux.kxprivatevpn.platform.repair.RepairJournalEntry
 import com.knoux.kxprivatevpn.platform.repair.RepairOutcome
-import com.knoux.kxprivatevpn.platform.security.ShieldRetention
 import com.knoux.kxprivatevpn.platform.storage.CacheMaintenance
 import com.knoux.kxprivatevpn.platform.storage.CachePreview
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
@@ -35,7 +38,11 @@ data class AutopilotUiState(
     val receipt: AutopilotReceipt? = null,
     val failure: Boolean = false,
     val message: String? = null,
-)
+) {
+    val canEdit: Boolean get() = !loading && !measuring && !busy && !confirming
+    val canConfirm: Boolean get() = confirming && !loading && !measuring && !busy &&
+        plan != null && selected.isNotEmpty() && selected.all { id -> plan.targets.any { it.id == id } }
+}
 
 /**
  * KX Repair Autopilot.
@@ -65,6 +72,8 @@ class AutopilotViewModel(app: Application) : AndroidViewModel(app) {
 
     /** Reads the real cache and history and builds the proposal. No value is invented on failure. */
     fun measure() {
+        val current = mutable.value
+        if (current.busy || current.measuring || current.confirming) return
         mutable.update { it.copy(measuring = true, failure = false, message = null) }
         viewModelScope.launch {
             try {
@@ -92,26 +101,35 @@ class AutopilotViewModel(app: Application) : AndroidViewModel(app) {
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {
-                mutable.update { it.copy(loading = false, measuring = false, failure = true) }
+                lastCache = null
+                mutable.update { it.copy(loading = false, measuring = false, failure = true,
+                    plan = null, selected = emptySet()) }
             }
         }
     }
 
     fun toggle(id: String) = mutable.update { current ->
-        val next = if (id in current.selected) current.selected - id else current.selected + id
-        current.copy(selected = next, message = null)
+        if (!current.canEdit || current.plan?.targets?.none { it.id == id } != false) current
+        else current.copy(selected = if (id in current.selected) current.selected - id else current.selected + id,
+            message = null)
     }
 
     fun selectAll() = mutable.update { current ->
-        current.copy(selected = current.plan?.targets?.map { it.id }?.toSet() ?: emptySet(), message = null)
+        if (!current.canEdit) current else current.copy(
+            selected = current.plan?.targets?.map { it.id }?.toSet() ?: emptySet(), message = null)
     }
 
-    fun clearSelection() = mutable.update { it.copy(selected = emptySet(), confirming = false, message = null) }
+    fun clearSelection() = mutable.update {
+        if (!it.canEdit) it else it.copy(selected = emptySet(), message = null)
+    }
 
-    /** Running deletes data, so it always opens an explicit approval first. */
+    /** Selection and measurement are frozen for the life of this explicit approval. */
     fun requestRun() = mutable.update { current ->
-        if (current.selected.isEmpty()) current.copy(message = "no_selection")
-        else current.copy(confirming = true, message = null)
+        when {
+            !current.canEdit -> current
+            current.selected.isEmpty() -> current.copy(message = "no_selection")
+            else -> current.copy(confirming = true, message = null)
+        }
     }
 
     fun dismissConfirmation() = mutable.update { it.copy(confirming = false) }
@@ -128,12 +146,14 @@ class AutopilotViewModel(app: Application) : AndroidViewModel(app) {
      */
     fun confirmRun() {
         val snapshot = mutable.value
+        if (!snapshot.canConfirm) return
         val plan = snapshot.plan ?: return
-        val selected = snapshot.selected
-        if (selected.isEmpty()) return
+        val selected = snapshot.selected.toSet()
         val preview = lastCache
-        mutable.update { it.copy(confirming = false, busy = true, receipt = null, message = null) }
-        runJob = viewModelScope.launch {
+        if (!mutable.compareAndSet(snapshot,
+                snapshot.copy(confirming = false, busy = true, receipt = null, message = null))) return
+        // Enter try/finally before returning so an immediate Cancel cannot skip the receipt.
+        runJob = viewModelScope.launch(start = CoroutineStart.UNDISPATCHED) {
             var deleted = 0
             var bytes = 0L
             var pruned = 0
@@ -151,44 +171,50 @@ class AutopilotViewModel(app: Application) : AndroidViewModel(app) {
                             maintenance.removeApproved(preview, paths, approved = true) { partial, _ ->
                                 deleted = partial.deleted
                                 bytes = partial.removedFileBytes
+                                skipped.clear(); skipped += partial.skipped
+                                failed.clear(); failed += partial.failed
                             }
                         }
                         deleted = receipt.deleted
                         bytes = receipt.removedFileBytes
-                        skipped += receipt.skipped
-                        failed += receipt.failed
                     } catch (e: CancellationException) {
                         throw e
                     } catch (_: Exception) {
                         cacheFailed = true
+                        failed += "cache"
                     }
+                } else if (cacheTargets.isNotEmpty()) {
+                    cacheFailed = true
+                    failed += "cache_preview_unavailable"
                 }
                 if (AutopilotPlanner.HISTORY_ID in selected) {
                     try {
-                        withContext(Dispatchers.IO) {
-                            val now = System.currentTimeMillis()
-                            val days = plan.retentionDays
-                            val entries = journal.load()
-                            val kept = entries.filterNot { ShieldRetention.isExpired(it.atMillis, now, days) }
-                            pruned += entries.size - kept.size
-                            journal.replace(kept)
-                            val stored = usage.load()
-                            val survivors = stored.records.filterNot {
-                                ShieldRetention.isExpired(it.startedAtMillis, now, days)
-                            }
-                            pruned += stored.records.size - survivors.size
-                            if (stored.records.size != survivors.size) usage.saveSurvivors(survivors)
+                        // Each write+count is indivisible to cancellation; between stores Cancel wins.
+                        currentCoroutineContext().ensureActive()
+                        withContext(NonCancellable + Dispatchers.IO) {
+                            val removed = journal.removeApproved(plan.approvedJournal)
+                            pruned += removed
+                            if (removed != plan.agedJournal) skipped += "journal_changed"
+                        }
+                        currentCoroutineContext().ensureActive()
+                        withContext(NonCancellable + Dispatchers.IO) {
+                            val removed = usage.removeApproved(plan.approvedUsage)
+                            pruned += removed
+                            if (removed != plan.agedUsage) skipped += "usage_changed"
                         }
                     } catch (e: CancellationException) {
                         throw e
                     } catch (_: Exception) {
                         historyFailed = true
+                        failed += "history"
                     }
                 }
+                currentCoroutineContext().ensureActive()
             } catch (e: CancellationException) {
                 cancelled = true
                 throw e
             } finally {
+                cancelled = cancelled || !currentCoroutineContext().isActive
                 withContext(NonCancellable) {
                     val complete = !cancelled && !cacheFailed && !historyFailed &&
                         failed.isEmpty() && skipped.isEmpty()
@@ -213,20 +239,21 @@ class AutopilotViewModel(app: Application) : AndroidViewModel(app) {
                         cancelled || deleted + pruned > 0 || skipped.isNotEmpty() -> RepairOutcome.PARTIAL
                         else -> RepairOutcome.FAILED
                     }
-                    runCatching {
-                        journal.append(
-                            RepairJournalEntry(
-                                atMillis = System.currentTimeMillis(),
-                                serviceKey = "autopilot",
-                                action = "autopilot_run",
-                                outcome = outcome,
-                                items = deleted + pruned,
-                                bytes = bytes,
-                            ),
-                        )
-                    }
-                    mutable.update { it.copy(busy = false, receipt = receipt, selected = emptySet()) }
-                    measure()
+                    val journaled = runCatching {
+                        withContext(Dispatchers.IO) {
+                            journal.append(RepairJournalEntry(
+                                atMillis = System.currentTimeMillis(), serviceKey = "autopilot",
+                                action = "autopilot_run", outcome = outcome,
+                                items = deleted + pruned, bytes = bytes,
+                            ))
+                        }
+                    }.isSuccess
+                    val reported = if (journaled) receipt else receipt.copy(
+                        complete = false, failed = receipt.failed + "journal_write",
+                        detail = if (cancelled) "cancelled" else "partial",
+                    )
+                    mutable.update { it.copy(busy = false, receipt = reported, selected = emptySet()) }
+                    if (viewModelScope.isActive) measure()
                 }
             }
         }

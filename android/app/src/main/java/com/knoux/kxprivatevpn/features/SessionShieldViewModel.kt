@@ -9,7 +9,6 @@ import com.knoux.kxprivatevpn.data.config.ProfileStore
 import com.knoux.kxprivatevpn.data.stats.UsageStatsStore
 import com.knoux.kxprivatevpn.launch.LaunchPreferences
 import com.knoux.kxprivatevpn.platform.repair.RepairJournal
-import com.knoux.kxprivatevpn.platform.repair.RepairJournalEntry
 import com.knoux.kxprivatevpn.platform.security.ShieldAction
 import com.knoux.kxprivatevpn.platform.security.ShieldEntry
 import com.knoux.kxprivatevpn.platform.security.ShieldInventory
@@ -18,6 +17,11 @@ import com.knoux.kxprivatevpn.platform.security.ShieldReceipt
 import com.knoux.kxprivatevpn.platform.security.ShieldRetention
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -132,10 +136,14 @@ class SessionShieldViewModel(app: Application) : AndroidViewModel(app) {
 
     /** Revoking a profile removes a credential, so it always needs an explicit approval. */
     fun requestRevoke(profileId: String) = mutable.update {
-        it.copy(confirming = ShieldAction.REVOKE_PROFILE, pendingProfileId = profileId)
+        if (it.busy || it.loading || it.confirming != null) it
+        else it.copy(confirming = ShieldAction.REVOKE_PROFILE, pendingProfileId = profileId)
     }
 
-    fun requestErase() = mutable.update { it.copy(confirming = ShieldAction.ERASE_HISTORY) }
+    fun requestErase() = mutable.update {
+        if (it.busy || it.loading || it.confirming != null) it
+        else it.copy(confirming = ShieldAction.ERASE_HISTORY)
+    }
 
     fun dismissConfirmation() = mutable.update { it.copy(confirming = null, pendingProfileId = null) }
 
@@ -144,6 +152,7 @@ class SessionShieldViewModel(app: Application) : AndroidViewModel(app) {
      * gone. A store that still reports the profile is a failure, never a silent success.
      */
     fun confirmRevoke() {
+        if (mutable.value.busy || mutable.value.confirming != ShieldAction.REVOKE_PROFILE) return
         val profileId = mutable.value.pendingProfileId ?: return
         mutable.update { it.copy(confirming = null, pendingProfileId = null, busy = true) }
         viewModelScope.launch {
@@ -175,6 +184,7 @@ class SessionShieldViewModel(app: Application) : AndroidViewModel(app) {
      * touched. The receipt counts what was really removed.
      */
     fun confirmErase() {
+        if (mutable.value.busy || mutable.value.confirming != ShieldAction.ERASE_HISTORY) return
         mutable.update { it.copy(confirming = null, busy = true) }
         viewModelScope.launch {
             var removed = 0
@@ -203,40 +213,51 @@ class SessionShieldViewModel(app: Application) : AndroidViewModel(app) {
 
     /** Drops the history that fell out of the retention window. Profiles are never pruned. */
     fun pruneOld(days: Int = mutable.value.retentionDays) {
+        val state = mutable.value
+        if (state.busy || state.loading || state.confirming != null) return
         val window = days.coerceAtLeast(1)
         mutable.update { it.copy(busy = true, retentionDays = window) }
-        viewModelScope.launch {
+        viewModelScope.launch(start = CoroutineStart.UNDISPATCHED) {
             var pruned = 0
             var failed = false
+            val now = System.currentTimeMillis()
             try {
-                val now = System.currentTimeMillis()
-                val kept = mutableListOf<RepairJournalEntry>()
-                journal.load().forEach { entry ->
-                    if (ShieldRetention.isExpired(entry.atMillis, now, window)) pruned++ else kept += entry
+                val journalTargets = withContext(Dispatchers.IO) {
+                    journal.load().filter { ShieldRetention.isExpired(it.atMillis, now, window) }
                 }
-                journal.replace(kept)
-                val stored = usage.load()
-                val expired = stored.records.filter { ShieldRetention.isExpired(it.startedAtMillis, now, window) }
-                pruned += expired.size
-                if (expired.isNotEmpty()) {
-                    val survivors = stored.records.filterNot { it in expired }
-                    usage.saveSurvivors(survivors)
+                val usageTargets = usage.load().records.filter {
+                    ShieldRetention.isExpired(it.startedAtMillis, now, window)
                 }
+                currentCoroutineContext().ensureActive()
+                withContext(NonCancellable + Dispatchers.IO) {
+                    val removed = journal.removeApproved(journalTargets)
+                    pruned += removed
+                    failed = removed != journalTargets.size
+                }
+                currentCoroutineContext().ensureActive()
+                withContext(NonCancellable + Dispatchers.IO) {
+                    val removed = usage.removeApproved(usageTargets)
+                    pruned += removed
+                    failed = failed || removed != usageTargets.size
+                }
+                currentCoroutineContext().ensureActive()
             } catch (e: CancellationException) {
+                failed = true
                 throw e
             } catch (_: Exception) {
                 failed = true
+            } finally {
+                failed = failed || !currentCoroutineContext().isActive
+                withContext(NonCancellable) {
+                    val receipt = ShieldReceipt(
+                        action = ShieldAction.PRUNE_OLD, removed = 0, pruned = pruned,
+                        bytesFreed = 0L, atMillis = System.currentTimeMillis(),
+                        detail = if (failed) "prune_incomplete" else "pruned",
+                    )
+                    mutable.update { it.copy(busy = false, receipt = receipt) }
+                    if (viewModelScope.isActive) refresh()
+                }
             }
-            val receipt = ShieldReceipt(
-                action = ShieldAction.PRUNE_OLD,
-                removed = 0,
-                pruned = pruned,
-                bytesFreed = 0L,
-                atMillis = System.currentTimeMillis(),
-                detail = if (failed) "prune_incomplete" else "pruned",
-            )
-            mutable.update { it.copy(busy = false, receipt = receipt) }
-            refresh()
         }
     }
 

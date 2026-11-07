@@ -56,6 +56,22 @@ class RepairJournalCodecTest {
         RepairJournalCodec.decode("not json", 50)
     }
 
+    @Test fun mutationRejectsLossyOrAmbiguousInputButAcceptsExactRecords() {
+        val valid = RepairJournalCodec.encode(listOf(entry(1_000)))
+        assertEquals(listOf(entry(1_000)), RepairJournalCodec.decodeForMutation(valid))
+        for (raw in listOf("not json", "[null]", "[{}]", valid + "junk",
+            valid.replace("\"at\":1000", "\"at\":1000,\"at\":2000"),
+            valid.replace("\"items\":2", "\"items\":2.5"),
+            valid.replace("\"items\":2", "\"items\":2147483648"),
+            valid.replace("\"items\":2", "\"unknown\":2"))) {
+            try {
+                RepairJournalCodec.decodeForMutation(raw)
+                org.junit.Assert.fail("Invalid mutation input must not discard data")
+            } catch (_: IllegalArgumentException) { }
+            catch (_: IllegalStateException) { }
+        }
+    }
+
     @Test fun emptyArrayDecodesEmpty() {
         assertTrue(RepairJournalCodec.decode("[]", 50).isEmpty())
     }

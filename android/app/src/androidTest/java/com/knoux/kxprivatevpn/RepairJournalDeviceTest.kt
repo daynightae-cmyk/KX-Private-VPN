@@ -16,7 +16,7 @@ import java.util.UUID
  */
 class RepairJournalDeviceTest {
     @Test fun journalIsBoundedPersistentAndPreservesCorruptInput() {
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val context = InstrumentationRegistry.getInstrumentation().context
         val name = "repair-journal-${UUID.randomUUID()}.json"
         val file = File(context.noBackupFilesDir, name)
         val backup = File(file.path + ".bak")
@@ -39,9 +39,27 @@ class RepairJournalDeviceTest {
             assertEquals(3_000L, loaded.last().atMillis)
             assertEquals(RepairOutcome.PARTIAL, loaded.first().outcome)
 
+            val approved = journal.load().take(1)
+            val additional = RepairJournalEntry(6_000, "cache", "cache_remove", RepairOutcome.COMPLETE, 1, 1)
+            journal.append(additional)
+            assertEquals(1, journal.removeApproved(approved))
+            assertTrue(journal.load().contains(additional))
+            assertEquals(0, journal.removeApproved(approved))
+
             file.writeText("not a journal")
             assertTrue(journal.load().isEmpty())
-            assertEquals("not a journal", file.readText())
+            for (operation in listOf<() -> Unit>(
+                { journal.append(additional); Unit },
+                { journal.removeApproved(approved); Unit },
+                { journal.replace(emptyList()); Unit },
+            )) {
+                try {
+                    operation()
+                    org.junit.Assert.fail("Mutation must preserve corrupt originals")
+                } catch (_: IllegalArgumentException) { }
+                catch (_: IllegalStateException) { }
+                assertEquals("not a journal", file.readText())
+            }
         } finally {
             assertTrue(!file.exists() || file.delete())
             assertTrue(!backup.exists() || backup.delete())
