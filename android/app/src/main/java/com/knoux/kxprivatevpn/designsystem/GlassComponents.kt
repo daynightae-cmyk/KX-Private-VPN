@@ -26,6 +26,8 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
@@ -100,6 +102,67 @@ fun KxBrandLockup(night: Boolean, orbSize: Dp = 34.dp, modifier: Modifier = Modi
         Spacer(Modifier.width(7.dp))
         Text("KX", color = foreground, fontSize = 25.sp, fontWeight = FontWeight.ExtraBold,
             letterSpacing = 1.sp)
+    }
+}
+
+/** A section remains readable at large font scales instead of competing with its cards. */
+@Composable
+fun KxSectionHeader(title: String, night: Boolean, modifier: Modifier = Modifier) {
+    Text(title, modifier.padding(top = 12.dp, bottom = 4.dp).semantics { heading() },
+        color = glassForeground(night), fontSize = 18.sp, fontWeight = FontWeight.Bold)
+}
+
+/** One semantic action, explicit scope, and content-sized height; never implies a scan ran. */
+@Composable
+fun KxServiceCard(
+    title: String,
+    description: String,
+    capability: String,
+    actionLabel: String,
+    night: Boolean,
+    modifier: Modifier = Modifier,
+    glyph: @Composable () -> Unit,
+    onClick: () -> Unit,
+) {
+    val foreground = glassForeground(night)
+    val accent = if (night) Color(0xFF99EBFF) else Color(0xFF4420B3)
+    GlassSurface(night, modifier.clip(RoundedCornerShape(20.dp))
+        .heightIn(min = 48.dp)
+        .clickable(role = Role.Button, onClickLabel = actionLabel, onClick = onClick),
+        radius = 20.dp, contentPadding = PaddingValues(16.dp)) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Box(Modifier.size(32.dp), contentAlignment = Alignment.Center) { glyph() }
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(title, color = foreground, fontSize = 16.sp, lineHeight = 22.sp,
+                    fontWeight = FontWeight.Bold)
+                Text(description, color = foreground.copy(alpha = .88f),
+                    fontSize = 14.sp, lineHeight = 20.sp)
+                Text(capability, color = foreground.copy(alpha = .82f),
+                    fontSize = 12.sp, lineHeight = 18.sp)
+                Row(Modifier.fillMaxWidth().padding(top = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(actionLabel, Modifier.weight(1f), color = accent, fontSize = 14.sp,
+                        lineHeight = 20.sp, fontWeight = FontWeight.SemiBold)
+                    ForwardChevron(accent)
+                }
+            }
+            KxOrb(1f, IntroTimeline.frame(1f), Modifier.size(28.dp).clearAndSetSemantics {})
+        }
+    }
+}
+
+@Composable
+private fun ForwardChevron(color: Color) {
+    val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    Canvas(Modifier.size(16.dp)) {
+        val start = size.width * if (rtl) .66f else .34f
+        val end = size.width * if (rtl) .34f else .66f
+        drawLine(color, Offset(start, size.height * .22f), Offset(end, size.height * .5f),
+            2.dp.toPx(), StrokeCap.Round)
+        drawLine(color, Offset(end, size.height * .5f), Offset(start, size.height * .78f),
+            2.dp.toPx(), StrokeCap.Round)
     }
 }
 

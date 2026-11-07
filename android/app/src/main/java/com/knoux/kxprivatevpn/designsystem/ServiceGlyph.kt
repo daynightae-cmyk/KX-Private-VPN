@@ -35,6 +35,15 @@ fun KxServiceGlyph(kind: String, tint: Color, modifier: Modifier = Modifier) {
                 strokeWidth, StrokeCap.Round)
 
         when (kind) {
+            "apps" -> {
+                // Four app windows, distinct from the protection shield beside it.
+                listOf(.14f, .56f).forEach { x ->
+                    listOf(.14f, .56f).forEach { y ->
+                        drawRoundRect(tint, Offset(w * x, h * y), Size(w * .30f, h * .30f),
+                            CornerRadius(w * .07f), style = stroke)
+                    }
+                }
+            }
             "servers" -> {
                 drawCircle(tint, w * .32f, Offset(cx, cy), style = stroke)
                 drawOval(tint, Offset(w * .30f, h * .18f), Size(w * .40f, h * .64f),

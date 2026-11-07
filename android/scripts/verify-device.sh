@@ -91,7 +91,11 @@ if [ "$is_emulator" = true ]; then
 else
     printf 'ime_disable_applied=false\nreason=physical_device\n' > device-screenshots/ime-disabled.txt
 fi
-timeout --kill-after=15s 8m bash ./gradlew "${gradle_flags[@]}" :app:connectedDebugAndroidTest -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true
+# The suite is 210 instrumented tests. Run 42414269579 on API35 reached 201/210 with
+# 0 failures in 7m22s and was killed by the old 8m bound one second after the evidence
+# pull, so the bound no longer covered a healthy hosted run. 12m still bounds a real
+# hang without turning it into a passing run.
+timeout --kill-after=15s 12m bash ./gradlew "${gradle_flags[@]}" :app:connectedDebugAndroidTest -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true
 test_result=$?
 free -m > device-screenshots/host-memory-after.txt
 sudo dmesg > device-screenshots/host-kernel.txt 2>&1 || true
