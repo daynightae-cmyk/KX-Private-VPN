@@ -399,11 +399,23 @@ class VisualHardeningTest {
         compose.onNodeWithTag("continue").assertDoesNotExist()
         capture("identity-fixture-not-cold-launch-before-tap", mode)
         orb.assertIsEnabled().performClick()
+        val tappedAt = compose.mainClock.currentTime
         compose.mainClock.advanceTimeBy(200, ignoreFrameDuration = true)
         compose.runOnIdle { assertEquals("No navigation at 200ms", 0, enters) }
         orb.assertIsNotEnabled().performTouchInput { click() }
         capture("identity-fixture-not-cold-launch-mid-spin-200ms", mode)
-        compose.mainClock.advanceTimeBy(600)
+        // Keep the original 200ms assertion and additionally cover every frame up to
+        // 664ms from the tap, including clock time consumed by touch injection.
+        // A shortened 300-600ms spin must not satisfy this test.
+        while (compose.mainClock.currentTime - tappedAt < 664L) {
+            compose.mainClock.advanceTimeByFrame()
+            compose.runOnIdle { assertEquals("No delivery before the full spin", 0, enters) }
+            orb.assertIsDisplayed().assertIsNotEnabled()
+            compose.onNodeWithTag("continue").assertDoesNotExist()
+        }
+        assertEquals("sample the full pre-completion interval", 664L,
+            compose.mainClock.currentTime - tappedAt)
+        compose.mainClock.advanceTimeBy(136)
         compose.runOnIdle { assertEquals("One delivery after the 680ms spin", 1, enters) }
         orb.assertIsNotEnabled()
         capture("identity-fixture-not-cold-launch-after-spin", mode)

@@ -1,7 +1,10 @@
 package com.knoux.kxprivatevpn
 
 import android.graphics.Bitmap
+import android.os.PowerManager
 import android.os.SystemClock
+import android.provider.Settings
+import android.view.accessibility.AccessibilityManager
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
@@ -26,13 +29,35 @@ class PhysicalEntryTest {
             InstrumentationRegistry.getArguments().getString("kxPhysicalEntry") == "true")
         val folder = File(checkNotNull(instrumentation.targetContext.getExternalFilesDir(null)),
             "entry-${UUID.randomUUID()}").apply { check(mkdirs()) }
+        val startedAt = SystemClock.uptimeMillis()
+        val timings = mutableListOf("event\tuptimeSinceStartMs")
+        fun record(event: String): Long = SystemClock.uptimeMillis().also {
+            timings += "$event\t${it - startedAt}"
+        }
+        val context = instrumentation.targetContext
+        val animatorScale = Settings.Global.getFloat(context.contentResolver,
+            Settings.Global.ANIMATOR_DURATION_SCALE, 1f)
+        val powerSave = context.getSystemService(PowerManager::class.java).isPowerSaveMode
+        val touchExploration = context.getSystemService(AccessibilityManager::class.java)
+            .isTouchExplorationEnabled
+        File(folder, "motion-policy.txt").writeText(
+            "animatorScale=$animatorScale\npowerSave=$powerSave\ntouchExploration=$touchExploration\n")
+        // Do not change the owner's settings or silently pass a reduced-motion capture
+        // as evidence of the normal spin. Reduced motion has separate deterministic tests.
+        assertTrue("normal-spin evidence requires scale=1, no power saver or touch exploration",
+            animatorScale == 1f && !powerSave && !touchExploration)
         fun capture(name: String) {
-            val bitmap = instrumentation.uiAutomation.takeScreenshot()
-            assertNotNull("native window screenshot", bitmap)
-            File(folder, "$name.png").outputStream().use {
-                check(bitmap.compress(Bitmap.CompressFormat.PNG, 100, it))
+            record("$name:screenshot-start")
+            val bitmap = checkNotNull(instrumentation.uiAutomation.takeScreenshot())
+            record("$name:screenshot-returned")
+            try {
+                File(folder, "$name.png").outputStream().use {
+                    check(bitmap.compress(Bitmap.CompressFormat.PNG, 100, it))
+                }
+            } finally {
+                bitmap.recycle()
+                record("$name:png-saved")
             }
-            bitmap.recycle()
         }
         // Presence, not clickability: the product deliberately disables the emblem the
         // instant a tap is accepted (double-tap protection during the 680ms spin), so a
@@ -76,44 +101,57 @@ class PhysicalEntryTest {
             }
             return condition()
         }
-        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
-            // These are real elapsed-time native window samples, not rendered mockups.
-            capture("01-launch-window")
-            SystemClock.sleep(350)
-            capture("02-arrival")
-            SystemClock.sleep(1000)
-            capture("03-atmosphere")
-            assertTrue("entry becomes operable", waitFor(15_000) { orb()?.isEnabled == true })
-            capture("04-explicit-entry")
-            SystemClock.sleep(850)
-            assertNotNull("no automatic navigation after the intro", orb())
-            check(orb()!!.performAction(AccessibilityNodeInfo.ACTION_CLICK))
-            SystemClock.sleep(120)
-            capture("05-rotation-start")
-            // Mid-spin samples are visual evidence, not an accessibility assertion: the
-            // product disables the emblem the instant the tap is accepted, and API-level
-            // accessibility caches disagree about the disabled node (stale on some phones,
-            // live on emulators whose presenter can also repeat the last presented buffer).
-            // The asserted contracts are: no navigation before the explicit tap (above) and
-            // Home delivered after the spin (below); the frames prove the gate mid-rotation.
-            SystemClock.sleep(180)
-            capture("06-rotation-middle")
-            assertTrue("Home content appears after the rotation", waitFor(5000) { homeVisible() })
-            capture("07-home")
-            scenario.recreate()
-            assertTrue("Home is restored after recreation", waitFor(5000) { homeVisible() })
-            scenario.moveToState(Lifecycle.State.CREATED)
-            scenario.moveToState(Lifecycle.State.RESUMED)
-            assertTrue("Home is visible after resume", waitFor(5000) { homeVisible() })
-            assertFalse("no entry gate after resume", orb()?.isEnabled == true)
-            capture("08-resumed")
+        try {
+            ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+                // These are real elapsed-time native window samples, not rendered mockups.
+                capture("01-launch-window")
+                SystemClock.sleep(350)
+                capture("02-arrival")
+                SystemClock.sleep(1000)
+                capture("03-atmosphere")
+                assertTrue("entry becomes operable", waitFor(15_000) { orb()?.isEnabled == true })
+                capture("04-explicit-entry")
+                SystemClock.sleep(850)
+                assertNotNull("no automatic navigation after the intro", orb())
+                val target = checkNotNull(orb())
+                val tapAt = record("tap-request")
+                check(target.performAction(AccessibilityNodeInfo.ACTION_CLICK))
+                record("tap-returned")
+                SystemClock.sleep(120)
+                // Observe BEFORE screenshot/compression/I/O, which can exceed the spin itself.
+                // A missed real-time sampling window must fail as incomplete evidence, not pass.
+                record("rotation-check-start")
+                val root = instrumentation.uiAutomation.rootInActiveWindow
+                val rotatingOrb = findOrb(root)
+                val homeAlreadyPresent = containsLabel(root, homeLabels) && containsLabel(root, serverLabels)
+                val sampledAt = record("rotation-check-end")
+                assertTrue("rotation sample missed the 680ms window: ${sampledAt - tapAt}ms; evidence incomplete",
+                    sampledAt - tapAt < 680)
+                assertNotNull("entry remains visible during rotation", rotatingOrb)
+                assertFalse("Home must not appear during the spin", homeAlreadyPresent)
+                capture("05-rotation-start")
+                SystemClock.sleep(180)
+                capture("06-rotation-middle")
+                assertTrue("Home content appears after the rotation", waitFor(5000) { homeVisible() })
+                capture("07-home")
+                scenario.recreate()
+                assertTrue("Home is restored after recreation", waitFor(5000) { homeVisible() })
+                scenario.moveToState(Lifecycle.State.CREATED)
+                scenario.moveToState(Lifecycle.State.RESUMED)
+                assertTrue("Home is visible after resume", waitFor(5000) { homeVisible() })
+                assertFalse("no entry gate after resume", orb()?.isEnabled == true)
+                capture("08-resumed")
+            }
+        } finally {
+            File(folder, "timing.tsv").writeText(timings.joinToString("\n", postfix = "\n"))
+            println("KX_PRIVATE_ENTRY_CAPTURE_DIR=${folder.name}")
         }
         File(folder, "provenance.txt").writeText(
             "Real MainActivity; real elapsed time; no Compose test clock.\n" +
                 "No test-owned store writes, VPN actions, permissions or deletion.\n" +
                 "01 is after ActivityScenario launch, not proof of every system-splash frame.\n" +
-                "05/06 are mid-spin visual samples; a stalled presenter may repeat the last buffer.\n" +
-                "Native navigation semantics covered separately by instrumentation.\n")
-        println("KX_PRIVATE_ENTRY_CAPTURE_DIR=${folder.name}")
+                "05/06 are sequential post-tap screenshots; names do not guarantee animation phase.\n" +
+                "See timing.tsv for screenshot and PNG-write times; semantic rotation check precedes capture.\n" +
+                "Controlled-clock launcher regression checks are separate from these real-time samples.\n")
     }
 }
