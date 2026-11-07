@@ -144,7 +144,9 @@ instrumented suite.
 ## PR and CI
 
 - PR: <https://github.com/daynightae-cmyk/KX-Private-VPN/pull/24>
-- CI runs on the exact SHA are recorded in `docs/evidence/task18/ci/` once the merge gate passed.
+- head SHA: `e4a41783c0729d0e5f44d40c944c8136ef5810fc`
+- CI: run `42325382831` — build, device (26), device (35) all SUCCESS.
+- merged_sha: `e47d8ee5418217f275809188c8da7ae1471af077`
 
 ## Next task
 

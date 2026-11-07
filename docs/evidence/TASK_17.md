@@ -3,8 +3,8 @@
 **baseline_sha:** `597342e` (main after TASK_16 / PR #21)
 **branch:** `task17-media-slim`
 **implementation_sha:** `b352fe0` (merged main `597342e` as `9ad106c`)
-**merged_sha:** pending
-**status:** GREEN locally — JVM, lint, API 26 emulator and physical API 35 phone verified; exact-SHA CI and merge pending
+**merged_sha:** `bc590b5586b064c31cef21c6204b24f2a92e2ff5`
+**status:** GREEN — merged to main; JVM, lint, API 26 emulator, physical API 35 phone and exact-SHA CI (run `42312482260`) all verified.
 
 ## Scope and truthfulness
 
@@ -201,9 +201,8 @@ captures, not design renders.
 
 ## PR / CI / merge
 
-- PR: pending
-- head SHA: pending (implementation `b352fe0`; this evidence commit follows)
-- CI: pending — required exact-SHA build, JVM/lint, device (26), device (35)
-- merged_sha: pending
-- remote_main_sha: pending
-- next_task: TASK_18 SAF download organizer / export / confirmed delete
+- PR: https://github.com/daynightae-cmyk/KX-Private-VPN/pull/22
+- head SHA: `b726fe7f06022dbbbf69321535d430330a4b3890`
+- CI: run `42312482260` — build, device (26), device (35) all SUCCESS
+- merged_sha: `bc590b5586b064c31cef21c6204b24f2a92e2ff5`
+- next_task: TASK_18 (merged as `e47d8ee`, PR #24)
