@@ -103,9 +103,9 @@ fun KxHomeScreen(
                     Text(vpnIssueText(issue), fontSize = 12.sp,
                         modifier = Modifier.testTag("vpn-issue"))
                     TextButton(
-                        onClick = onDismissIssue,
+                        onClick = if (issue == com.knoux.kxprivatevpn.platform.vpn.VpnIssue.STOP_FAILED) onDisconnect else onDismissIssue,
                         modifier = Modifier.heightIn(min = 48.dp).testTag("vpn-dismiss-issue"),
-                    ) { Text(stringResource(R.string.dismiss)) }
+                    ) { Text(stringResource(if (issue == com.knoux.kxprivatevpn.platform.vpn.VpnIssue.STOP_FAILED) R.string.retry else R.string.dismiss)) }
                 }
             }
             Spacer(Modifier.height(16.dp))
@@ -162,10 +162,12 @@ private fun HomeHero(
     onSession: () -> Unit,
 ) {
     val foreground = if (night) Color(0xFFF7F3FF) else Color(0xFF171050)
-    val status = when (vpn.phase) {
-        VpnPhase.CONNECTED -> stringResource(R.string.connected)
-        VpnPhase.CONNECTING -> stringResource(R.string.connecting)
-        VpnPhase.DISCONNECTING -> stringResource(R.string.disconnecting)
+    val stopFailed = vpn.issue == com.knoux.kxprivatevpn.platform.vpn.VpnIssue.STOP_FAILED
+    val status = when {
+        stopFailed -> stringResource(R.string.unknown_value)
+        vpn.phase == VpnPhase.CONNECTED -> stringResource(R.string.connected)
+        vpn.phase == VpnPhase.CONNECTING -> stringResource(R.string.connecting)
+        vpn.phase == VpnPhase.DISCONNECTING -> stringResource(R.string.disconnecting)
         else -> stringResource(R.string.disconnected)
     }
     Column(
@@ -174,19 +176,19 @@ private fun HomeHero(
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         Box(Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
-            val orbEnabled = !busy && when (vpn.phase) {
+            val orbEnabled = !busy && (stopFailed || when (vpn.phase) {
                 VpnPhase.CONNECTED -> true
                 VpnPhase.IDLE, VpnPhase.ERROR -> profileName != null
                 else -> false
-            }
+            })
             val actionLabel = stringResource(
-                if (vpn.phase == VpnPhase.CONNECTED) R.string.disconnect else R.string.connect)
+                if (vpn.phase == VpnPhase.CONNECTED || stopFailed) R.string.disconnect else R.string.connect)
             KxOrb(1f, IntroTimeline.frame(1f), Modifier.size(176.dp)
                 .testTag("vpn-orb-action")
                 .semantics { contentDescription = actionLabel }
                 .clickable(enabled = orbEnabled, role = Role.Button,
                     onClick = {
-                        if (vpn.phase == VpnPhase.CONNECTED) onDisconnect()
+                        if (vpn.phase == VpnPhase.CONNECTED || stopFailed) onDisconnect()
                         else onConnect()
                     }))
             StatusPill(
@@ -223,7 +225,11 @@ private fun HomeHero(
             VpnPhase.CONNECTING, VpnPhase.DISCONNECTING -> {
                 LinearProgressIndicator(Modifier.fillMaxWidth().padding(horizontal = 28.dp))
             }
-            else -> {
+            else -> if (stopFailed) {
+                GlassAction(stringResource(R.string.disconnect),
+                    Modifier.fillMaxWidth().testTag("vpn-disconnect"), enabled = !busy,
+                ) { onDisconnect() }
+            } else {
                 GlassAction(
                     stringResource(R.string.connect),
                     Modifier.fillMaxWidth().testTag("vpn-connect"),

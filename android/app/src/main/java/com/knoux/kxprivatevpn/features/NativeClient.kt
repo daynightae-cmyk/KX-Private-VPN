@@ -95,6 +95,10 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                 )
                 return@CompositionLocalProvider
             }
+            if (route == "pro") {
+                ProRoute(night, onBack = back)
+                return@CompositionLocalProvider
+            }
             if (route == "servers") {
                 ServerSelectionRoute(state, model, night, back) { navigate("import") }
                 return@CompositionLocalProvider
@@ -208,10 +212,10 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                         }
                         "import" -> ImportScreen(state, model)
                         "servers" -> ProfileList(state, model)
-                        "settings" -> PreferenceScreen(state, model)
+                        "settings" -> PreferenceScreen(state, model, onOpenPro = { navigate("pro") })
                         "cache" -> CacheScreen { repairBusy = it }
                         "network" -> NetworkScreen()
-                        "session" -> VpnSessionScreen(vpn) { model.disconnectVpn() }
+                        "session" -> VpnSessionScreen(vpn, verifyPath = model::verifyVpnPath) { model.disconnectVpn() }
                         else -> {
                             KxOrb(1f, IntroTimeline.frame(1f), Modifier.size(210.dp).align(Alignment.CenterHorizontally))
                             Text(stringResource(when (vpn.phase) {
@@ -329,9 +333,13 @@ private fun ProfileList(state: ClientState, model: ClientViewModel) {
 }
 
 @Composable
-private fun PreferenceScreen(state: ClientState, model: ClientViewModel) {
+private fun PreferenceScreen(state: ClientState, model: ClientViewModel, onOpenPro: () -> Unit) {
     CrystalPanel {
         Text(stringResource(R.string.local_account))
+        OutlinedButton(onClick = onOpenPro, enabled = !state.busy,
+            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("open-pro")) {
+            Text(stringResource(R.string.pro_title))
+        }
         Text(stringResource(R.string.language), fontWeight = FontWeight.Bold)
         listOf("system" to stringResource(R.string.system_default), "en" to "English", "ar" to "العربية").forEach { (id, label) ->
             Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).selectable(

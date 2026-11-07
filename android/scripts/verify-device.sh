@@ -91,8 +91,15 @@ if [ "$is_emulator" = true ]; then
 else
     printf 'ime_disable_applied=false\nreason=physical_device\n' > device-screenshots/ime-disabled.txt
 fi
-timeout --kill-after=15s 8m bash ./gradlew "${gradle_flags[@]}" :app:connectedDebugAndroidTest -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true
+# The VPN/Pro slice grew the full suite to 230 tests. Run 42353717147 on API35
+# was still progressing at 217/230 (zero assertion failures) when the old 8m
+# budget killed Gradle with 124. Include compile/install overhead without
+# skipping tests or retrying failures; timeout remains a failing result.
+timeout --kill-after=15s 12m bash ./gradlew "${gradle_flags[@]}" :app:connectedDebugAndroidTest -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true
 test_result=$?
+if [ "$test_result" -eq 124 ]; then
+    printf 'instrumentation_timeout=true\ngradle_exit_code=124\nresult=NOT_PASSED\n' > device-screenshots/test-timeout.txt
+fi
 free -m > device-screenshots/host-memory-after.txt
 sudo dmesg > device-screenshots/host-kernel.txt 2>&1 || true
 # A lost emulator produces an empty <failure> element and a truncated test count.

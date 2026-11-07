@@ -84,7 +84,9 @@ fun VpnHomePanel(
                 LinearProgressIndicator(Modifier.fillMaxWidth())
                 Text(stringResource(if (vpn.phase == VpnPhase.CONNECTING) R.string.connecting else R.string.disconnecting))
             }
-            else -> {
+            else -> if (vpn.issue == VpnIssue.STOP_FAILED) {
+                GlassAction(stringResource(R.string.disconnect), Modifier.testTag("vpn-disconnect")) { onDisconnect() }
+            } else {
                 GlassAction(
                     stringResource(R.string.connect),
                     Modifier.testTag("vpn-connect"), enabled = selected != null && !busy,
@@ -100,15 +102,19 @@ fun VpnHomePanel(
         CrystalPanel {
             Text(vpnIssueText(issue), modifier = Modifier.testTag("vpn-issue"))
             TextButton(
-                onClick = onDismissIssue,
+                onClick = if (issue == VpnIssue.STOP_FAILED) onDisconnect else onDismissIssue,
                 modifier = Modifier.heightIn(min = 48.dp).testTag("vpn-dismiss-issue"),
-            ) { Text(stringResource(R.string.dismiss)) }
+            ) { Text(stringResource(if (issue == VpnIssue.STOP_FAILED) R.string.retry else R.string.dismiss)) }
         }
     }
 }
 
 @Composable
-fun VpnSessionScreen(vpn: VpnState, onDisconnect: () -> Unit) {
+fun VpnSessionScreen(
+    vpn: VpnState,
+    verifyPath: (suspend (String, Boolean) -> com.knoux.kxprivatevpn.platform.vpn.VpnPathEvidence)? = null,
+    onDisconnect: () -> Unit,
+) {
     val context = LocalContext.current
     val session = vpn.session
     val link by produceState(VpnLinkInfo(), vpn.phase) {
@@ -177,11 +183,14 @@ fun VpnSessionScreen(vpn: VpnState, onDisconnect: () -> Unit) {
             Text(stringResource(R.string.android_link_absent), modifier = Modifier.testTag("session-link-absent"))
         }
     }
-    if (vpn.phase == VpnPhase.CONNECTED || vpn.phase == VpnPhase.DISCONNECTING) {
+    if (verifyPath != null) androidx.compose.runtime.key(session.profileId, session.startedAtMillis, vpn.phase) {
+        VpnPathPanel(enabled = vpn.phase == VpnPhase.CONNECTED, verify = verifyPath)
+    }
+    if (vpn.phase == VpnPhase.CONNECTED || vpn.phase == VpnPhase.DISCONNECTING || vpn.issue == VpnIssue.STOP_FAILED) {
         GlassAction(
             stringResource(R.string.disconnect),
             Modifier.testTag("session-disconnect"),
-            enabled = vpn.phase == VpnPhase.CONNECTED,
+            enabled = vpn.phase == VpnPhase.CONNECTED || vpn.issue == VpnIssue.STOP_FAILED,
         ) { onDisconnect() }
     }
     vpn.issue?.let { issue ->

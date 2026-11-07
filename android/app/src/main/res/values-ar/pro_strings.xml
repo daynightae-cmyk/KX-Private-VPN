@@ -1,0 +1,27 @@
+<resources>
+    <string name="pro_title">تفعيل Pro</string>
+    <string name="pro_scope">يمكنك إدارة ترخيص Pro هنا. التفعيل لا يعني توفر خدمة أتمتة مكتملة. تظل حماية VPN الأساسية والميزات المجانية الحالية مجانية.</string>
+    <string name="pro_online_only">يلزم الاتصال بالإنترنت: يجب أن يصرّح الخادم بكل عملية Pro من جديد. هذه الشاشة ليست تفعيلًا محفوظًا.</string>
+    <string name="pro_not_checked">لم يُفحص الترخيص. حدّث حالته أو أدخل رمزًا عندما تكون جاهزًا.</string>
+    <string name="pro_unconfigured">التفعيل غير مُعدّ في هذا الإصدار. لن يُرسل أي طلب إلى خادم Pro. يلزم إصدار بخادم معتمد.</string>
+    <string name="pro_unavailable">تعذر الاتصال بخدمة التفعيل. لم يُمنح تصريح Pro. تحقق من اتصالك ثم حاول مجددًا.</string>
+    <string name="pro_inactive">لم يُؤكَّد وجود ترخيص نشط. قد يكون الرمز أو الترخيص غير صالح أو منتهيًا أو ملغًى. راجع جهة الإصدار قبل المحاولة مجددًا.</string>
+    <string name="pro_invalid">إعداد التفعيل أو الرمز أو استجابة الخادم غير صالحة. يظل الوصول مرفوضًا. تحقق من الرمز أو تواصل مع جهة الإصدار.</string>
+    <string name="pro_rate_limited">طلبات كثيرة جدًا. يظل الوصول مرفوضًا. انتظر قبل المحاولة مجددًا.</string>
+    <string name="pro_identity_unavailable">تعذرت قراءة هوية التثبيت المحمية. يظل الوصول مرفوضًا ولم تُستبدل الهوية. تواصل مع الدعم قبل إعادة ضبط بيانات التطبيق.</string>
+    <string name="pro_expired">انتهت صلاحية الترخيص. لم يُمنح تصريح Pro. تواصل مع جهة الإصدار للتجديد.</string>
+    <string name="pro_revoked">أُلغي الترخيص. لم يُمنح تصريح Pro. تواصل مع جهة الإصدار.</string>
+    <string name="pro_active_snapshot">آخر فحص عبر الإنترنت: الترخيص نشط. هذه لقطة للحالة وليست تصريحًا لعملية لاحقة.</string>
+    <string name="pro_expiry">انتهاء الصلاحية حسب الخادم: %1$s</string>
+    <string name="pro_checking">جارٍ الاتصال بخدمة التفعيل…</string>
+    <string name="pro_refresh">تحديث حالة الترخيص</string>
+    <string name="pro_code">رمز التفعيل</string>
+    <string name="pro_code_hint">٦٤ حرفًا: الأحرف اللاتينية الصغيرة من a إلى f والأرقام من 0 إلى 9.</string>
+    <string name="pro_redeem">استخدام الرمز</string>
+    <string name="pro_code_privacy">يُمسح الرمز من هذا الحقل عند إرساله. ويُرسل فقط إلى خدمة التفعيل المُعدّة، مرتبطًا بهذا التثبيت.</string>
+    <string name="pro_contact">طلب رمز عبر واتساب</string>
+    <string name="pro_contact_request">مرحبًا، أود الاستفسار عن رمز تفعيل Pro لتطبيق KX Private VPN.</string>
+    <string name="pro_contact_hint">يفتح طلبًا عامًا لتراجعه وترسله بنفسك. لا يتضمن أي رمز أو بيانات اعتماد أو معرّف تثبيت.</string>
+    <string name="pro_contact_absent">لا توجد جهة اتصال واتساب معتمدة في هذا الإصدار. طلب الرموز غير متاح.</string>
+    <string name="pro_contact_error">لا يوجد تطبيق يمكنه فتح رابط التواصل. لم يُرسل أي شيء.</string>
+</resources>

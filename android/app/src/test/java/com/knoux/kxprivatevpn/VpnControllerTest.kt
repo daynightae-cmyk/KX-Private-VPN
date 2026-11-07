@@ -275,6 +275,20 @@ class VpnControllerTest {
         assertEquals(VpnPhase.IDLE, controller.state.value.phase)
     }
 
+    @Test fun preparationErrorsCannotEraseUnresolvedBackendOwnership() = runTest {
+        val gateway = FakeGateway().apply { stopFailure = IllegalStateException("still owned") }
+        val controller = controller(gateway)
+        controller.connect(profile)
+        runCurrent()
+        controller.disconnect()
+        runCurrent()
+        listOf(controller::reportNoProfile, controller::reportConsentDenied, controller::reportStartFailed).forEach { report ->
+            report()
+            assertEquals(VpnIssue.STOP_FAILED, controller.state.value.issue)
+            assertEquals(profile.id, controller.state.value.session?.profileId)
+        }
+    }
+
     @Test fun restoreClaimsConnectionOnlyWhenBackendIsUp() = runTest {
         val gateway = FakeGateway()
         val controller = controller(gateway)
