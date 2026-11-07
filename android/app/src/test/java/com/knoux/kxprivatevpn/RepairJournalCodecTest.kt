@@ -56,6 +56,38 @@ class RepairJournalCodecTest {
         RepairJournalCodec.decode("not json", 50)
     }
 
+    @Test fun mutationRejectsLossyOrAmbiguousInputButAcceptsExactRecords() {
+        val valid = RepairJournalCodec.encode(listOf(entry(1_000)))
+        assertEquals(listOf(entry(1_000)), RepairJournalCodec.decodeForMutation(valid))
+        for (raw in listOf("not json", "[null]", "[{}]", valid + "junk",
+            valid.replace("\"at\":1000", "\"at\":1000,\"at\":2000"),
+            valid.replace("\"items\":2", "\"items\":2.5"),
+            valid.replace("\"items\":2", "\"items\":2147483648"),
+            valid.replace("\"items\":2", "\"unknown\":2"))) {
+            try {
+                RepairJournalCodec.decodeForMutation(raw)
+                org.junit.Assert.fail("Invalid mutation input must not discard data")
+            } catch (_: IllegalArgumentException) { }
+            catch (_: IllegalStateException) { }
+        }
+    }
+
+    @Test fun mutationRejectsUnpairedSurrogatesButPreservesSupplementaryCharacters() {
+        val valid = entry(1_000, service = "service-\uD801\uDC00")
+        assertEquals(listOf(valid), RepairJournalCodec.decodeForMutation(RepairJournalCodec.encode(listOf(valid))))
+        val encoded = RepairJournalCodec.encode(listOf(entry(1_000)))
+        for (escape in listOf("\\uD800", "\\uDC00", "\\uD800x", "x\\uDC00")) {
+            try {
+                RepairJournalCodec.decodeForMutation(encoded.replace("\"cache\"", "\"$escape\""))
+                org.junit.Assert.fail("Unpaired surrogate must not become a lossy survivor")
+            } catch (_: IllegalArgumentException) { }
+        }
+        try {
+            RepairJournalCodec.validate(entry(1_000, action = "bad-\uD800"))
+            org.junit.Assert.fail("Invalid new strings cannot be persisted")
+        } catch (_: IllegalArgumentException) { }
+    }
+
     @Test fun emptyArrayDecodesEmpty() {
         assertTrue(RepairJournalCodec.decode("[]", 50).isEmpty())
     }

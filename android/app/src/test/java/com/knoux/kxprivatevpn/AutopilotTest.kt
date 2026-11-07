@@ -114,6 +114,34 @@ class AutopilotTest {
         assertEquals(1, windowed.agedJournal)
     }
 
+    @Test fun approvedHistoryIsFrozenAndNewOrChangedOccurrencesSurvive() {
+        val old = journal(aged)
+        val values = mutableListOf(old, journal(fresh))
+        val plan = AutopilotPlanner.build(null, values, listOf(usage(aged, "old")), now)
+        values.clear()
+        assertEquals(listOf(old), plan.approvedJournal)
+        assertEquals(listOf(usage(aged, "old")), plan.approvedUsage)
+        val changed = old.copy(items = 7)
+        val unapproved = journal(aged + 1)
+        assertEquals(listOf(changed, unapproved, old),
+            com.knoux.kxprivatevpn.platform.repair.survivorsAfterApproval(
+                listOf(old, changed, unapproved, old), plan.approvedJournal))
+    }
+
+    @Test fun approvalCannotBeConfirmedWithoutAFrozenValidSelection() {
+        val plan = AutopilotPlanner.build(null, listOf(journal(aged)), emptyList(), now)
+        val idle = com.knoux.kxprivatevpn.features.AutopilotUiState(
+            loading = false, plan = plan, selected = setOf("history"))
+        assertTrue(idle.canEdit)
+        assertFalse(idle.canConfirm)
+        val approval = idle.copy(confirming = true)
+        assertFalse(approval.canEdit)
+        assertTrue(approval.canConfirm)
+        listOf(approval.copy(busy = true), approval.copy(loading = true),
+            approval.copy(measuring = true), approval.copy(selected = emptySet()),
+            approval.copy(selected = setOf("unknown"))).forEach { assertFalse(it.canConfirm) }
+    }
+
     @Test fun cacheIdsAreStableAndNamespaced() {
         assertEquals("cache:sub/dir/file.tmp", AutopilotPlanner.cacheId("sub/dir/file.tmp"))
         assertEquals("history", AutopilotPlanner.HISTORY_ID)

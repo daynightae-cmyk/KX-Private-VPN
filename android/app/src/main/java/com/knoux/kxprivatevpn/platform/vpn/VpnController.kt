@@ -10,6 +10,11 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -44,7 +49,7 @@ class VpnController(
     fun connect(profile: Profile) {
         val current = mutable.value.phase
         if (current == VpnPhase.CONNECTING || current == VpnPhase.CONNECTED ||
-            current == VpnPhase.DISCONNECTING) return
+            current == VpnPhase.DISCONNECTING || mutable.value.issue == VpnIssue.STOP_FAILED) return
         connecting?.cancel()
         monitoring?.cancel()
         mutable.value = VpnState(VpnPhase.CONNECTING, baseSession(profile))
@@ -98,7 +103,8 @@ class VpnController(
 
     fun disconnect() {
         val current = mutable.value
-        if (current.phase != VpnPhase.CONNECTED) return
+        if (current.phase != VpnPhase.CONNECTED &&
+            !(current.phase == VpnPhase.ERROR && current.issue == VpnIssue.STOP_FAILED)) return
         monitoring?.cancel()
         mutable.value = VpnState(VpnPhase.DISCONNECTING, current.session)
         scope.launch(io) {
@@ -115,16 +121,23 @@ class VpnController(
 
     /** Called before deleting a profile; waits for the backend instead of lying about shutdown. */
     suspend fun stopNow() {
-        monitoring?.cancel()
-        connecting?.cancel()
-        try {
-            gateway.stop()
-        } catch (e: CancellationException) {
-            throw e
-        } catch (_: Exception) {
-            // The removal still proceeds; the UI no longer claims this profile is active.
+        currentCoroutineContext().ensureActive()
+        val session = mutable.value.session
+        mutable.value = VpnState(VpnPhase.DISCONNECTING, session)
+        // Join a cancelled start before stopping: it may already have entered native backend code.
+        // Once shutdown begins, publish its result even if the deletion caller is cancelled.
+        withContext(NonCancellable + io) {
+            try {
+                connecting?.cancelAndJoin()
+                monitoring?.cancelAndJoin()
+                gateway.stop()
+                mutable.value = VpnState()
+            } catch (failure: Exception) {
+                mutable.value = VpnState(VpnPhase.ERROR, session, VpnIssue.STOP_FAILED)
+                throw failure // ClientViewModel.remove must not proceed to erase the profile.
+            }
         }
-        mutable.value = VpnState()
+        currentCoroutineContext().ensureActive()
     }
 
     /** Re-attach only when the backend itself confirms the tunnel is still up. */
@@ -153,7 +166,10 @@ class VpnController(
     }
 
     fun clearIssue() {
-        if (mutable.value.phase == VpnPhase.ERROR) mutable.value = VpnState()
+        // A failed stop leaves backend ownership unresolved; dismissing an error is not shutdown.
+        if (mutable.value.phase == VpnPhase.ERROR && mutable.value.issue != VpnIssue.STOP_FAILED) {
+            mutable.value = VpnState()
+        }
     }
 
     fun reportStartFailed() {

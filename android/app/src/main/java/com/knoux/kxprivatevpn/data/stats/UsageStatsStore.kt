@@ -1,7 +1,10 @@
 package com.knoux.kxprivatevpn.data.stats
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import com.knoux.kxprivatevpn.platform.repair.survivorsAfterApproval
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.knoux.kxprivatevpn.platform.usage.StoredUsage
@@ -22,13 +25,13 @@ private val Context.usageDataStore by preferencesDataStore(name = "usage-stats")
  * can never duplicate a session. The oldest records are pruned beyond [MAX_RECORDS]; all values
  * are re-validated on every read.
  */
-class UsageStatsStore(context: Context) : UsageSink {
-    private val context = context.applicationContext
+class UsageStatsStore(private val dataStore: DataStore<Preferences>) : UsageSink {
+    constructor(context: Context) : this(context.applicationContext.usageDataStore)
     private val recordsKey = stringPreferencesKey("records_v1")
     private val checkpointKey = stringPreferencesKey("checkpoint_v1")
 
     override suspend fun load(): StoredUsage {
-        val prefs = context.usageDataStore.data.first()
+        val prefs = dataStore.data.first()
         return StoredUsage(
             records = UsageCodec.decode(prefs[recordsKey]).sortedBy { it.startedAtMillis },
             checkpoint = UsageCodec.decodeCheckpoint(prefs[checkpointKey]),
@@ -37,8 +40,8 @@ class UsageStatsStore(context: Context) : UsageSink {
 
     override suspend fun commit(record: UsageRecord) {
         val safe = requireNotNull(record.sanitized()) { "Invalid usage record" }
-        context.usageDataStore.edit { prefs ->
-            val next = appendMeasured(UsageCodec.decode(prefs[recordsKey]), safe, MAX_RECORDS)
+        dataStore.edit { prefs ->
+            val next = appendMeasured(UsageMutationCodec.decode(prefs[recordsKey]), safe, MAX_RECORDS)
             prefs[recordsKey] = UsageCodec.encode(next)
             prefs.remove(checkpointKey)
         }
@@ -46,15 +49,15 @@ class UsageStatsStore(context: Context) : UsageSink {
 
     override suspend fun saveCheckpoint(record: UsageRecord) {
         val safe = requireNotNull(record.sanitized()) { "Invalid usage checkpoint" }
-        context.usageDataStore.edit { prefs -> prefs[checkpointKey] = UsageCodec.encodeRecord(safe) }
+        dataStore.edit { prefs -> prefs[checkpointKey] = UsageCodec.encodeRecord(safe) }
     }
 
     override suspend fun clearCheckpoint() {
-        context.usageDataStore.edit { prefs -> prefs.remove(checkpointKey) }
+        dataStore.edit { prefs -> prefs.remove(checkpointKey) }
     }
 
     suspend fun clear() {
-        context.usageDataStore.edit { prefs ->
+        dataStore.edit { prefs ->
             prefs.remove(recordsKey)
             prefs.remove(checkpointKey)
         }
@@ -67,12 +70,46 @@ class UsageStatsStore(context: Context) : UsageSink {
      */
     suspend fun saveSurvivors(records: List<UsageRecord>) {
         val safe = records.mapNotNull { it.sanitized() }
-        context.usageDataStore.edit { prefs ->
+        dataStore.edit { prefs ->
             prefs[recordsKey] = UsageCodec.encode(safe.sortedBy { it.startedAtMillis })
         }
     }
 
+    /**
+     * Atomically subtracts the approved multiset from the latest records. A concurrent commit is
+     * never replaced by a stale survivor list; changed records and the exact checkpoint survive.
+     * edit returns the committed Preferences only after persistence succeeds.
+     */
+    suspend fun removeApproved(approved: List<UsageRecord>): Int {
+        require(approved.all { it.sanitized() == it }) { "Invalid approved usage record" }
+        var removed = 0
+        var expectedRecords: String? = null
+        var expectedCheckpoint: String? = null
+        val committed = dataStore.edit { prefs ->
+            val current = UsageMutationCodec.decode(prefs[recordsKey])
+            val kept = survivorsAfterApproval(current, approved)
+            removed = current.size - kept.size
+            if (removed > 0) prefs[recordsKey] = UsageCodec.encode(kept)
+            expectedRecords = prefs[recordsKey]
+            expectedCheckpoint = prefs[checkpointKey]
+        }
+        check(committed[recordsKey] == expectedRecords && committed[checkpointKey] == expectedCheckpoint) {
+            "Usage removal not verified"
+        }
+        return removed
+    }
+
     companion object {
         const val MAX_RECORDS = 2_000
+    }
+}
+
+/** Mutation must not silently discard lines/fields that the DISPLAY codec intentionally ignores. */
+internal object UsageMutationCodec {
+    fun decode(raw: String?): List<UsageRecord> {
+        if (raw == null) return emptyList()
+        val records = UsageCodec.decode(raw)
+        require(UsageCodec.encode(records) == raw) { "Invalid usage history; original retained" }
+        return records
     }
 }

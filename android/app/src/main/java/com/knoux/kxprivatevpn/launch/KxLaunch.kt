@@ -48,7 +48,6 @@ import com.knoux.kxprivatevpn.designsystem.GlassAction
 import com.knoux.kxprivatevpn.designsystem.KxOrb
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.withTimeoutOrNull
-import kotlinx.coroutines.launch
 
 @Composable
 fun KxLaunch() {
@@ -63,7 +62,9 @@ fun KxLaunch() {
     // Do not send returning users directly to Home: the person must tap the KX emblem.
     LaunchedEffect(state.loaded, entryAccepted) {
         if (state.loaded && entryAccepted && !routingInitialized) {
-            if (state.settings.onboarded || state.snapshot.profiles.isNotEmpty()) stack = listOf("home")
+            // Enter Home after the emblem animation even on first launch. Import and
+            // Android VPN consent remain explicit actions; entry grants no permissions.
+            stack = listOf("home")
             routingInitialized = true
         }
     }
@@ -135,9 +136,27 @@ fun IdentityExperience(
     val progress = remember { Animatable(if (finished || reducedMotion) 1f else 0f) }
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     var skipped by rememberSaveable { mutableStateOf(false) }
-    var entryFired by remember { mutableStateOf(false) }
+    // Persist the accepted gesture, not a navigation callback. A recreated/resumed screen
+    // completes the requested spin once; background time never silently consumes it.
+    var entryRequested by rememberSaveable { mutableStateOf(false) }
+    var entryDelivered by rememberSaveable { mutableStateOf(false) }
     val tapSpin = remember { Animatable(0f) }
-    val scope = rememberCoroutineScope()
+    val currentEnter by rememberUpdatedState(onEnter)
+    LaunchedEffect(entryRequested, reducedMotion, lifecycle) {
+        if (!entryRequested || entryDelivered) return@LaunchedEffect
+        lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            if (!entryDelivered) {
+                if (!reducedMotion) {
+                    tapSpin.animateTo(360f, tween(
+                        (680 * (1f - tapSpin.value / 360f)).toInt().coerceAtLeast(1),
+                        easing = FastOutSlowInEasing,
+                    ))
+                }
+                entryDelivered = true
+                currentEnter?.invoke()
+            }
+        }
+    }
     var disclosure by rememberSaveable { mutableStateOf(false) }
     val currentFinished by rememberUpdatedState(onFinished)
     LaunchedEffect(ready, finished, reducedMotion, skipped, lifecycle) {
@@ -181,7 +200,7 @@ fun IdentityExperience(
                 // The same native glass orb is the entry button, not an extra generic CTA.
                 // Visual choreography stays 3D; a reduced-motion setting bypasses animation,
                 // never the explicit user click.
-                val enterable = onEnter != null && ready && progress.value >= 1f && !entryFired
+                val enterable = onEnter != null && ready && stage >= 1f && !entryRequested
                 val emblemModifier = Modifier.size(orb)
                     .testTag("entry-orb")
                     .graphicsLayer {
@@ -199,17 +218,7 @@ fun IdentityExperience(
                         if (onEnter != null) Modifier
                             .semantics { contentDescription = entryHint }
                             .clickable(enabled = enterable, role = Role.Button) {
-                                if (!entryFired) {
-                                    entryFired = true
-                                    if (reducedMotion) {
-                                        onEnter()
-                                    } else {
-                                        scope.launch {
-                                            tapSpin.animateTo(360f, tween(680, easing = FastOutSlowInEasing))
-                                            onEnter()
-                                        }
-                                    }
-                                }
+                                if (!entryRequested) entryRequested = true
                             }
                         else Modifier
                     )
@@ -239,7 +248,9 @@ fun IdentityExperience(
                         modifier = Modifier.testTag("entry-hint")
                             .graphicsLayer { alpha = frame.welcome })
                 }
-                if (showWelcomeControls && frame.welcome > 0f) {
+                // An operable emblem is the only primary entry action. Welcome/setup
+                // controls belong after entry, never beside the emblem's tap guidance.
+                if (onEnter == null && showWelcomeControls && frame.welcome > 0f) {
                     Column(Modifier.fillMaxWidth().graphicsLayer { alpha = frame.welcome },
                         horizontalAlignment = Alignment.CenterHorizontally) {
                         Spacer(Modifier.height(28.dp))

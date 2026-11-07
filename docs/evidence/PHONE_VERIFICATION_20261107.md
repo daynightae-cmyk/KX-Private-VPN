@@ -1,7 +1,12 @@
-# KX Private VPN — physical phone verification (2026-11-07, main `4210430`)
+# KX Private VPN — historical phone run (claims corrected 2026-11-07)
 
-Device: itel S686LN, Android 15 / API 35, serial `1334825549012211`, package
-`com.knoux.kxprivatevpn`. Every device command pinned `-s 1334825549012211`; the emulator was
+**The blanket PHONE/VISUAL PASS conclusions below are withdrawn.** The original record is
+retained for audit, not current acceptance. See [hardening audit corrections](HARDENING_AUDIT_20261107.md)
+for fixture provenance, incomplete coverage, data-safety findings and public privacy exposure.
+No later fix inherits this run's PASS status.
+
+Device: itel S686LN, Android 15 / API 35, serial `<serial-withheld>`, package
+`com.knoux.kxprivatevpn`. Every device command pinned `-s <serial-withheld>`; the emulator was
 never targeted. No uninstall, no `pm clear`, no destructive storage operation. This report
 records measured results only.
 
@@ -29,7 +34,7 @@ records measured results only.
 ## C. Tests (physical phone, exact SHA)
 
 ```
-adb -s 1334825549012211 shell am instrument -w -e class
+adb -s <serial-withheld> shell am instrument -w -e class
 com.knoux.kxprivatevpn.StartupTest,IdentityTest,ClientFlowTest,VpnFlowTest,
 VpnSessionServiceTest,SessionShieldScreenTest,AutopilotScreenTest,RepairFlowTest,
 RepairLabScreenTest com.knoux.kxprivatevpn.test/androidx.test.runner.AndroidJUnitRunner

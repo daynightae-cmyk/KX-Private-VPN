@@ -228,6 +228,53 @@ class VpnControllerTest {
         assertNotNull(controller.state.value.session)
     }
 
+    @Test fun failedStopNowBlocksFollowingRemovalAndCanBeRetried() = runTest {
+        val failure = IllegalStateException("backend still owns tunnel")
+        val gateway = FakeGateway().apply { stopFailure = failure }
+        val controller = controller(gateway)
+        controller.connect(profile)
+        runCurrent()
+        var removed = false
+        val thrown = runCatching {
+            controller.stopNow()
+            removed = true // Same sequencing as ClientViewModel.remove.
+        }.exceptionOrNull()
+        // Coroutine stack-trace recovery may copy the exception across dispatcher boundaries.
+        assertTrue(thrown is IllegalStateException)
+        assertEquals(failure.message, thrown?.message)
+        org.junit.Assert.assertFalse("Profile deletion must not follow failed shutdown", removed)
+        assertEquals(VpnIssue.STOP_FAILED, controller.state.value.issue)
+        assertEquals(profile.id, controller.state.value.session?.profileId)
+        assertTrue(gateway.up)
+
+        gateway.stopFailure = null
+        controller.stopNow()
+        assertEquals(VpnPhase.IDLE, controller.state.value.phase)
+        assertNull(controller.state.value.session)
+        org.junit.Assert.assertFalse(gateway.up)
+    }
+
+    @Test fun unresolvedStopFailureCannotBeDismissedOrOverwrittenByConnect() = runTest {
+        val gateway = FakeGateway().apply { stopFailure = IllegalStateException("still owned") }
+        val controller = controller(gateway)
+        controller.connect(profile)
+        runCurrent()
+        controller.disconnect()
+        runCurrent()
+        controller.clearIssue()
+        controller.connect(profile.copy(id = "different"))
+        runCurrent()
+        assertEquals(VpnPhase.ERROR, controller.state.value.phase)
+        assertEquals(VpnIssue.STOP_FAILED, controller.state.value.issue)
+        assertEquals(profile.id, controller.state.value.session?.profileId)
+        assertEquals(1, gateway.startCalls)
+
+        gateway.stopFailure = null
+        controller.disconnect()
+        runCurrent()
+        assertEquals(VpnPhase.IDLE, controller.state.value.phase)
+    }
+
     @Test fun restoreClaimsConnectionOnlyWhenBackendIsUp() = runTest {
         val gateway = FakeGateway()
         val controller = controller(gateway)
