@@ -148,16 +148,14 @@ class SessionShieldViewModel(app: Application) : AndroidViewModel(app) {
         mutable.update { it.copy(confirming = null, pendingProfileId = null, busy = true) }
         viewModelScope.launch {
             var removed = 0
-            var verified = false
             try {
                 profiles.remove(profileId)
                 val remaining = profiles.load()
                 removed = if (remaining.profiles.none { it.id == profileId }) 1 else 0
-                verified = removed == 1
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {
-                verified = false
+                removed = 0
             }
             val receipt = ShieldReceipt(
                 action = ShieldAction.REVOKE_PROFILE,
@@ -165,7 +163,7 @@ class SessionShieldViewModel(app: Application) : AndroidViewModel(app) {
                 pruned = 0,
                 bytesFreed = 0L,
                 atMillis = System.currentTimeMillis(),
-                detail = if (verified) "secret_removed" else "secret_still_present",
+                detail = if (removed == 1) "secret_removed" else "secret_still_present",
             )
             mutable.update { it.copy(busy = false, receipt = receipt, selected = emptySet()) }
             refresh()

@@ -57,7 +57,7 @@ class SessionShieldScreenTest {
         id = "profile:abc",
         kind = ShieldKind.PROFILE,
         title = name,
-        detail = "10.7.0.1:51820",
+        detail = "vpn.example.invalid:51820",
         atMillis = 0,
         holdsSecret = true,
         selected = true,
@@ -120,7 +120,7 @@ class SessionShieldScreenTest {
         compose.onNodeWithTag("shield-history-count").assertTextContains("1", substring = true)
         compose.onNodeWithTag("shield-secret-count").assertTextContains("1", substring = true)
         compose.onNodeWithTag("shield-title-0").assertTextEquals("Home")
-        compose.onNodeWithTag("shield-detail-0").assertTextEquals("10.7.0.1:51820")
+        compose.onNodeWithTag("shield-detail-0").assertTextEquals("vpn.example.invalid:51820")
         // The credential itself is never rendered, only the fact that one is held.
         compose.onNodeWithTag("shield-secret-0").assertExists()
         compose.onAllNodes(hasText("PrivateKey", substring = true)).assertCountEquals(0)

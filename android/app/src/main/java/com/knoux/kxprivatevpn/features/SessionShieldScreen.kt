@@ -107,13 +107,18 @@ fun SessionShieldScreen(
                     OutlinedButton(
                         onClick = onRefresh,
                         enabled = !state.busy,
-                        modifier = Modifier.heightIn(min = 48.dp).testTag("shield-refresh"),
+                        modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("shield-refresh"),
                     ) { Text(stringResource(R.string.shield_refresh)) }
                     OutlinedButton(
                         onClick = onSelectAll,
                         enabled = !state.busy,
-                        modifier = Modifier.heightIn(min = 48.dp).testTag("shield-select-all"),
+                        modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("shield-select-all"),
                     ) { Text(stringResource(R.string.shield_select_all)) }
+                    OutlinedButton(
+                        onClick = onClearSelection,
+                        enabled = !state.busy,
+                        modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("shield-clear"),
+                    ) { Text(stringResource(R.string.shield_clear_selection)) }
                 }
             }
 

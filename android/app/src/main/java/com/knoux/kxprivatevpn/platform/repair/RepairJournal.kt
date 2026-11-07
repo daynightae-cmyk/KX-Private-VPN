@@ -80,9 +80,13 @@ class RepairJournal(private val file: File, private val limit: Int = 50) {
     @Throws(Exception::class)
     fun clear(): Int = synchronized(lock) {
         val removed = loadLocked().size
-        if (!atomic.baseFile.exists() && !File(atomic.baseFile.path + ".bak").exists()) return removed
-        if (atomic.baseFile.delete()) removed else throw IllegalStateException("journal not cleared")
-        File(atomic.baseFile.path + ".bak").delete()
+        val base = atomic.baseFile
+        val backup = File(base.path + ".bak")
+        if (!base.exists() && !backup.exists()) return removed
+        // A delete that reports failure is surfaced, never swallowed: an erase must not claim
+        // success while the journal or its AtomicFile backup can still be read back.
+        if (base.exists() && !base.delete()) error("journal not cleared")
+        if (backup.exists() && !backup.delete()) error("journal backup not cleared")
         removed
     }
 

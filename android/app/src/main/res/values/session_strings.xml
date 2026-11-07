@@ -8,6 +8,7 @@
     <string name="shield_secrets">%1$d items hold a credential</string>
     <string name="shield_refresh">Refresh</string>
     <string name="shield_select_all">Select all</string>
+    <string name="shield_clear_selection">Clear</string>
     <string name="shield_holds_secret">Holds a credential. The value never leaves KX and is never shown.</string>
     <string name="shield_selected_profile">The profile the tunnel would use</string>
     <string name="shield_revoke">Revoke this profile</string>

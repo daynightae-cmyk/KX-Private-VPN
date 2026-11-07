@@ -8,6 +8,7 @@
     <string name="shield_secrets">%1$d عنصرًا يحمل بيانات اعتماد</string>
     <string name="shield_refresh">تحديث</string>
     <string name="shield_select_all">تحديد الكل</string>
+    <string name="shield_clear_selection">مسح التحديد</string>
     <string name="shield_holds_secret">يحمل بيانات اعتماد. لا تغادر القيمة KX أبدًا ولا تُعرض.</string>
     <string name="shield_selected_profile">الإعداد الذي سيستخدمه النفق</string>
     <string name="shield_revoke">إبطال هذا الإعداد</string>
