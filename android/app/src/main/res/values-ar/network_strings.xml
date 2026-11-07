@@ -13,4 +13,22 @@
     <string name="probe_consent">إرسال طلب HTTPS HEAD واحد للعنوان ده. مشغّل العنوان هيشوف IP بتاعي. مش هنمشي ورا التحويلات.</string>
     <string name="probe_run">قِس طلب HTTPS المسموح</string>
     <string name="probe_result">HTTP %1$d · مدة الطلب %2$d ms</string>
+    <string name="network_readonly_title">فحص شبكة للقراءة فقط</string>
+    <string name="network_readonly_body">KX بيقرأ الحالة اللي Android بيبلّغ عنها. مش بيعمل اختبار سرعة، ولا بيفحص الترافيك، ولا بيثبت تسريب VPN، ولا بيصلّح الشبكة.</string>
+    <string name="network_measured_title">مقروء من Android</string>
+    <string name="network_metric_present">شبكة نشطة</string>
+    <string name="network_metric_validated">الإنترنت متحقق</string>
+    <string name="network_metric_captive">بوابة دخول</string>
+    <string name="network_metric_vpn">نفق VPN</string>
+    <string name="network_transports">وسائل النقل: %1$s</string>
+    <string name="network_dns_none">مفيش عنوان DNS مبلّغ عنه</string>
+    <string name="network_reading_pending">بنجيب حالة الشبكة الحالية…</string>
+    <string name="network_reading_failed">Android مرجّعش قراءة شبكة.</string>
+    <string name="network_refresh">اقرأ تاني</string>
+    <string name="network_probe_title">طلب HTTPS بموافقة</string>
+    <string name="network_probe_requires">طلب واحد بس بيخرج من الجهاز، وبعد موافقتك فقط.</string>
+    <string name="network_probe_invalid">استخدم عنوان https:// بدون بيانات دخول أو query أو fragment.</string>
+    <string name="network_probe_failed">الطلب مكتملش. ده فشل مقاس، مش نتيجة حماية.</string>
+    <string name="network_probe_receipt_title">إيصال الطلب</string>
+    <string name="network_probe_receipt_note">طلب HEAD واحد. مش اختبار سرعة ومش إثبات عدم تسريب.</string>
 </resources>
