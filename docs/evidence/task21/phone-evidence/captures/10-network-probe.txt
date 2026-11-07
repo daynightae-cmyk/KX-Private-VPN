@@ -1,0 +1,3 @@
+LIVE_HTTP=200
+HTTPS_HEAD_elapsedMs=748
+No VPN claim
