@@ -1,0 +1,15 @@
+<resources>
+    <string name="vpn_path_title">Verify this VPN path</string>
+    <string name="vpn_path_scope">Enter an HTTPS address you trust. With your approval, KX sends one HEAD request bound to this VPN network and checks fresh WireGuard handshake and traffic counters. No direct-network fallback. This does not prove public exit location, IPv6 connectivity, or absence of DNS leaks.</string>
+    <string name="vpn_path_run">Test through VPN</string>
+    <string name="vpn_path_verified">This request succeeded through the VPN network with a recent handshake and increased received/sent bytes.</string>
+    <string name="vpn_path_no_tunnel">No confirmed KX tunnel. Connect first.</string>
+    <string name="vpn_path_not_routed">This app is not using the VPN network. No verified VPN path.</string>
+    <string name="vpn_path_changed">The network changed during verification. Try again on a stable connection.</string>
+    <string name="vpn_path_no_handshake">No recent WireGuard handshake was measured. Check the gateway and peer configuration.</string>
+    <string name="vpn_path_no_traffic">WireGuard did not report increased traffic in both directions. The path is not verified.</string>
+    <string name="vpn_path_http_failed">The HTTPS endpoint did not return a successful status. The path is not verified.</string>
+    <string name="vpn_path_unavailable">Verification could not finish. Check the HTTPS address, network and gateway, then retry.</string>
+    <string name="vpn_path_measurements">HTTP %1$d · Received +%2$d bytes · Sent +%3$d bytes</string>
+    <string name="vpn_path_routes">Configured default routes: IPv4 %1$s · IPv6 %2$s · DNS configured: %3$s. These are configuration observations, not leak-test results.</string>
+</resources>

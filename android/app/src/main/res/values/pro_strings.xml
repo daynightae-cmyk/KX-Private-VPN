@@ -1,0 +1,27 @@
+<resources>
+    <string name="pro_title">Pro activation</string>
+    <string name="pro_scope">Manage a Pro license here. Activation does not deliver a completed automation service. Essential VPN protection and existing free features remain free.</string>
+    <string name="pro_online_only">Online only: every Pro operation must be authorized again by the server. This screen is not a saved unlock.</string>
+    <string name="pro_not_checked">License not checked. Refresh or redeem a code when ready.</string>
+    <string name="pro_unconfigured">Activation is not configured in this build. No Pro server request will be sent. A release with an approved server is required.</string>
+    <string name="pro_unavailable">Cannot reach the activation service. No Pro authorization was granted. Check your connection and try again.</string>
+    <string name="pro_inactive">No active license was confirmed. The code or license may be invalid, expired or revoked. Check with the issuer before trying again.</string>
+    <string name="pro_invalid">Activation configuration, code or server response is invalid. Access remains denied. Check the code or contact the issuer.</string>
+    <string name="pro_rate_limited">Too many requests. Access remains denied. Wait before trying again.</string>
+    <string name="pro_identity_unavailable">The protected installation identity cannot be read. Access remains denied; it has not been replaced. Contact support before resetting app data.</string>
+    <string name="pro_expired">The license has expired. No Pro authorization was granted. Contact the issuer to renew.</string>
+    <string name="pro_revoked">The license has been revoked. No Pro authorization was granted. Contact the issuer.</string>
+    <string name="pro_active_snapshot">Last online check: license active. This is a snapshot, not permission for a later operation.</string>
+    <string name="pro_expiry">Server-reported expiry: %1$s</string>
+    <string name="pro_checking">Contacting the activation service…</string>
+    <string name="pro_refresh">Refresh license</string>
+    <string name="pro_code">Activation code</string>
+    <string name="pro_code_hint">64 characters: lowercase a–f and 0–9.</string>
+    <string name="pro_redeem">Redeem code</string>
+    <string name="pro_code_privacy">Your code is cleared from this field when submitted. It is sent only to the configured activation service, bound to this installation.</string>
+    <string name="pro_contact">Request a code via WhatsApp</string>
+    <string name="pro_contact_request">Hello, I would like to ask about a KX Private VPN Pro activation code.</string>
+    <string name="pro_contact_hint">Opens a generic request for you to review and send. No code, credential or installation ID is included.</string>
+    <string name="pro_contact_absent">No approved WhatsApp contact is configured in this build. Code requests are unavailable.</string>
+    <string name="pro_contact_error">No app could open the contact link. Nothing was sent.</string>
+</resources>

@@ -1,0 +1,3 @@
+animatorScale=1.0
+powerSave=false
+touchExploration=false

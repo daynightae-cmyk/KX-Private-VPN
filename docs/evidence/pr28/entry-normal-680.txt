@@ -1,0 +1,8 @@
+
+com.knoux.kxprivatevpn.StartupTest:..
+com.knoux.kxprivatevpn.VisualHardeningTest:..
+com.knoux.kxprivatevpn.PhysicalEntryTest:.
+
+Time: 36.525
+
+OK (5 tests)

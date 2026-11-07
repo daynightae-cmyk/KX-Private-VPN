@@ -25,10 +25,10 @@ interface VpnGateway {
  * Real transport: the official WireGuard tunnel library runs its own VpnService.
  * It never fakes a handshake; failures are returned to the controller unchanged.
  */
-class WireGuardVpnGateway(context: Context) : VpnGateway {
-    private val appContext = context.applicationContext
+class WireGuardVpnGateway internal constructor(backendFactory: () -> Backend) : VpnGateway {
+    constructor(context: Context) : this({ GoBackend(context.applicationContext) })
     // Loading the native Go library must stay off the startup path.
-    private val backend: Backend by lazy(LazyThreadSafetyMode.SYNCHRONIZED) { GoBackend(appContext) }
+    private val backend: Backend by lazy(LazyThreadSafetyMode.SYNCHRONIZED, backendFactory)
     private val mutex = Mutex()
     private val tunnel = object : Tunnel {
         override fun getName(): String = TUNNEL_NAME
@@ -45,7 +45,8 @@ class WireGuardVpnGateway(context: Context) : VpnGateway {
 
     override suspend fun stop() = mutex.withLock {
         withContext(Dispatchers.IO) {
-            backend.setState(tunnel, Tunnel.State.DOWN, null)
+            val state = backend.setState(tunnel, Tunnel.State.DOWN, null)
+            check(state == Tunnel.State.DOWN) { "WireGuard backend did not report DOWN" }
             Unit
         }
     }
@@ -60,11 +61,8 @@ class WireGuardVpnGateway(context: Context) : VpnGateway {
     }
 
     override suspend fun isUp(): Boolean = withContext(Dispatchers.IO) {
-        try {
-            backend.getState(tunnel) == Tunnel.State.UP
-        } catch (_: Exception) {
-            false
-        }
+        // An unreadable backend is unknown, not proof that its routes are down.
+        backend.getState(tunnel) == Tunnel.State.UP
     }
 
     override suspend fun isLockdownEnabled(): Boolean? = withContext(Dispatchers.IO) {

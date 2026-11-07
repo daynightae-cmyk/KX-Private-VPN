@@ -1,0 +1,16 @@
+Source baseline: a5d82d7b42082ab31fc6fba9d660aff8ef6be766 plus corrective test changes.
+Temporary production mutation restored to 680ms before this build.
+Production-source git diff: empty.
+
+Gradle tasks:
+:app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug
+Flags: --no-daemon --max-workers=4 -Dorg.gradle.jvmargs=-Xmx3072m -Pkotlin.compiler.execution.strategy=in-process
+Java: Microsoft OpenJDK 21
+Result: BUILD SUCCESSFUL in 3m 36s (exit 0).
+
+JUnit XML recount: 31 files, 254 tests, 0 failures, 0 errors, 0 skipped.
+Lint XML recount: 0 errors/fatal issues, 136 warnings.
+The warnings are not reported as a clean lint report.
+
+Device instrumentation, public VPN egress, production Pro deployment and physical-phone
+acceptance are separate gates; this build summary does not establish them.

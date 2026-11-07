@@ -23,6 +23,11 @@ jobs:
           packages: 'platform-tools platforms;android-36 build-tools;35.0.0'
           log-accepted-android-sdk-licenses: false
       - uses: gradle/actions/setup-gradle@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify local Pro authority
+        run: python -B -W error::ResourceWarning -m unittest discover -s backend/pro -p 'test_*.py' -v
       - run: bash ./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleDebug :app:assembleDebugAndroidTest
         working-directory: android
       - uses: actions/upload-artifact@v4
@@ -34,12 +39,9 @@ jobs:
             android/app/build/outputs/apk
   device:
     runs-on: ubuntu-latest
-    # The bounded inner path is emulator boot (600s) + install (6m) + tests (12m) = 28m.
-    # The 8m test bound was sized for a 138-test suite; it cut run 42414269579 on API35 at
-    # 201/210 tests with 0 failures, one second after evidence capture, so it was raised to
-    # cover the real 210-test suite. Run 42186391691 (main fa34b67) was cancelled at a 20m
-    # job budget with no artifact and no test XML. 40m keeps the inner bounds enforceable
-    # while never masking a test failure as a timeout.
+    # Emulator boot (10m) + APK install (6m) + a growing complete test suite (12m).
+    # Preserve setup and evidence-upload headroom; timeouts remain failures.
+    # This includes the PR28 VPN/Pro matrix and the PR29 Home tests.
     timeout-minutes: 40
     strategy:
       fail-fast: false
