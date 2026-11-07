@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="autopilot_title">Smart repair</string>
+    <string name="autopilot_body">A transparent plan built only from what KX really measured: its own cache files and the history that aged out. Nothing is invented, and every destructive step needs your approval.</string>
+    <string name="autopilot_plan_title">Proposed plan</string>
+    <string name="autopilot_failure">The plan could not be measured. Nothing is proposed and nothing was deleted.</string>
+    <string name="autopilot_empty">Nothing to repair. The KX cache is empty and no history has aged out.</string>
+    <string name="autopilot_plan_summary">%1$d targets · %2$s measured</string>
+    <string name="autopilot_selected">%1$d selected · %2$s</string>
+    <string name="autopilot_cache_unavailable">The KX cache could not be measured, so no cache file is proposed.</string>
+    <string name="autopilot_cache_limited">The cache walk hit its limit; only the measured files are listed.</string>
+    <string name="autopilot_measured_at">Measured %1$s</string>
+    <string name="autopilot_measure">Re-measure</string>
+    <string name="autopilot_select_all">Select all</string>
+    <string name="autopilot_clear">Clear</string>
+    <string name="autopilot_no_selection">Select at least one target first.</string>
+    <string name="autopilot_busy">Running the approved operations…</string>
+    <string name="autopilot_cancel">Cancel</string>
+    <string name="autopilot_run">Run the approved plan</string>
+    <string name="autopilot_receipt_title">What actually happened</string>
+    <string name="autopilot_receipt_cancelled">Cancelled</string>
+    <string name="autopilot_receipt_complete">Completed</string>
+    <string name="autopilot_receipt_partial">Partially completed</string>
+    <string name="autopilot_receipt_counts">%1$d deleted · %2$d pruned · %3$s freed</string>
+    <string name="autopilot_receipt_skipped">%1$d skipped because they changed since measurement</string>
+    <string name="autopilot_receipt_failed">%1$d failed</string>
+    <string name="autopilot_scope">Autopilot acts only on KX\'s own cache and history. It never scans or deletes another application\'s files, never ends another application\'s session, and never invents a finding.</string>
+    <string name="autopilot_confirm_title">Run this plan?</string>
+    <string name="autopilot_confirm_body">%1$d selected targets (%2$s) will be acted on. Cache files are deleted and aged history is pruned. This cannot be undone.</string>
+    <string name="autopilot_confirm">Approve and run</string>
+    <string name="autopilot_history_title">Aged KX history</string>
+    <string name="autopilot_history_detail">%1$d journal + %2$d usage entries older than %3$d days</string>
+    <string name="autopilot_cache_detail">KX cache file · %1$s</string>
+    <string name="autopilot_destructive">Deletes data. Approval required.</string>
+</resources>

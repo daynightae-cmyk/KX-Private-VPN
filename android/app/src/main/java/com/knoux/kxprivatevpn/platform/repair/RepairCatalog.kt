@@ -20,7 +20,7 @@ enum class RepairServiceId(val key: String, val route: String, val available: Bo
     DOWNLOAD("download", "download", true),
     SESSION("session", "shield", true),
     NETWORK("network", "network", true),
-    AUTOPILOT("autopilot", "repair/autopilot", false),
+    AUTOPILOT("autopilot", "autopilot", true),
 }
 
 data class RepairService(

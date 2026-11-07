@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="autopilot_title">الإصلاح الذكي</string>
+    <string name="autopilot_body">خطة شفافة مبنية فقط على ما قاسه KX فعليًا: ملفات ذاكرته المؤقتة والسجل الذي انقضى عمره. لا شيء مُختلق، وكل خطوة حذف تحتاج موافقتك.</string>
+    <string name="autopilot_plan_title">الخطة المقترحة</string>
+    <string name="autopilot_failure">تعذّر قياس الخطة. لا شيء مقترح ولم يُحذف شيء.</string>
+    <string name="autopilot_empty">لا شيء للإصلاح. ذاكرة KX المؤقتة فارغة ولم ينتهِ عمر أي سجل.</string>
+    <string name="autopilot_plan_summary">%1$d أهداف · %2$s مقاسة</string>
+    <string name="autopilot_selected">%1$d محدد · %2$s</string>
+    <string name="autopilot_cache_unavailable">تعذّر قياس ذاكرة KX المؤقتة، لذا لا يُقترح أي ملف منها.</string>
+    <string name="autopilot_cache_limited">بلغ مسح الذاكرة المؤقتة حدّه؛ تُعرض الملفات المقاسة فقط.</string>
+    <string name="autopilot_measured_at">قيست في %1$s</string>
+    <string name="autopilot_measure">إعادة القياس</string>
+    <string name="autopilot_select_all">تحديد الكل</string>
+    <string name="autopilot_clear">مسح</string>
+    <string name="autopilot_no_selection">حدد هدفًا واحدًا على الأقل أولًا.</string>
+    <string name="autopilot_busy">جارٍ تنفيذ العمليات المعتمدة…</string>
+    <string name="autopilot_cancel">إلغاء</string>
+    <string name="autopilot_run">تشغيل الخطة المعتمدة</string>
+    <string name="autopilot_receipt_title">ما حدث فعليًا</string>
+    <string name="autopilot_receipt_cancelled">أُلغيت</string>
+    <string name="autopilot_receipt_complete">اكتملت</string>
+    <string name="autopilot_receipt_partial">اكتملت جزئيًا</string>
+    <string name="autopilot_receipt_counts">%1$d محذوف · %2$d مقذوف · %3$s محررة</string>
+    <string name="autopilot_receipt_skipped">%1$d تم تخطيها لأنها تغيّرت منذ القياس</string>
+    <string name="autopilot_receipt_failed">%1$d فشلت</string>
+    <string name="autopilot_scope">يعمل الإصلاح الذكي فقط على ذاكرة KX المؤقتة وسجله. لا يفحص ولا يحذف ملفات أي تطبيق آخر، ولا ينهي جلسة تطبيق آخر، ولا يختلق أي نتيجة.</string>
+    <string name="autopilot_confirm_title">تشغيل هذه الخطة؟</string>
+    <string name="autopilot_confirm_body">سيتم التعامل مع %1$d أهداف محددة (%2$s). تُحذف ملفات الذاكرة المؤقتة ويُقذف السجل القديم. لا يمكن التراجع عن هذا.</string>
+    <string name="autopilot_confirm">اعتماد وتشغيل</string>
+    <string name="autopilot_history_title">سجل KX القديم</string>
+    <string name="autopilot_history_detail">%1$d سجل إصلاح + %2$d سجل استخدام أقدم من %3$d أيام</string>
+    <string name="autopilot_cache_detail">ملف ذاكرة KX المؤقتة · %1$s</string>
+    <string name="autopilot_destructive">يحذف بيانات. الموافقة مطلوبة.</string>
+</resources>
