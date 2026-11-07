@@ -50,6 +50,84 @@ class Clock:
             self.value += amount
 
 
+class AuthorityTransactionTests(unittest.TestCase):
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory(prefix="pro-transaction-test-", dir=HERE)
+        self.addCleanup(temporary.cleanup)
+        self.database = Path(temporary.name) / "authority.sqlite3"
+        self.authority = pro.Authority(self.database, secrets.token_bytes(32), initialize=True)
+        self.code_id = self.authority.issue(60)["codeId"]
+        self.events = []
+        events = self.events
+
+        class TrackedConnection(sqlite3.Connection):
+            def commit(self):
+                events.append(("commit", self.in_transaction))
+                super().commit()
+
+            def rollback(self):
+                events.append(("rollback", self.in_transaction))
+                super().rollback()
+
+            def close(self):
+                # Observe state BEFORE SQLite's implicit close-time rollback.
+                events.append(("close", self.in_transaction))
+                super().close()
+
+        self.connect = sqlite3.connect
+
+        def tracked_connect(*args, **kwargs):
+            return self.connect(*args, **kwargs, factory=TrackedConnection)
+
+        patcher = patch.object(pro.sqlite3, "connect", side_effect=tracked_connect)
+        self.addCleanup(patcher.stop)
+        patcher.start()
+
+    def assert_transaction_outcome(self, state, events):
+        with closing(self.connect(self.database)) as connection:
+            row = connection.execute("SELECT state FROM codes WHERE id = ?", (self.code_id,)).fetchone()
+            self.assertEqual(row[0], state)
+        self.assertEqual(self.events, events)
+
+    def test_normal_early_return_commits(self):
+        self.assertTrue(self.authority.revoke(code_id=self.code_id))
+        self.assert_transaction_outcome("revoked", [("commit", True), ("close", False)])
+
+    def test_body_errors_roll_back_before_close(self):
+        for error_type in (RuntimeError, BaseException, GeneratorExit):
+            with self.subTest(error_type=error_type.__name__):
+                self.events.clear()
+                error = error_type("test transaction abort")
+                with self.assertRaises(error_type) as caught:
+                    with self.authority._transaction() as connection:
+                        connection.execute("UPDATE codes SET state = 'revoked'")
+                        raise error
+                self.assertIs(caught.exception, error)
+                self.assert_transaction_outcome("fresh", [("rollback", True), ("close", False)])
+
+    def test_generator_close_rolls_back_before_close(self):
+        def mutate():
+            with self.authority._transaction() as connection:
+                connection.execute("UPDATE codes SET state = 'revoked'")
+                yield
+
+        with closing(mutate()) as operation:
+            next(operation)
+        self.assert_transaction_outcome("fresh", [("rollback", True), ("close", False)])
+
+    def test_commit_failure_rolls_back_before_close(self):
+        with self.assertRaises(sqlite3.IntegrityError):
+            with self.authority._transaction() as connection:
+                connection.execute("UPDATE codes SET state = 'revoked'")
+                # A real deferred FK violation leaves the transaction open when
+                # COMMIT fails; this fixture table is rolled back with the update.
+                connection.execute("""CREATE TABLE deferred_failure (
+                    code_id INTEGER REFERENCES codes(id) DEFERRABLE INITIALLY DEFERRED
+                )""")
+                connection.execute("INSERT INTO deferred_failure VALUES (-1)")
+        self.assert_transaction_outcome("fresh", [("commit", True), ("rollback", True), ("close", False)])
+
+
 class AuthorityHTTPTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory(prefix="pro-test-", dir=HERE)
@@ -454,7 +532,10 @@ class AuthorityHTTPTests(unittest.TestCase):
     def assert_progress_deadline(self, initial, *, finish_headers=None):
         # One available worker makes a leaked permit observable on the next request.
         self.server._slots = threading.BoundedSemaphore(1)
-        self.server.socket_timeout = 0.3
+        # Leave the idle deadline beyond the absolute deadline, then stop writing
+        # before the latter. Sending during a server close can cause a TCP reset
+        # on Windows and discard the response, obscuring the deadline assertion.
+        self.server.socket_timeout = 0.75
         self.server.request_timeout = 0.6
         self.server.limiter = pro.RateLimiter(peer_limit=1, subject_limit=1,
                                               window_seconds=10, clock=self.rate_clock)
@@ -480,7 +561,13 @@ class AuthorityHTTPTests(unittest.TestCase):
                         # Keep supplying bytes well inside the inactivity timeout.
                         if select.select([connection], [], [], 0.03)[0]:
                             break
-                        if finish_headers is not None and time.monotonic() - started >= 0.4:
+                        # No EOF and no writes racing the 0.6s close. Without the
+                        # absolute deadline, idle expiry is after 1.15s and must
+                        # still fail the unchanged 0.9s response bound below.
+                        elapsed = time.monotonic() - started
+                        if elapsed >= 0.5:
+                            continue
+                        if finish_headers is not None and elapsed >= 0.4:
                             connection.sendall(finish_headers)
                             finish_headers = None
                             transitioned = True

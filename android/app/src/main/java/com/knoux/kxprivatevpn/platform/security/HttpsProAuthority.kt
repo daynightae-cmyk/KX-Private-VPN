@@ -14,11 +14,15 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import java.io.ByteArrayOutputStream
 import java.io.IOException
+import java.net.InetAddress
+import java.net.Socket
 import java.net.URI
 import java.nio.ByteBuffer
 import java.nio.charset.CodingErrorAction
 import javax.net.ssl.HttpsURLConnection
 import javax.net.ssl.SSLContext
+import javax.net.ssl.SSLSocket
+import javax.net.ssl.SSLSocketFactory
 
 internal const val PRO_RESPONSE_LIMIT = 32 * 1024
 
@@ -77,7 +81,7 @@ internal class UrlConnectionProTransport(
         val connection = openConnection(url)
         try {
             // A fresh socket factory prevents pooled HTTPS connections/session state being reused.
-            connection.sslSocketFactory = SSLContext.getInstance("TLS").apply { init(null, null, null) }.socketFactory
+            connection.sslSocketFactory = ProTlsSocketFactory()
             connection.instanceFollowRedirects = false
             connection.useCaches = false
             connection.defaultUseCaches = false
@@ -119,6 +123,35 @@ internal class UrlConnectionProTransport(
         val workers = ThreadPoolExecutor(1, 1, 30, TimeUnit.SECONDS, ArrayBlockingQueue(1),
             { task -> Thread(task, "kx-pro-authority").apply { isDaemon = true } },
             ThreadPoolExecutor.AbortPolicy())
+    }
+}
+
+/** Explicit TLS 1.2 minimum even on older Android providers. Platform trust is unchanged. */
+internal class ProTlsSocketFactory(
+    private val delegate: SSLSocketFactory = SSLContext.getInstance("TLSv1.2")
+        .apply { init(null, null, null) }.socketFactory,
+) : SSLSocketFactory() {
+    override fun getDefaultCipherSuites(): Array<String> = delegate.defaultCipherSuites
+    override fun getSupportedCipherSuites(): Array<String> = delegate.supportedCipherSuites
+    override fun createSocket(): Socket = secure(delegate.createSocket())
+    override fun createSocket(host: String, port: Int): Socket = secure(delegate.createSocket(host, port))
+    override fun createSocket(host: String, port: Int, local: InetAddress, localPort: Int): Socket =
+        secure(delegate.createSocket(host, port, local, localPort))
+    override fun createSocket(host: InetAddress, port: Int): Socket = secure(delegate.createSocket(host, port))
+    override fun createSocket(host: InetAddress, port: Int, local: InetAddress, localPort: Int): Socket =
+        secure(delegate.createSocket(host, port, local, localPort))
+    override fun createSocket(socket: Socket, host: String, port: Int, autoClose: Boolean): Socket =
+        secure(delegate.createSocket(socket, host, port, autoClose))
+
+    private fun secure(socket: Socket): Socket = try {
+        val tls = socket as? SSLSocket ?: throw IOException()
+        val protocols = listOf("TLSv1.3", "TLSv1.2").filter { it in tls.supportedProtocols }
+        if (protocols.isEmpty()) throw IOException()
+        tls.enabledProtocols = protocols.toTypedArray()
+        tls
+    } catch (failure: Exception) {
+        runCatching { socket.close() }
+        throw failure
     }
 }
 

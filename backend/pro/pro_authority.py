@@ -173,13 +173,13 @@ class Authority:
     @contextmanager
     def _transaction(self):
         with self._connection() as connection:
-            connection.execute("BEGIN IMMEDIATE")
             try:
+                connection.execute("BEGIN IMMEDIATE")
                 yield connection
                 connection.commit()
-            except Exception:
-                connection.rollback()
-                raise
+            finally:
+                if connection.in_transaction:
+                    connection.rollback()
 
     def _now(self):
         now = self.clock()
