@@ -120,26 +120,24 @@ class DownloadCatalog(private val context: Context) {
      * is allowed to share, so an empty result is reported as an empty result and never padded.
      */
     suspend fun listMediaStore(limit: Int = MAX_ROWS): DownloadListing = withContext(Dispatchers.IO) {
-        if (!DownloadCollections.mediaStoreSupported(Build.VERSION.SDK_INT)) {
-            // Android before 10 does not expose a shared download collection at all. The
-            // authorised SAF folder stays the path there, and nothing is invented to fill
-            // the gap in the result.
-            return@withContext DownloadListing(emptyList(), unavailable = true)
-        }
-        try {
-            val projection = arrayOf(
-                MediaStore.Downloads._ID,
-                MediaStore.Downloads.DISPLAY_NAME,
-                MediaStore.Downloads.MIME_TYPE,
-                MediaStore.Downloads.SIZE,
-                MediaStore.Downloads.DATE_MODIFIED,
-            )
-            val rows = mutableListOf<DownloadRow>()
-            var truncated = false
-            context.contentResolver.query(
-                MediaStore.Downloads.EXTERNAL_CONTENT_URI, projection, null, null,
-                MediaStore.Downloads.DATE_MODIFIED + " DESC",
-            )?.use { cursor ->
+        // The guard is written the way lint reads it: the shared collection exists from Android
+        // 10. Below that the authorised SAF folder stays the only source and the collection is
+        // reported as unavailable instead of being faked with a count of zero.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            try {
+                val projection = arrayOf(
+                    MediaStore.Downloads._ID,
+                    MediaStore.Downloads.DISPLAY_NAME,
+                    MediaStore.Downloads.MIME_TYPE,
+                    MediaStore.Downloads.SIZE,
+                    MediaStore.Downloads.DATE_MODIFIED,
+                )
+                val rows = mutableListOf<DownloadRow>()
+                var truncated = false
+                context.contentResolver.query(
+                    MediaStore.Downloads.EXTERNAL_CONTENT_URI, projection, null, null,
+                    MediaStore.Downloads.DATE_MODIFIED + " DESC",
+                )?.use { cursor ->
                 val idIndex = cursor.getColumnIndex(MediaStore.Downloads._ID)
                 val nameIndex = cursor.getColumnIndex(MediaStore.Downloads.DISPLAY_NAME)
                 val mimeIndex = cursor.getColumnIndex(MediaStore.Downloads.MIME_TYPE)
@@ -164,12 +162,15 @@ class DownloadCatalog(private val context: Context) {
                         ).toString(),
                     )
                 }
+                }
+                DownloadListing(rows, truncated = truncated)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                DownloadListing(emptyList(), failed = true)
             }
-            DownloadListing(rows, truncated = truncated)
-        } catch (e: CancellationException) {
-            throw e
-        } catch (_: Exception) {
-            DownloadListing(emptyList(), failed = true)
+        } else {
+            DownloadListing(emptyList(), unavailable = true)
         }
     }
 
