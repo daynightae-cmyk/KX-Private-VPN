@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="shield_title">Session privacy</string>
+    <string name="shield_owned_title">What KX keeps</string>
+    <string name="shield_owned_body">Only data that belongs to KX itself. The shield never reads, lists or ends another application\'s session.</string>
+    <string name="shield_profiles">%1$d profiles</string>
+    <string name="shield_history">%1$d history entries</string>
+    <string name="shield_secrets">%1$d items hold a credential</string>
+    <string name="shield_refresh">Refresh</string>
+    <string name="shield_select_all">Select all</string>
+    <string name="shield_holds_secret">Holds a credential. The value never leaves KX and is never shown.</string>
+    <string name="shield_selected_profile">The profile the tunnel would use</string>
+    <string name="shield_revoke">Revoke this profile</string>
+    <string name="shield_revoke_title">Revoke this profile?</string>
+    <string name="shield_revoke_body">%1$s will be removed from the encrypted store, and the private key it carried is removed with it. This cannot be undone.</string>
+    <string name="shield_history_title">History KX keeps</string>
+    <string name="shield_history_more">and %1$d more</string>
+    <string name="shield_actions_title">Erase and guidance</string>
+    <string name="shield_prune">Apply the retention rule</string>
+    <string name="shield_erase">Erase the history</string>
+    <string name="shield_erase_title">Erase the history?</string>
+    <string name="shield_erase_body">%1$d history entries, the measured usage records and the session hint will be deleted from KX\'s own storage. Profiles are kept; revoke them separately.</string>
+    <string name="shield_vpn_settings">Open the Android VPN settings</string>
+    <string name="shield_app_info">Open the KX app info</string>
+    <string name="shield_android_guidance">Android decides who may use a VPN. Only this screen can withdraw the consent, and it belongs to the system, not to KX.</string>
+    <string name="shield_scope">The shield touches only the files of this application. It cannot read, delete or end the data or the session of any other application.</string>
+    <string name="shield_receipt_title">What actually happened</string>
+    <string name="shield_receipt_counts">%1$d removed, %2$d pruned</string>
+</resources>

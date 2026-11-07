@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="shield_title">خصوصية الجلسات</string>
+    <string name="shield_owned_title">ما تحتفظ به KX</string>
+    <string name="shield_owned_body">بيانات تخص KX وحدها فقط. لا يقرأ الدرع ولا يدرج ولا ينهي جلسة أي تطبيق آخر.</string>
+    <string name="shield_profiles">%1$d إعدادات</string>
+    <string name="shield_history">%1$d سجلًا</string>
+    <string name="shield_secrets">%1$d عنصرًا يحمل بيانات اعتماد</string>
+    <string name="shield_refresh">تحديث</string>
+    <string name="shield_select_all">تحديد الكل</string>
+    <string name="shield_holds_secret">يحمل بيانات اعتماد. لا تغادر القيمة KX أبدًا ولا تُعرض.</string>
+    <string name="shield_selected_profile">الإعداد الذي سيستخدمه النفق</string>
+    <string name="shield_revoke">إبطال هذا الإعداد</string>
+    <string name="shield_revoke_title">إبطال هذا الإعداد؟</string>
+    <string name="shield_revoke_body">سيُزال %1$s من المخزن المشفّر، وتُزال معه المفتاح الخاص الذي كان يحمله. لا يمكن التراجع عن ذلك.</string>
+    <string name="shield_history_title">السجل الذي يحتفظ به KX</string>
+    <string name="shield_history_more">و%1$d أخرى</string>
+    <string name="shield_actions_title">المحو والإرشاد</string>
+    <string name="shield_prune">تطبيق قاعدة الاحتفاظ</string>
+    <string name="shield_erase">محو السجل</string>
+    <string name="shield_erase_title">محو السجل؟</string>
+    <string name="shield_erase_body">سيُحذف %1$d من السجل، وسجلات الاستخدام المقاسة، ومؤشر الجلسة من مساحة KX الخاصة. تبقى الإعدادات؛ أبطِلها على حدة.</string>
+    <string name="shield_vpn_settings">فتح إعدادات VPN في أندرويد</string>
+    <string name="shield_app_info">فتح معلومات تطبيق KX</string>
+    <string name="shield_android_guidance">أندرويد هو من يقرر من يمكنه استخدام VPN. هذه الشاشة وحدها تسحب الموافقة، وهي شاشة النظام وليست من KX.</string>
+    <string name="shield_scope">يلمس الدرع ملفات هذا التطبيق فقط. لا يمكنه قراءة أو حذف بيانات أو جلسة أي تطبيق آخر.</string>
+    <string name="shield_receipt_title">ما حدث فعلًا</string>
+    <string name="shield_receipt_counts">تمت إزالة %1$d، وتم تشذيب %2$d</string>
+</resources>

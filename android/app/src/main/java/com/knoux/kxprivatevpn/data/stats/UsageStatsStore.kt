@@ -60,6 +60,18 @@ class UsageStatsStore(context: Context) : UsageSink {
         }
     }
 
+    /**
+     * Keeps exactly [records] and drops the rest. Used by the retention rule of the session
+     * shield, which prunes the history that fell out of its window. The checkpoint is left
+     * alone: an interrupted session is not history and must still be recoverable.
+     */
+    suspend fun saveSurvivors(records: List<UsageRecord>) {
+        val safe = records.mapNotNull { it.sanitized() }
+        context.usageDataStore.edit { prefs ->
+            prefs[recordsKey] = UsageCodec.encode(safe.sortedBy { it.startedAtMillis })
+        }
+    }
+
     companion object {
         const val MAX_RECORDS = 2_000
     }
