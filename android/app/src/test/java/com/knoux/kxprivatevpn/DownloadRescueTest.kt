@@ -1,6 +1,7 @@
 package com.knoux.kxprivatevpn
 
 import com.knoux.kxprivatevpn.platform.repair.DownloadFormat
+import com.knoux.kxprivatevpn.platform.storage.DownloadCollections
 import com.knoux.kxprivatevpn.platform.repair.DownloadHealth
 import com.knoux.kxprivatevpn.platform.repair.DownloadValidator
 import org.junit.Assert.assertEquals
@@ -230,6 +231,13 @@ class DownloadRescueTest {
         ((value shr 24) and 0xFF).toByte(), ((value shr 16) and 0xFF).toByte(),
         ((value shr 8) and 0xFF).toByte(), (value and 0xFF).toByte(),
     )
+
+    @Test fun theSharedDownloadCollectionOnlyExistsFromAndroidTen() {
+        assertFalse(DownloadCollections.mediaStoreSupported(26))
+        assertFalse(DownloadCollections.mediaStoreSupported(28))
+        assertTrue(DownloadCollections.mediaStoreSupported(29))
+        assertTrue(DownloadCollections.mediaStoreSupported(35))
+    }
 
     @Test fun onlyFilesThatNeedAttentionAreFlagged() {        assertFalse(DownloadHealth.INTACT.needsAttention)
         assertTrue(DownloadHealth.ZERO_BYTE.needsAttention)

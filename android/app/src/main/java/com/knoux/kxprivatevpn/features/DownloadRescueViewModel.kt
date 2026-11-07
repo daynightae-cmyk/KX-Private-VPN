@@ -46,6 +46,8 @@ data class DownloadRescueUiState(
     val scanFailed: Boolean = false,
     val mediaStoreRows: Int = 0,
     val mediaStoreFailed: Boolean = false,
+    /** Android before 10 has no shared download collection; the folder stays the only source. */
+    val mediaStoreUnavailable: Boolean = false,
     val selected: Set<String> = emptySet(),
     val confirming: Boolean = false,
     val busy: Boolean = false,
@@ -160,6 +162,7 @@ class DownloadRescueViewModel(app: Application) : AndroidViewModel(app) {
                         scanFailed = listing.failed,
                         mediaStoreRows = media.rows.size,
                         mediaStoreFailed = media.failed,
+                        mediaStoreUnavailable = media.unavailable,
                         selected = emptySet(),
                     )
                 }

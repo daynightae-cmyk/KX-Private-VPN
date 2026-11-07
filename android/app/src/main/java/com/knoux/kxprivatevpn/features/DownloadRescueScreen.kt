@@ -117,8 +117,14 @@ fun DownloadRescueScreen(
                 } else {
                     Text(stringResource(R.string.download_scope_folder, treeName), fontSize = 14.sp,
                         modifier = Modifier.testTag("download-scope"))
-                    Text(stringResource(R.string.download_scope_media, state.mediaStoreRows),
-                        fontSize = 12.sp, color = foreground(night).copy(alpha = .78f))
+                    if (state.mediaStoreUnavailable) {
+                        Text(stringResource(R.string.download_scope_media_unavailable), fontSize = 12.sp,
+                            color = foreground(night).copy(alpha = .78f),
+                            modifier = Modifier.testTag("download-media-unavailable"))
+                    } else {
+                        Text(stringResource(R.string.download_scope_media, state.mediaStoreRows),
+                            fontSize = 12.sp, color = foreground(night).copy(alpha = .78f))
+                    }
                 }
                 Text(stringResource(R.string.download_inspected, state.inspected), fontSize = 14.sp,
                     modifier = Modifier.testTag("download-count"))

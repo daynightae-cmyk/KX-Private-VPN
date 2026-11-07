@@ -3,6 +3,7 @@ package com.knoux.kxprivatevpn.platform.storage
 import android.content.Context
 import android.net.Uri
 import android.provider.DocumentsContract
+import android.os.Build
 import android.provider.MediaStore
 import com.knoux.kxprivatevpn.platform.repair.DownloadAction
 import com.knoux.kxprivatevpn.platform.repair.DownloadActionResult
@@ -16,6 +17,16 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import java.io.IOException
 import kotlin.coroutines.coroutineContext
+
+/**
+ * Android version rules for the shared download collection, kept pure so the matrix is
+ * JVM-testable. Android before 10 has no shared download collection at all.
+ */
+object DownloadCollections {
+    const val MEDIA_STORE_SINCE = 29
+
+    fun mediaStoreSupported(sdk: Int): Boolean = sdk >= MEDIA_STORE_SINCE
+}
 
 /** One file the provider reported, before its bytes were inspected. */
 data class DownloadRow(
@@ -31,6 +42,8 @@ data class DownloadListing(
     val rows: List<DownloadRow>,
     val truncated: Boolean = false,
     val failed: Boolean = false,
+    /** The shared download collection does not exist on this Android version. */
+    val unavailable: Boolean = false,
 )
 
 /**
@@ -107,6 +120,12 @@ class DownloadCatalog(private val context: Context) {
      * is allowed to share, so an empty result is reported as an empty result and never padded.
      */
     suspend fun listMediaStore(limit: Int = MAX_ROWS): DownloadListing = withContext(Dispatchers.IO) {
+        if (!DownloadCollections.mediaStoreSupported(Build.VERSION.SDK_INT)) {
+            // Android before 10 does not expose a shared download collection at all. The
+            // authorised SAF folder stays the path there, and nothing is invented to fill
+            // the gap in the result.
+            return@withContext DownloadListing(emptyList(), unavailable = true)
+        }
         try {
             val projection = arrayOf(
                 MediaStore.Downloads._ID,
