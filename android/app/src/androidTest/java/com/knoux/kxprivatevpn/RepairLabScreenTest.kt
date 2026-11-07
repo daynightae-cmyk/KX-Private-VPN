@@ -21,6 +21,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.knoux.kxprivatevpn.features.RepairLabScreen
 import com.knoux.kxprivatevpn.features.RepairServiceRoute
 import com.knoux.kxprivatevpn.features.RepairUiState
+import com.knoux.kxprivatevpn.platform.repair.RepairCatalog
 import com.knoux.kxprivatevpn.platform.repair.RepairJournalEntry
 import com.knoux.kxprivatevpn.platform.repair.RepairMeasurement
 import com.knoux.kxprivatevpn.platform.repair.RepairOutcome
@@ -116,7 +117,7 @@ class RepairLabScreenTest {
             compose.onNodeWithTag("repair-card-$it").assertExists()
         }
         compose.onNodeWithTag("repair-services-count")
-            .assertTextEquals(text(R.string.repair_services_count, 7, 10))
+            .assertTextEquals(text(R.string.repair_services_count, 8, 10))
         // The compacted card announces the service once, with exactly one tiny status.
         val ready = text(R.string.repair_status_ready)
         val duplicateDescription = compose.onNodeWithTag("repair-card-duplicate")
@@ -223,12 +224,13 @@ class RepairLabScreenTest {
     }
 
     /**
-     * A tool that has no implementation yet must open an honest unavailable panel: no invented
-     * measurement, no simulated progress. The media tool left this set in TASK 17 because it
-     * now performs real work behind its own screen, so the download tool is the honest subject
-     * of this assertion.
+     * A tool without an implementation must open an honest unavailable panel: no invented
+     * measurement, no simulated progress. The subject is read from the catalog instead of being
+     * hard coded, so the assertion keeps its meaning when a tool becomes real.
      */
     @Test fun unavailableDetailStatesNoSimulation() {
+        val unavailable = RepairCatalog.services.first { !it.id.available }
+        val service = RepairCatalog.service(unavailable.id)
         compose.setContent {
             val english = localized(base, "en")
             CompositionLocalProvider(
@@ -237,18 +239,18 @@ class RepairLabScreenTest {
                 LocalLayoutDirection provides LayoutDirection.Ltr,
             ) {
                 Box(Modifier.fillMaxSize()) {
-                    RepairServiceRoute("repair/download", night = false, onBack = {})
+                    RepairServiceRoute(unavailable.id.route, night = false, onBack = {})
                 }
             }
         }
 
-        compose.onNodeWithText(context.getString(R.string.repair_service_download)).assertExists()
+        compose.onNodeWithText(context.getString(service.titleRes)).assertExists()
         compose.onNodeWithText(context.getString(R.string.repair_unavailable_body)).assertExists()
         compose.onNodeWithText(
             context.getString(R.string.repair_requires,
-                context.getString(R.string.repair_requires_saf)),
+                context.getString(service.requiresRes)),
         ).assertExists()
         compose.onNodeWithText(context.getString(R.string.repair_unavailable)).assertExists()
-        capture("45-repair-unavailable-download")
+        capture("45-repair-unavailable-tool")
     }
 }
