@@ -117,7 +117,7 @@ class RepairLabScreenTest {
             compose.onNodeWithTag("repair-card-$it").assertExists()
         }
         compose.onNodeWithTag("repair-services-count")
-            .assertTextEquals(text(R.string.repair_services_count, 9, 10))
+            .assertTextEquals(text(R.string.repair_services_count, 10, 10))
         // The compacted card announces the service once, with exactly one tiny status.
         val ready = text(R.string.repair_status_ready)
         val duplicateDescription = compose.onNodeWithTag("repair-card-duplicate")
@@ -226,31 +226,53 @@ class RepairLabScreenTest {
     /**
      * A tool without an implementation must open an honest unavailable panel: no invented
      * measurement, no simulated progress. The subject is read from the catalog instead of being
-     * hard coded, so the assertion keeps its meaning when a tool becomes real.
+     * hard coded, so the assertion keeps its meaning when a tool becomes real. Once every signature
+     * tool is implemented (this build), the same route must still refuse to invent a tool for an
+     * unknown route: it shows the honest unknown-service panel and never a simulated unavailable one.
      */
     @Test fun unavailableDetailStatesNoSimulation() {
-        val unavailable = RepairCatalog.services.first { !it.id.available }
-        val service = RepairCatalog.service(unavailable.id)
-        compose.setContent {
-            val english = localized(base, "en")
-            CompositionLocalProvider(
-                LocalContext provides english,
-                LocalConfiguration provides english.resources.configuration,
-                LocalLayoutDirection provides LayoutDirection.Ltr,
-            ) {
-                Box(Modifier.fillMaxSize()) {
-                    RepairServiceRoute(unavailable.id.route, night = false, onBack = {})
+        val unavailable = RepairCatalog.services.firstOrNull { !it.id.available }
+        if (unavailable != null) {
+            val service = RepairCatalog.service(unavailable.id)
+            compose.setContent {
+                val english = localized(base, "en")
+                CompositionLocalProvider(
+                    LocalContext provides english,
+                    LocalConfiguration provides english.resources.configuration,
+                    LocalLayoutDirection provides LayoutDirection.Ltr,
+                ) {
+                    Box(Modifier.fillMaxSize()) {
+                        RepairServiceRoute(unavailable.id.route, night = false, onBack = {})
+                    }
                 }
             }
-        }
 
-        compose.onNodeWithText(context.getString(service.titleRes)).assertExists()
-        compose.onNodeWithText(context.getString(R.string.repair_unavailable_body)).assertExists()
-        compose.onNodeWithText(
-            context.getString(R.string.repair_requires,
-                context.getString(service.requiresRes)),
-        ).assertExists()
-        compose.onNodeWithText(context.getString(R.string.repair_unavailable)).assertExists()
-        capture("45-repair-unavailable-tool")
+            compose.onNodeWithText(context.getString(service.titleRes)).assertExists()
+            compose.onNodeWithText(context.getString(R.string.repair_unavailable_body)).assertExists()
+            compose.onNodeWithText(
+                context.getString(R.string.repair_requires,
+                    context.getString(service.requiresRes)),
+            ).assertExists()
+            compose.onNodeWithText(context.getString(R.string.repair_unavailable)).assertExists()
+            capture("45-repair-unavailable-tool")
+        } else {
+            compose.setContent {
+                val english = localized(base, "en")
+                CompositionLocalProvider(
+                    LocalContext provides english,
+                    LocalConfiguration provides english.resources.configuration,
+                    LocalLayoutDirection provides LayoutDirection.Ltr,
+                ) {
+                    Box(Modifier.fillMaxSize()) {
+                        RepairServiceRoute("repair/unknown-tool", night = false, onBack = {})
+                    }
+                }
+            }
+
+            compose.onNodeWithText(context.getString(R.string.repair_unknown_service)).assertExists()
+            compose.onNodeWithText(context.getString(R.string.repair_unavailable_body)).assertDoesNotExist()
+            compose.onNodeWithText(context.getString(R.string.repair_unavailable)).assertDoesNotExist()
+            capture("45-repair-unknown-route")
+        }
     }
 }
