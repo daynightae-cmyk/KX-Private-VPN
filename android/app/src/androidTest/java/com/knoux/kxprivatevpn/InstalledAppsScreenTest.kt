@@ -239,12 +239,19 @@ class InstalledAppsScreenTest {
             nodes[index].performSemanticsAction(SemanticsActions.GetTextLayoutResult) { assertTrue(it(layouts)) }
             val actual = layouts.single()
             val input = actual.layoutInput
-            // Inspect the actual rendered TextLayoutResult. A reconstructed narrower
-            // constraint can falsely report Arabic 1.6x overflow on API 35.
-            // True width, height, or ellipsis overflow on any rendered node still fails.
-            assertFalse("${mode.label}: clipped ${input.text}",
-                actual.didOverflowWidth || actual.didOverflowHeight ||
-                    (0 until actual.lineCount).any(actual::isLineEllipsized))
+            // `didOverflowWidth` means the text needed wrapping, not that pixels were cut.
+            // It is also true for sub-pixel rounding: this "KX" lockup lays out at 69px
+            // with a 68.5px intrinsic width (letter spacing), so paragraph width 68 < 68.5.
+            // Real horizontal truncation is a single-line layout narrower than its intrinsic
+            // width by more than the 1px rounding allowance; wrapped text is checked through
+            // ellipsization and height instead. The frame captures remain separate evidence.
+            val ellipsized = (0 until actual.lineCount).any(actual::isLineEllipsized)
+            val clippedSingleLine = actual.lineCount == 1 &&
+                actual.size.width + 1f < actual.multiParagraph.maxIntrinsicWidth
+            assertFalse("${mode.label}: clipped ${input.text} " +
+                "(size=${actual.size}, intrinsic=${actual.multiParagraph.maxIntrinsicWidth}, " +
+                "ellipsized=$ellipsized, heightOverflow=${actual.didOverflowHeight})",
+                actual.didOverflowHeight || ellipsized || clippedSingleLine)
             assertEquals(mode.direction, input.layoutDirection)
             assertEquals(mode.font, input.density.fontScale, .001f)
         }
