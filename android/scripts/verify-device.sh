@@ -91,10 +91,9 @@ if [ "$is_emulator" = true ]; then
 else
     printf 'ime_disable_applied=false\nreason=physical_device\n' > device-screenshots/ime-disabled.txt
 fi
-# The VPN/Pro slice grew the full suite to 230 tests. Run 42353717147 on API35
-# was still progressing at 217/230 (zero assertion failures) when the old 8m
-# budget killed Gradle with 124. Include compile/install overhead without
-# skipping tests or retrying failures; timeout remains a failing result.
+# Run the full growing instrumented suite without skipping tests or treating
+# timeouts as success. PR28 VPN/Pro ran 230 tests, newer Home adds more.
+# The previous 8m bound killed healthy API35 runs; 12m remains a hard limit.
 timeout --kill-after=15s 12m bash ./gradlew "${gradle_flags[@]}" :app:connectedDebugAndroidTest -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true
 test_result=$?
 if [ "$test_result" -eq 124 ]; then

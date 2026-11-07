@@ -39,11 +39,10 @@ jobs:
             android/app/build/outputs/apk
   device:
     runs-on: ubuntu-latest
-    # Bounded inner path: emulator boot (10m) + install (6m) + tests (12m) = 28m.
-    # Leave setup/upload headroom so even a timed-out run preserves its evidence.
-    # API35 run 42353717147 reached 217/230 tests before the old 8m inner timeout;
-    # the full suite and all failure exit codes remain mandatory.
-    timeout-minutes: 35
+    # Emulator boot (10m) + APK install (6m) + a growing complete test suite (12m).
+    # Preserve setup and evidence-upload headroom; timeouts remain failures.
+    # This includes the PR28 VPN/Pro matrix and the PR29 Home tests.
+    timeout-minutes: 40
     strategy:
       fail-fast: false
       matrix:
