@@ -57,6 +57,39 @@ class RepairJournal(private val file: File, private val limit: Int = 50) {
         merged
     }
 
+    /**
+     * Replaces the journal with exactly [entries]. Used by the retention rule to drop the
+     * entries that fell out of the window and by an approved erase to remove the history.
+     * The file is rewritten atomically, so a failure keeps the previous content.
+     */
+    @Throws(Exception::class)
+    fun replace(entries: List<RepairJournalEntry>): List<RepairJournalEntry> = synchronized(lock) {
+        val kept = entries.sortedByDescending { it.atMillis }.take(limit)
+        val output = atomic.startWrite()
+        try {
+            output.write(encode(kept).toByteArray(Charsets.UTF_8))
+            atomic.finishWrite(output)
+        } catch (e: Exception) {
+            atomic.failWrite(output)
+            throw e
+        }
+        kept
+    }
+
+    /** Removes the whole journal. Only the app's own history is touched. */
+    @Throws(Exception::class)
+    fun clear(): Int = synchronized(lock) {
+        val removed = loadLocked().size
+        val base = atomic.baseFile
+        val backup = File(base.path + ".bak")
+        if (!base.exists() && !backup.exists()) return removed
+        // A delete that reports failure is surfaced, never swallowed: an erase must not claim
+        // success while the journal or its AtomicFile backup can still be read back.
+        if (base.exists() && !base.delete()) error("journal not cleared")
+        if (backup.exists() && !backup.delete()) error("journal backup not cleared")
+        removed
+    }
+
     private fun loadLocked(): List<RepairJournalEntry> {
         if (!atomic.baseFile.exists() && !File(atomic.baseFile.path + ".bak").exists()) return emptyList()
         return try {

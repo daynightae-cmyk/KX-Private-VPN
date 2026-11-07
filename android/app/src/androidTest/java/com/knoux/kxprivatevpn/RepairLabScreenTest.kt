@@ -117,7 +117,7 @@ class RepairLabScreenTest {
             compose.onNodeWithTag("repair-card-$it").assertExists()
         }
         compose.onNodeWithTag("repair-services-count")
-            .assertTextEquals(text(R.string.repair_services_count, 8, 10))
+            .assertTextEquals(text(R.string.repair_services_count, 9, 10))
         // The compacted card announces the service once, with exactly one tiny status.
         val ready = text(R.string.repair_status_ready)
         val duplicateDescription = compose.onNodeWithTag("repair-card-duplicate")

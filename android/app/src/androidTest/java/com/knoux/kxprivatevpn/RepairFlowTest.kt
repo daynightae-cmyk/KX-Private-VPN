@@ -41,7 +41,7 @@ class RepairFlowTest {
                 compose.onAllNodes(hasTestTag("repair-volume")).fetchSemanticsNodes().isNotEmpty()
             }
             compose.onNodeWithTag("repair-services-count").assertTextEquals(
-                strings(context).getString(R.string.repair_services_count, 8, 10),
+                strings(context).getString(R.string.repair_services_count, 9, 10),
             )
             capture("46-repair-lab-flow")
 
@@ -58,6 +58,7 @@ class RepairFlowTest {
 
             listOf("storage" to "route-storage", "cache" to "route-cache",
                 "media" to "route-media", "download" to "route-download",
+                "session" to "route-shield",
                 "network" to "route-network").forEach { (card, route) ->
                 compose.onNodeWithTag("repair-card-$card").performScrollTo().performClick()
                 compose.waitUntil(10_000) {
