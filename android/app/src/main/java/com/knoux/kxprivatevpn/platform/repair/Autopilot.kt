@@ -3,6 +3,12 @@ package com.knoux.kxprivatevpn.platform.repair
 import com.knoux.kxprivatevpn.platform.security.ShieldRetention
 import com.knoux.kxprivatevpn.platform.storage.CachePreview
 import com.knoux.kxprivatevpn.platform.usage.UsageRecord
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.withContext
 
 /**
  * KX Repair Autopilot.
@@ -131,6 +137,23 @@ object AutopilotPlanner {
             approvedUsage = approvedUsage,
         )
     }
+}
+
+/**
+ * Finish a single durable mutation AND publish its count before honoring cancellation.
+ * Cancellation wins before starting, after the count, and therefore between two stores.
+ * Shared by Autopilot and Shield so their actual commit boundary is testable without app data.
+ */
+internal suspend fun commitApprovedMutation(
+    mutate: suspend () -> Int,
+    onCommitted: (Int) -> Unit,
+    dispatcher: CoroutineDispatcher = Dispatchers.IO,
+) {
+    currentCoroutineContext().ensureActive()
+    withContext(NonCancellable + dispatcher) {
+        onCommitted(mutate())
+    }
+    currentCoroutineContext().ensureActive()
 }
 
 /** Exact multiset subtraction: changed/new records survive, including excess duplicate copies. */

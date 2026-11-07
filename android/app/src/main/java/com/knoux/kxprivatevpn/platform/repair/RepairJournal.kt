@@ -126,6 +126,20 @@ internal object RepairJournalCodec {
             "Invalid journal entry"
         }
         require(entry.items >= 0 && entry.bytes >= 0) { "Invalid journal measurement" }
+        // JSON permits escaped UTF-16 code units. Lone surrogates cannot be encoded as UTF-8
+        // losslessly, so reject them before any survivor is rewritten or new entry appended.
+        require(validUnicode(entry.serviceKey) && validUnicode(entry.action)) { "Invalid journal Unicode" }
+    }
+
+    private fun validUnicode(value: String): Boolean {
+        var index = 0
+        while (index < value.length) {
+            val char = value[index++]
+            if (char.isHighSurrogate()) {
+                if (index == value.length || !value[index++].isLowSurrogate()) return false
+            } else if (char.isLowSurrogate()) return false
+        }
+        return true
     }
 
     /** Strict and lossless mutation input; the deliberately tolerant DISPLAY decoder stays below. */

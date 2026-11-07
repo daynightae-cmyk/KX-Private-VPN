@@ -364,10 +364,11 @@ class VisualHardeningTest {
     }
 
     private companion object {
-        // One fresh directory per test-class run, in the TEST APK sandbox, never targetContext.
+        // The process uses the target UID. Isolation is a fresh test-owned UUID directory;
+        // this helper never opens production stores or removes existing evidence.
         val evidenceDirectory: File by lazy {
-            val testContext = InstrumentationRegistry.getInstrumentation().context
-            File(checkNotNull(testContext.getExternalFilesDir(null)), "physical-evidence/${UUID.randomUUID()}")
+            val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+            File(checkNotNull(targetContext.getExternalFilesDir(null)), "physical-evidence/${UUID.randomUUID()}")
                 .apply { check(mkdirs()) }
         }
     }

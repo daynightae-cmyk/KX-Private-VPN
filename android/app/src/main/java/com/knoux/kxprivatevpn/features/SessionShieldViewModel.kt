@@ -9,6 +9,7 @@ import com.knoux.kxprivatevpn.data.config.ProfileStore
 import com.knoux.kxprivatevpn.data.stats.UsageStatsStore
 import com.knoux.kxprivatevpn.launch.LaunchPreferences
 import com.knoux.kxprivatevpn.platform.repair.RepairJournal
+import com.knoux.kxprivatevpn.platform.repair.commitApprovedMutation
 import com.knoux.kxprivatevpn.platform.security.ShieldAction
 import com.knoux.kxprivatevpn.platform.security.ShieldEntry
 import com.knoux.kxprivatevpn.platform.security.ShieldInventory
@@ -228,18 +229,20 @@ class SessionShieldViewModel(app: Application) : AndroidViewModel(app) {
                 val usageTargets = usage.load().records.filter {
                     ShieldRetention.isExpired(it.startedAtMillis, now, window)
                 }
-                currentCoroutineContext().ensureActive()
-                withContext(NonCancellable + Dispatchers.IO) {
-                    val removed = journal.removeApproved(journalTargets)
-                    pruned += removed
-                    failed = removed != journalTargets.size
-                }
-                currentCoroutineContext().ensureActive()
-                withContext(NonCancellable + Dispatchers.IO) {
-                    val removed = usage.removeApproved(usageTargets)
-                    pruned += removed
-                    failed = failed || removed != usageTargets.size
-                }
+                commitApprovedMutation(
+                    mutate = { journal.removeApproved(journalTargets) },
+                    onCommitted = { removed ->
+                        pruned += removed
+                        failed = removed != journalTargets.size
+                    },
+                )
+                commitApprovedMutation(
+                    mutate = { usage.removeApproved(usageTargets) },
+                    onCommitted = { removed ->
+                        pruned += removed
+                        failed = failed || removed != usageTargets.size
+                    },
+                )
                 currentCoroutineContext().ensureActive()
             } catch (e: CancellationException) {
                 failed = true

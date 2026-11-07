@@ -86,19 +86,28 @@ false positives.
 
 The candidate source was built from the isolated hardening worktree on the baseline above with
 JDK 21, running `:app:testDebugUnitTest :app:lintDebug :app:assembleDebug :app:assembleDebugAndroidTest`.
-The final run completed successfully in 1m28s. XML reports contain 26 JVM suites / 211 tests,
+After focused review corrections, the final run completed successfully in 1m47s. XML reports contain 26 JVM suites / 213 tests,
 zero failures, errors or skips. Lint completed with zero errors and 134 warnings; this is not a
 warning-free verdict. Both application and instrumentation APKs compiled. Instrumentation
 compilation does not establish native execution or visual acceptance.
 
 - Candidate debug APK: 27,784,583 bytes, SHA-256
-  `4da34d702c5d71c5600783a905931da6d075f15dc026fc6b2db7cb5dda401531`.
-- Candidate instrumentation APK: 1,651,785 bytes, SHA-256
-  `f995e4d84900cad05076a82d4e08009b38b22ddb68768a105ee5f663c12c1998`.
+  `82ce094069d67e9d4f7acfad3fe93ccfe938f9cf57a784a3385a3f2a020b0680`.
+- Candidate instrumentation APK: 1,652,079 bytes, SHA-256
+  `dc764888c3bd061cfe14db5f27c6b6f914a4d73c0eff965845ec0a42e8a66711`.
 - APK Signature Scheme v2 verification succeeded. The candidate Android Debug certificate
   SHA-256 is `c07168d455a86f8c792ef44ebf213ab63ec327226589692bcad69231e67c085e`, matching the
   separately preserved installed APK. The candidate has not been installed on the phone.
 - No original artwork, private backup, raw phone log or APK is included in this hardening patch.
+- Focused review corrected test sandbox ownership: instrumentation executes under the target UID.
+  Tests now use injected UUID-owned files/directories under that UID, never production store paths.
+  Capture roots must be non-null. No production DataStore is cleared for isolation.
+- Journal mutations reject unpaired Unicode surrogates before any lossy UTF-8 rewrite. JVM
+  regression passed; the native byte-preservation regression compiled but awaits execution.
+- Real coroutine Job cancellation during and between real temporary-file DataStore commits
+  verifies the shared production mutation boundary: exact committed counts, unapproved survivors
+  and checkpoint preservation, with a cancelled/partial result. This does not exercise the entire
+  Android ViewModel lifecycle or claim a native AtomicFile cancellation test.
 
 Exact source commit and its remote CI results must be recorded after publication. Baseline CI
 or these local results must not be inherited by a later source revision.
@@ -112,7 +121,7 @@ not bypass the missing advertised device capability with raw UI/runner commands.
 
 Safe future execution: bind the owner-authorized physical Canvas target; verify candidate and
 installed certificates/hashes; preserve/compare stores; run reviewed non-destructive method
-selectors only. Opt-in `VisualHardeningTest` captures synthetic state in unique test-APK paths.
+selectors only. Opt-in `VisualHardeningTest` captures synthetic state in unique test-owned paths.
 `PhysicalEntryTest` runs the real Activity but not a true process-cold launch; it requires private
 capture review and startup-state comparison. Never run the entire CI device suite on the phone.
 

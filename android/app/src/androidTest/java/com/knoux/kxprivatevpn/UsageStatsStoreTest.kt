@@ -55,7 +55,9 @@ class UsageStatsStoreTest {
 
     @Before
     fun createTestOwnedStore() {
-        val context = InstrumentationRegistry.getInstrumentation().context
+        // Instrumentation runs under the app UID; isolation comes from the injected UUID file,
+        // not the inaccessible test-package sandbox. Never open the production DataStore.
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
         file = File(context.cacheDir, "usage-test-${UUID.randomUUID()}.preferences_pb")
         job = SupervisorJob()
         dataStore = PreferenceDataStoreFactory.create(scope = CoroutineScope(job + Dispatchers.IO)) { file }

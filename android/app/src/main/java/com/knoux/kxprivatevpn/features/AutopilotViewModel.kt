@@ -10,6 +10,7 @@ import com.knoux.kxprivatevpn.platform.repair.AutopilotReceipt
 import com.knoux.kxprivatevpn.platform.repair.RepairJournal
 import com.knoux.kxprivatevpn.platform.repair.RepairJournalEntry
 import com.knoux.kxprivatevpn.platform.repair.RepairOutcome
+import com.knoux.kxprivatevpn.platform.repair.commitApprovedMutation
 import com.knoux.kxprivatevpn.platform.storage.CacheMaintenance
 import com.knoux.kxprivatevpn.platform.storage.CachePreview
 import kotlinx.coroutines.CancellationException
@@ -189,19 +190,20 @@ class AutopilotViewModel(app: Application) : AndroidViewModel(app) {
                 }
                 if (AutopilotPlanner.HISTORY_ID in selected) {
                     try {
-                        // Each write+count is indivisible to cancellation; between stores Cancel wins.
-                        currentCoroutineContext().ensureActive()
-                        withContext(NonCancellable + Dispatchers.IO) {
-                            val removed = journal.removeApproved(plan.approvedJournal)
-                            pruned += removed
-                            if (removed != plan.agedJournal) skipped += "journal_changed"
-                        }
-                        currentCoroutineContext().ensureActive()
-                        withContext(NonCancellable + Dispatchers.IO) {
-                            val removed = usage.removeApproved(plan.approvedUsage)
-                            pruned += removed
-                            if (removed != plan.agedUsage) skipped += "usage_changed"
-                        }
+                        commitApprovedMutation(
+                            mutate = { journal.removeApproved(plan.approvedJournal) },
+                            onCommitted = { removed ->
+                                pruned += removed
+                                if (removed != plan.agedJournal) skipped += "journal_changed"
+                            },
+                        )
+                        commitApprovedMutation(
+                            mutate = { usage.removeApproved(plan.approvedUsage) },
+                            onCommitted = { removed ->
+                                pruned += removed
+                                if (removed != plan.agedUsage) skipped += "usage_changed"
+                            },
+                        )
                     } catch (e: CancellationException) {
                         throw e
                     } catch (_: Exception) {

@@ -17,14 +17,14 @@ import java.util.UUID
  * Opt-in real Activity/real-time entry evidence, without a Compose test clock or store setup.
  * Does not connect VPN, change preferences, or delete anything. Normal app startup may recover
  * its own lifecycle state, so the host must preserve/compare app-private state around this test.
- * Captures remain in the TEST APK's unique directory and require review before publication.
+ * Captures remain in a fresh test-owned directory and require review before publication.
  */
 class PhysicalEntryTest {
     @Test fun actualLauncherWaitsForOrbAndRestoresHome() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         org.junit.Assume.assumeTrue("physical entry capture is explicitly opt-in",
             InstrumentationRegistry.getArguments().getString("kxPhysicalEntry") == "true")
-        val folder = File(instrumentation.context.getExternalFilesDir(null),
+        val folder = File(checkNotNull(instrumentation.targetContext.getExternalFilesDir(null)),
             "entry-${UUID.randomUUID()}").apply { check(mkdirs()) }
         fun capture(name: String) {
             val bitmap = instrumentation.uiAutomation.takeScreenshot()
