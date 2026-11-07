@@ -1,8 +1,9 @@
 """Run: python -B -m unittest discover -s /absolute/backend/pro -p 'test_*.py' -v
 
 All listeners are ephemeral IPv4 loopback. All databases are temporary within
-this directory. Clock injection avoids sleeps. Tests capture CLI output and
-never print generated codes, installation secrets or peppers.
+this directory. Clock injection avoids sleeps except for bounded real-socket
+progress checks. Tests capture CLI output and never print generated codes,
+installation secrets or peppers.
 """
 
 from concurrent.futures import ThreadPoolExecutor
@@ -15,12 +16,14 @@ import json
 import os
 from pathlib import Path
 import secrets
+import select
 import socket
 import sqlite3
 import subprocess
 import sys
 import tempfile
 import threading
+import time
 import unittest
 from unittest.mock import patch
 
@@ -58,8 +61,10 @@ class AuthorityHTTPTests(unittest.TestCase):
         self.nonce = secrets.token_hex(32)
         self.clock = Clock(1_800_000_000_000)
         self.rate_clock = Clock(100)
+        # Exercise the production contention budget. A test-wide 100ms override
+        # makes correct durable commits fail on hosted disks under parallel load.
         self.authority = pro.Authority(self.database, self.pepper, initialize=True,
-                                       clock=self.clock, busy_timeout=0.1)
+                                       clock=self.clock)
         self.server = pro.ProHTTPServer(self.authority, limiter=pro.RateLimiter(
             peer_limit=10000, subject_limit=10000, clock=self.rate_clock))
         self.thread = threading.Thread(target=self.server.serve_forever,
@@ -286,14 +291,14 @@ class AuthorityHTTPTests(unittest.TestCase):
         issuance = self.authority.issue(60)
         with ThreadPoolExecutor(max_workers=8) as executor:
             responses = list(executor.map(lambda _: self.redeem(issuance), range(8)))
-        self.assertTrue(all(response[0] == 200 for response in responses))
+        self.assertEqual([response[0] for response in responses], [200] * len(responses))
         self.assertTrue(all(response[1] == responses[0][1] for response in responses))
 
     def test_simultaneous_fresh_renewals_leave_one_active_grant(self):
         codes = [self.authority.issue(60 + index) for index in range(8)]
         with ThreadPoolExecutor(max_workers=8) as executor:
             responses = list(executor.map(self.redeem, codes))
-        self.assertTrue(all(response[0] == 200 for response in responses))
+        self.assertEqual([response[0] for response in responses], [200] * len(responses))
         replays = [self.redeem(issuance)[0] for issuance in codes]
         self.assertEqual(replays.count(200), 1)
         self.assertEqual(replays.count(403), 7)
@@ -446,7 +451,129 @@ class AuthorityHTTPTests(unittest.TestCase):
             self.assertEqual(json.loads(response.read()), {"error": "bad_request"})
         self.assertEqual(self.request()[0], 429)
 
+    def assert_progress_deadline(self, initial, *, finish_headers=None):
+        # One available worker makes a leaked permit observable on the next request.
+        self.server._slots = threading.BoundedSemaphore(1)
+        self.server.socket_timeout = 0.3
+        self.server.request_timeout = 0.6
+        self.server.limiter = pro.RateLimiter(peer_limit=1, subject_limit=1,
+                                              window_seconds=10, clock=self.rate_clock)
+        started_threads = []
+        original_start = threading.Thread.start
+
+        def record_start(thread):
+            started_threads.append(thread)
+            original_start(thread)
+
+        output, errors = io.StringIO(), io.StringIO()
+        with (patch.object(threading.Thread, "start", new=record_start),
+              patch.object(self.authority, "redeem", wraps=self.authority.redeem) as redeem,
+              patch.object(self.authority, "validate", wraps=self.authority.validate) as validate,
+              redirect_stdout(output), redirect_stderr(errors)):
+            try:
+                with socket.create_connection(self.server.server_address, timeout=2) as connection:
+                    started = time.monotonic()
+                    connection.sendall(initial)
+                    progress = 0
+                    transitioned = False
+                    while time.monotonic() - started < 0.9:
+                        # Keep supplying bytes well inside the inactivity timeout.
+                        if select.select([connection], [], [], 0.03)[0]:
+                            break
+                        if finish_headers is not None and time.monotonic() - started >= 0.4:
+                            connection.sendall(finish_headers)
+                            finish_headers = None
+                            transitioned = True
+                        else:
+                            connection.sendall(b" ")
+                            progress += 1
+                    else:
+                        self.fail("Continuing input retained the worker beyond the absolute deadline")
+                    self.assertGreaterEqual(progress, 3)
+                    self.assertLess(time.monotonic() - started, 0.9)
+                    self.assertIsNone(finish_headers)
+                    with http.client.HTTPResponse(connection) as response:
+                        response.begin()
+                        self.assertEqual(response.status, 400)
+                        self.assert_security_headers(dict(response.getheaders()))
+                        self.assertEqual(json.loads(response.read()), {"error": "bad_request"})
+                    if transitioned:
+                        # Headers finished at ~0.4s: a fresh body deadline would
+                        # last until ~1.0s and fail the shared 0.9s upper bound.
+                        self.assertGreaterEqual(time.monotonic() - started, 0.4)
+                for thread in started_threads:
+                    thread.join(timeout=2)
+                    self.assertFalse(thread.is_alive())
+                self.assertEqual((redeem.call_count, validate.call_count), (0, 0))
+                self.assertEqual(self.request()[:2], (429, {"error": "rate_limited"}))
+                self.assertEqual((redeem.call_count, validate.call_count), (0, 0))
+                self.rate_clock.advance(10)
+                self.assert_inactive(self.request())
+            finally:
+                for thread in started_threads:
+                    thread.join(timeout=2)
+                    self.assertFalse(thread.is_alive())
+        # Exactly the slow request and two probes: no watchdog/timer/per-byte
+        # threads, including delayed threads left behind by fast responses.
+        self.assertEqual(len(started_threads), 3)
+        self.assertFalse(any(isinstance(thread, threading.Timer) for thread in started_threads))
+        self.assertEqual(output.getvalue(), "")
+        self.assertEqual(errors.getvalue(), "")
+
+    def test_progressing_request_line_hits_absolute_deadline(self):
+        self.assert_progress_deadline(b"POST /v1/validate")
+
+    def test_progressing_headers_hit_absolute_deadline(self):
+        self.assert_progress_deadline(b"POST /v1/validate HTTP/1.1\r\nHost: "
+                                      + self.secret.encode("ascii"))
+
+    def test_progressing_body_hits_absolute_deadline(self):
+        issuance = self.authority.issue(60)
+        body = pro._json_bytes({"nonce": self.nonce, "code": issuance["code"]})
+        initial = self.raw_headers(b"", body=body, request_line=b"POST /v1/redeem HTTP/1.1")
+        initial = initial.replace(f"Content-Length: {len(body)}".encode("ascii"),
+                                  b"Content-Length: 4096")
+        self.assert_progress_deadline(initial)
+        # The timed-out redemption never bound this still-usable fresh code.
+        self.rate_clock.advance(10)
+        self.assertEqual(self.redeem(issuance, secret=secrets.token_hex(32))[0], 200)
+
+    def test_headers_and_body_share_absolute_deadline(self):
+        body = pro._json_bytes({"nonce": self.nonce})
+        initial = self.raw_headers(b"", body=body).split(b"\r\n\r\n", 1)[0]
+        initial = initial.replace(f"Content-Length: {len(body)}".encode("ascii"),
+                                  b"Content-Length: 4096") + b"\r\nX-Padding: "
+        self.assert_progress_deadline(initial, finish_headers=b"\r\n\r\n" + body)
+
+    def test_deadline_rechecked_after_buffered_json_before_authority(self):
+        issuance = self.authority.issue(60)
+        for route, payload in (("/v1/redeem", {"nonce": self.nonce, "code": issuance["code"]}),
+                               ("/v1/validate", {"nonce": self.nonce})):
+            with self.subTest(route=route):
+                deadline_clock = Clock(100)
+                original_loads = json.loads
+
+                def expire_during_json(*args, **kwargs):
+                    result = original_loads(*args, **kwargs)
+                    if "object_pairs_hook" in kwargs:
+                        deadline_clock.advance(10)
+                    return result
+
+                # A complete real-socket request may be entirely buffered. Move
+                # only the server's monotonic clock while validating its JSON.
+                with (patch.object(pro, "time") as server_time,
+                      patch.object(pro.json, "loads", side_effect=expire_during_json),
+                      patch.object(self.authority, "redeem", wraps=self.authority.redeem) as redeem,
+                      patch.object(self.authority, "validate", wraps=self.authority.validate) as validate):
+                    server_time.monotonic.side_effect = deadline_clock
+                    response = self.request(route, payload=payload)
+                    self.assertEqual((redeem.call_count, validate.call_count), (0, 0))
+                    self.assert_bad(response)
+        self.assertEqual(self.redeem(issuance, secret=secrets.token_hex(32))[0], 200)
+
     def test_sqlite_lock_unavailable_then_recovers(self):
+        # Only the deliberate lock-outage test needs a shortened wait.
+        self.authority.busy_timeout = 0.1
         issuance = self.authority.issue(60)
         self.assertEqual(self.redeem(issuance)[0], 200)
         connection = sqlite3.connect(self.database, isolation_level=None)

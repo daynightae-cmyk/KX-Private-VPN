@@ -69,7 +69,7 @@ class ProBackendContractTest {
     }
 
     private class Fixture : Closeable {
-        private val root = generateSequence(File(System.getProperty("user.dir")).absoluteFile) { it.parentFile }
+        private val root = generateSequence(File(checkNotNull(System.getProperty("user.dir"))).absoluteFile) { it.parentFile }
             .firstOrNull { File(it, "backend/pro/client_contract_fixture.py").isFile }
             ?: error("Run the contract test from this repository")
         private val process = ProcessBuilder("python", "-B", File(root, "backend/pro/client_contract_fixture.py").path)
@@ -136,6 +136,7 @@ class ProBackendContractTest {
                     ProHttpResponse(status, connection.contentType, body)
                 } finally { connection.disconnect() }
             } },
+            elapsedMillis = { System.nanoTime() / 1_000_000L },
         )
 
         override fun close() {

@@ -1,5 +1,6 @@
 package com.knoux.kxprivatevpn.platform.security
 
+import android.os.SystemClock
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
@@ -32,13 +33,16 @@ internal class InvalidProResponse : IOException()
 /** Platform trust and hostname verification remain intact. No redirects, cache, or TLS bypass. */
 internal class UrlConnectionProTransport(
     private val timeoutMillis: Long = 30_000,
+    private val elapsedMillis: () -> Long = SystemClock::elapsedRealtime,
     private val executor: ThreadPoolExecutor = workers,
     private val openConnection: (URI) -> HttpsURLConnection = { it.toURL().openConnection() as HttpsURLConnection },
 ) : ProHttpTransport {
     override suspend fun post(request: ProHttpRequest): ProHttpResponse {
-        require(ProConfiguration(request.url.resolve("/").toString(), "").configured)
-        return withTimeoutOrNull(timeoutMillis) {
-            suspendCancellableCoroutine { continuation ->
+        require(ProConfiguration(request.url.resolve("/").toString(), "").configured && timeoutMillis > 0)
+        val started = elapsedMillis()
+        fun withinDeadline(): Boolean = (elapsedMillis() - started) in 0 until timeoutMillis
+        val response = withTimeoutOrNull(timeoutMillis) {
+            suspendCancellableCoroutine<ProHttpResponse> { continuation ->
                 val cancelled = AtomicBoolean(false)
                 val future = executor.submit {
                     if (!continuation.isActive) return@submit
@@ -46,7 +50,7 @@ internal class UrlConnectionProTransport(
                     val payload = request.json.copyOf()
                     try {
                         val result = exchange(request.url, request.bearer, payload) {
-                            if (cancelled.get() || Thread.currentThread().isInterrupted) throw IOException()
+                            if (cancelled.get() || Thread.currentThread().isInterrupted || !withinDeadline()) throw IOException()
                         }
                         if (continuation.isActive) continuation.resume(result)
                     } catch (failure: Exception) {
@@ -62,6 +66,10 @@ internal class UrlConnectionProTransport(
                 }
             }
         } ?: throw IOException()
+        // A ready success can be delivered after the dispatcher/phone resumes from a stall.
+        // elapsedRealtime includes deep sleep; the coroutine timer alone is insufficient.
+        if (!withinDeadline()) throw IOException()
+        return response
     }
 
     private fun exchange(url: URI, bearer: String, payload: ByteArray, checkActive: () -> Unit): ProHttpResponse {
@@ -118,6 +126,7 @@ internal class UrlConnectionProTransport(
 internal class HttpsProAuthority(
     private val configuration: ProConfiguration,
     private val identity: ProIdentity,
+    private val elapsedMillis: () -> Long = SystemClock::elapsedRealtime,
     private val transport: ProHttpTransport,
 ) : ProAuthority {
     override suspend fun validateNow(subject: String): AuthorityResult {
@@ -139,14 +148,24 @@ internal class HttpsProAuthority(
             else "{\"nonce\":\"$nonce\",\"code\":\"$code\"}").toByteArray(Charsets.US_ASCII)
         return try {
             currentCoroutineContext().ensureActive()
+            val started = elapsedMillis()
             val response = transport.post(ProHttpRequest(configuration.endpoint!!.resolve("/v1/$operation"), identity.secret, payload))
             currentCoroutineContext().ensureActive()
-            when (response.status) {
+            val result = when (response.status) {
                 200 -> decode(response, nonce)
                 403 -> AuthorityResult.Inactive
                 429 -> AuthorityResult.RateLimited
                 in 500..599 -> AuthorityResult.Unavailable
                 else -> AuthorityResult.Invalid
+            }
+            val elapsed = elapsedMillis() - started
+            when {
+                elapsed !in 0L until 30_000L -> AuthorityResult.Unavailable
+                // Conservatively charge the WHOLE request/delivery interval against the
+                // server's remaining lifetime; never trust the device wall clock for expiry.
+                result is AuthorityResult.Current &&
+                    elapsed >= result.grant.expiresAtMillis - result.grant.authorityNowMillis -> AuthorityResult.Expired
+                else -> result
             }
         } catch (cancelled: CancellationException) { throw cancelled }
         catch (_: InvalidProResponse) {

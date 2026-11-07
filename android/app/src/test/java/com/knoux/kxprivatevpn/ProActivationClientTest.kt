@@ -34,7 +34,7 @@ class ProActivationClientTest {
         .put("revoked", false).put("features", JSONArray().put("PRO_AUTOMATION"))
     private fun response(json: String, status: Int = 200, type: String = "application/json") =
         ProHttpResponse(status, type, json.toByteArray(Charsets.UTF_8))
-    private fun repo(transport: ProHttpTransport) = ProRepository(configuration, { identity }, transport)
+    private fun repo(transport: ProHttpTransport) = ProRepository(configuration, { identity }, transport, elapsedMillis = { 0L })
 
     @Test fun validRedeemUsesPostContractAndBoundSecretOnlyInHeader() = runTest {
         var calls = 0
@@ -78,6 +78,31 @@ class ProActivationClientTest {
         offline = true
         assertEquals(ProAccess.Denied(ProDenial.UNAVAILABLE), repository.authorizeAutomationNow())
         assertEquals(13, nonces.size)
+    }
+
+    @Test fun nonceBoundReplyThatArrivesAfterExpiryCannotAuthorize() = runTest {
+        for ((elapsed, expected) in listOf(499L to ProAccess.Allowed,
+            500L to ProAccess.Denied(ProDenial.INACTIVE), 2000L to ProAccess.Denied(ProDenial.INACTIVE))) {
+            var clock = 10_000L
+            val repository = ProRepository(configuration, { identity }, { request ->
+                val issued = valid(request).toString() // 500 ms remain at server response generation.
+                clock += elapsed // Delivery/dispatcher delay, not a change to server-provided time.
+                response(issued)
+            }, elapsedMillis = { clock })
+            assertEquals("elapsed=$elapsed", expected, repository.authorizeAutomationNow())
+        }
+    }
+
+    @Test fun overdueOrRegressedMonotonicClockCannotUseQueuedSuccess() = runTest {
+        for (elapsed in listOf(30_000L, 30_001L, -1L)) {
+            var clock = 10_000L
+            val repository = ProRepository(configuration, { identity }, { request ->
+                val issued = valid(request).put("expiresAtMillis", 1_000_000L).toString()
+                clock += elapsed // Success is ready, but its continuation runs after the deadline.
+                response(issued)
+            }, elapsedMillis = { clock })
+            assertEquals(AuthorityResult.Unavailable, repository.refresh())
+        }
     }
 
     @Test fun replayedResponseFromPriorRequestIsRejected() = runTest {

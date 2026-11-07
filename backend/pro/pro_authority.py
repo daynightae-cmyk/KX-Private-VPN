@@ -18,8 +18,10 @@ from contextlib import contextmanager
 import hashlib
 import hmac
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+import io
 import ipaddress
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -340,8 +342,45 @@ def _json_bytes(payload):
     return json.dumps(payload, separators=(",", ":"), ensure_ascii=True).encode("ascii")
 
 
+class _DeadlineSocketReader(io.RawIOBase):
+    """Borrow the socket; all buffered reads share one non-renewable deadline."""
+
+    def __init__(self, connection, *, deadline, idle_timeout):
+        super().__init__()
+        self.connection = connection
+        self.deadline = deadline
+        self.idle_timeout = idle_timeout
+
+    def readable(self):
+        return True
+
+    def check_deadline(self):
+        remaining = self.deadline - time.monotonic()
+        if remaining <= 0:
+            raise TimeoutError()
+        return remaining
+
+    def readinto(self, buffer):
+        self.connection.settimeout(min(self.idle_timeout, self.check_deadline()))
+        try:
+            length = self.connection.recv_into(buffer)
+            self.check_deadline()
+            return length
+        finally:
+            # The shortened input budget must not truncate the sanitized response.
+            self.connection.settimeout(self.idle_timeout)
+
+
 class ProHandler(BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
+
+    def setup(self):
+        deadline = time.monotonic() + self.server.request_timeout
+        super().setup()
+        self.rfile.close()
+        self._request_reader = _DeadlineSocketReader(
+            self.connection, deadline=deadline, idle_timeout=self.server.socket_timeout)
+        self.rfile = io.BufferedReader(self._request_reader, buffer_size=io.DEFAULT_BUFFER_SIZE)
 
     def log_message(self, _format, *args):
         # BaseHTTPRequestHandler otherwise logs URL, peer and parser errors.
@@ -364,6 +403,7 @@ class ProHandler(BaseHTTPRequestHandler):
                     return
                 if not self.parse_request():
                     return
+                self._request_reader.check_deadline()
             except (ConnectionError, TimeoutError):
                 # Incomplete headers consume the peer budget too. Exceptions in
                 # authority operations below are instead always sanitized as 503.
@@ -446,7 +486,10 @@ class ProHandler(BaseHTTPRequestHandler):
                 raise BadRequest()
             if not all(is_hex64(payload[key]) for key in required):
                 raise BadRequest()
-        except BadRequest:
+            # Buffered data and JSON validation can outlive the last socket read.
+            # Neither authority route may begin a mutation after input expires.
+            self._request_reader.check_deadline()
+        except (BadRequest, TimeoutError):
             self._respond(400, {"error": "bad_request"})
             return
         try:
@@ -488,7 +531,7 @@ class ProHandler(BaseHTTPRequestHandler):
 
 
 class ProHTTPServer(ThreadingHTTPServer):
-    """Bounded workers and socket deadlines; no HTTP admin or proxy trust."""
+    """Bounded workers, idle timeout and total input deadline; no HTTP admin/proxy trust."""
 
     daemon_threads = True
     block_on_close = True
@@ -496,17 +539,20 @@ class ProHTTPServer(ThreadingHTTPServer):
     request_queue_size = 32
 
     def __init__(self, authority, *, bind="127.0.0.1", port=0, limiter=None,
-                 max_workers=32, socket_timeout=5.0):
+                 max_workers=32, socket_timeout=5.0, request_timeout=5.0):
         try:
             loopback = ipaddress.IPv4Address(bind).is_loopback
         except ipaddress.AddressValueError:
             loopback = False
         if (not loopback or type(port) is not int or not 0 <= port <= 65535
-                or type(max_workers) is not int or max_workers < 1 or socket_timeout <= 0):
+                or type(max_workers) is not int or max_workers < 1
+                or any(type(timeout) not in (int, float) or not math.isfinite(timeout) or timeout <= 0
+                       for timeout in (socket_timeout, request_timeout))):
             raise ConfigurationError()
         self.authority = authority
         self.limiter = limiter if limiter is not None else RateLimiter()
         self.socket_timeout = socket_timeout
+        self.request_timeout = request_timeout
         self._slots = threading.BoundedSemaphore(max_workers)
         super().__init__((bind, port), ProHandler)
 

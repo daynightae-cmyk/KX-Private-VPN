@@ -32,15 +32,16 @@ internal class ProRepository(
     val configuration: ProConfiguration,
     private val identities: ProIdentitySource,
     private val transport: ProHttpTransport = UrlConnectionProTransport(),
+    private val elapsedMillis: () -> Long = android.os.SystemClock::elapsedRealtime,
 ) {
     suspend fun refresh(): AuthorityResult = withIdentity { identity ->
-        HttpsProAuthority(configuration, identity, transport).validateNow(identity.subject)
+        HttpsProAuthority(configuration, identity, elapsedMillis, transport).validateNow(identity.subject)
     }
 
     suspend fun redeem(code: String): AuthorityResult {
         configuration.configurationFailure?.let { return it }
         if (!isProHex(code)) return AuthorityResult.Invalid
-        return withIdentity { identity -> HttpsProAuthority(configuration, identity, transport).redeem(code) }
+        return withIdentity { identity -> HttpsProAuthority(configuration, identity, elapsedMillis, transport).redeem(code) }
     }
 
     /** Invoke immediately before each future PRO_AUTOMATION operation, never from a UI snapshot. */
@@ -55,7 +56,7 @@ internal class ProRepository(
         catch (cancelled: CancellationException) { throw cancelled }
         catch (_: Exception) { return ProAccess.Denied(ProDenial.IDENTITY_UNAVAILABLE) }
         // The policy itself invokes the live adapter. No earlier refresh/redeem result is reused.
-        return ProEntitlements(HttpsProAuthority(configuration, identity, transport))
+        return ProEntitlements(HttpsProAuthority(configuration, identity, elapsedMillis, transport))
             .authorize(feature, identity.subject)
     }
 

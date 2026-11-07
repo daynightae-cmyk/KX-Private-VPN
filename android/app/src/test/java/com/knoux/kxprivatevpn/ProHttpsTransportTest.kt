@@ -16,6 +16,7 @@ import java.util.concurrent.TimeUnit
 import javax.net.ssl.HttpsURLConnection
 
 class ProHttpsTransportTest {
+    private val elapsedMillis = { System.nanoTime() / 1_000_000L }
     private fun request() = ProHttpRequest(URI("https://authority.example/v1/validate"),
         "a1".repeat(32), "{}".toByteArray())
 
@@ -33,7 +34,7 @@ class ProHttpsTransportTest {
                 return -1
             }
         }, finished)
-        val transport = UrlConnectionProTransport { connection }
+        val transport = UrlConnectionProTransport(elapsedMillis = elapsedMillis) { connection }
         val call = launch(Dispatchers.Default) { transport.post(request()) }
         try {
             assertTrue(entered.await(2, TimeUnit.SECONDS))
@@ -62,10 +63,10 @@ class ProHttpsTransportTest {
                 return -1
             }
         }, finished)
-        val transport = UrlConnectionProTransport(timeoutMillis = 200) { connection }
+        val transport = UrlConnectionProTransport(timeoutMillis = 200, elapsedMillis = elapsedMillis) { connection }
         try {
             val repository = ProRepository(ProConfiguration("https://authority.example", ""),
-                { ProIdentity("a1".repeat(32)) }, transport)
+                { ProIdentity("a1".repeat(32)) }, transport, elapsedMillis = elapsedMillis)
             val started = System.nanoTime()
             val result = repository.refresh()
             assertEquals(AuthorityResult.Unavailable, result)
@@ -79,7 +80,7 @@ class ProHttpsTransportTest {
 
     @Test fun cleartextIsRejectedBeforeOpeningAnyConnection() = runBlocking {
         try {
-            UrlConnectionProTransport { error("Must not open cleartext") }
+            UrlConnectionProTransport(elapsedMillis = elapsedMillis) { error("Must not open cleartext") }
                 .post(ProHttpRequest(URI("http://127.0.0.1/v1/validate"), "a1".repeat(32), byteArrayOf()))
             fail("Cleartext accepted")
         } catch (_: IllegalArgumentException) { }
@@ -87,7 +88,7 @@ class ProHttpsTransportTest {
 
     @Test fun transportAppliesLimitsHeadersAndNeverFollowsRedirects() = runBlocking {
         val connection = StubConnection(ByteArrayInputStream("{}".toByteArray()))
-        val result = UrlConnectionProTransport { connection }.post(request())
+        val result = UrlConnectionProTransport(elapsedMillis = elapsedMillis) { connection }.post(request())
         assertEquals(200, result.status)
         assertEquals("application/json", result.contentType)
         assertEquals("{}", result.body.toString(Charsets.UTF_8))
@@ -104,7 +105,7 @@ class ProHttpsTransportTest {
     @Test fun oversizedBodiesAreRejectedAndConnectionCloses() = runBlocking {
         val connection = StubConnection(ByteArrayInputStream(ByteArray(PRO_RESPONSE_LIMIT + 1)))
         try {
-            UrlConnectionProTransport { connection }.post(request())
+            UrlConnectionProTransport(elapsedMillis = elapsedMillis) { connection }.post(request())
             fail("Oversized response accepted")
         } catch (_: InvalidProResponse) { }
         assertTrue(connection.disconnected)
@@ -114,7 +115,7 @@ class ProHttpsTransportTest {
         val connection = StubConnection(object : InputStream() {
             override fun read(): Int = error("Redirect body must not be read")
         }, status = 302)
-        assertEquals(302, UrlConnectionProTransport { connection }.post(request()).status)
+        assertEquals(302, UrlConnectionProTransport(elapsedMillis = elapsedMillis) { connection }.post(request()).status)
         assertTrue(connection.disconnected)
     }
 
