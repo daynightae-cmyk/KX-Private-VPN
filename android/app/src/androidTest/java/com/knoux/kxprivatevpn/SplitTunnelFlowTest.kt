@@ -1,7 +1,5 @@
 package com.knoux.kxprivatevpn
 
-import android.graphics.Bitmap
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
@@ -13,7 +11,6 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
-import java.io.File
 
 /**
  * Real-device path: the screen loads Android's launchable package list, does not claim any
@@ -53,11 +50,7 @@ class SplitTunnelFlowTest {
                 assertFalse("A disconnected screen cannot claim applied routing: $countText",
                     countText.startsWith("0 "))
                 compose.onNodeWithTag("split-note-apply").assertIsDisplayed()
-                val folder = File(context.getExternalFilesDir(null), "identity-evidence").apply { mkdirs() }
-                File(folder, "28-split-tunnel-device-light.png").outputStream().use { stream ->
-                    check(compose.onRoot().captureToImage().asAndroidBitmap()
-                        .compress(Bitmap.CompressFormat.PNG, 100, stream))
-                }
+                captureEvidence(context, compose, "28-split-tunnel-device-light")
             }
         } finally {
             runBlocking { preferences.appearance(original.language, original.theme) }

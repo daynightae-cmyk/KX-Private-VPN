@@ -28,11 +28,12 @@ class RepairCatalogTest {
             setOf(
                 RepairServiceId.STORAGE, RepairServiceId.GHOST,
                 RepairServiceId.DUPLICATE, RepairServiceId.HEAVYWEIGHT,
-                RepairServiceId.CACHE, RepairServiceId.DOWNLOAD, RepairServiceId.NETWORK,
+                RepairServiceId.CACHE, RepairServiceId.MEDIA, RepairServiceId.DOWNLOAD,
+                RepairServiceId.NETWORK,
             ),
             ready,
         )
-        assertEquals(7, RepairCatalog.available())
+        assertEquals(8, RepairCatalog.available())
     }
 
     @Test fun unavailableToolsHaveDedicatedHonestRoutes() {

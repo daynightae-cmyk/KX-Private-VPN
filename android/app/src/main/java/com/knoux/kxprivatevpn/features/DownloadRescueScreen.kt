@@ -92,7 +92,7 @@ fun DownloadRescueScreen(
     var renaming by remember { mutableStateOf(false) }
     var newName by remember { mutableStateOf("") }
 
-    Box(Modifier.fillMaxSize().testTag("download-rescue")) {
+    Box(Modifier.fillMaxSize().testTag("route-download")) {
         Atmosphere(night, 0f)
         Column(
             Modifier.fillMaxSize().safeDrawingPadding()

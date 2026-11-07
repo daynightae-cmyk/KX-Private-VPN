@@ -1,7 +1,5 @@
 package com.knoux.kxprivatevpn
 
-import android.graphics.Bitmap
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.test.core.app.ActivityScenario
@@ -10,7 +8,6 @@ import com.knoux.kxprivatevpn.launch.LaunchPreferences
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
-import java.io.File
 
 /**
  * Real Activity flow: Home opens the Repair Lab, the dashboard performs a real StatFs/cache
@@ -44,7 +41,7 @@ class RepairFlowTest {
                 compose.onAllNodes(hasTestTag("repair-volume")).fetchSemanticsNodes().isNotEmpty()
             }
             compose.onNodeWithTag("repair-services-count").assertTextEquals(
-                strings(context).getString(R.string.repair_services_count, 6, 10),
+                strings(context).getString(R.string.repair_services_count, 8, 10),
             )
             capture("46-repair-lab-flow")
 
@@ -60,6 +57,7 @@ class RepairFlowTest {
             }
 
             listOf("storage" to "route-storage", "cache" to "route-cache",
+                "media" to "route-media", "download" to "route-download",
                 "network" to "route-network").forEach { (card, route) ->
                 compose.onNodeWithTag("repair-card-$card").performScrollTo().performClick()
                 compose.waitUntil(10_000) {
@@ -82,11 +80,6 @@ class RepairFlowTest {
     }
 
     private fun capture(name: String) {
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val folder = File(context.getExternalFilesDir(null), "identity-evidence").apply { mkdirs() }
-        File(folder, "$name.png").outputStream().use { stream ->
-            check(compose.onRoot().captureToImage().asAndroidBitmap()
-                .compress(Bitmap.CompressFormat.PNG, 100, stream))
-        }
+        captureEvidence(InstrumentationRegistry.getInstrumentation().targetContext, compose, name)
     }
 }

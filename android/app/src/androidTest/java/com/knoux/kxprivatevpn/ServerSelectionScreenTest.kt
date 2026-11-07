@@ -2,7 +2,6 @@ package com.knoux.kxprivatevpn
 
 import android.content.Context
 import android.content.res.Configuration
-import android.graphics.Bitmap
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.CompositionLocalProvider
@@ -10,7 +9,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -25,7 +23,6 @@ import com.knoux.kxprivatevpn.features.ServerSelectionScreen
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
-import java.io.File
 import java.util.Locale
 
 /** Only imported endpoints are listed; no fake country, load or latency is rendered. */
@@ -79,11 +76,7 @@ class ServerSelectionScreenTest {
     }
 
     private fun capture(name: String) {
-        val folder = File(context.getExternalFilesDir(null), "identity-evidence").apply { mkdirs() }
-        File(folder, "$name.png").outputStream().use { stream ->
-            check(compose.onRoot().captureToImage().asAndroidBitmap()
-                .compress(Bitmap.CompressFormat.PNG, 100, stream))
-        }
+        captureEvidence(context, compose, name)
     }
 
     @Test fun importedEndpointsRenderAndSelect() {

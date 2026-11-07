@@ -1,0 +1,10 @@
+
+com.knoux.kxprivatevpn.MediaSlimCompressorTest:......
+com.knoux.kxprivatevpn.MediaSlimScreenTest:.......
+com.knoux.kxprivatevpn.RepairFlowTest:.
+
+Time: ┘ú┘Ñ┘½┘º┘¿┘⌐
+
+OK (14 tests)
+
+
