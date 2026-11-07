@@ -26,17 +26,23 @@ enum class DownloadHealth {
     val isDeletable: Boolean get() = this == ZERO_BYTE || this == TRUNCATED || this == CORRUPTED
 }
 
+/** The longest possible ZIP end of central directory record, comment included. */
+private const val ZIP_TAIL_WINDOW = 22 + 65535
+
 /** Formats with a real structural validator. Anything else is reported as unsupported. */
 enum class DownloadFormat(
     val mime: String,
     val extension: String,
     val requiresTail: Boolean,
+    /** How many trailing bytes have to be read for the end marker to be visible. */
+    val tailWindow: Int,
 ) {
-    PDF("application/pdf", "pdf", true),
-    PNG("image/png", "png", true),
-    JPEG("image/jpeg", "jpg", true),
-    MP4("video/mp4", "mp4", false),
-    ZIP("application/zip", "zip", true),
+    PDF("application/pdf", "pdf", true, 32),
+    PNG("image/png", "png", true, 32),
+    JPEG("image/jpeg", "jpg", true, 32),
+    MP4("video/mp4", "mp4", false, 0),
+    /** The end of central directory record is 22 bytes and may be followed by a comment. */
+    ZIP("application/zip", "zip", true, ZIP_TAIL_WINDOW),
     ;
 
     companion object {
@@ -89,7 +95,7 @@ enum class DownloadAction { EXPORT, RENAME, REMOVE }
  * is inferred from the file name alone.
  */
 object DownloadValidator {
-    const val WINDOW = 16
+    const val WINDOW = 32
 
     private val PDF_HEAD = "%PDF-".toByteArray(Charsets.US_ASCII)
     private val PDF_TAIL = "%%EOF".toByteArray(Charsets.US_ASCII)
@@ -169,6 +175,13 @@ object DownloadValidator {
         DownloadFormat.JPEG -> contains(tail, JPEG_TAIL)
         DownloadFormat.ZIP -> contains(tail, ZIP_TAIL)
         DownloadFormat.MP4 -> true
+    }
+
+    /** The tail window a format needs, never larger than the file itself. */
+    fun tailWindow(format: DownloadFormat?, bytes: Long): Int {
+        if (format == null || !format.requiresTail) return 0
+        if (bytes <= 0L) return 0
+        return minOf(format.tailWindow.toLong(), bytes).toInt()
     }
 
     private fun startsWith(data: ByteArray, prefix: ByteArray): Boolean {

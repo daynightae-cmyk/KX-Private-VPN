@@ -122,8 +122,116 @@ class DownloadRescueTest {
         assertNull(DownloadFormat.fromMime("application/octet-stream", "file.bin"))
     }
 
-    @Test fun onlyFilesThatNeedAttentionAreFlagged() {
-        assertFalse(DownloadHealth.INTACT.needsAttention)
+    /**
+     * Regression: a ZIP end of central directory record is 22 bytes and may be followed by a
+     * comment, so a small fixed tail window misses it and a perfectly intact archive would be
+     * reported as interrupted. The window has to follow the format.
+     */
+    @Test fun aRealArchiveIsJudgedByItsRealEndRecord() {
+        val archive = realZipBytes()
+        val window = DownloadValidator.tailWindow(DownloadFormat.ZIP, archive.size.toLong())
+        val tail = archive.copyOfRange(archive.size - window, archive.size)
+        val head = archive.copyOfRange(0, DownloadValidator.WINDOW)
+        assertFalse(
+            "a 16 byte window cannot see the end record",
+            DownloadValidator.tailMatches(
+                DownloadFormat.ZIP, archive.copyOfRange(archive.size - 16, archive.size),
+            ),
+        )
+        val result = DownloadValidator.classify(
+            "application/zip", "a.zip", archive.size.toLong(), head, tail,
+        )
+        assertEquals(DownloadHealth.INTACT, result.health)
+        assertEquals("verified", result.reason)
+    }
+
+    @Test fun aRealPngIsJudgedByItsRealEndChunk() {
+        val image = realPngBytes()
+        val window = DownloadValidator.tailWindow(DownloadFormat.PNG, image.size.toLong())
+        val tail = image.copyOfRange(image.size - window, image.size)
+        val head = image.copyOfRange(0, DownloadValidator.WINDOW)
+        val result = DownloadValidator.classify(
+            "image/png", "a.png", image.size.toLong(), head, tail,
+        )
+        assertEquals(DownloadHealth.INTACT, result.health)
+    }
+
+    @Test fun theTailWindowNeverReadsPastTheEndOfTheFile() {
+        assertEquals(0, DownloadValidator.tailWindow(null, 100L))
+        assertEquals(0, DownloadValidator.tailWindow(DownloadFormat.MP4, 100L))
+        assertEquals(32, DownloadValidator.tailWindow(DownloadFormat.PDF, 100L))
+        assertEquals(20, DownloadValidator.tailWindow(DownloadFormat.PDF, 20L))
+        assertEquals(0, DownloadValidator.tailWindow(DownloadFormat.PDF, 0L))
+    }
+
+    /** A real ZIP with one stored entry, built the way a downloader would deliver it. */
+    private fun realZipBytes(): ByteArray {
+        val payload = ("KX download rescue verification payload" + System.lineSeparator())
+            .toByteArray(Charsets.US_ASCII)
+        val name = "note.txt".toByteArray(Charsets.US_ASCII)
+        val crc = java.util.zip.CRC32().apply { update(payload) }.value
+        val local = java.io.ByteArrayOutputStream()
+        local.write(byteArrayOf(0x50, 0x4B, 0x03, 0x04))
+        local.write(byteArrayOf(0x14, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00))
+        local.write(byteArrayOf(0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00))
+        local.write(intLE(payload.size.toInt()))
+        local.write(intLE(payload.size.toInt()))
+        local.write(byteArrayOf(name.size.toByte(), 0x00))
+        local.write(name)
+        local.write(payload)
+        val localBytes = local.toByteArray()
+        val central = java.io.ByteArrayOutputStream()
+        central.write(byteArrayOf(0x50, 0x4B, 0x01, 0x02))
+        central.write(byteArrayOf(0x14, 0x00, 0x14, 0x00, 0x00, 0x00, 0x00, 0x00))
+        central.write(byteArrayOf(0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00))
+        central.write(intLE(crc.toInt()))
+        central.write(intLE(payload.size.toInt()))
+        central.write(intLE(payload.size.toInt()))
+        central.write(byteArrayOf(name.size.toByte(), 0x00))
+        central.write(name)
+        central.write(byteArrayOf(0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00))
+        central.write(intLE(0))
+        central.write(intLE(0))
+        val centralBytes = central.toByteArray()
+        val end = java.io.ByteArrayOutputStream()
+        end.write(byteArrayOf(0x50, 0x4B, 0x05, 0x06))
+        end.write(byteArrayOf(0x00, 0x00, 0x00, 0x00))
+        end.write(intLE(1)); end.write(intLE(1))
+        end.write(intLE(centralBytes.size)); end.write(intLE(localBytes.size))
+        end.write(byteArrayOf(0x00, 0x00))
+        val endBytes = end.toByteArray()
+        return localBytes + centralBytes + endBytes
+    }
+
+    /** A real PNG with a single red pixel and a proper IEND chunk. */
+    private fun realPngBytes(): ByteArray {
+        fun chunk(type: String, data: ByteArray): ByteArray {
+            val payload = type.toByteArray(Charsets.US_ASCII) + data
+            val out = java.io.ByteArrayOutputStream()
+            out.write(intBE(data.size))
+            out.write(payload)
+            out.write(intBE(java.util.zip.CRC32().apply { update(payload) }.value.toInt()))
+            return out.toByteArray()
+        }
+        val out = java.io.ByteArrayOutputStream()
+        out.write(byteArrayOf(0x89.toByte(), 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A))
+        out.write(chunk("IHDR", byteArrayOf(0, 0, 0, 1, 0, 0, 0, 1, 8, 2, 0, 0, 0)))
+        out.write(chunk("IDAT", byteArrayOf(0x78, 0x9C.toByte(), 0x63, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01)))
+        out.write(chunk("IEND", ByteArray(0)))
+        return out.toByteArray()
+    }
+
+    private fun intLE(value: Int) = byteArrayOf(
+        (value and 0xFF).toByte(), ((value shr 8) and 0xFF).toByte(),
+        ((value shr 16) and 0xFF).toByte(), ((value shr 24) and 0xFF).toByte(),
+    )
+
+    private fun intBE(value: Int) = byteArrayOf(
+        ((value shr 24) and 0xFF).toByte(), ((value shr 16) and 0xFF).toByte(),
+        ((value shr 8) and 0xFF).toByte(), (value and 0xFF).toByte(),
+    )
+
+    @Test fun onlyFilesThatNeedAttentionAreFlagged() {        assertFalse(DownloadHealth.INTACT.needsAttention)
         assertTrue(DownloadHealth.ZERO_BYTE.needsAttention)
         assertTrue(DownloadHealth.TRUNCATED.needsAttention)
         assertTrue(DownloadHealth.CORRUPTED.needsAttention)

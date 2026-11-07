@@ -154,8 +154,16 @@ class DownloadCatalog(private val context: Context) {
         }
     }
 
-    /** Reads the real head and tail bytes of a document so the validator can judge it. */
-    suspend fun readEdges(documentUri: Uri, bytes: Long): Pair<ByteArray?, ByteArray?> =
+    /**
+     * Reads the real head and tail bytes of a document so the validator can judge it. The tail
+     * window follows the format: a ZIP end of central directory record is 22 bytes plus an
+     * optional comment, so a fixed small window would miss a perfectly intact archive.
+     */
+    suspend fun readEdges(
+        documentUri: Uri,
+        bytes: Long,
+        tailWindow: Int,
+    ): Pair<ByteArray?, ByteArray?> =
         withContext(Dispatchers.IO) {
             val head = try {
                 context.contentResolver.openInputStream(documentUri)?.use { stream ->
@@ -167,9 +175,9 @@ class DownloadCatalog(private val context: Context) {
                 null
             }
             val tail = try {
-                if (bytes <= 0L) null else context.contentResolver.openInputStream(documentUri)?.use { stream ->
+                if (bytes <= 0L || tailWindow <= 0) null else context.contentResolver.openInputStream(documentUri)?.use { stream ->
                     val length = bytes.coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
-                    val window = DownloadValidator.WINDOW.coerceAtMost(length)
+                    val window = tailWindow.coerceAtMost(length)
                     val start = (length - window).toLong()
                     stream.skip(start)
                     val buffer = ByteArray(window)
@@ -189,7 +197,9 @@ class DownloadCatalog(private val context: Context) {
 
     /** Classifies one row by reading its real bytes. */
     suspend fun classify(row: DownloadRow): DownloadCandidate {
-        val (head, tail) = readEdges(Uri.parse(row.uri), row.bytes)
+        val format = DownloadFormat.fromMime(row.mime, row.displayName)?.first
+        val window = DownloadValidator.tailWindow(format, row.bytes)
+        val (head, tail) = readEdges(Uri.parse(row.uri), row.bytes, window)
         val candidate = DownloadValidator.classify(row.mime, row.displayName, row.bytes, head, tail)
         return candidate.copy(
             documentId = row.documentId,
