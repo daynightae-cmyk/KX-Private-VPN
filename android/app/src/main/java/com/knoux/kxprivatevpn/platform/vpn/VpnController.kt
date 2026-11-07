@@ -154,12 +154,14 @@ class VpnController(
     suspend fun lockdownEnabled(): Boolean? = runCatching { gateway.isLockdownEnabled() }.getOrNull()
 
     fun reportNoProfile() {
+        if (mutable.value.issue == VpnIssue.STOP_FAILED) return
         if (mutable.value.phase == VpnPhase.IDLE || mutable.value.phase == VpnPhase.ERROR) {
             mutable.value = VpnState(VpnPhase.ERROR, null, VpnIssue.NO_PROFILE)
         }
     }
 
     fun reportConsentDenied() {
+        if (mutable.value.issue == VpnIssue.STOP_FAILED) return
         if (mutable.value.phase != VpnPhase.CONNECTED) {
             mutable.value = VpnState(VpnPhase.ERROR, null, VpnIssue.CONSENT_DENIED)
         }
@@ -173,6 +175,7 @@ class VpnController(
     }
 
     fun reportStartFailed() {
+        if (mutable.value.issue == VpnIssue.STOP_FAILED) return
         if (mutable.value.phase == VpnPhase.IDLE || mutable.value.phase == VpnPhase.ERROR) {
             mutable.value = VpnState(VpnPhase.ERROR, null, VpnIssue.START_FAILED)
         }

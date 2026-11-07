@@ -49,9 +49,10 @@ class ClientViewModel(app: Application) : AndroidViewModel(app) {
     val state: StateFlow<ClientState> = mutable.asStateFlow()
     private val splitConfigurator = SplitTunnelConfigurator(app)
     private val advancedConfigurator = AdvancedNetworkConfigurator(app)
+    private val gateway = WireGuardVpnGateway(app)
     private val vpn = VpnController(
         scope = viewModelScope,
-        gateway = WireGuardVpnGateway(app),
+        gateway = gateway,
         loadConfig = { id -> store.config(id) },
         // Split tunneling writes the per-app lists; advanced network then rebuilds the
         // interface around them (MTU/DNS) and rewrites the peer keepalive. Both run before
@@ -248,6 +249,18 @@ class ClientViewModel(app: Application) : AndroidViewModel(app) {
     fun consentDenied() = vpn.reportConsentDenied()
     fun disconnectVpn() = vpn.disconnect()
     fun dismissVpnIssue() = vpn.clearIssue()
+
+    /** Explicit, VPN-bound request; no consent means no network operation. Never starts a tunnel. */
+    suspend fun verifyVpnPath(url: String, approved: Boolean): VpnPathEvidence {
+        val expected = vpn.state.value.session
+        val port = AndroidVpnProbePort(getApplication(), gateway) {
+            val current = vpn.state.value
+            expected != null && current.phase == VpnPhase.CONNECTED &&
+                current.session?.profileId == expected.profileId &&
+                current.session?.startedAtMillis == expected.startedAtMillis
+        }
+        return VpnPathVerifier(port).verify(url, approved)
+    }
 
     /** Real PackageManager + DataStore read; nothing is shown before both complete. */
     fun refreshSplitTunnel() {
