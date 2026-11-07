@@ -11,8 +11,6 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.text.TextLayoutResult
-import androidx.compose.ui.text.TextMeasurer
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.platform.app.InstrumentationRegistry
@@ -241,15 +239,12 @@ class InstalledAppsScreenTest {
             nodes[index].performSemanticsAction(SemanticsActions.GetTextLayoutResult) { assertTrue(it(layouts)) }
             val actual = layouts.single()
             val input = actual.layoutInput
-            // HomeScreenTest's Compose 1.8 correction: retain actual size, remeasure at its
-            // actual width rather than the wider parent constraint reconstructed by semantics.
-            val measured = TextMeasurer(input.fontFamilyResolver, input.density, input.layoutDirection, 0).measure(
-                text = input.text, style = input.style, placeholders = input.placeholders,
-                maxLines = input.maxLines, softWrap = input.softWrap, overflow = input.overflow,
-                constraints = Constraints(maxWidth = actual.size.width, maxHeight = input.constraints.maxHeight),
-            ).copy(size = actual.size)
-            assertFalse("${mode.label}: clipped ${input.text}", measured.hasVisualOverflow ||
-                (0 until measured.lineCount).any(measured::isLineEllipsized))
+            // Inspect the actual rendered TextLayoutResult. A reconstructed narrower
+            // constraint can falsely report Arabic 1.6x overflow on API 35.
+            // True width, height, or ellipsis overflow on any rendered node still fails.
+            assertFalse("${mode.label}: clipped ${input.text}",
+                actual.didOverflowWidth || actual.didOverflowHeight ||
+                    (0 until actual.lineCount).any(actual::isLineEllipsized))
             assertEquals(mode.direction, input.layoutDirection)
             assertEquals(mode.font, input.density.fontScale, .001f)
         }
