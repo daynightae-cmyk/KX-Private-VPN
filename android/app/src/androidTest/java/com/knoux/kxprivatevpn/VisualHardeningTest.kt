@@ -5,6 +5,9 @@ import android.graphics.Bitmap
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -14,6 +17,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
@@ -29,6 +33,10 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextMeasurer
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -132,22 +140,121 @@ class VisualHardeningTest {
 
     private fun text(tag: String) = compose.onNodeWithTag(tag, useUnmergedTree = true)
 
-    private fun layout(node: SemanticsNodeInteraction): TextLayoutResult {
+    private fun semanticsLayout(node: SemanticsNodeInteraction): TextLayoutResult {
         val results = mutableListOf<TextLayoutResult>()
         node.performSemanticsAction(SemanticsActions.GetTextLayoutResult) { action ->
-            assertTrue("Text must expose its actual layout", action(results))
+            assertTrue("Text must expose its layout inputs and measured size", action(results))
         }
         return results.single()
+    }
+
+    private fun layout(node: SemanticsNodeInteraction): TextLayoutResult {
+        val reported = semanticsLayout(node)
+        val input = reported.layoutInput
+        // Compose 1.8.0 ParagraphLayoutCache.slowCreateTextLayoutResultOrNull rebuilds
+        // MultiParagraph at the parent's max width but keeps the smaller measured size.
+        // Its raw didOverflowWidth therefore counts unused space as clipped text.
+        // Measure the same resolved inputs at the actual node width, retaining its size
+        // (including constrained height), softWrap, maxLines and overflow policy.
+        // The paired callback fixtures below verify this check and its negative controls.
+        val measured = TextMeasurer(
+            defaultFontFamilyResolver = input.fontFamilyResolver,
+            defaultDensity = input.density,
+            defaultLayoutDirection = input.layoutDirection,
+            cacheSize = 0,
+        ).measure(
+            text = input.text, style = input.style, placeholders = input.placeholders,
+            maxLines = input.maxLines, softWrap = input.softWrap, overflow = input.overflow,
+            constraints = Constraints(maxWidth = reported.size.width, maxHeight = input.constraints.maxHeight),
+        )
+        return measured.copy(size = reported.size)
+    }
+
+    private fun assertReadable(tag: String, result: TextLayoutResult) {
+        val ellipsized = (0 until result.lineCount).any(result::isLineEllipsized)
+        assertFalse(
+            "$tag must wrap without clipping/ellipsis: size=${result.size}, " +
+                "paragraph=${result.multiParagraph.width}x${result.multiParagraph.height}, " +
+                "widthOverflow=${result.didOverflowWidth}, heightOverflow=${result.didOverflowHeight}, " +
+                "lines=${result.lineCount}, ellipsized=$ellipsized, constraints=${result.layoutInput.constraints}",
+            result.hasVisualOverflow || ellipsized,
+        )
     }
 
     private fun readable(tag: String, color: Color? = null): TextLayoutResult {
         val node = text(tag).performScrollTo().assertIsDisplayed()
         return layout(node).also {
-            assertFalse("$tag must wrap without clipping/ellipsis", it.hasVisualOverflow)
+            assertReadable(tag, it)
             if (color != null) assertEquals("$tag resolved Text color", color, it.layoutInput.style.color)
         }
     }
 
+    private data class TextCase(
+        val tag: String,
+        val value: String,
+        val softWrap: Boolean = true,
+        val maxLines: Int = Int.MAX_VALUE,
+        val overflow: TextOverflow = TextOverflow.Clip,
+        val clippedHeight: Boolean = false,
+        val shouldOverflow: Boolean = false,
+    )
+
+    @Composable
+    private fun ProbeText(probe: TextCase, callback: ((TextLayoutResult) -> Unit)? = null) {
+        val tag = probe.tag + if (callback == null) "-semantics" else "-draw"
+        val modifier = Modifier.widthIn(max = 180.dp).then(
+            if (probe.clippedHeight) Modifier.height(1.dp) else Modifier,
+        ).testTag(tag)
+        Text(probe.value, modifier, fontSize = 18.sp, softWrap = probe.softWrap,
+            maxLines = probe.maxLines, overflow = probe.overflow, onTextLayout = callback)
+    }
+
+    @Test fun semanticsOverflowMatchesDrawCallbackAndRejectsRealClipping() {
+        val longCopy = "report_1234567890_نسخة_".repeat(6)
+        val cases = listOf(
+            TextCase("short", "Proposed plan"),
+            TextCase("arabic", "الخطة المقترحة"),
+            TextCase("wrapped", longCopy),
+            TextCase("width-clipped", longCopy, softWrap = false, shouldOverflow = true),
+            TextCase("height-clipped", "Proposed plan", clippedHeight = true, shouldOverflow = true),
+            TextCase("line-clipped", longCopy, maxLines = 1, shouldOverflow = true),
+            TextCase("ellipsized", longCopy, maxLines = 1, overflow = TextOverflow.Ellipsis, shouldOverflow = true),
+        )
+        val drawn = mutableMapOf<String, TextLayoutResult>()
+        val currentCase = mutableStateOf(cases.first())
+        // This paired callback-vs-semantics calibration is deliberately in ONE stable
+        // density/locale. Dynamic locale/font/width transitions are exercised by
+        // layoutMatrix below. Mixing them here retains stale onTextLayout callbacks
+        // across transitions and compares results from different rendered frames.
+        val mode = Mode(widthDp = 360)
+        compose.setContent {
+            Fixture(mode) {
+                Column {
+                    key(currentCase.value) {
+                        ProbeText(currentCase.value)
+                        ProbeText(currentCase.value) { drawn[currentCase.value.tag] = it }
+                    }
+                }
+            }
+        }
+        for (probe in cases) {
+            compose.runOnIdle { currentCase.value = probe }
+            val result = layout(text("${probe.tag}-semantics"))
+            val actual = compose.runOnIdle { checkNotNull(drawn[probe.tag]) }
+            val label = "${probe.tag}/${mode.label}"
+            assertEquals("$label size", actual.size, result.size)
+            assertEquals("$label line count", actual.lineCount, result.lineCount)
+            assertEquals("$label width overflow", actual.didOverflowWidth, result.didOverflowWidth)
+            assertEquals("$label height overflow", actual.didOverflowHeight, result.didOverflowHeight)
+            assertEquals("$label actual clipping", probe.shouldOverflow, result.hasVisualOverflow)
+            assertEquals("$label callback clipping", probe.shouldOverflow, actual.hasVisualOverflow)
+            (0 until actual.lineCount).forEach { line ->
+                assertEquals("$label line $line ellipsis", actual.isLineEllipsized(line), result.isLineEllipsized(line))
+                assertEquals("$label line $line left", actual.getLineLeft(line), result.getLineLeft(line), .01f)
+                assertEquals("$label line $line right", actual.getLineRight(line), result.getLineRight(line), .01f)
+            }
+        }
+    }
     @Test fun standaloneGlassOverridesWrongHostTextColorAcrossThemeChanges() {
         val mode = mutableStateOf(Mode())
         compose.setContent {
@@ -190,11 +297,17 @@ class VisualHardeningTest {
                 }
                 if (font == 1.6f) {
                     compose.onNodeWithTag("autopilot-clear").performScrollTo().assertIsDisplayed()
-                    val actions = listOf("measure", "select-all", "clear").map {
-                        compose.onNodeWithTag("autopilot-$it").assertIsDisplayed()
+                    val actionTags = listOf("measure", "select-all", "clear").map { "autopilot-$it" }
+                    // A narrow viewport may not display all three stacked actions at once.
+                    // Check layout positions in one scroll state, then prove each is reachable.
+                    val actions = actionTags.map { tag ->
+                        compose.onNodeWithTag(tag).assertExists()
                             .assertHeightIsAtLeast(48.dp).fetchSemanticsNode().boundsInRoot
                     }
                     assertTrue("Large-font actions must stack", actions.zipWithNext().all { (a, b) -> a.bottom <= b.top })
+                    actionTags.forEach { tag ->
+                        compose.onNodeWithTag(tag).performScrollTo().assertIsDisplayed()
+                    }
                 }
                 compose.onNodeWithTag("autopilot-run").performScrollTo().assertIsDisplayed().assertIsEnabled()
                 readable("autopilot-scope")
