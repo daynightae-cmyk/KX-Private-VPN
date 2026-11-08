@@ -4,7 +4,9 @@ import android.content.Context
 import android.content.res.Configuration
 import android.text.format.Formatter
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
@@ -17,6 +19,7 @@ import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.test.platform.app.InstrumentationRegistry
 import com.knoux.kxprivatevpn.features.RepairLabScreen
 import com.knoux.kxprivatevpn.features.RepairServiceRoute
@@ -111,6 +114,7 @@ class RepairLabScreenTest {
 
     @Test fun tenServicesAreListedWithHonestAvailability() {
         screen(RepairUiState(loading = false, measurement = measurement()))
+        capture("43a-repair-lab-day-header")
 
         listOf("storage", "ghost", "duplicate", "heavyweight", "cache",
             "media", "download", "session", "network", "autopilot").forEach {
@@ -213,6 +217,7 @@ class RepairLabScreenTest {
         val ar = localized(context, "ar")
         screen(RepairUiState(loading = false, measurement = measurement()),
             night = true, arabic = true, fontScale = 1.6f)
+        capture("44a-repair-lab-night-ar-large-header")
 
         compose.onNodeWithText(ar.getString(R.string.repair_title)).assertExists()
         compose.onNodeWithTag("repair-card-storage").performScrollTo().assertExists()
@@ -221,6 +226,38 @@ class RepairLabScreenTest {
         capture("44-repair-lab-night-ar-large-top")
         compose.onNodeWithTag("repair-card-autopilot").performScrollTo().assertIsDisplayed()
         capture("44b-repair-lab-night-ar-large-services")
+    }
+
+    @Test fun narrowArabicLargeTextKeepsReferenceGridAndServices() {
+        val arabic = localized(base, "ar")
+        compose.setContent {
+            val density = LocalDensity.current
+            CompositionLocalProvider(
+                LocalContext provides arabic,
+                LocalConfiguration provides arabic.resources.configuration,
+                LocalDensity provides Density(density.density, 1.6f),
+                LocalLayoutDirection provides LayoutDirection.Rtl,
+            ) {
+                Box(Modifier.width(360.dp).fillMaxHeight()) {
+                    RepairLabScreen(
+                        night = true,
+                        state = RepairUiState(loading = false, measurement = measurement()),
+                        onBack = {},
+                        onAnalyze = {},
+                        onNavigate = {},
+                    )
+                }
+            }
+        }
+        capture("44f-repair-lab-360-night-ar-font160")
+
+        compose.onNodeWithText(arabic.getString(R.string.repair_title)).assertExists()
+        listOf("storage", "duplicate", "heavyweight", "cache", "media",
+            "download", "network", "autopilot").forEach {
+            compose.onNodeWithTag("repair-card-$it").assertExists()
+        }
+        compose.onNodeWithTag("repair-card-apps").assertExists()
+        compose.onNodeWithTag("repair-analyze").performScrollTo().assertExists()
     }
 
     /**

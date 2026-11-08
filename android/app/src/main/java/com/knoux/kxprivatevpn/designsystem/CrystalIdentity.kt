@@ -71,10 +71,17 @@ fun Atmosphere(night: Boolean, pulse: Float) {
 }
 
 @Composable
-fun KxOrb(progress: Float, frame: IntroFrame, modifier: Modifier = Modifier) {
+fun KxOrb(
+    progress: Float,
+    frame: IntroFrame,
+    modifier: Modifier = Modifier,
+    decorative: Boolean = false,
+) {
     val artwork = ImageBitmap.imageResource(R.drawable.kx_brand)
     val description = stringResource(R.string.brand_description)
-    Canvas(modifier.semantics { contentDescription = description }) {
+    val semantics = if (decorative) Modifier.clearAndSetSemantics {}
+    else Modifier.semantics { contentDescription = description }
+    Canvas(modifier.then(semantics)) {
         val unit = size.minDimension / 1000f
         scale(unit, unit, Offset.Zero) {
             val center = Offset(500f, 500f)
@@ -156,17 +163,19 @@ fun KxOrb(progress: Float, frame: IntroFrame, modifier: Modifier = Modifier) {
                         Offset(545f, 140f), Size(240f, 56f), alpha = nativeAlpha * .75f)
                 }
             }
-            // Reveal original, byte-preserved owner artwork after the native formation.
-            // Only the orb is drawn, never a screenshot-as-screen. The outside black margin is clipped.
+            // Reveal the byte-preserved owner artwork after the native formation. The runtime
+            // asset has a clean feathered alpha rim; draw it full-square so Compose never crops
+            // the emblem into the old black square silhouette.
             if (frame.artwork > 0f) {
-                // Inset inside the source orb's irregular black silhouette; the native glass rim
-                // supplies the outer edge, preventing black fringes against the day atmosphere.
-                val crop = Path().apply { addOval(androidx.compose.ui.geometry.Rect(101f, 101f, 899f, 899f)) }
-                clipPath(crop) {
-                    drawImage(artwork, srcOffset = IntOffset(80, 88), srcSize = IntSize(1085, 1085),
-                        dstOffset = IntOffset(88, 88), dstSize = IntSize(824, 824), alpha = frame.artwork,
-                        filterQuality = FilterQuality.Medium)
-                }
+                drawImage(
+                    artwork,
+                    srcOffset = IntOffset.Zero,
+                    srcSize = IntSize(artwork.width, artwork.height),
+                    dstOffset = IntOffset.Zero,
+                    dstSize = IntSize(1000, 1000),
+                    alpha = frame.artwork,
+                    filterQuality = FilterQuality.High,
+                )
             }
             // Native satellites, soft caustic sweep and one final halo pulse remain above the artwork.
             for (i in 0..2) {

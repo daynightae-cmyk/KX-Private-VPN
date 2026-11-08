@@ -50,6 +50,7 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                  navigate: (String) -> Unit, back: () -> Unit) {
     var repairBusy by remember { mutableStateOf(false) }
     val vpn by model.vpnState.collectAsStateWithLifecycle()
+    val stats by model.statsState.collectAsStateWithLifecycle()
     val consent = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == android.app.Activity.RESULT_OK) model.connectSelected() else model.consentDenied()
     }
@@ -89,7 +90,12 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                     onSession = { navigate("session") },
                     onDismissIssue = { model.dismissVpnIssue() },
                     onNavigate = navigate,
+                    history = stats.records,
                 )
+                return@CompositionLocalProvider
+            }
+            if (route == "tools") {
+                ToolsCatalogScreen(night, onBack = back, onNavigate = navigate)
                 return@CompositionLocalProvider
             }
             if (route == "network") {
