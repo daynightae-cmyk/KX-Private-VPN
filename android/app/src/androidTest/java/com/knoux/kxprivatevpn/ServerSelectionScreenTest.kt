@@ -25,6 +25,10 @@ import com.knoux.kxprivatevpn.data.config.Profile
 import com.knoux.kxprivatevpn.data.config.ProfileSnapshot
 import com.knoux.kxprivatevpn.features.ClientState
 import com.knoux.kxprivatevpn.features.ServerSelectionScreen
+import com.knoux.kxprivatevpn.platform.vpn.VpnIssue
+import com.knoux.kxprivatevpn.platform.vpn.VpnPhase
+import com.knoux.kxprivatevpn.platform.vpn.VpnSession
+import com.knoux.kxprivatevpn.platform.vpn.VpnState
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -53,9 +57,11 @@ class ServerSelectionScreenTest {
         night: Boolean = true,
         widthDp: Int = 411,
         fontScale: Float = 1f,
+        vpn: VpnState = VpnState(),
         onQueryChange: (String) -> Unit = {},
         onSelect: (String) -> Unit = {},
         onRemove: (Profile) -> Unit = {},
+        onRetryDisconnect: () -> Unit = {},
     ) {
         compose.setContent {
             val base = InstrumentationRegistry.getInstrumentation().targetContext
@@ -77,12 +83,14 @@ class ServerSelectionScreenTest {
                             busy = busy,
                             snapshot = ProfileSnapshot(profiles, selectedId),
                         ),
+                        vpn = vpn,
                         query = query,
                         onQueryChange = onQueryChange,
                         onBack = {},
                         onImport = {},
                         onSelect = onSelect,
-                        onRemove = onRemove,
+                        onRemove = { id -> onRemove(profiles.first { it.id == id }) },
+                        onRetryDisconnect = onRetryDisconnect,
                     )
                 }
             }
@@ -221,6 +229,11 @@ class ServerSelectionScreenTest {
             .assertHeightIsAtLeast(48.dp)
             .performTouchInput { click() }
         compose.runOnIdle {
+            assertEquals("opening the removal dialog must not remove yet", emptyList<Profile>(), removals)
+            assertEquals(emptyList<String>(), selections)
+        }
+        compose.onNodeWithTag("server-remove-confirm").assertExists().performClick()
+        compose.runOnIdle {
             assertEquals(listOf(tokyo), removals)
             assertEquals(emptyList<String>(), selections)
         }
@@ -234,6 +247,7 @@ class ServerSelectionScreenTest {
             onSelect = { selected = it }, onRemove = { removed = it })
         compose.onNodeWithTag("server-card-p2").assertIsSelected()
         compose.onNodeWithTag("server-remove-p2").performScrollTo().performTouchInput { click() }
+        compose.onNodeWithTag("server-remove-confirm").assertExists().performClick()
         compose.runOnIdle {
             assertEquals(tokyo, removed)
             assertEquals(null, selected)
@@ -255,6 +269,109 @@ class ServerSelectionScreenTest {
         var removed: Profile? = null
         screen(listOf(berlin), onRemove = { removed = it })
         compose.onNodeWithTag("server-remove-p1").performClick()
+        compose.onNodeWithTag("server-remove-confirm").assertExists().performClick()
         assertEquals(berlin, removed)
+    }
+
+    private fun tunnelTo(
+        profile: Profile,
+        phase: VpnPhase = VpnPhase.CONNECTED,
+        issue: VpnIssue? = null,
+    ) = VpnState(
+        phase = phase,
+        session = VpnSession(profile.id, profile.name, profile.endpoint),
+        issue = issue,
+    )
+
+    @Test fun connectedTunnelShowsActiveServerAndConfirmsSwitch() {
+        val selections = mutableListOf<String>()
+        screen(
+            listOf(berlin, tokyo), selectedId = berlin.id,
+            vpn = tunnelTo(berlin), onSelect = { selections.add(it) },
+        )
+
+        compose.onNodeWithText(context.getString(R.string.server_active_tunnel, berlin.name))
+            .assertExists()
+        compose.onNodeWithTag("server-active", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("server-selected", useUnmergedTree = true).assertDoesNotExist()
+        compose.onNodeWithTag("server-select-p1").assertDoesNotExist()
+
+        compose.onNodeWithTag("server-select-p2").performScrollTo()
+            .performTouchInput { click() }
+        compose.onNodeWithText(context.getString(R.string.server_switch_title)).assertExists()
+        compose.onNodeWithText(
+            context.getString(R.string.server_switch_body, berlin.name, tokyo.name),
+        ).assertExists()
+        // The saved server must not change before the customer confirms the disconnect.
+        compose.runOnIdle { assertEquals(emptyList<String>(), selections) }
+        compose.onNodeWithTag("server-switch-cancel").performClick()
+        compose.runOnIdle { assertEquals(emptyList<String>(), selections) }
+
+        compose.onNodeWithTag("server-select-p2").performScrollTo()
+            .performTouchInput { click() }
+        compose.onNodeWithTag("server-switch-confirm").performClick()
+        compose.runOnIdle { assertEquals(listOf(tokyo.id), selections) }
+        capture("75-servers-connected-active")
+    }
+
+    @Test fun connectingTunnelLocksSelectionAndExplainsWhy() {
+        val selections = mutableListOf<String>()
+        screen(
+            listOf(berlin, tokyo), vpn = tunnelTo(berlin, VpnPhase.CONNECTING),
+            onSelect = { selections.add(it) },
+        )
+
+        compose.onNodeWithText(context.getString(R.string.server_selection_locked)).assertExists()
+        compose.onNodeWithText(
+            context.getString(R.string.server_connecting_locked, berlin.name),
+        ).assertExists()
+        listOf(berlin, tokyo).forEach { profile ->
+            compose.onNodeWithTag("server-card-${profile.id}").assertIsNotEnabled()
+            compose.onNodeWithTag("server-remove-${profile.id}").assertIsNotEnabled()
+        }
+        compose.onNodeWithTag("server-card-p2").performScrollTo()
+            .performTouchInput { click() }
+        compose.runOnIdle { assertEquals(emptyList<String>(), selections) }
+    }
+
+    @Test fun unresolvedStopLocksSelectionAndOffersRetry() {
+        var retries = 0
+        val selections = mutableListOf<String>()
+        screen(
+            listOf(berlin, tokyo),
+            vpn = tunnelTo(berlin, VpnPhase.ERROR, VpnIssue.STOP_FAILED),
+            onSelect = { selections.add(it) },
+            onRetryDisconnect = { retries++ },
+        )
+
+        compose.onNodeWithText(context.getString(R.string.server_stop_failed_locked)).assertExists()
+        compose.onNodeWithTag("server-card-p2").performScrollTo().assertIsNotEnabled()
+        compose.onNodeWithTag("server-retry-disconnect").performScrollTo()
+            .assertIsEnabled().performClick()
+        compose.runOnIdle {
+            assertEquals(1, retries)
+            assertEquals(emptyList<String>(), selections)
+        }
+    }
+
+    @Test fun removingActiveProfileWarnsThatTunnelStopsFirst() {
+        var removed: Profile? = null
+        screen(listOf(berlin, tokyo), vpn = tunnelTo(berlin),
+            onRemove = { removed = it })
+
+        compose.onNodeWithTag("server-remove-p1").performScrollTo().performTouchInput { click() }
+        compose.onNodeWithText(context.getString(R.string.remove_active_warning), substring = true)
+            .assertExists()
+        compose.onNodeWithTag("server-remove-confirm").performClick()
+        compose.runOnIdle { assertEquals(berlin, removed) }
+    }
+
+    @Test fun removingInactiveProfileDoesNotWarnAboutTheTunnel() {
+        screen(listOf(berlin, tokyo), vpn = tunnelTo(berlin))
+
+        compose.onNodeWithTag("server-remove-p2").performScrollTo().performTouchInput { click() }
+        compose.onNodeWithText(context.getString(R.string.remove_active_warning), substring = true)
+            .assertDoesNotExist()
+        compose.onNodeWithTag("server-remove-cancel").performClick()
     }
 }

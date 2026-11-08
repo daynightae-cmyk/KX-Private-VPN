@@ -36,3 +36,32 @@ data class VpnTraffic(
     val txBytes: Long = 0,
     val latestHandshakeMillis: Long? = null,
 )
+
+/**
+ * Pure ownership rules shared by Home, Servers and the client model.
+ *
+ * A session may be shown as the server in use only while this process can still own the
+ * backend. `ERROR + STOP_FAILED` is owned because the backend may still be up; any other
+ * `ERROR` is not, because no live tunnel was published. Selection is locked while the
+ * tunnel is changing, so a tap can never rewrite the saved server mid-transition.
+ */
+object VpnSessionOwnership {
+    fun ownsTunnel(state: VpnState): Boolean = when (state.phase) {
+        VpnPhase.CONNECTING, VpnPhase.CONNECTED, VpnPhase.DISCONNECTING -> state.session != null
+        VpnPhase.ERROR -> state.issue == VpnIssue.STOP_FAILED && state.session != null
+        VpnPhase.IDLE -> false
+    }
+
+    fun activeProfileId(state: VpnState): String? =
+        if (ownsTunnel(state)) state.session?.profileId else null
+
+    fun selectionLocked(state: VpnState): Boolean = when (state.phase) {
+        VpnPhase.CONNECTING, VpnPhase.DISCONNECTING -> true
+        VpnPhase.ERROR -> state.issue == VpnIssue.STOP_FAILED
+        else -> false
+    }
+
+    /** Persisting a different server while a measured tunnel is up must stop it first. */
+    fun requiresStopBeforeSelect(state: VpnState, profileId: String): Boolean =
+        state.phase == VpnPhase.CONNECTED && activeProfileId(state) != profileId
+}

@@ -233,7 +233,32 @@ class ClientViewModel(app: Application) : AndroidViewModel(app) {
                 session.session?.startedAtMillis, language)
         }
     }
-    fun select(id: String) = operation { val value = store.select(id); mutable.update { it.copy(snapshot = value) } }
+    fun select(id: String) {
+        // Transitional or unresolved-stop states must never rewrite the saved server.
+        if (VpnSessionOwnership.selectionLocked(vpn.state.value)) return
+        operation {
+            // Re-read inside the operation gate: the notification can disconnect or the
+            // tunnel can change phase between the tap and this coroutine.
+            if (VpnSessionOwnership.selectionLocked(vpn.state.value)) return@operation
+            if (VpnSessionOwnership.requiresStopBeforeSelect(vpn.state.value, id)) {
+                try {
+                    vpn.stopNow()
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (_: Exception) {
+                    // stopNow already published STOP_FAILED. Keep the old saved selection:
+                    // the backend may still own the tunnel, so persisting a new one would lie.
+                    return@operation
+                }
+            }
+            // A concurrent notification stop/connect can win the race after the earlier
+            // checks. Never persist a different server while any tunnel still owns the backend.
+            val owned = VpnSessionOwnership.activeProfileId(vpn.state.value)
+            if (owned != null && owned != id) return@operation
+            val value = store.select(id)
+            mutable.update { it.copy(snapshot = value) }
+        }
+    }
     fun remove(id: String) = operation {
         if (vpn.state.value.session?.profileId == id) vpn.stopNow()
         val value = store.remove(id)
