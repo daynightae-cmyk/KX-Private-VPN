@@ -101,10 +101,13 @@ class VpnController(
         }
     }
 
-    fun disconnect() {
+    fun disconnect(): Boolean {
         val current = mutable.value
+        // A stop already underway is accepted so the notification waits for its outcome
+        // instead of racing a second backend shutdown.
+        if (current.phase == VpnPhase.DISCONNECTING) return true
         if (current.phase != VpnPhase.CONNECTED &&
-            !(current.phase == VpnPhase.ERROR && current.issue == VpnIssue.STOP_FAILED)) return
+            !(current.phase == VpnPhase.ERROR && current.issue == VpnIssue.STOP_FAILED)) return false
         monitoring?.cancel()
         mutable.value = VpnState(VpnPhase.DISCONNECTING, current.session)
         scope.launch(io) {
@@ -117,6 +120,7 @@ class VpnController(
                 mutable.value = VpnState(VpnPhase.ERROR, current.session, VpnIssue.STOP_FAILED)
             }
         }
+        return true
     }
 
     /** Called before deleting a profile; waits for the backend instead of lying about shutdown. */

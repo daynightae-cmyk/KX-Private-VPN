@@ -60,6 +60,7 @@ class ClientViewModel(app: Application) : AndroidViewModel(app) {
         adjustConfig = { config -> advancedConfigurator.apply(splitConfigurator.apply(config)) },
     )
     val vpnState: StateFlow<VpnState> = vpn.state
+    private val sessionDisconnect: () -> Boolean = { vpn.disconnect() }
     private val splitStore = SplitTunnelStore(app)
     private val installedApps = InstalledApps(app)
     private val splitMutable = MutableStateFlow(SplitTunnelUiState())
@@ -78,6 +79,7 @@ class ClientViewModel(app: Application) : AndroidViewModel(app) {
         onChanged = { reloadStats() },
     )
     init {
+        VpnSessionControl.register(sessionDisconnect)
         reload()
         viewModelScope.launch {
             // Restore the persisted hint before observing, so the first IDLE emission cannot clear it.
@@ -115,6 +117,7 @@ class ClientViewModel(app: Application) : AndroidViewModel(app) {
                         getApplication(),
                         value.session?.profileName,
                         value.session?.startedAtMillis,
+                        mutable.value.settings.language,
                     )
                 } else if (value.phase != VpnPhase.CONNECTED &&
                     previousPhase == VpnPhase.CONNECTED
@@ -222,6 +225,13 @@ class ClientViewModel(app: Application) : AndroidViewModel(app) {
     fun appearance(language: String, theme: String) = operation {
         preferences.appearance(language, theme)
         mutable.update { it.copy(settings = it.settings.copy(language = language, theme = theme)) }
+        // The session notification is a system surface outside Compose. Repost it with the
+        // new language while the measured tunnel stays connected; never restart the tunnel.
+        val session = vpn.state.value
+        if (session.phase == VpnPhase.CONNECTED) {
+            VpnSessionService.start(getApplication(), session.session?.profileName,
+                session.session?.startedAtMillis, language)
+        }
     }
     fun select(id: String) = operation { val value = store.select(id); mutable.update { it.copy(snapshot = value) } }
     fun remove(id: String) = operation {
@@ -563,5 +573,10 @@ class ClientViewModel(app: Application) : AndroidViewModel(app) {
         catch (e: InvalidConfiguration) { throw e }
         catch (_: Exception) { throw InputUnavailable() }
         save(name, bytes)
+    }
+
+    override fun onCleared() {
+        VpnSessionControl.unregister(sessionDisconnect)
+        super.onCleared()
     }
 }

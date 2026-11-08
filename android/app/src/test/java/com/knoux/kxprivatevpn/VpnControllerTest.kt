@@ -19,6 +19,7 @@ import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -211,6 +212,23 @@ class VpnControllerTest {
 
         assertEquals(VpnPhase.IDLE, controller.state.value.phase)
         assertNull(controller.state.value.session)
+        assertEquals(1, gateway.stopCalls)
+    }
+
+    @Test fun disconnectReportsWhetherItOwnedTheSession() = runTest {
+        val gateway = FakeGateway()
+        val controller = controller(gateway)
+
+        assertFalse("an idle controller has no tunnel to stop", controller.disconnect())
+        assertEquals(0, gateway.stopCalls)
+
+        controller.connect(profile)
+        runCurrent()
+        assertTrue("a connected controller owns the stop", controller.disconnect())
+        assertTrue("a request during shutdown is still accepted", controller.disconnect())
+        runCurrent()
+
+        assertEquals(VpnPhase.IDLE, controller.state.value.phase)
         assertEquals(1, gateway.stopCalls)
     }
 

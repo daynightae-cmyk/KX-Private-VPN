@@ -14,5 +14,6 @@
     <string name="vpn_notification_channel_description">Ongoing status while a WireGuard tunnel is active</string>
     <string name="vpn_notification_title">KX VPN session active</string>
     <string name="vpn_notification_no_profile">WireGuard tunnel</string>
+    <string name="vpn_notification_disconnect">Disconnect</string>
     <string name="vpn_notification_hint">Android asks for notification permission so the active session stays visible. Denying it does not block the tunnel.</string>
 </resources>
