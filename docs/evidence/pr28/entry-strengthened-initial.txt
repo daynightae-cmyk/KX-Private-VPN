@@ -1,0 +1,23 @@
+
+com.knoux.kxprivatevpn.StartupTest:.
+Error in realLauncherKeepsHomeAbsentThroughoutNormalSpin(com.knoux.kxprivatevpn.StartupTest):
+java.lang.AssertionError: sample the full pre-completion interval expected:<672> but was:<688>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:647)
+	at com.knoux.kxprivatevpn.StartupTest.realLauncherKeepsHomeAbsentThroughoutNormalSpin(StartupTest.kt:51)
+
+com.knoux.kxprivatevpn.VisualHardeningTest:..
+com.knoux.kxprivatevpn.PhysicalEntryTest:.
+
+Time: 50.294
+There was 1 failure:
+1) realLauncherKeepsHomeAbsentThroughoutNormalSpin(com.knoux.kxprivatevpn.StartupTest)
+java.lang.AssertionError: sample the full pre-completion interval expected:<672> but was:<688>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:647)
+	at com.knoux.kxprivatevpn.StartupTest.realLauncherKeepsHomeAbsentThroughoutNormalSpin(StartupTest.kt:51)
+
+FAILURES!!!
+Tests run: 5,  Failures: 1

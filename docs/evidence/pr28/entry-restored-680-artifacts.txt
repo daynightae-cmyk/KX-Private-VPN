@@ -1,0 +1,9 @@
+baseHead=a5d82d7b42082ab31fc6fba9d660aff8ef6be766
+productionSpinMs=680
+device=dedicated API26 emulator
+app/build/outputs/apk/debug/app-debug.apk	29725330	bc213c5c0488fd48f79881a832459f07ff4e1a194c20d17a901e7cb950339383
+app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk	1690661	8a3012972d6c5f081aa3e7cee681d2b893a2884231eae4ea9f1fd0b7dbfb177b
+app/src/androidTest/java/com/knoux/kxprivatevpn/PhysicalEntryTest.kt	8921	a9f9c7a0e88c9aec8c40b2ad79b72fd7777692a2e91bba049bee6f6ece99ed3c
+app/src/androidTest/java/com/knoux/kxprivatevpn/StartupTest.kt	4514	2e5b3b76edc2f6383c8f3e04c20496cc3264626c59457a4e4ad925e133a31ef9
+app/src/androidTest/java/com/knoux/kxprivatevpn/VisualHardeningTest.kt	26000	d36ed5522b526c0bcaebc3e1819a1e234d074bc9dc8a55601c379865e04bf65c
+app/src/main/java/com/knoux/kxprivatevpn/launch/KxLaunch.kt	15888	a37c59891d99dad6b9a8bad6519789b300118f479b3a2f1132d6430d6628f1f6

@@ -1,0 +1,15 @@
+<resources>
+    <string name="vpn_path_title">التحقق من مسار VPN الحالي</string>
+    <string name="vpn_path_scope">أدخل عنوان HTTPS موثوقًا. بعد موافقتك يرسل KX طلب HEAD واحدًا عبر شبكة VPN حصريًا ويفحص مصافحة WireGuard الحديثة وعدادات البيانات. لا رجوع إلى اتصال مباشر. لا يثبت هذا موقع الخروج العام أو اتصال IPv6 أو غياب تسرب DNS.</string>
+    <string name="vpn_path_run">اختبار عبر VPN</string>
+    <string name="vpn_path_verified">نجح الطلب عبر شبكة VPN مع مصافحة حديثة وزيادة فعلية في بايتات الاستقبال والإرسال.</string>
+    <string name="vpn_path_no_tunnel">لا يوجد نفق KX مؤكد. اتصل أولًا.</string>
+    <string name="vpn_path_not_routed">هذا التطبيق لا يستخدم شبكة VPN. لم يتم التحقق من مسار VPN.</string>
+    <string name="vpn_path_changed">تغيرت الشبكة أثناء التحقق. أعد المحاولة على اتصال مستقر.</string>
+    <string name="vpn_path_no_handshake">لم تُقَس مصافحة WireGuard حديثة. تحقق من البوابة وإعدادات الطرف الآخر.</string>
+    <string name="vpn_path_no_traffic">لم تسجل WireGuard زيادة في البيانات بالاتجاهين. المسار غير متحقق.</string>
+    <string name="vpn_path_http_failed">لم يُرجع عنوان HTTPS رمز نجاح. المسار غير متحقق.</string>
+    <string name="vpn_path_unavailable">تعذر إكمال التحقق. راجع عنوان HTTPS والشبكة والبوابة ثم أعد المحاولة.</string>
+    <string name="vpn_path_measurements">HTTP %1$d · استقبال +%2$d بايت · إرسال +%3$d بايت</string>
+    <string name="vpn_path_routes">المسارات الافتراضية المُهيأة: IPv4 %1$s · IPv6 %2$s · DNS مُهيأ: %3$s. هذه قراءة للإعدادات وليست نتيجة اختبار تسرب.</string>
+</resources>

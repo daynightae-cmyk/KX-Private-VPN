@@ -91,12 +91,14 @@ if [ "$is_emulator" = true ]; then
 else
     printf 'ime_disable_applied=false\nreason=physical_device\n' > device-screenshots/ime-disabled.txt
 fi
-# The suite is 210 instrumented tests. Run 42414269579 on API35 reached 201/210 with
-# 0 failures in 7m22s and was killed by the old 8m bound one second after the evidence
-# pull, so the bound no longer covered a healthy hosted run. 12m still bounds a real
-# hang without turning it into a passing run.
+# Run the full growing instrumented suite without skipping tests or treating
+# timeouts as success. PR28 VPN/Pro ran 230 tests, newer Home adds more.
+# The previous 8m bound killed healthy API35 runs; 12m remains a hard limit.
 timeout --kill-after=15s 12m bash ./gradlew "${gradle_flags[@]}" :app:connectedDebugAndroidTest -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true
 test_result=$?
+if [ "$test_result" -eq 124 ]; then
+    printf 'instrumentation_timeout=true\ngradle_exit_code=124\nresult=NOT_PASSED\n' > device-screenshots/test-timeout.txt
+fi
 free -m > device-screenshots/host-memory-after.txt
 sudo dmesg > device-screenshots/host-kernel.txt 2>&1 || true
 # A lost emulator produces an empty <failure> element and a truncated test count.
