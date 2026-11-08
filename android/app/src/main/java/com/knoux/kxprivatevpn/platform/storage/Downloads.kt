@@ -8,6 +8,8 @@ import android.provider.MediaStore
 import com.knoux.kxprivatevpn.platform.repair.DownloadAction
 import com.knoux.kxprivatevpn.platform.repair.DownloadActionResult
 import com.knoux.kxprivatevpn.platform.repair.DownloadCandidate
+import com.knoux.kxprivatevpn.platform.repair.DownloadDocumentIdentity
+import com.knoux.kxprivatevpn.platform.repair.DownloadExportEngine
 import com.knoux.kxprivatevpn.platform.repair.DownloadFormat
 import com.knoux.kxprivatevpn.platform.repair.DownloadHealth
 import com.knoux.kxprivatevpn.platform.repair.DownloadValidator
@@ -15,7 +17,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
-import java.io.IOException
 import kotlin.coroutines.coroutineContext
 
 /**
@@ -227,49 +228,19 @@ class DownloadCatalog(private val context: Context) {
         )
     }
 
-    /**
-     * Copies the document to a location the user picked and verifies the copied byte count.
-     * The source is never modified.
-     */
+    /** Copies one document, rejecting self/SAF aliases before write and hashing target readback. */
     suspend fun export(documentUri: Uri, target: Uri, expected: Long): DownloadActionResult =
         withContext(Dispatchers.IO) {
-            var copied = 0L
-            try {
-                context.contentResolver.openInputStream(documentUri)?.use { input ->
-                    context.contentResolver.openOutputStream(target, "wt")?.use { output ->
-                        val buffer = ByteArray(64 * 1024)
-                        while (true) {
-                            coroutineContext.ensureActive()
-                            val read = input.read(buffer)
-                            if (read <= 0) break
-                            output.write(buffer, 0, read)
-                            copied += read
-                        }
-                        output.flush()
-                    } ?: throw IOException("target not writable")
-                } ?: throw IOException("source not readable")
-                DownloadActionResult(
-                    documentId = documentUri.toString(),
-                    displayName = target.lastPathSegment ?: "",
-                    action = DownloadAction.EXPORT,
-                    succeeded = copied == expected,
-                    bytesCopied = copied,
-                    bytesExpected = expected,
-                    message = if (copied == expected) "copied" else "size_mismatch",
-                )
-            } catch (e: CancellationException) {
-                throw e
-            } catch (_: Exception) {
-                DownloadActionResult(
-                    documentId = documentUri.toString(),
-                    displayName = "",
-                    action = DownloadAction.EXPORT,
-                    succeeded = false,
-                    bytesCopied = copied,
-                    bytesExpected = expected,
-                    message = "export_failed",
-                )
-            }
+            val taskContext = coroutineContext
+            DownloadExportEngine.export(
+                source = downloadDocumentIdentity(documentUri),
+                target = downloadDocumentIdentity(target),
+                expected = expected,
+                openSource = { context.contentResolver.openInputStream(documentUri) },
+                openTarget = { context.contentResolver.openOutputStream(target, "wt") },
+                readTarget = { context.contentResolver.openInputStream(target) },
+                checkActive = { taskContext.ensureActive() },
+            )
         }
 
     /** Renames a document inside the granted tree. The bytes are untouched. */
@@ -326,6 +297,13 @@ class DownloadCatalog(private val context: Context) {
         const val MAX_ROWS = 500
     }
 }
+
+/** getDocumentId resolves both /document/id and /tree/root/document/id without provider I/O. */
+internal fun downloadDocumentIdentity(uri: Uri) = DownloadDocumentIdentity(
+    uri = uri.toString(),
+    authority = uri.authority,
+    documentId = runCatching { DocumentsContract.getDocumentId(uri) }.getOrNull(),
+)
 
 /** Formats a byte count for the result cards. */
 fun formatBytes(bytes: Long): String = when {

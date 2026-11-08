@@ -51,7 +51,7 @@ fun DownloadRescueRoute(night: Boolean, onBack: () -> Unit) {
     ) { uri -> uri?.let { model.attachTree(it) } }
     val exportLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/octet-stream"),
-    ) { uri -> uri?.let { model.exportTo(it) } }
+    ) { uri -> model.exportTo(uri) }
 
     DownloadRescueScreen(
         night = night,
@@ -66,7 +66,15 @@ fun DownloadRescueRoute(night: Boolean, onBack: () -> Unit) {
         onRequestRemove = model::requestRemove,
         onDismissConfirmation = model::dismissConfirmation,
         onConfirmRemove = model::confirmRemove,
-        onExport = { exportLauncher.launch("kx-rescued-copy.bin") },
+        onExport = {
+            if (model.prepareExport()) {
+                try {
+                    exportLauncher.launch("kx-rescued-copy.bin")
+                } catch (_: RuntimeException) {
+                    model.exportTo(null)
+                }
+            }
+        },
         onRename = model::renameSelected,
     )
 }
@@ -142,19 +150,20 @@ fun DownloadRescueScreen(
                 Spacer(Modifier.height(10.dp))
                 OutlinedButton(
                     onClick = onChooseFolder,
+                    enabled = !state.actionsBlocked,
                     modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
                         .testTag("download-choose-folder"),
                 ) { Text(stringResource(R.string.download_choose_folder)) }
                 if (treeName != null) {
                     OutlinedButton(
                         onClick = onScan,
-                        enabled = !state.scanning && !state.busy,
+                        enabled = !state.actionsBlocked,
                         modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
                             .testTag("download-scan"),
                     ) { Text(stringResource(if (state.candidates.isEmpty()) R.string.download_scan else R.string.download_rescan)) }
                     OutlinedButton(
                         onClick = onForget,
-                        enabled = !state.busy,
+                        enabled = !state.actionsBlocked,
                         modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
                             .testTag("download-forget"),
                     ) { Text(stringResource(R.string.download_forget)) }
@@ -169,12 +178,12 @@ fun DownloadRescueScreen(
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         OutlinedButton(
                             onClick = onSelectAttention,
-                            enabled = !state.busy,
+                            enabled = !state.actionsBlocked,
                             modifier = Modifier.heightIn(min = 48.dp).testTag("download-select-attention"),
                         ) { Text(stringResource(R.string.download_select_attention)) }
                         OutlinedButton(
                             onClick = onClearSelection,
-                            enabled = !state.busy,
+                            enabled = !state.actionsBlocked,
                             modifier = Modifier.heightIn(min = 48.dp).testTag("download-clear"),
                         ) { Text(stringResource(R.string.download_clear)) }
                     }
@@ -191,28 +200,31 @@ fun DownloadRescueScreen(
             }
 
             state.candidates.forEachIndexed { index, candidate ->
-                DownloadCard(night, index, candidate, state.selected.contains(candidate.documentId)) {
+                DownloadCard(night, index, candidate, state.selected.contains(candidate.documentId),
+                    enabled = !state.actionsBlocked) {
                     onToggle(candidate.documentId)
                 }
             }
 
-            if (state.selected.isNotEmpty()) {
+            if (state.candidates.isNotEmpty()) {
                 GlassSurface(night) {
                     OutlinedButton(
                         onClick = onRequestRemove,
-                        enabled = !state.busy,
+                        enabled = !state.actionsBlocked && state.selectedCandidates.isNotEmpty(),
                         modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
                             .testTag("download-remove"),
                     ) { Text(stringResource(R.string.download_remove)) }
                     OutlinedButton(
                         onClick = onExport,
-                        enabled = !state.busy,
+                        enabled = state.canExport,
                         modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
                             .testTag("download-export"),
                     ) { Text(stringResource(R.string.download_export)) }
+                    Text(stringResource(R.string.download_export_hint), fontSize = 12.sp,
+                        modifier = Modifier.testTag("download-export-hint"))
                     OutlinedButton(
                         onClick = { renaming = true },
-                        enabled = !state.busy && state.selectedCandidates.size == 1,
+                        enabled = !state.actionsBlocked && state.selectedCandidates.size == 1,
                         modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
                             .testTag("download-rename"),
                     ) { Text(stringResource(R.string.download_rename)) }
@@ -224,17 +236,14 @@ fun DownloadRescueScreen(
                     Text(stringResource(R.string.download_receipt_title), fontWeight = FontWeight.Bold,
                         fontSize = 16.sp, modifier = Modifier.testTag("download-receipt"))
                     Text(
-                        stringResource(
-                            when (receipt.action) {
-                                DownloadAction.REMOVE -> R.string.download_receipt_removed
-                                DownloadAction.EXPORT -> R.string.download_receipt_exported
-                                DownloadAction.RENAME -> R.string.download_receipt_renamed
-                            },
-                            receipt.succeeded,
-                            if (receipt.action == DownloadAction.REMOVE) formatBytes(receipt.bytesRemoved)
-                            else formatBytes(receipt.bytesCopied),
-                            receipt.failed,
-                        ),
+                        when (receipt.action) {
+                            DownloadAction.REMOVE -> stringResource(R.string.download_receipt_removed,
+                                receipt.succeeded, formatBytes(receipt.bytesRemoved), receipt.failed)
+                            DownloadAction.EXPORT -> stringResource(R.string.download_receipt_exported,
+                                receipt.succeeded, formatBytes(receipt.bytesCopied), receipt.failed)
+                            DownloadAction.RENAME -> stringResource(R.string.download_receipt_renamed,
+                                receipt.succeeded, receipt.failed)
+                        },
                         fontSize = 14.sp, modifier = Modifier.testTag("download-receipt-summary"),
                     )
                     receipt.results.forEach { result ->
@@ -261,11 +270,12 @@ fun DownloadRescueScreen(
             onDismissRequest = onDismissConfirmation,
             title = { Text(stringResource(R.string.download_confirm_title)) },
             text = {
-                Text(stringResource(R.string.download_confirm_body, state.selected.size,
-                    formatBytes(state.selectedBytes)))
+                Text(stringResource(R.string.download_confirm_body, state.removalTargets.size,
+                    formatBytes(state.removalTargets.sumOf { it.candidate.bytes })))
             },
             confirmButton = {
                 TextButton(onClick = onConfirmRemove,
+                    enabled = state.canConfirmRemove,
                     modifier = Modifier.testTag("download-confirm")) {
                     Text(stringResource(R.string.download_confirm))
                 }
@@ -320,6 +330,7 @@ private fun DownloadCard(
     index: Int,
     candidate: DownloadCandidate,
     selected: Boolean,
+    enabled: Boolean,
     onToggle: () -> Unit,
 ) {
     val shape = RoundedCornerShape(22.dp)
@@ -341,6 +352,7 @@ private fun DownloadCard(
             // for the screen reader and for the test.
             Checkbox(
                 checked = selected,
+                enabled = enabled,
                 onCheckedChange = { onToggle() },
                 modifier = Modifier.testTag("download-select-$index"),
             )

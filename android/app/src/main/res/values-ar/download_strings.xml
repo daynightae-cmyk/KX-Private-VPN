@@ -15,7 +15,7 @@
     <string name="download_select_attention">تحديد التي بحاجة إلى انتباه</string>
     <string name="download_clear">مسح التحديد</string>
     <string name="download_remove">حذف الملفات المحددة</string>
-    <string name="download_export">تصدير الملفات المحددة</string>
+    <string name="download_export">تصدير نسخة واحدة</string>
     <string name="download_rename">إعادة تسمية الملف المحدد</string>
     <string name="download_selected">%1$d محدد، %2$s</string>
     <string name="download_empty">لم يُعثر على تنزيلات في المجلد المصرّح به.</string>
@@ -46,7 +46,7 @@
     <string name="download_no_repair">لا يعيد KX كتابة أي ملف تالف. يمكن تصدير التنزيل التالف أو إعادة تسميته أو حذفه.</string>
     <string name="download_privacy">يُقرأ فقط المجلد الذي صرّحت به. لا يتم الوصول إلى بيانات أي تطبيق آخر.</string>
     <string name="download_export_title">تصدير نسخة</string>
-    <string name="download_export_hint">تُكتب النسخة في المكان الذي تختاره، ويبقى الملف الأصلي كما هو.</string>
+    <string name="download_export_hint">حدّد ملفًا واحدًا فقط للتصدير. اختر وجهة مختلفة؛ يقرأ KX النسخة بعد كتابتها للتحقق منها. يبقى الملف الأصلي دون تغيير.</string>
     <string name="download_rename_title">إعادة تسمية الملف</string>
     <string name="download_rename_hint">لا تُغيّر إعادة التسمية المحتوى أبدًا.</string>
     <string name="download_rename_confirm">إعادة تسمية</string>

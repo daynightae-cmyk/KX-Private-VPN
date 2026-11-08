@@ -1,5 +1,11 @@
 package com.knoux.kxprivatevpn.platform.repair
 
+import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
+import java.security.MessageDigest
+import java.util.concurrent.CancellationException
+
 /**
  * Download Rescue inspects files the user already owns and reports what can be honestly said
  * about them. Nothing here repairs bytes: a damaged download can be classified, exported,
@@ -89,6 +95,130 @@ data class DownloadActionResult(
 )
 
 enum class DownloadAction { EXPORT, RENAME, REMOVE }
+
+/** Freeze both the inspected candidate and its URI before asking for approval or a destination. */
+data class DownloadTarget(val candidate: DownloadCandidate, val uri: String)
+
+fun freezeDownloadSelection(
+    candidates: List<DownloadCandidate>,
+    selected: Set<String>,
+    uriByDocument: Map<String, String>,
+): List<DownloadTarget> {
+    val matches = candidates.filter { it.documentId in selected }
+    // Provider ids can collide across sources. Never guess which URI the user intended.
+    if (matches.size != selected.size || matches.map { it.documentId }.toSet() != selected) return emptyList()
+    return matches.map { candidate ->
+        val uri = uriByDocument[candidate.documentId]?.takeIf { it.isNotBlank() } ?: return emptyList()
+        DownloadTarget(candidate, uri)
+    }
+}
+
+data class DownloadExportRequest(val source: DownloadTarget, val targetUri: String)
+
+/** Main-thread, one-shot picker reservation. A result never consults the current selection. */
+class DownloadExportCoordinator {
+    private var pending: DownloadTarget? = null
+
+    fun prepare(selection: List<DownloadTarget>, busy: Boolean, scanning: Boolean): Boolean {
+        if (busy || scanning || pending != null) return false
+        pending = selection.singleOrNull()?.takeIf { it.uri.isNotBlank() } ?: return false
+        return true
+    }
+
+    /** Null cancels; rejected and duplicate callbacks cannot retain or reuse the reservation. */
+    fun complete(targetUri: String?, busy: Boolean, scanning: Boolean): DownloadExportRequest? {
+        val source = pending
+        pending = null
+        if (source == null || targetUri.isNullOrBlank() || busy || scanning) return null
+        return DownloadExportRequest(source, targetUri)
+    }
+}
+
+/** SAF tree and standalone document URIs may identify the same file. */
+data class DownloadDocumentIdentity(
+    val uri: String,
+    val authority: String? = null,
+    val documentId: String? = null,
+) {
+    fun sameDocument(other: DownloadDocumentIdentity): Boolean =
+        uri == other.uri || (authority != null && authority == other.authority &&
+            documentId != null && documentId == other.documentId)
+}
+
+/** Stream-only engine: one source, one destination, no deletion and no success before readback. */
+object DownloadExportEngine {
+    fun export(
+        source: DownloadDocumentIdentity,
+        target: DownloadDocumentIdentity,
+        expected: Long,
+        openSource: () -> InputStream?,
+        openTarget: () -> OutputStream?,
+        readTarget: () -> InputStream?,
+        checkActive: () -> Unit = {},
+    ): DownloadActionResult {
+        fun result(message: String, verifiedBytes: Long = 0L) = DownloadActionResult(
+            documentId = source.uri,
+            displayName = target.uri,
+            action = DownloadAction.EXPORT,
+            succeeded = message == "copied",
+            bytesCopied = verifiedBytes,
+            bytesExpected = expected,
+            message = message,
+        )
+        // These checks must precede opening the destination in a truncating mode.
+        if (source.sameDocument(target)) return result("same_document")
+        if (expected < 0L) return result("size_unknown")
+        return try {
+            val sourceHash = MessageDigest.getInstance("SHA-256")
+            var copied = 0L
+            checkActive()
+            openSource()?.use { input ->
+                checkActive()
+                openTarget()?.use { output ->
+                    val buffer = ByteArray(64 * 1024)
+                    while (true) {
+                        checkActive()
+                        val read = input.read(buffer)
+                        if (read < 0) break
+                        if (read == 0) continue
+                        copied += read
+                        if (copied > expected) return result("size_mismatch")
+                        sourceHash.update(buffer, 0, read)
+                        output.write(buffer, 0, read)
+                    }
+                    output.flush()
+                } ?: throw IOException("target not writable")
+            } ?: throw IOException("source not readable")
+            if (copied != expected) return result("size_mismatch")
+
+            // Reopen only after the writer is closed; provider write counts are not proof.
+            val targetHash = MessageDigest.getInstance("SHA-256")
+            var verified = 0L
+            readTarget()?.use { input ->
+                val buffer = ByteArray(64 * 1024)
+                while (true) {
+                    checkActive()
+                    val read = input.read(buffer)
+                    if (read < 0) break
+                    if (read == 0) continue
+                    verified += read
+                    if (verified > copied) return result("readback_mismatch")
+                    targetHash.update(buffer, 0, read)
+                }
+            } ?: throw IOException("target not readable")
+            if (verified != copied || !sourceHash.digest().contentEquals(targetHash.digest())) {
+                result("readback_mismatch")
+            } else {
+                result("copied", verified)
+            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            // Keep any partial destination: it may have existed before this operation.
+            result("export_failed")
+        }
+    }
+}
 
 /**
  * Structural validators. Each one compares bytes the provider actually returned; no signature
