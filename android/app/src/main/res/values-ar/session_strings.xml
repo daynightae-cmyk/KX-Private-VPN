@@ -3,9 +3,30 @@
     <string name="shield_title">خصوصية الجلسات</string>
     <string name="shield_owned_title">ما تحتفظ به KX</string>
     <string name="shield_owned_body">بيانات تخص KX وحدها فقط. لا يقرأ الدرع ولا يدرج ولا ينهي جلسة أي تطبيق آخر.</string>
-    <string name="shield_profiles">%1$d إعدادات</string>
-    <string name="shield_history">%1$d سجلًا</string>
-    <string name="shield_secrets">%1$d عنصرًا يحمل بيانات اعتماد</string>
+    <plurals name="shield_profiles_count">
+        <item quantity="zero">لا إعدادات</item>
+        <item quantity="one">%1$d إعداد</item>
+        <item quantity="two">%1$d إعدادان</item>
+        <item quantity="few">%1$d إعدادات</item>
+        <item quantity="many">%1$d إعدادًا</item>
+        <item quantity="other">%1$d إعداد</item>
+    </plurals>
+    <plurals name="shield_history_count">
+        <item quantity="zero">لا سجلات</item>
+        <item quantity="one">%1$d سجل</item>
+        <item quantity="two">%1$d سجلان</item>
+        <item quantity="few">%1$d سجلات</item>
+        <item quantity="many">%1$d سجلًا</item>
+        <item quantity="other">%1$d سجل</item>
+    </plurals>
+    <plurals name="shield_secrets_count">
+        <item quantity="zero">لا عناصر تحمل بيانات اعتماد</item>
+        <item quantity="one">%1$d عنصر يحمل بيانات اعتماد</item>
+        <item quantity="two">%1$d عنصران يحملان بيانات اعتماد</item>
+        <item quantity="few">%1$d عناصر تحمل بيانات اعتماد</item>
+        <item quantity="many">%1$d عنصرًا يحمل بيانات اعتماد</item>
+        <item quantity="other">%1$d عنصر يحمل بيانات اعتماد</item>
+    </plurals>
     <string name="shield_refresh">تحديث</string>
     <string name="shield_select_all">تحديد الكل</string>
     <string name="shield_clear_selection">مسح التحديد</string>
@@ -20,11 +41,69 @@
     <string name="shield_prune">تطبيق قاعدة الاحتفاظ</string>
     <string name="shield_erase">محو السجل</string>
     <string name="shield_erase_title">محو السجل؟</string>
-    <string name="shield_erase_body">سيُحذف %1$d من السجل، وسجلات الاستخدام المقاسة، ومؤشر الجلسة من مساحة KX الخاصة. تبقى الإعدادات؛ أبطِلها على حدة.</string>
+    <plurals name="shield_erase_body_count">
+        <item quantity="zero">لن يُحذف أي سجل من مساحة KX الخاصة. تبقى الإعدادات؛ أبطِلها على حدة.</item>
+        <item quantity="one">سيُحذف %1$d سجل، وسجلات الاستخدام المقاسة، ومؤشر الجلسة من مساحة KX الخاصة. تبقى الإعدادات؛ أبطِلها على حدة.</item>
+        <item quantity="two">سيُحذف %1$d سجل، وسجلات الاستخدام المقاسة، ومؤشر الجلسة من مساحة KX الخاصة. تبقى الإعدادات؛ أبطِلها على حدة.</item>
+        <item quantity="few">ستُحذف %1$d سجلات، وسجلات الاستخدام المقاسة، ومؤشر الجلسة من مساحة KX الخاصة. تبقى الإعدادات؛ أبطِلها على حدة.</item>
+        <item quantity="many">سيُحذف %1$d سجلًا، وسجلات الاستخدام المقاسة، ومؤشر الجلسة من مساحة KX الخاصة. تبقى الإعدادات؛ أبطِلها على حدة.</item>
+        <item quantity="other">سيُحذف %1$d سجلًا، وسجلات الاستخدام المقاسة، ومؤشر الجلسة من مساحة KX الخاصة. تبقى الإعدادات؛ أبطِلها على حدة.</item>
+    </plurals>
     <string name="shield_vpn_settings">فتح إعدادات VPN في أندرويد</string>
     <string name="shield_app_info">فتح معلومات تطبيق KX</string>
     <string name="shield_android_guidance">أندرويد هو من يقرر من يمكنه استخدام VPN. هذه الشاشة وحدها تسحب الموافقة، وهي شاشة النظام وليست من KX.</string>
     <string name="shield_scope">يلمس الدرع ملفات هذا التطبيق فقط. لا يمكنه قراءة أو حذف بيانات أو جلسة أي تطبيق آخر.</string>
     <string name="shield_receipt_title">ما حدث فعلًا</string>
     <string name="shield_receipt_counts">تمت إزالة %1$d، وتم تشذيب %2$d</string>
+    <string name="shield_profiles_title">الإعدادات التي تحتفظ بها KX</string>
+    <string name="shield_empty_title">لا يوجد شيء محفوظ بعد</string>
+    <string name="shield_empty_body">لا تحتفظ KX بأي إعداد أو سجل إصلاح أو سجل استخدام أو مؤشر جلسة. لا يوجد ما يمكن إبطاله أو محوه.</string>
+    <string name="shield_loading">جارٍ قراءة ما تحتفظ به KX…</string>
+    <string name="shield_load_failed">تعذّر على KX قراءة مساحتها الخاصة. لم يتغيّر أي شيء.</string>
+    <string name="shield_retry">إعادة المحاولة</string>
+    <string name="shield_selected_count">تم تحديد %1$d</string>
+    <string name="shield_revoke_selected">إبطال الإعدادات المحددة (%1$d)</string>
+    <string name="shield_revoke_selected_title">إبطال الإعدادات المحددة؟</string>
+    <plurals name="shield_revoke_selected_body_count">
+        <item quantity="zero">لن يُزال أي إعداد من المخزن المشفّر.</item>
+        <item quantity="one">سيُزال %1$d إعداد من المخزن المشفّر، ويُزال معه المفتاح الخاص الذي كان يحمله. لا يمكن التراجع عن ذلك.</item>
+        <item quantity="two">سيُزال %1$d إعدادًا من المخزن المشفّر، وتُزال معها المفاتيح الخاصة التي تحملها. لا يمكن التراجع عن ذلك.</item>
+        <item quantity="few">سيُزال %1$d إعدادات من المخزن المشفّر، وتُزال معها المفاتيح الخاصة التي تحملها. لا يمكن التراجع عن ذلك.</item>
+        <item quantity="many">سيُزال %1$d إعدادًا من المخزن المشفّر، وتُزال معها المفاتيح الخاصة التي تحملها. لا يمكن التراجع عن ذلك.</item>
+        <item quantity="other">سيُزال %1$d إعدادًا من المخزن المشفّر، وتُزال معها المفاتيح الخاصة التي تحملها. لا يمكن التراجع عن ذلك.</item>
+    </plurals>
+    <plurals name="shield_revoke_selected_confirm_count">
+        <item quantity="zero">إبطال الإعدادات</item>
+        <item quantity="one">إبطال %1$d إعداد</item>
+        <item quantity="two">إبطال %1$d إعدادين</item>
+        <item quantity="few">إبطال %1$d إعدادات</item>
+        <item quantity="many">إبطال %1$d إعدادًا</item>
+        <item quantity="other">إبطال %1$d إعدادات</item>
+    </plurals>
+    <string name="shield_unknown_profile">هذا الإعداد</string>
+    <string name="shield_receipt_secret_removed">الإعداد ومفتاحه الخاص لم يعودا موجودين في المخزن المشفّر.</string>
+    <string name="shield_receipt_secret_still_present">الإعداد ما زال موجودًا في المخزن المشفّر. لم يُبلّغ عن إزالة أي شيء.</string>
+    <string name="shield_receipt_secret_unverified">تعذّر على KX التحقق من المخزن المشفّر بعد الإبطال. أعد فتح الدرع قبل الوثوق بالنتيجة.</string>
+    <string name="shield_receipt_secrets_removed">كل الإعدادات المحددة ومفاتيحها الخاصة لم تعد موجودة في المخزن المشفّر.</string>
+    <string name="shield_receipt_secrets_partial">بعض الإعدادات المحددة أُزيلت، وواحد على الأقل ما زال في المخزن المشفّر.</string>
+    <string name="shield_receipt_secrets_none_removed">لم يُزل أي إعداد محدد. المخزن المشفّر ما زال يحتفظ بها.</string>
+    <string name="shield_receipt_secrets_unverified">تعذّر على KX التحقق من المخزن المشفّر بعد الإبطال الجماعي. أعد فتح الدرع قبل الوثوق بالنتيجة.</string>
+    <string name="shield_receipt_erased">السجل الذي كانت KX تحتفظ به لم يعد موجودًا.</string>
+    <string name="shield_receipt_erase_incomplete">تعذّر محو السجل بالكامل. العناصر المتبقية ما زالت معروضة.</string>
+    <string name="shield_receipt_pruned">أزالت قاعدة الاحتفاظ السجل المنتهي.</string>
+    <string name="shield_receipt_prune_incomplete">تعذّر على قاعدة الاحتفاظ إزالة كل عنصر منتهٍ. الباقي ما زال معروضًا.</string>
+    <string name="shield_history_repair_detail">%1$s · %2$s · %3$s</string>
+    <plurals name="shield_items_count">
+        <item quantity="zero">لا عناصر</item>
+        <item quantity="one">%1$d عنصر</item>
+        <item quantity="two">%1$d عنصران</item>
+        <item quantity="few">%1$d عناصر</item>
+        <item quantity="many">%1$d عنصرًا</item>
+        <item quantity="other">%1$d عنصر</item>
+    </plurals>
+    <string name="shield_history_recovered">تم استعادتها بعد توقف العملية</string>
+    <string name="shield_history_usage_fallback">جلسة مقاسة</string>
+    <string name="shield_history_no_endpoint">لا يوجد عنوان محفوظ</string>
+    <string name="shield_hint_title">مؤشر الجلسة</string>
+    <string name="shield_hint_detail">سجّلت KX أن نفقًا كان نشطًا عند آخر توقف للعملية. هذا مؤشر وليس نفقًا حيًا.</string>
 </resources>

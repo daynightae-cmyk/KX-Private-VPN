@@ -123,8 +123,10 @@
     <string name="repair_journal_complete">Complete</string>
     <string name="repair_journal_partial">Partial</string>
     <string name="repair_journal_failed">Failed</string>
+    <string name="repair_journal_unknown">Unknown outcome</string>
     <string name="repair_journal_measure">%1$d items · %2$s</string>
     <string name="repair_action_cache_remove">Cache cleanup</string>
+    <string name="repair_action_autopilot_run">Autopilot run</string>
     <string name="repair_action_other">Recorded operation</string>
     <string name="repair_privacy">Only KX-owned data and Android measurements are used. Private storage of other apps is never read. This dashboard never deletes files.</string>
     <string name="repair_unavailable">Not available yet</string>

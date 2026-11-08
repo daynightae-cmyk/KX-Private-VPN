@@ -524,11 +524,7 @@ private fun JournalRow(
 ) {
     val service = RepairCatalog.service(entry.serviceKey)
     val accent = service?.let { repairAccent(it.id) } ?: Color(0xFF64EEFF)
-    val outcome = when (entry.outcome) {
-        RepairOutcome.COMPLETE -> stringResource(R.string.repair_journal_complete)
-        RepairOutcome.PARTIAL -> stringResource(R.string.repair_journal_partial)
-        RepairOutcome.FAILED -> stringResource(R.string.repair_journal_failed)
-    }
+    val outcome = repairOutcomeLabel(entry.outcome.name)
     Row(Modifier.fillMaxWidth().padding(vertical = 5.dp), verticalAlignment = Alignment.Top) {
         Box(Modifier.padding(top = 5.dp).size(7.dp).background(accent, CircleShape))
         Spacer(Modifier.width(9.dp))
@@ -536,12 +532,7 @@ private fun JournalRow(
             Text(service?.let { stringResource(it.titleRes) } ?: stringResource(R.string.repair_lab),
                 fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = foreground)
             Text(
-                stringResource(when (entry.action) {
-                    ACTION_CACHE_REMOVE -> R.string.repair_action_cache_remove
-                    ACTION_GHOST_CLEANUP -> R.string.ghost_action
-                    ACTION_DUPLICATE_CLEANUP -> R.string.dna_action
-                    else -> R.string.repair_action_other
-                }),
+                repairActionLabel(entry.action),
                 modifier = Modifier.testTag("repair-journal-action"),
                 fontSize = 11.sp, color = foreground.copy(alpha = .72f),
             )
@@ -621,7 +612,3 @@ fun RepairServiceRoute(route: String, night: Boolean, onBack: () -> Unit) {
         }
     }
 }
-
-private const val ACTION_CACHE_REMOVE = "cache_remove"
-private const val ACTION_GHOST_CLEANUP = "ghost_cleanup"
-private const val ACTION_DUPLICATE_CLEANUP = "duplicate_cleanup"

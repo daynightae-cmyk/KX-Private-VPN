@@ -31,6 +31,18 @@ data class ShieldEntry(
     val removable: Boolean = true,
     /** The selected profile is the one the tunnel would use, so it is called out in the list. */
     val selected: Boolean = false,
+    /**
+     * Structured journal fields. They exist so the UI can translate a stored operation instead
+     * of printing the storage keys. They are null for profiles and the session hint.
+     */
+    val serviceKey: String? = null,
+    val actionKey: String? = null,
+    val outcomeKey: String? = null,
+    val items: Int = 0,
+    val bytes: Long = 0,
+    /** A measured usage duration; never an estimate. */
+    val durationMillis: Long = 0,
+    val recovered: Boolean = false,
 )
 
 /** Everything KX owns, measured at one moment. */
@@ -42,10 +54,39 @@ data class ShieldInventory(
     val profiles: List<ShieldEntry> get() = entries.filter { it.kind == ShieldKind.PROFILE }
     val history: List<ShieldEntry> get() = entries.filter { it.kind != ShieldKind.PROFILE }
     val secretCount: Int get() = entries.count { it.holdsSecret }
-    val oldestMillis: Long? get() = entries.minOfOrNull { it.atMillis }
+    val oldestMillis: Long? get() = entries.mapNotNull { it.atMillis.takeIf { time -> time > 0 } }.minOrNull()
+
+    /** Only profiles can be revoked in bulk; history has its own explicit erase action. */
+    val removableProfileIds: Set<String>
+        get() = profiles.filter { it.removable }.map { it.id }.toSet()
+
+    /**
+     * Resolves the selected ids against the profiles that actually exist right now. A stale id
+     * (a profile removed in another screen) is ignored instead of revoking the wrong thing.
+     */
+    fun selectedProfileIds(selected: Set<String>): List<String> =
+        profiles.filter { it.removable && it.id in selected }.map { it.id.substringAfter(':') }
 }
 
-enum class ShieldAction { REVOKE_PROFILE, ERASE_HISTORY, PRUNE_OLD }
+enum class ShieldAction { REVOKE_PROFILE, REVOKE_SELECTED, ERASE_HISTORY, PRUNE_OLD }
+
+/**
+ * The outcome of an approved action. The stable [key] is what the app stores and what tests
+ * pin; the screen translates it and never renders the key itself.
+ */
+enum class ShieldReceiptCode(val key: String) {
+    SECRET_REMOVED("secret_removed"),
+    SECRET_STILL_PRESENT("secret_still_present"),
+    SECRET_UNVERIFIED("secret_unverified"),
+    SECRETS_REMOVED("secrets_removed"),
+    SECRETS_PARTIAL("secrets_partial"),
+    SECRETS_NONE_REMOVED("secrets_none_removed"),
+    SECRETS_UNVERIFIED("secrets_unverified"),
+    ERASED("erased"),
+    ERASE_INCOMPLETE("erase_incomplete"),
+    PRUNED("pruned"),
+    PRUNE_INCOMPLETE("prune_incomplete"),
+}
 
 /** What an approved action really did. Every number is counted, never estimated. */
 data class ShieldReceipt(
@@ -54,8 +95,30 @@ data class ShieldReceipt(
     val pruned: Int,
     val bytesFreed: Long,
     val atMillis: Long,
-    val detail: String = "",
+    val code: ShieldReceiptCode,
 )
+
+/**
+ * A single revoke may only claim success after the encrypted store was read back. If the read
+ * itself failed, the receipt says "unverified" rather than guessing either way.
+ */
+object ShieldRevoke {
+    fun code(verified: Boolean, stillPresent: Boolean): ShieldReceiptCode = when {
+        !verified -> ShieldReceiptCode.SECRET_UNVERIFIED
+        stillPresent -> ShieldReceiptCode.SECRET_STILL_PRESENT
+        else -> ShieldReceiptCode.SECRET_REMOVED
+    }
+}
+
+/** The bulk receipt derives its code from the number of targets and the verified removals. */
+object ShieldBulkRevoke {
+    fun code(targets: Int, removed: Int, verified: Boolean): ShieldReceiptCode = when {
+        !verified -> ShieldReceiptCode.SECRETS_UNVERIFIED
+        targets <= 0 || removed <= 0 -> ShieldReceiptCode.SECRETS_NONE_REMOVED
+        removed >= targets -> ShieldReceiptCode.SECRETS_REMOVED
+        else -> ShieldReceiptCode.SECRETS_PARTIAL
+    }
+}
 
 /**
  * The retention rule for the history KX keeps. It is a pure function so the matrix is covered

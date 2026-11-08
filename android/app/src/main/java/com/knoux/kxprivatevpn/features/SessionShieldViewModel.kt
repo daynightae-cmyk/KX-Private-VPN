@@ -11,11 +11,14 @@ import com.knoux.kxprivatevpn.launch.LaunchPreferences
 import com.knoux.kxprivatevpn.platform.repair.RepairJournal
 import com.knoux.kxprivatevpn.platform.repair.commitApprovedMutation
 import com.knoux.kxprivatevpn.platform.security.ShieldAction
+import com.knoux.kxprivatevpn.platform.security.ShieldBulkRevoke
 import com.knoux.kxprivatevpn.platform.security.ShieldEntry
 import com.knoux.kxprivatevpn.platform.security.ShieldInventory
 import com.knoux.kxprivatevpn.platform.security.ShieldKind
 import com.knoux.kxprivatevpn.platform.security.ShieldReceipt
+import com.knoux.kxprivatevpn.platform.security.ShieldReceiptCode
 import com.knoux.kxprivatevpn.platform.security.ShieldRetention
+import com.knoux.kxprivatevpn.platform.security.ShieldRevoke
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.CoroutineStart
@@ -40,8 +43,11 @@ data class SessionShieldUiState(
     val busy: Boolean = false,
     val receipt: ShieldReceipt? = null,
     val retentionDays: Int = ShieldRetention.DEFAULT_DAYS,
-    val message: String? = null,
-)
+) {
+    /** Selection is meaningful only for the profiles that can really be revoked. */
+    val selectedProfiles: List<ShieldEntry>
+        get() = inventory.profiles.filter { it.removable && it.id in selected }
+}
 
 /**
  * KX Session Shield.
@@ -69,11 +75,25 @@ class SessionShieldViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             try {
                 val snapshot = withContext(Dispatchers.IO) { loadInventory() }
-                mutable.update { it.copy(loading = false, inventory = snapshot) }
+                mutable.update { current ->
+                    current.copy(
+                        loading = false,
+                        inventory = snapshot,
+                        // A refresh must never leave a stale selection that points at a
+                        // profile which no longer exists.
+                        selected = current.selected.intersect(snapshot.removableProfileIds),
+                    )
+                }
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {
-                mutable.update { it.copy(loading = false, inventory = ShieldInventory(failed = true)) }
+                mutable.update {
+                    it.copy(
+                        loading = false,
+                        inventory = ShieldInventory(failed = true),
+                        selected = emptySet(),
+                    )
+                }
             }
         }
     }
@@ -100,15 +120,23 @@ class SessionShieldViewModel(app: Application) : AndroidViewModel(app) {
                 title = entry.serviceKey,
                 detail = "${entry.action} · ${entry.outcome.name.lowercase()} · ${entry.items}",
                 atMillis = entry.atMillis,
+                serviceKey = entry.serviceKey,
+                actionKey = entry.action,
+                outcomeKey = entry.outcome.name,
+                items = entry.items,
+                bytes = entry.bytes,
             )
         }
         usage.load().records.forEach { record ->
             entries += ShieldEntry(
                 id = "usage:${record.startedAtMillis}:${record.profileId}",
                 kind = ShieldKind.USAGE_HISTORY,
-                title = record.profileName,
-                detail = "${record.endpoint} · ${record.rxBytes + record.txBytes} B",
+                title = record.profileName.ifBlank { record.profileId },
+                detail = record.endpoint,
                 atMillis = record.startedAtMillis,
+                bytes = record.totalBytes,
+                durationMillis = record.durationMillis,
+                recovered = record.recovered,
             )
         }
         if (preferences.wasVpnActive()) {
@@ -124,21 +152,36 @@ class SessionShieldViewModel(app: Application) : AndroidViewModel(app) {
         return ShieldInventory(entries = entries, loadedAtMillis = System.currentTimeMillis())
     }
 
+    /** Only a real, removable profile can enter the selection. */
     fun toggle(id: String) = mutable.update { current ->
-        val next = if (current.selected.contains(id)) current.selected - id else current.selected + id
-        current.copy(selected = next)
+        if (current.busy || current.loading || id !in current.inventory.removableProfileIds) current
+        else {
+            val next = if (current.selected.contains(id)) current.selected - id
+            else current.selected + id
+            current.copy(selected = next)
+        }
     }
 
+    /** Selects the profiles that can be revoked; history has its own explicit erase action. */
     fun selectAll() = mutable.update { current ->
-        current.copy(selected = current.inventory.entries.filter { it.removable }.map { it.id }.toSet())
+        if (current.busy || current.loading) current
+        else current.copy(selected = current.inventory.removableProfileIds)
     }
 
-    fun clearSelection() = mutable.update { it.copy(selected = emptySet(), confirming = null) }
+    fun clearSelection() = mutable.update {
+        if (it.busy) it else it.copy(selected = emptySet(), confirming = null)
+    }
 
     /** Revoking a profile removes a credential, so it always needs an explicit approval. */
     fun requestRevoke(profileId: String) = mutable.update {
         if (it.busy || it.loading || it.confirming != null) it
         else it.copy(confirming = ShieldAction.REVOKE_PROFILE, pendingProfileId = profileId)
+    }
+
+    /** A bulk revoke is offered only when at least one real profile is selected. */
+    fun requestRevokeSelected() = mutable.update {
+        if (it.busy || it.loading || it.confirming != null || it.selectedProfiles.isEmpty()) it
+        else it.copy(confirming = ShieldAction.REVOKE_SELECTED, pendingProfileId = null)
     }
 
     fun requestErase() = mutable.update {
@@ -157,23 +200,73 @@ class SessionShieldViewModel(app: Application) : AndroidViewModel(app) {
         val profileId = mutable.value.pendingProfileId ?: return
         mutable.update { it.copy(confirming = null, pendingProfileId = null, busy = true) }
         viewModelScope.launch {
-            var removed = 0
+            var verified = false
+            var stillPresent = true
             try {
                 profiles.remove(profileId)
                 val remaining = profiles.load()
-                removed = if (remaining.profiles.none { it.id == profileId }) 1 else 0
+                verified = true
+                stillPresent = remaining.profiles.any { it.id == profileId }
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {
-                removed = 0
+                verified = false
             }
+            val removed = if (verified && !stillPresent) 1 else 0
             val receipt = ShieldReceipt(
                 action = ShieldAction.REVOKE_PROFILE,
                 removed = removed,
                 pruned = 0,
                 bytesFreed = 0L,
                 atMillis = System.currentTimeMillis(),
-                detail = if (removed == 1) "secret_removed" else "secret_still_present",
+                code = ShieldRevoke.code(verified, stillPresent),
+            )
+            mutable.update { it.copy(busy = false, receipt = receipt, selected = emptySet()) }
+            refresh()
+        }
+    }
+
+    /**
+     * Revokes every selected profile and verifies the whole batch against the encrypted store.
+     * A failure in one removal never hides the others: the receipt reports the verified count.
+     */
+    fun confirmRevokeSelected() {
+        val current = mutable.value
+        if (current.busy || current.confirming != ShieldAction.REVOKE_SELECTED) return
+        val targets = current.inventory.selectedProfileIds(current.selected)
+        mutable.update { it.copy(confirming = null, pendingProfileId = null, busy = true) }
+        if (targets.isEmpty()) {
+            mutable.update { it.copy(busy = false, selected = emptySet()) }
+            return
+        }
+        viewModelScope.launch {
+            var verified = false
+            var removed = 0
+            try {
+                targets.forEach { id ->
+                    try {
+                        profiles.remove(id)
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (_: Exception) {
+                        // A concurrent removal is fine; the read-back below decides the truth.
+                    }
+                }
+                val remaining = profiles.load().profiles.map { it.id }.toSet()
+                verified = true
+                removed = targets.count { it !in remaining }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                verified = false
+            }
+            val receipt = ShieldReceipt(
+                action = ShieldAction.REVOKE_SELECTED,
+                removed = removed,
+                pruned = 0,
+                bytesFreed = 0L,
+                atMillis = System.currentTimeMillis(),
+                code = ShieldBulkRevoke.code(targets.size, removed, verified),
             )
             mutable.update { it.copy(busy = false, receipt = receipt, selected = emptySet()) }
             refresh()
@@ -191,9 +284,13 @@ class SessionShieldViewModel(app: Application) : AndroidViewModel(app) {
             var removed = 0
             var failed = false
             try {
+                val usageRecords = usage.load().records.size
+                val hintActive = preferences.wasVpnActive()
                 removed += journal.clear()
                 usage.clear()
                 preferences.markVpnActive(false)
+                removed += usageRecords
+                if (hintActive) removed += 1
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {
@@ -205,7 +302,7 @@ class SessionShieldViewModel(app: Application) : AndroidViewModel(app) {
                 pruned = 0,
                 bytesFreed = 0L,
                 atMillis = System.currentTimeMillis(),
-                detail = if (failed) "erase_incomplete" else "erased",
+                code = if (failed) ShieldReceiptCode.ERASE_INCOMPLETE else ShieldReceiptCode.ERASED,
             )
             mutable.update { it.copy(busy = false, receipt = receipt, selected = emptySet()) }
             refresh()
@@ -255,7 +352,8 @@ class SessionShieldViewModel(app: Application) : AndroidViewModel(app) {
                     val receipt = ShieldReceipt(
                         action = ShieldAction.PRUNE_OLD, removed = 0, pruned = pruned,
                         bytesFreed = 0L, atMillis = System.currentTimeMillis(),
-                        detail = if (failed) "prune_incomplete" else "pruned",
+                        code = if (failed) ShieldReceiptCode.PRUNE_INCOMPLETE
+                        else ShieldReceiptCode.PRUNED,
                     )
                     mutable.update { it.copy(busy = false, receipt = receipt) }
                     if (viewModelScope.isActive) refresh()

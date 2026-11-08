@@ -123,8 +123,10 @@
     <string name="repair_journal_complete">مكتملة</string>
     <string name="repair_journal_partial">جزئية</string>
     <string name="repair_journal_failed">فاشلة</string>
+    <string name="repair_journal_unknown">نتيجة غير معروفة</string>
     <string name="repair_journal_measure">%1$d عناصر · %2$s</string>
     <string name="repair_action_cache_remove">تنظيف الكاش</string>
+    <string name="repair_action_autopilot_run">تشغيل الطيار الآلي</string>
     <string name="repair_action_other">عملية مسجلة</string>
     <string name="repair_privacy">تُستخدم بيانات KX والقياسات من Android فقط. لا يُقرأ التخزين الخاص بأي تطبيق آخر. لوحة التحكم لا تحذف أي ملفات.</string>
     <string name="repair_unavailable">غير متاح حاليًا</string>
