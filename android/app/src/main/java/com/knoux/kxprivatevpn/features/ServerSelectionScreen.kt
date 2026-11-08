@@ -3,9 +3,10 @@ package com.knoux.kxprivatevpn.features
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -97,10 +98,11 @@ fun ServerSelectionScreen(
 ) {
     val foreground = if (night) Color(0xFFF7F3FF) else Color(0xFF171050)
     val profiles = state.snapshot.profiles
+    val searchQuery = query.trim()
     val filtered = profiles.filter {
-        query.isBlank() ||
-            it.name.contains(query, ignoreCase = true) ||
-            it.endpoint.contains(query, ignoreCase = true)
+        searchQuery.isBlank() ||
+            it.name.contains(searchQuery, ignoreCase = true) ||
+            it.endpoint.contains(searchQuery, ignoreCase = true)
     }
     val selectedId = state.snapshot.selectedId
     Box(Modifier.fillMaxSize()) {
@@ -148,16 +150,21 @@ fun ServerSelectionScreen(
                         modifier = Modifier.testTag("server-search-empty"))
                 }
             } else {
-                filtered.forEach { profile ->
-                    ServerCard(
-                        profile = profile,
-                        selected = profile.id == selectedId,
-                        night = night,
-                        foreground = foreground,
-                        busy = state.busy,
-                        onSelect = { onSelect(profile.id) },
-                        onRemove = { onRemove(profile) },
-                    )
+                Column(
+                    modifier = Modifier.fillMaxWidth().selectableGroup(),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    filtered.forEach { profile ->
+                        ServerCard(
+                            profile = profile,
+                            selected = profile.id == selectedId,
+                            night = night,
+                            foreground = foreground,
+                            busy = state.busy,
+                            onSelect = { onSelect(profile.id) },
+                            onRemove = { onRemove(profile) },
+                        )
+                    }
                 }
             }
             OutlinedButton(
@@ -199,7 +206,7 @@ private fun ServerCard(
                 if (selected) Color(0xFF64EEFF).copy(alpha = .9f)
                 else Color.White.copy(alpha = if (night) .26f else .78f),
                 shape)
-            .clickable(enabled = !busy, role = Role.Button, onClick = onSelect)
+            .selectable(selected = selected, enabled = !busy, role = Role.RadioButton, onClick = onSelect)
             .padding(14.dp)
             .testTag("server-card-${profile.id}"),
         verticalArrangement = Arrangement.spacedBy(3.dp),
@@ -235,7 +242,7 @@ private fun ServerCard(
             TextButton(
                 onClick = onRemove,
                 enabled = !busy,
-                modifier = Modifier.heightIn(min = 40.dp).testTag("server-remove-${profile.id}"),
+                modifier = Modifier.heightIn(min = 48.dp).testTag("server-remove-${profile.id}"),
             ) {
                 Text(stringResource(R.string.server_remove), fontSize = 11.sp,
                     color = foreground.copy(alpha = .78f))

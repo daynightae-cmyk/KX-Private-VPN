@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="apps_review_title">راجع تطبيقاتك</string>
+    <string name="apps_scanning">جارٍ قراءة التطبيقات الظاهرة لـ KX…</string>
+    <string name="apps_cancelled">أُلغي الفحص دون تغيير أي تطبيق. يمكنك الفحص مجددًا.</string>
+    <string name="apps_scan_action">فحص التطبيقات الظاهرة</string>
+    <string name="apps_scan_again">فحص مجددًا</string>
+    <string name="apps_results">التطبيقات الظاهرة</string>
+    <string name="apps_visible_count">التطبيقات المكتشفة: %1$d</string>
+    <string name="apps_results_scope">هذه أحدث قائمة تشغيل متاحة لـ KX ضمن ملف Android الحالي، وليست كل الحزم أو تطبيقات ملف عمل آخر. اختفاء تطبيق من القائمة لا يثبت إزالته.</string>
+    <string name="apps_search_label">ابحث بالاسم أو اسم الحزمة</string>
+    <string name="apps_sort_name">ترتيب بالاسم</string>
+    <string name="apps_sort_package">ترتيب بالحزمة</string>
+    <string name="apps_shown_count">عرض %1$d من %2$d تطبيق ظاهر</string>
+    <string name="apps_empty_inventory">لم تظهر لـ KX تطبيقات قابلة للتشغيل في هذا الفحص. قد تعرض إعدادات Android المزيد.</string>
+    <string name="apps_no_matches">لا توجد تطبيقات تطابق البحث والتصفية.</string>
+    <string name="apps_reset_filter">مسح البحث وعرض الكل</string>
+    <string name="apps_open_confirmation">فتح تأكيد Android</string>
+    <string name="apps_hide_details">إخفاء التفاصيل</string>
+    <string name="apps_show_details">عرض التفاصيل</string>
+    <string name="apps_self_protected">تطبيق KX نفسه — الإزالة غير متاحة هنا</string>
+    <string name="apps_version">الإصدار المثبّت: %1$s</string>
+    <string name="apps_target_sdk">واجهة Android المستهدفة: %1$s</string>
+    <string name="apps_storage_unknown">لا نقيس هنا حجم التطبيق أو ذاكرته المؤقتة. افتح معلومات التطبيق للاطلاع على قياسات Android.</string>
+    <string name="apps_handoff_title">الإحالة إلى Android</string>
+    <string name="apps_handoff_opened">أُرسل الطلب إلى Android. لم يتحقق KX من إزالة أي تطبيق أو توفير مساحة.</string>
+    <string name="apps_handoff_returned">عدت من Android. طلب KX تحديث القائمة، وتظهر حالة الفحص أعلاه. الرجوع لا يؤكد الإزالة أو الإلغاء أو توفير مساحة.</string>
+    <string name="apps_handoff_unavailable">تعذّر على Android فتح الإجراء، أو لم يعد التطبيق مؤهلًا له. لم تُؤكّد أي إزالة. افحص مجددًا أو استخدم إعدادات Android.</string>
+    <string name="apps_handoff_blocked">لم تعد هذه الموافقة صالحة. لم يُفتح أي إجراء. افحص مجددًا قبل اختيار تطبيق.</string>
+</resources>

@@ -92,9 +92,11 @@ else
     printf 'ime_disable_applied=false\nreason=physical_device\n' > device-screenshots/ime-disabled.txt
 fi
 # Run the full growing instrumented suite without skipping tests or treating
-# timeouts as success. PR28 VPN/Pro ran 230 tests, newer Home adds more.
-# The previous 8m bound killed healthy API35 runs; 12m remains a hard limit.
-timeout --kill-after=15s 12m bash ./gradlew "${gradle_flags[@]}" :app:connectedDebugAndroidTest -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true
+# timeouts as success. The suite is now 252 tests and includes screenshot-heavy
+# visual fixtures; API35 reached test 235/252 at the old 12m bound with zero
+# failures. 18m remains a hard limit and still fits the 40m device job budget
+# (600s boot + 6m install + 18m tests).
+timeout --kill-after=15s 18m bash ./gradlew "${gradle_flags[@]}" :app:connectedDebugAndroidTest -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true
 test_result=$?
 if [ "$test_result" -eq 124 ]; then
     printf 'instrumentation_timeout=true\ngradle_exit_code=124\nresult=NOT_PASSED\n' > device-screenshots/test-timeout.txt

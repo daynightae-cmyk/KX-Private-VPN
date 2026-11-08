@@ -2,206 +2,108 @@ package com.knoux.kxprivatevpn.features
 
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.net.Uri
-import android.os.Build
 import android.provider.Settings
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.knoux.kxprivatevpn.R
-import com.knoux.kxprivatevpn.designsystem.Atmosphere
-import com.knoux.kxprivatevpn.designsystem.KxOrb
-import com.knoux.kxprivatevpn.launch.IntroTimeline
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.knoux.kxprivatevpn.designsystem.KxServiceGlyph
+import com.knoux.kxprivatevpn.platform.apps.InstalledApp
+import com.knoux.kxprivatevpn.platform.apps.InstalledApps
+import com.knoux.kxprivatevpn.platform.apps.canRequestUninstall
+import com.knoux.kxprivatevpn.platform.apps.isProtectedSystemApp
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-
-/** This is a scoped launcher-app inventory, NOT a claim to list Android's hidden apps. */
-internal data class VisibleApp(
-    val packageName: String,
-    val name: String,
-    val system: Boolean,
-)
-
-internal fun isProtectedSystemApp(flags: Int): Boolean =
-    flags and (ApplicationInfo.FLAG_SYSTEM or ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0
-
-internal fun queryVisibleLaunchableApps(context: Context): List<VisibleApp> {
-    val pm = context.packageManager
-    val request = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
-    val resolved = if (Build.VERSION.SDK_INT >= 33) {
-        pm.queryIntentActivities(request, PackageManager.ResolveInfoFlags.of(0L))
-    } else {
-        @Suppress("DEPRECATION")
-        pm.queryIntentActivities(request, 0)
-    }
-    return resolved.mapNotNull { activity ->
-        val info = activity.activityInfo?.applicationInfo ?: return@mapNotNull null
-        val pkg = info.packageName
-        if (pkg.isBlank()) return@mapNotNull null
-        VisibleApp(pkg, pm.getApplicationLabel(info).toString(), isProtectedSystemApp(info.flags))
-    }.distinctBy { it.packageName }.sortedWith(compareBy({ it.system }, { it.name.lowercase() }))
-}
 
 @Composable
 fun InstalledAppsRoute(night: Boolean, onBack: () -> Unit) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-    var apps by remember { mutableStateOf<List<VisibleApp>?>(null) }
-    var scanning by remember { mutableStateOf(false) }
-    var failed by remember { mutableStateOf(false) }
-    var filter by remember { mutableStateOf("all") }
-    var uninstall by remember { mutableStateOf<VisibleApp?>(null) }
-    val title = stringResource(R.string.app_inventory_title)
-    val foreground = if (night) androidx.compose.ui.graphics.Color(0xFFF7F3FF)
-        else androidx.compose.ui.graphics.Color(0xFF171050)
+    val appContext = context.applicationContext
+    val model: AppInventoryModel = viewModel(factory = viewModelFactory {
+        initializer { AppInventoryModel(appContext.packageName, InstalledApps(appContext)::inventory) }
+    })
+    val state by model.state.collectAsState()
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        // RESULT_OK, RESULT_CANCELED and a vanished launcher entry are not uninstall proof.
+        model.returnedFromAndroid()
+    }
+    fun launch(intent: Intent): Boolean = try {
+        launcher.launch(intent)
+        true
+    } catch (_: android.content.ActivityNotFoundException) {
+        false
+    } catch (_: SecurityException) {
+        false
+    }
+    InstalledAppsScreen(
+        night = night, state = state, ownPackage = appContext.packageName,
+        onBack = onBack, onScan = model::scan, onCancel = model::cancelScan,
+        onQuery = model::query, onFilter = model::filter, onSort = model::sort,
+        onRequestUninstall = model::requestUninstall, onDismissApproval = model::dismissApproval,
+        onConfirmUninstall = {
+            model.confirmUninstall { approved ->
+                val intent = safeUninstallIntent(appContext, approved)
+                intent != null && launch(intent)
+            }
+        },
+        onAppSettings = { pkg -> model.openDetails(pkg) { app ->
+            launch(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                Uri.fromParts("package", app.packageName, null)))
+        } },
+        onAllSettings = { model.openSettings { launch(Intent(Settings.ACTION_MANAGE_APPLICATIONS_SETTINGS)) } },
+        icon = { app -> InstalledAppIcon(app) },
+    )
+}
 
-    fun scan() {
-        if (scanning) return
-        scanning = true
-        failed = false
-        scope.launch {
+internal fun safeUninstallIntent(context: Context, approved: InstalledApp): Intent? {
+    if (!canRequestUninstall(approved, context.packageName)) return null
+    // Re-read protection at the execution boundary; a stale scan cannot authorize removal.
+    val current = try {
+        @Suppress("DEPRECATION")
+        context.packageManager.getApplicationInfo(approved.packageName, 0)
+    } catch (_: PackageManager.NameNotFoundException) {
+        return null
+    } catch (_: SecurityException) {
+        return null
+    }
+    if (isProtectedSystemApp(current.flags)) return null
+    // Android owns the separate confirmation. No silent removal API is used.
+    return Intent(Intent.ACTION_DELETE, Uri.fromParts("package", approved.packageName, null))
+        .putExtra(Intent.EXTRA_RETURN_RESULT, true)
+}
+
+@Composable
+private fun InstalledAppIcon(app: InstalledApp) {
+    val context = LocalContext.current
+    val image by produceState<ImageBitmap?>(null, app.packageName) {
+        value = null
+        value = withContext(Dispatchers.IO) {
             try {
-                apps = withContext(Dispatchers.Default) {
-                    queryVisibleLaunchableApps(context.applicationContext)
-                }
-            } catch (_: Exception) {
-                apps = null
-                failed = true
-            } finally {
-                scanning = false
+                val drawable = context.packageManager.getApplicationIcon(app.packageName)
+                val bitmap = Bitmap.createBitmap(96, 96, Bitmap.Config.ARGB_8888)
+                drawable.setBounds(0, 0, 96, 96)
+                drawable.draw(android.graphics.Canvas(bitmap))
+                bitmap.asImageBitmap()
+            } catch (_: PackageManager.NameNotFoundException) {
+                null
+            } catch (_: SecurityException) {
+                null
             }
         }
     }
-
-    Box(Modifier.fillMaxSize()) {
-        Atmosphere(night, 0f)
-        LazyColumn(
-            modifier = Modifier.fillMaxSize().safeDrawingPadding()
-                .padding(horizontal = 16.dp).testTag("route-apps"),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = PaddingValues(bottom = 32.dp),
-        ) {
-            item {
-                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    TextButton(onClick = onBack, modifier = Modifier.testTag("apps-back")) {
-                        Text(stringResource(R.string.back))
-                    }
-                    Spacer(Modifier.weight(1f))
-                    Text(title, style = MaterialTheme.typography.titleLarge, color = foreground)
-                }
-            }
-            item {
-                CrystalPanel {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        KxOrb(1f, IntroTimeline.frame(1f), Modifier.size(100.dp)
-                            .testTag("apps-scan-orb")
-                            .semantics { contentDescription = title }
-                            .clickable(enabled = !scanning, role = Role.Button) { scan() })
-                        Spacer(Modifier.width(12.dp))
-                        Column(Modifier.weight(1f)) {
-                            Text(stringResource(R.string.app_inventory_scan), color = foreground)
-                            Text(stringResource(R.string.app_inventory_scope), color = foreground,
-                                fontSize = 12.sp, lineHeight = 17.sp)
-                        }
-                    }
-                    if (scanning) LinearProgressIndicator(Modifier.fillMaxWidth())
-                    if (failed) Text(stringResource(R.string.app_inventory_failure), color = foreground)
-                    TextButton(onClick = {
-                        context.startActivity(Intent(Settings.ACTION_MANAGE_APPLICATIONS_SETTINGS)
-                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-                    }, modifier = Modifier.fillMaxWidth().testTag("apps-system-settings")) {
-                        Text(stringResource(R.string.app_inventory_all_settings))
-                    }
-                }
-            }
-            if (apps != null) {
-                val all = apps.orEmpty()
-                val shown = all.filter {
-                    filter == "all" || (filter == "system") == it.system
-                }
-                item {
-                    CrystalPanel {
-                        Text(stringResource(R.string.app_inventory_counts,
-                            all.count { !it.system }, all.count { it.system }), color = foreground)
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            listOf(
-                                "all" to R.string.app_inventory_filter_all,
-                                "user" to R.string.app_inventory_filter_user,
-                                "system" to R.string.app_inventory_filter_system,
-                            ).forEach { (value, textId) ->
-                                TextButton(onClick = { filter = value }, modifier = Modifier
-                                    .weight(1f).testTag("apps-filter-$value")) {
-                                    Text(stringResource(textId), fontSize = 12.sp,
-                                        color = foreground)
-                                }
-                            }
-                        }
-                    }
-                }
-                items(shown, key = { it.packageName }) { app ->
-                    CrystalPanel {
-                        Text(app.name, style = MaterialTheme.typography.titleMedium,
-                            color = foreground)
-                        Text(app.packageName, fontSize = 11.sp, color = foreground)
-                        Text(stringResource(if (app.system)
-                            R.string.app_inventory_system_protected
-                            else R.string.app_inventory_user_app), color = foreground,
-                            fontSize = 12.sp)
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            TextButton(onClick = {
-                                context.startActivity(
-                                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                                        Uri.parse("package:${app.packageName}"))
-                                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-                            }) { Text(stringResource(R.string.app_inventory_app_info)) }
-                            if (!app.system && app.packageName != context.packageName) {
-                                TextButton(onClick = { uninstall = app },
-                                    modifier = Modifier.testTag("apps-uninstall-${app.packageName}")) {
-                                    Text(stringResource(R.string.app_inventory_uninstall))
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    uninstall?.let { app ->
-        AlertDialog(onDismissRequest = { uninstall = null },
-            title = { Text(stringResource(R.string.app_inventory_confirm_title)) },
-            text = { Text(stringResource(R.string.app_inventory_confirm_body, app.name)) },
-            confirmButton = {
-                TextButton(onClick = {
-                    uninstall = null
-                    // No silent uninstall. Android displays its own separate confirmation.
-                    context.startActivity(Intent(Intent.ACTION_DELETE,
-                        Uri.parse("package:${app.packageName}"))
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-                }, modifier = Modifier.testTag("apps-confirm-uninstall")) {
-                    Text(stringResource(R.string.app_inventory_uninstall))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { uninstall = null }) {
-                    Text(stringResource(R.string.cancel))
-                }
-            },
-        )
-    }
+    image?.let { Image(it, contentDescription = null, modifier = Modifier.size(40.dp)) }
+        ?: KxServiceGlyph("apps", MaterialTheme.colorScheme.primary, Modifier.size(40.dp))
 }

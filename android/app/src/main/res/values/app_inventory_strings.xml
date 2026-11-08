@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="apps_review_title">Review your apps</string>
+    <string name="apps_scanning">Reading apps visible to KX…</string>
+    <string name="apps_cancelled">Scan cancelled. No apps were changed. You can scan again.</string>
+    <string name="apps_scan_action">Scan visible apps</string>
+    <string name="apps_scan_again">Scan again</string>
+    <string name="apps_results">Visible apps</string>
+    <string name="apps_visible_count">Apps found: %1$d</string>
+    <string name="apps_results_scope">This is the latest launcher inventory available to KX in this Android profile, not every package or another work profile. A missing entry does not prove removal.</string>
+    <string name="apps_search_label">Search name or package</string>
+    <string name="apps_sort_name">Sort by name</string>
+    <string name="apps_sort_package">Sort by package</string>
+    <string name="apps_shown_count">Showing %1$d of %2$d visible apps</string>
+    <string name="apps_empty_inventory">No launchable apps were visible to KX in this scan. Android Settings may show more.</string>
+    <string name="apps_no_matches">No apps match this search and filter.</string>
+    <string name="apps_reset_filter">Clear search and show all</string>
+    <string name="apps_open_confirmation">Open Android confirmation</string>
+    <string name="apps_hide_details">Hide details</string>
+    <string name="apps_show_details">Show details</string>
+    <string name="apps_self_protected">KX itself — uninstall unavailable here</string>
+    <string name="apps_version">Installed version: %1$s</string>
+    <string name="apps_target_sdk">Target Android API: %1$s</string>
+    <string name="apps_storage_unknown">App storage and cache sizes are not measured here. Open App info for Android’s measurements.</string>
+    <string name="apps_handoff_title">Android handoff</string>
+    <string name="apps_handoff_opened">Request sent to Android. KX has not verified any app removal or freed space.</string>
+    <string name="apps_handoff_returned">Returned from Android. KX requested a fresh inventory; its scan status is shown above. This return does not confirm removal, cancellation, or freed space.</string>
+    <string name="apps_handoff_unavailable">Android could not open this action, or the target is no longer eligible. No removal is confirmed. Scan again or use Android Settings.</string>
+    <string name="apps_handoff_blocked">This approval is no longer valid. No action was launched. Scan again before choosing an app.</string>
+</resources>
