@@ -316,68 +316,78 @@ fun SessionShieldScreen(
         val entry = state.inventory.profiles.firstOrNull {
             it.id.substringAfter(':') == state.pendingProfileId
         }
+        // A dialog owns a separate Android window/context. Resolve its copy in this localized
+        // composition; otherwise the dialog falls back to the Activity's previous resources.
+        val dialogTitle = stringResource(R.string.shield_revoke_title)
+        val dialogBody = stringResource(R.string.shield_revoke_body,
+            entry?.title ?: stringResource(R.string.shield_unknown_profile))
+        val dialogConfirm = stringResource(R.string.shield_revoke)
+        val dialogCancel = stringResource(R.string.cancel)
         AlertDialog(
             onDismissRequest = onDismissConfirmation,
-            title = { Text(stringResource(R.string.shield_revoke_title)) },
-            text = {
-                Text(stringResource(R.string.shield_revoke_body,
-                    entry?.title ?: stringResource(R.string.shield_unknown_profile)))
-            },
+            title = { Text(dialogTitle) },
+            text = { Text(dialogBody) },
             confirmButton = {
                 TextButton(onClick = onConfirmRevoke,
                     modifier = Modifier.testTag("shield-revoke-confirm")) {
-                    Text(stringResource(R.string.shield_revoke))
+                    Text(dialogConfirm)
                 }
             },
             dismissButton = {
                 TextButton(onClick = onDismissConfirmation,
                     modifier = Modifier.testTag("shield-revoke-cancel")) {
-                    Text(stringResource(R.string.cancel))
+                    Text(dialogCancel)
                 }
             },
         )
     }
 
     if (state.confirming == ShieldAction.REVOKE_SELECTED) {
+        val dialogTitle = stringResource(R.string.shield_revoke_selected_title)
+        val dialogBody = pluralStringResource(R.plurals.shield_revoke_selected_body_count,
+            selectedCount, selectedCount)
+        val dialogConfirm = pluralStringResource(R.plurals.shield_revoke_selected_confirm_count,
+            selectedCount, selectedCount)
+        val dialogCancel = stringResource(R.string.cancel)
         AlertDialog(
             onDismissRequest = onDismissConfirmation,
-            title = { Text(stringResource(R.string.shield_revoke_selected_title)) },
-            text = {
-                Text(pluralStringResource(R.plurals.shield_revoke_selected_body_count,
-                    selectedCount, selectedCount))
-            },
+            title = { Text(dialogTitle) },
+            text = { Text(dialogBody) },
             confirmButton = {
                 TextButton(onClick = onConfirmRevokeSelected,
                     modifier = Modifier.testTag("shield-revoke-selected-confirm")) {
-                    Text(pluralStringResource(R.plurals.shield_revoke_selected_confirm_count,
-                        selectedCount, selectedCount))
+                    Text(dialogConfirm)
                 }
             },
             dismissButton = {
                 TextButton(onClick = onDismissConfirmation,
                     modifier = Modifier.testTag("shield-revoke-selected-cancel")) {
-                    Text(stringResource(R.string.cancel))
+                    Text(dialogCancel)
                 }
             },
         )
     }
 
     if (state.confirming == ShieldAction.ERASE_HISTORY) {
+        val dialogTitle = stringResource(R.string.shield_erase_title)
+        val dialogBody = pluralStringResource(R.plurals.shield_erase_body_count,
+            state.inventory.history.size, state.inventory.history.size)
+        val dialogConfirm = stringResource(R.string.shield_erase)
+        val dialogCancel = stringResource(R.string.cancel)
         AlertDialog(
             onDismissRequest = onDismissConfirmation,
-            title = { Text(stringResource(R.string.shield_erase_title)) },
-            text = { Text(pluralStringResource(R.plurals.shield_erase_body_count,
-                state.inventory.history.size, state.inventory.history.size)) },
+            title = { Text(dialogTitle) },
+            text = { Text(dialogBody) },
             confirmButton = {
                 TextButton(onClick = onConfirmErase,
                     modifier = Modifier.testTag("shield-erase-confirm")) {
-                    Text(stringResource(R.string.shield_erase))
+                    Text(dialogConfirm)
                 }
             },
             dismissButton = {
                 TextButton(onClick = onDismissConfirmation,
                     modifier = Modifier.testTag("shield-erase-cancel")) {
-                    Text(stringResource(R.string.cancel))
+                    Text(dialogCancel)
                 }
             },
         )

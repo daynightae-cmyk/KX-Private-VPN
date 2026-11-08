@@ -163,7 +163,8 @@ class AutopilotScreenTest {
         var toggled = ""
         val plan = samplePlan()
         screen(AutopilotUiState(loading = false, plan = plan, selected = emptySet()), onToggle = { toggled = it })
-        compose.onNodeWithTag("autopilot-select-0").performClick()
+        // The card sits below the fold on short screens; clicking without scrolling misses it.
+        compose.onNodeWithTag("autopilot-select-0").performScrollTo().performClick()
         assertEquals("cache:a.tmp", toggled)
     }
 
@@ -194,6 +195,19 @@ class AutopilotScreenTest {
         compose.onNodeWithTag("autopilot-confirm-cancel").performClick()
         assertEquals(0, confirmed)
         assertEquals(1, dismissed)
+    }
+
+    @Test fun arabicApprovalDialogKeepsArabicCopy() {
+        val arabic = localized(base, "ar")
+        val plan = samplePlan()
+        screen(
+            AutopilotUiState(loading = false, plan = plan,
+                selected = plan.targets.map { it.id }.toSet(), confirming = true),
+            arabic = true,
+        )
+        compose.onNodeWithText(arabic.getString(R.string.autopilot_confirm_title)).assertExists()
+        compose.onNodeWithText(arabic.getString(R.string.autopilot_confirm)).assertExists()
+        compose.onNodeWithText(arabic.getString(R.string.cancel)).assertExists()
     }
 
     @Test fun aCompleteReceiptOnlyReportsWhatHappened() {

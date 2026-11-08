@@ -266,6 +266,23 @@ class SessionShieldScreenTest {
         assertEquals(1, dismissed)
     }
 
+    @Test fun arabicRevokeDialogKeepsArabicCopy() {
+        val arabic = localized(base, "ar")
+        screen(
+            SessionShieldUiState(
+                loading = false,
+                inventory = ShieldInventory(entries = listOf(profileEntry())),
+                confirming = ShieldAction.REVOKE_PROFILE,
+                pendingProfileId = "abc",
+            ),
+            language = "ar",
+            direction = LayoutDirection.Rtl,
+        )
+        compose.onNodeWithText(arabic.getString(R.string.shield_revoke_title)).assertExists()
+        compose.onNodeWithText(arabic.getString(R.string.shield_revoke_body, "Home")).assertExists()
+        compose.onNodeWithText(arabic.getString(R.string.cancel)).assertExists()
+    }
+
     @Test fun selectionCountsOnlyProfilesAndBulkRevokeAsksFirst() {
         var requested = 0
         var confirmed = 0

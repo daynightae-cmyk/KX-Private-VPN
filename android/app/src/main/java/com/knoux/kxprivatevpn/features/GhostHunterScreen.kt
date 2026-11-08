@@ -150,26 +150,33 @@ fun GhostHunterScreen(
             Spacer(Modifier.height(24.dp))
         }
     }
-    if (state.confirming) AlertDialog(
-        onDismissRequest = onDismissCleanup,
-        title = { Text(stringResource(R.string.ghost_dialog_title)) },
-        text = {
-            Text(stringResource(R.string.ghost_dialog_body, selectedCount),
-                modifier = Modifier.verticalScroll(rememberScrollState()))
-        },
-        confirmButton = {
-            TextButton(onClick = onConfirmCleanup,
-                modifier = Modifier.heightIn(min = 48.dp).testTag("ghost-confirm")) {
-                Text(stringResource(R.string.ghost_confirm))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismissCleanup,
-                modifier = Modifier.heightIn(min = 48.dp).testTag("ghost-keep")) {
-                Text(stringResource(R.string.ghost_cleanup_cancel))
-            }
-        },
-    )
+    if (state.confirming) {
+        // Dialog windows resolve resources against the Activity context. Resolve the copy here,
+        // in the localized screen composition, so Arabic never falls back to English.
+        val dialogTitle = stringResource(R.string.ghost_dialog_title)
+        val dialogBody = stringResource(R.string.ghost_dialog_body, selectedCount)
+        val dialogConfirm = stringResource(R.string.ghost_confirm)
+        val dialogCancel = stringResource(R.string.ghost_cleanup_cancel)
+        AlertDialog(
+            onDismissRequest = onDismissCleanup,
+            title = { Text(dialogTitle) },
+            text = {
+                Text(dialogBody, modifier = Modifier.verticalScroll(rememberScrollState()))
+            },
+            confirmButton = {
+                TextButton(onClick = onConfirmCleanup,
+                    modifier = Modifier.heightIn(min = 48.dp).testTag("ghost-confirm")) {
+                    Text(dialogConfirm)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismissCleanup,
+                    modifier = Modifier.heightIn(min = 48.dp).testTag("ghost-keep")) {
+                    Text(dialogCancel)
+                }
+            },
+        )
+    }
 }
 
 @Composable

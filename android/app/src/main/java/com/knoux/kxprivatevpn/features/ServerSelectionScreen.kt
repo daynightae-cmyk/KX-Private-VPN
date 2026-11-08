@@ -65,21 +65,26 @@ fun ServerSelectionRoute(
         onRemove = { removing = it },
     )
     removing?.let { profile ->
+        // Dialog windows resolve resources against the Activity context. Resolve the copy here,
+        // in the localized screen composition, so Arabic never falls back to English.
+        val dialogTitle = stringResource(R.string.remove_title)
+        val dialogBody = stringResource(R.string.remove_body)
+        val dialogConfirm = stringResource(R.string.remove_profile)
+        val dialogCancel = stringResource(R.string.cancel)
         AlertDialog(
             onDismissRequest = { removing = null },
-            title = { Text(stringResource(R.string.remove_title)) },
+            title = { Text(dialogTitle) },
             text = {
-                Text(stringResource(R.string.remove_body),
-                    modifier = Modifier.verticalScroll(rememberScrollState()))
+                Text(dialogBody, modifier = Modifier.verticalScroll(rememberScrollState()))
             },
             confirmButton = {
                 TextButton(onClick = {
                     removing = null
                     model.remove(profile.id)
-                }) { Text(stringResource(R.string.remove_profile)) }
+                }) { Text(dialogConfirm) }
             },
             dismissButton = {
-                TextButton(onClick = { removing = null }) { Text(stringResource(R.string.cancel)) }
+                TextButton(onClick = { removing = null }) { Text(dialogCancel) }
             },
         )
     }

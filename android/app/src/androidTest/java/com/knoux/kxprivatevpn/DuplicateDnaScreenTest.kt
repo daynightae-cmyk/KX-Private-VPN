@@ -207,6 +207,15 @@ class DuplicateDnaScreenTest {
         assertEquals(0, dismissed)
     }
 
+    @Test fun arabicCleanupDialogKeepsArabicCopy() {
+        val arabic = localized(context, "ar")
+        screen(state(selected = setOf("dup1a", "dup2a"), confirming = true), arabic = true)
+        compose.onNodeWithText(arabic.getString(R.string.dna_dialog_title)).assertExists()
+        compose.onNodeWithText(arabic.getString(R.string.dna_dialog_body, 2)).assertExists()
+        compose.onNodeWithText(arabic.getString(R.string.dna_confirm)).assertExists()
+        compose.onNodeWithText(arabic.getString(R.string.dna_cleanup_cancel)).assertExists()
+    }
+
     @Test fun dismissCleanupDialogCallsCallback() {
         var dismissed = 0
         screen(state(confirming = true), onDismissCleanup = { dismissed++ })
