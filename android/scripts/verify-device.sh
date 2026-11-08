@@ -98,6 +98,11 @@ fi
     while true; do
         printf '\n--- %s ---\n' "$(date -u +%FT%TZ)"
         ps -eo pid,ppid,stat,rss,etimes,comm | grep -E '(^ *PID|qemu|emulator)' || true
+        # A zombie QEMU remains in /proc briefly: raw wait status can identify SIGSEGV/SIGABRT.
+        while read -r qemu_pid; do
+            [ -r "/proc/$qemu_pid/stat" ] || continue
+            awk '{print "qemu_pid=" $1 " qemu_state=" $3 " qemu_wait_status_raw=" $52}' "/proc/$qemu_pid/stat"
+        done < <(ps -eo pid=,comm= | awk '$2 == "qemu-system-x86" { print $1 }')
         timeout 5s adb devices -l 2>&1 || true
         if [ -r /sys/fs/cgroup/memory.events ]; then
             cat /sys/fs/cgroup/memory.events
