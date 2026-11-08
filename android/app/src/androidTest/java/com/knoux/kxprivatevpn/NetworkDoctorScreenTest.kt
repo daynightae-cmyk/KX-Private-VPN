@@ -96,7 +96,7 @@ class NetworkDoctorScreenTest {
         // The limits copy is the product promise: no speed, traffic or leak claim.
         compose.onNodeWithTag("network-limits")
             .assertTextEquals(context.getString(R.string.network_readonly_body))
-        compose.onNodeWithTag("network-scope").assertIsDisplayed()
+        compose.onNodeWithTag("network-scope").performScrollTo().assertIsDisplayed()
     }
 
     @Test fun missingReadingIsReportedInsteadOfInventedMetrics() {
