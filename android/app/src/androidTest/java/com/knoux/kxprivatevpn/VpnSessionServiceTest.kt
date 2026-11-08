@@ -290,7 +290,9 @@ class VpnSessionServiceTest {
     private fun captureShade(name: String, title: String, action: String) {
         val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
         setShade(open = false)
-        check(setShade(open = true)) { "the notification shade did not open" }
+        // The expand command is best effort; the notification title in the accessibility
+        // tree is the real proof that the shade is showing content on every API level.
+        setShade(open = true)
         try {
             var bounds = waitForText(title)
             if (bounds == null) {
@@ -346,10 +348,19 @@ class VpnSessionServiceTest {
         return shadeIsOpen() == open
     }
 
-    private fun shadeIsOpen(): Boolean = shell("dumpsys window windows")
-        .lineSequence()
-        .firstOrNull { it.contains("mCurrentFocus=") }
-        ?.let { it.contains("StatusBar") || it.contains("NotificationShade") } == true
+    private fun shadeIsOpen(): Boolean {
+        // API35 can report no mCurrentFocus while the shade is genuinely open, but the
+        // accessibility root belongs to SystemUI whenever the shade is accepting input.
+        val root = InstrumentationRegistry.getInstrumentation().uiAutomation.rootInActiveWindow
+        val shadePackage = root?.packageName?.toString()
+        @Suppress("DEPRECATION")
+        root?.recycle()
+        if (shadePackage == "com.android.systemui") return true
+        return shell("dumpsys window windows")
+            .lineSequence()
+            .firstOrNull { it.contains("mCurrentFocus=") }
+            ?.let { it.contains("StatusBar") || it.contains("NotificationShade") } == true
+    }
 
     private fun waitForText(text: String, timeoutMs: Long = 8_000): Rect? {
         val deadline = SystemClock.elapsedRealtime() + timeoutMs
