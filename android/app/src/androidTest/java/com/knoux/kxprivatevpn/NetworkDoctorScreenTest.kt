@@ -2,6 +2,8 @@ package com.knoux.kxprivatevpn
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -20,13 +22,14 @@ class NetworkDoctorScreenTest {
 
     private val context = InstrumentationRegistry.getInstrumentation().targetContext
 
-    private fun show(state: NetworkUiState) {
+    private fun show(initial: NetworkUiState): MutableState<NetworkUiState> {
+        val state = mutableStateOf(initial)
         compose.setContent {
             KxGlassTheme(night = true) {
                 Box(Modifier.fillMaxSize()) {
                     NetworkDoctorScreen(
                         night = true,
-                        state = state,
+                        state = state.value,
                         onBack = {},
                         onRefresh = {},
                         onUrlChange = {},
@@ -36,6 +39,7 @@ class NetworkDoctorScreenTest {
                 }
             }
         }
+        return state
     }
 
     @Test fun reportsEveryMeasuredValueAndItsLimits() {
@@ -57,8 +61,12 @@ class NetworkDoctorScreenTest {
         compose.onNodeWithTag("network-metric-validated").assertTextContains(no)
         compose.onNodeWithTag("network-metric-captive").assertTextContains(yes)
         compose.onNodeWithTag("network-metric-vpn").assertTextContains(yes)
-        compose.onNodeWithTag("network-transports").assertTextContains("Wi-Fi · VPN")
-        compose.onNodeWithTag("network-dns").assertTextContains("1.1.1.1")
+        // One Text node carries the label plus both transports; exact-item semantics
+        // would only pass if the tag sat on a node whose whole text was the value.
+        compose.onNodeWithTag("network-transports")
+            .assertTextEquals(context.getString(R.string.network_transports, "Wi-Fi · VPN"))
+        compose.onNodeWithTag("network-dns")
+            .assertTextEquals(context.getString(R.string.network_dns, "1.1.1.1"))
         // The limits copy is the product promise: no speed, traffic or leak claim.
         compose.onNodeWithTag("network-limits")
             .assertTextEquals(context.getString(R.string.network_readonly_body))
@@ -67,42 +75,46 @@ class NetworkDoctorScreenTest {
 
     @Test fun missingReadingIsReportedInsteadOfInventedMetrics() {
         show(NetworkUiState(readFailed = true))
-        compose.onNodeWithTag("network-read-failed").assertIsDisplayed()
+        compose.onNodeWithTag("network-read-failed").performScrollTo().assertIsDisplayed()
         compose.onAllNodesWithTag("network-metric-present").assertCountEquals(0)
         compose.onAllNodesWithTag("network-dns").assertCountEquals(0)
     }
 
     @Test fun probeStaysDisabledUntilConsentAndAUsableTarget() {
-        show(NetworkUiState(probeUrl = "https://example.invalid", probeConsent = false))
+        val state = show(NetworkUiState(probeUrl = "https://example.invalid", probeConsent = false))
         compose.onNodeWithTag("probe-run").assertIsNotEnabled()
 
-        show(NetworkUiState(probeUrl = "http://example.invalid", probeConsent = true))
+        compose.runOnIdle {
+            state.value = NetworkUiState(probeUrl = "http://example.invalid", probeConsent = true)
+        }
         compose.waitForIdle()
-        compose.onNodeWithTag("probe-invalid").assertIsDisplayed()
+        compose.onNodeWithTag("probe-invalid").performScrollTo().assertIsDisplayed()
         compose.onNodeWithTag("probe-run").assertIsNotEnabled()
 
-        show(NetworkUiState(probeUrl = "https://example.invalid", probeConsent = true))
+        compose.runOnIdle {
+            state.value = NetworkUiState(probeUrl = "https://example.invalid", probeConsent = true)
+        }
         compose.waitForIdle()
         compose.onNodeWithTag("probe-run").assertIsEnabled()
 
-        show(
-            NetworkUiState(
+        compose.runOnIdle {
+            state.value = NetworkUiState(
                 probeUrl = "https://example.invalid",
                 probeConsent = true,
                 probeResult = HttpsReading(code = 204, elapsedMs = 87),
             )
-        )
+        }
         compose.waitForIdle()
-        compose.onNodeWithTag("probe-receipt").assertIsDisplayed()
+        compose.onNodeWithTag("probe-receipt").performScrollTo().assertIsDisplayed()
         compose.onNodeWithTag("probe-result")
             .assertTextEquals(context.getString(R.string.probe_result, 204, 87))
-        compose.onNodeWithTag("probe-receipt-note").assertIsDisplayed()
+        compose.onNodeWithTag("probe-receipt-note").performScrollTo().assertIsDisplayed()
         compose.onAllNodesWithTag("probe-failed").assertCountEquals(0)
     }
 
     @Test fun failedProbeShowsNoReceipt() {
         show(NetworkUiState(probeUrl = "https://example.invalid", probeConsent = true, probeFailed = true))
-        compose.onNodeWithTag("probe-failed").assertIsDisplayed()
+        compose.onNodeWithTag("probe-failed").performScrollTo().assertIsDisplayed()
         compose.onAllNodesWithTag("probe-receipt").assertCountEquals(0)
     }
 }
