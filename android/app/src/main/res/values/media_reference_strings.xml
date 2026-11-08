@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="media_ref_title">Media Slim Studio</string>
+    <string name="media_ref_images">Images</string>
+    <string name="media_ref_videos">Videos</string>
+    <string name="media_ref_quality">Quality preset</string>
+    <string name="media_ref_scope">Measured items in the chosen folder only. No estimated savings.</string>
+    <string name="media_ref_processing">Processing selected images…</string>
+    <string name="media_ref_select">Select eligible images below to optimize</string>
+</resources>

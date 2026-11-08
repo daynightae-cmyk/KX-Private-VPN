@@ -78,8 +78,10 @@ data class ToolEntry(
  * below is a real destination in this build and no entry invents a scan or measurement.
  */
 object ToolsCatalog {
-    // Reading order in RTL rows: (temporary, duplicates), (large, download),
-    // (smart repair, media), (network, apps), then the full-width storage health card.
+    // Owner reference 18 RTL reading order (right to left):
+    // (temporary, duplicates), (large, download), (media, smart repair),
+    // (apps, network), then full-width storage health.
+    // Read the image, not the previously incorrect written handoff.
     val entries: List<ToolEntry> = listOf(
         ToolEntry("temporary", "cache", R.string.tools_temp_title, R.string.tools_temp_body,
             KxIconKind.SPARKLE, kxViolet(true), kxViolet(false),
@@ -93,18 +95,18 @@ object ToolsCatalog {
         ToolEntry("download", "download", R.string.tools_download_title, R.string.tools_download_body,
             KxIconKind.DOWNLOAD, kxCyan(true), kxCyan(false),
             setOf(ToolFilter.FILES)),
-        ToolEntry("smart", "autopilot", R.string.tools_smart_title, R.string.tools_smart_body,
-            KxIconKind.WRENCH, kxRose(true), kxRose(false),
-            setOf(ToolFilter.STORAGE, ToolFilter.FILES, ToolFilter.MEDIA, ToolFilter.NETWORK)),
         ToolEntry("media", "media", R.string.tools_media_title, R.string.tools_media_body,
             KxIconKind.CLAPPER, kxCyan(true), kxCyan(false),
             setOf(ToolFilter.MEDIA)),
-        ToolEntry("network", "network", R.string.tools_network_title, R.string.tools_network_body,
-            KxIconKind.WIFI, kxRose(true), kxRose(false),
-            setOf(ToolFilter.NETWORK)),
+        ToolEntry("smart", "autopilot", R.string.tools_smart_title, R.string.tools_smart_body,
+            KxIconKind.WRENCH, kxRose(true), kxRose(false),
+            setOf(ToolFilter.STORAGE, ToolFilter.FILES, ToolFilter.MEDIA, ToolFilter.NETWORK)),
         ToolEntry("apps", "apps", R.string.tools_apps_title, R.string.tools_apps_body,
             KxIconKind.ANDROID, kxCyan(true), kxCyan(false),
             setOf(ToolFilter.FILES, ToolFilter.STORAGE)),
+        ToolEntry("network", "network", R.string.tools_network_title, R.string.tools_network_body,
+            KxIconKind.WIFI, kxRose(true), kxRose(false),
+            setOf(ToolFilter.NETWORK)),
         ToolEntry("storage-health", "storage", R.string.tools_storage_health_title,
             R.string.tools_storage_health_body, KxIconKind.DRIVE_HEART,
             kxViolet(true), kxViolet(false), setOf(ToolFilter.STORAGE), fullWidth = true),

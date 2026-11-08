@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="media_ref_title">استوديو تخفيف الوسائط</string>
+    <string name="media_ref_images">الصور</string>
+    <string name="media_ref_videos">الفيديوهات</string>
+    <string name="media_ref_quality">جودة التحسين</string>
+    <string name="media_ref_scope">العدد المقاس من المجلد المختار فقط، دون تقدير وهمي للمساحة.</string>
+    <string name="media_ref_processing">جارٍ معالجة الصور المحددة…</string>
+    <string name="media_ref_select">حدد الصور المدعومة أدناه لبدء التحسين</string>
+</resources>

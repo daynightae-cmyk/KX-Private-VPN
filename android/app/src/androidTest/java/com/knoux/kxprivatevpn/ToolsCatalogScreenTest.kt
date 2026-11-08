@@ -120,18 +120,22 @@ class ToolsCatalogScreenTest {
     @Test fun rtlReadingOrderMirrorsTheReferenceRows() {
         screen(arabic = true, night = true)
 
-        fun bounds(key: String) = compose.onNodeWithTag("tool-card-$key").getBoundsInRoot()
+        // On 720x1280 CI emulators, later rows can be clipped by the scroll viewport.
+        // Bring each real card into view before reading geometry.
+        fun bounds(key: String) = compose.onNodeWithTag("tool-card-$key")
+            .performScrollTo().getBoundsInRoot()
         // RTL rows read right to left: the first item of each pair is the right-hand card.
         assertTrue("Temporary files must lead the first row from the right",
             bounds("temporary").left > bounds("duplicates").left)
         assertTrue("Large files must lead the second row from the right",
             bounds("large").left > bounds("download").left)
-        assertTrue("Smart repair must lead the third row from the right",
-            bounds("smart").left > bounds("media").left)
-        assertTrue("Network must lead the fourth row from the right",
-            bounds("network").left > bounds("apps").left)
+        assertTrue("Reference 18 shows Media Slim on the right of Smart Repair",
+            bounds("media").left > bounds("smart").left)
+        assertTrue("Reference 18 shows Installed Apps on the right of Network",
+            bounds("apps").left > bounds("network").left)
         val gridWidth = bounds("temporary").right - bounds("temporary").left
-        val health = compose.onNodeWithTag("tools-storage-health").getBoundsInRoot()
+        val health = compose.onNodeWithTag("tools-storage-health")
+            .performScrollTo().getBoundsInRoot()
         assertTrue("Storage health must span the full content width",
             (health.right - health.left) > gridWidth * 1.5f)
         capture("44c-tools-catalog-arabic-night")

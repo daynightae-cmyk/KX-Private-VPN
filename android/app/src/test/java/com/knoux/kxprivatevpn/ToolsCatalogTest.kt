@@ -16,7 +16,7 @@ class ToolsCatalogTest {
         assertEquals(
             listOf(
                 "temporary", "duplicates", "large", "download",
-                "smart", "media", "network", "apps", "storage-health",
+                "media", "smart", "apps", "network", "storage-health",
             ),
             ToolsCatalog.entries.map { it.key },
         )

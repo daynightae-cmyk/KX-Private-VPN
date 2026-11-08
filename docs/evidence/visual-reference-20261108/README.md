@@ -79,7 +79,7 @@ empty state.
 | Centred orb + title/subtitle/underline | PASS | orb added at the reference position; Cairo weights |
 | Functional search | PASS | filters by localised title/body; `tools-search` |
 | Filter chips | PASS | All (9), Storage, Files, Media, Network; count only on All |
-| RTL card order | PASS | `(temporary, duplicates)`, `(large, download)`, `(smart repair, media)`, `(network, apps)` |
+| RTL card order | REVISED in continuation | `(temporary, duplicates)`, `(large, download)`, `(media, smart repair)`, `(apps, network)` read right-to-left from the approved PNG; rerun device QA required |
 | Full-width storage health | PASS | spans the content width in both directions |
 | Nine real destinations | PASS | cache, duplicate, heavyweight, download, autopilot, media, network, apps, storage |
 | Bottom nav | PASS | Tools slot selected in place of Servers; Home/Security/Stats/Settings present |
