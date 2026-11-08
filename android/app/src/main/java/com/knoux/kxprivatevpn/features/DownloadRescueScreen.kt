@@ -266,41 +266,51 @@ fun DownloadRescueScreen(
     }
 
     if (state.confirming) {
+        // Dialog windows resolve resources against the Activity context. Resolve the copy here,
+        // in the localized screen composition, so Arabic never falls back to English.
+        val dialogTitle = stringResource(R.string.download_confirm_title)
+        val dialogBody = stringResource(R.string.download_confirm_body,
+            state.removalTargets.size,
+            formatBytes(state.removalTargets.sumOf { it.candidate.bytes }))
+        val dialogConfirm = stringResource(R.string.download_confirm)
+        val dialogCancel = stringResource(R.string.download_cancel)
         AlertDialog(
             onDismissRequest = onDismissConfirmation,
-            title = { Text(stringResource(R.string.download_confirm_title)) },
-            text = {
-                Text(stringResource(R.string.download_confirm_body, state.removalTargets.size,
-                    formatBytes(state.removalTargets.sumOf { it.candidate.bytes })))
-            },
+            title = { Text(dialogTitle) },
+            text = { Text(dialogBody) },
             confirmButton = {
                 TextButton(onClick = onConfirmRemove,
                     enabled = state.canConfirmRemove,
                     modifier = Modifier.testTag("download-confirm")) {
-                    Text(stringResource(R.string.download_confirm))
+                    Text(dialogConfirm)
                 }
             },
             dismissButton = {
                 TextButton(onClick = onDismissConfirmation,
                     modifier = Modifier.testTag("download-cancel")) {
-                    Text(stringResource(R.string.download_cancel))
+                    Text(dialogCancel)
                 }
             },
         )
     }
 
     if (renaming) {
+        val dialogTitle = stringResource(R.string.download_rename_title)
+        val dialogHint = stringResource(R.string.download_rename_hint)
+        val dialogLabel = stringResource(R.string.download_rename_value)
+        val dialogConfirm = stringResource(R.string.download_rename_confirm)
+        val dialogCancel = stringResource(R.string.download_cancel)
         AlertDialog(
             onDismissRequest = { renaming = false },
-            title = { Text(stringResource(R.string.download_rename_title)) },
+            title = { Text(dialogTitle) },
             text = {
                 Column {
-                    Text(stringResource(R.string.download_rename_hint), fontSize = 12.sp)
+                    Text(dialogHint, fontSize = 12.sp)
                     Spacer(Modifier.height(8.dp))
                     OutlinedTextField(
                         value = newName,
                         onValueChange = { if (it.length <= 255) newName = it },
-                        label = { Text(stringResource(R.string.download_rename_value)) },
+                        label = { Text(dialogLabel) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth().testTag("download-rename-field"),
                     )
@@ -311,13 +321,13 @@ fun DownloadRescueScreen(
                     renaming = false
                     onRename(newName)
                 }, modifier = Modifier.testTag("download-rename-confirm")) {
-                    Text(stringResource(R.string.download_rename_confirm))
+                    Text(dialogConfirm)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { renaming = false },
                     modifier = Modifier.testTag("download-rename-cancel")) {
-                    Text(stringResource(R.string.download_cancel))
+                    Text(dialogCancel)
                 }
             },
         )

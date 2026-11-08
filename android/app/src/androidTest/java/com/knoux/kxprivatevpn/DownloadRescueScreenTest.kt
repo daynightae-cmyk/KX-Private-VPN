@@ -73,6 +73,7 @@ class DownloadRescueScreenTest {
 
     private fun screen(
         state: DownloadRescueUiState,
+        language: String = "en",
         onBack: () -> Unit = {},
         onChooseFolder: () -> Unit = {},
         onScan: () -> Unit = {},
@@ -87,11 +88,12 @@ class DownloadRescueScreenTest {
         onRename: (String) -> Unit = {},
     ) {
         compose.setContent {
-            val english = localized(base, "en")
+            val localizedContext = localized(base, language)
             CompositionLocalProvider(
-                LocalContext provides english,
-                LocalConfiguration provides english.resources.configuration,
-                LocalLayoutDirection provides LayoutDirection.Ltr,
+                LocalContext provides localizedContext,
+                LocalConfiguration provides localizedContext.resources.configuration,
+                LocalLayoutDirection provides
+                    if (language == "ar") LayoutDirection.Rtl else LayoutDirection.Ltr,
             ) {
                 Box(Modifier.fillMaxSize()) {
                     DownloadRescueScreen(
@@ -204,6 +206,43 @@ class DownloadRescueScreenTest {
         compose.onNodeWithTag("download-cancel").performClick()
         assertEquals(0, confirmed)
         assertEquals(1, dismissed)
+    }
+
+    @Test fun arabicConfirmationDialogKeepsArabicCopy() {
+        val arabic = localized(base, "ar")
+        val file = candidate("a", "cut.pdf", 900L, DownloadHealth.TRUNCATED, "missing_tail")
+        screen(
+            DownloadRescueUiState(
+                loading = false,
+                treeName = "Download",
+                treeUri = "content://tree/download",
+                candidates = listOf(file),
+                selected = setOf("a"),
+                removalTargets = listOf(DownloadTarget(file, "content://fixture/document/a")),
+            ),
+            language = "ar",
+        )
+        compose.onNodeWithText(arabic.getString(R.string.download_confirm_title)).assertExists()
+        compose.onNodeWithText(arabic.getString(R.string.download_confirm)).assertExists()
+        compose.onNodeWithText(arabic.getString(R.string.download_cancel)).assertExists()
+    }
+
+    @Test fun arabicRenameDialogKeepsArabicCopy() {
+        val arabic = localized(base, "ar")
+        screen(
+            DownloadRescueUiState(
+                loading = false,
+                treeName = "Download",
+                treeUri = "content://tree/download",
+                candidates = listOf(candidate("a", "cut.pdf", 900L, DownloadHealth.TRUNCATED, "missing_tail")),
+                selected = setOf("a"),
+            ),
+            language = "ar",
+        )
+        compose.onNodeWithTag("download-rename").performScrollTo().performClick()
+        compose.onNodeWithText(arabic.getString(R.string.download_rename_title)).assertExists()
+        compose.onNodeWithText(arabic.getString(R.string.download_rename_hint)).assertExists()
+        compose.onNodeWithText(arabic.getString(R.string.download_rename_confirm)).assertExists()
     }
 
     @Test fun theReceiptReportsWhatActuallyHappened() {

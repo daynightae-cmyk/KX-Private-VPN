@@ -106,27 +106,33 @@ internal fun InstalledAppsScreen(
             }
         }
         state.approval?.let { approved ->
+            // Dialog windows resolve resources against the Activity context. Resolve the copy
+            // here, in the localized screen composition, so Arabic never falls back to English.
+            val dialogTitle = stringResource(R.string.app_inventory_confirm_title)
+            val dialogBody = stringResource(R.string.app_inventory_confirm_body, approved.label)
+            val dialogConfirm = stringResource(R.string.apps_open_confirmation)
+            val dialogCancel = stringResource(R.string.cancel)
             AlertDialog(
                 onDismissRequest = onDismissApproval,
-                title = { Text(stringResource(R.string.app_inventory_confirm_title)) },
+                title = { Text(dialogTitle) },
                 text = {
                     Column(Modifier.verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text(approved.label, fontWeight = FontWeight.Bold)
                         Text(approved.packageName, modifier = Modifier.testTag("apps-approved-package"))
-                        Text(stringResource(R.string.app_inventory_confirm_body, approved.label))
+                        Text(dialogBody)
                     }
                 },
                 confirmButton = {
                     TextButton(onClick = onConfirmUninstall,
                         modifier = Modifier.heightIn(min = 48.dp).testTag("apps-confirm-uninstall")) {
-                        Text(stringResource(R.string.apps_open_confirmation))
+                        Text(dialogConfirm)
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = onDismissApproval,
                         modifier = Modifier.heightIn(min = 48.dp).testTag("apps-dismiss-uninstall")) {
-                        Text(stringResource(R.string.cancel))
+                        Text(dialogCancel)
                     }
                 },
             )

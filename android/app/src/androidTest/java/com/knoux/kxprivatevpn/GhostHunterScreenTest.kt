@@ -169,6 +169,15 @@ class GhostHunterScreenTest {
         assertEquals(0, dismissed)
     }
 
+    @Test fun arabicCleanupDialogKeepsArabicCopy() {
+        val arabic = localized(context, "ar")
+        screen(state(selected = setOf("zero1", "zero2"), confirming = true), arabic = true)
+        compose.onNodeWithText(arabic.getString(R.string.ghost_dialog_title)).assertExists()
+        compose.onNodeWithText(arabic.getString(R.string.ghost_dialog_body, 2)).assertExists()
+        compose.onNodeWithText(arabic.getString(R.string.ghost_confirm)).assertExists()
+        compose.onNodeWithText(arabic.getString(R.string.ghost_cleanup_cancel)).assertExists()
+    }
+
     @Test fun selectAllAndClearAreRealActions() {
         var all = 0
         var clear = 0

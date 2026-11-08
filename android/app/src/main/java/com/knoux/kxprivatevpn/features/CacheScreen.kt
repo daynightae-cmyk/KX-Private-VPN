@@ -165,6 +165,10 @@ internal fun CacheScreenContent(
     val body = stringResource(R.string.cache_approved_body)
     val remove = stringResource(R.string.cache_remove)
     val cancel = stringResource(R.string.cancel)
+    // Resolve the dialog's measured summary in this localized composition, not in the dialog
+    // window, so Arabic never falls back to English.
+    val summary = stringResource(R.string.cache_selected_summary, selected.size,
+        android.text.format.Formatter.formatFileSize(context, selectedBytes))
     CrystalPanel {
         Canvas(Modifier.size(72.dp)) {
             val path = Path().apply {
@@ -226,8 +230,7 @@ internal fun CacheScreenContent(
         text = { Column(Modifier.verticalScroll(rememberScrollState())) {
             Text(body)
             Spacer(Modifier.height(12.dp))
-            Text(stringResource(R.string.cache_selected_summary, selected.size,
-                android.text.format.Formatter.formatFileSize(context, selectedBytes)))
+            Text(summary)
         } },
         confirmButton = { TextButton(onClick = { confirm = false; onRemove(selected) }, modifier = Modifier.testTag("cache-confirm")) { Text(remove) } },
         dismissButton = { TextButton(onClick = { confirm = false }) { Text(cancel) } })

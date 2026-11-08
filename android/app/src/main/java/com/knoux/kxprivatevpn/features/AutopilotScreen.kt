@@ -247,22 +247,26 @@ fun AutopilotScreen(
     }
 
     if (state.confirming && plan != null) {
+        // Dialog windows resolve resources against the Activity context. Resolve the copy here,
+        // in the localized screen composition, so Arabic never falls back to English.
+        val dialogTitle = stringResource(R.string.autopilot_confirm_title)
+        val dialogBody = stringResource(R.string.autopilot_confirm_body, state.selected.size,
+            Formatter.formatFileSize(context, plan.selectedBytes(state.selected)))
+        val dialogConfirm = stringResource(R.string.autopilot_confirm)
+        val dialogCancel = stringResource(R.string.cancel)
         AlertDialog(
             onDismissRequest = onDismissConfirmation,
-            title = { Text(stringResource(R.string.autopilot_confirm_title)) },
-            text = {
-                Text(stringResource(R.string.autopilot_confirm_body, state.selected.size,
-                    Formatter.formatFileSize(context, plan.selectedBytes(state.selected))))
-            },
+            title = { Text(dialogTitle) },
+            text = { Text(dialogBody) },
             confirmButton = {
                 TextButton(onClick = onConfirmRun, modifier = Modifier.testTag("autopilot-confirm")) {
-                    Text(stringResource(R.string.autopilot_confirm))
+                    Text(dialogConfirm)
                 }
             },
             dismissButton = {
                 TextButton(onClick = onDismissConfirmation,
                     modifier = Modifier.testTag("autopilot-confirm-cancel")) {
-                    Text(stringResource(R.string.cancel))
+                    Text(dialogCancel)
                 }
             },
         )

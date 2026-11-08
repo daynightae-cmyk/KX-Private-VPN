@@ -169,6 +169,18 @@ class InstalledAppsScreenTest {
         compose.runOnIdle { assertEquals(state.apps, ui.value.apps) }
     }
 
+    @Test fun arabicApprovalDialogKeepsArabicCopy() {
+        ui.value = results().copy(approval = user)
+        compose.setContent { LayoutFixture(LayoutMode(language = "ar")) }
+        val arabic = context.createConfigurationContext(Configuration(context.resources.configuration).apply {
+            setLocale(Locale.forLanguageTag("ar"))
+        })
+        compose.onNodeWithText(arabic.getString(R.string.app_inventory_confirm_title)).assertExists()
+        compose.onNodeWithText(arabic.getString(R.string.app_inventory_confirm_body, user.label)).assertExists()
+        compose.onNodeWithText(arabic.getString(R.string.apps_open_confirmation)).assertExists()
+        compose.onNodeWithText(arabic.getString(R.string.cancel)).assertExists()
+    }
+
     @Test fun returnedReceiptDoesNotClaimRemovalCancellationOrFreedSpace() {
         show(results().copy(receipt = AppManagementReceipt(
             AppManagementAction.UNINSTALL, user, AppManagementOutcome.RETURNED)))

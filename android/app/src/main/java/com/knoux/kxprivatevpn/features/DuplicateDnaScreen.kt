@@ -163,26 +163,29 @@ fun DuplicateDnaScreen(
     }
 
     if (state.confirming) {
+        // Dialog windows resolve resources against the Activity context. Resolve the copy here,
+        // in the localized screen composition, so Arabic never falls back to English.
+        val dialogTitle = stringResource(R.string.dna_dialog_title)
+        val dialogBody = stringResource(R.string.dna_dialog_body, selectedCount)
+        val dialogConfirm = stringResource(R.string.dna_confirm)
+        val dialogCancel = stringResource(R.string.dna_cleanup_cancel)
         AlertDialog(
             onDismissRequest = onDismissCleanup,
-            title = { Text(stringResource(R.string.dna_dialog_title)) },
+            title = { Text(dialogTitle) },
             text = {
-                Text(
-                    stringResource(R.string.dna_dialog_body, selectedCount),
-                    modifier = Modifier.verticalScroll(rememberScrollState()),
-                )
+                Text(dialogBody, modifier = Modifier.verticalScroll(rememberScrollState()))
             },
             confirmButton = {
                 TextButton(
                     onClick = onConfirmCleanup,
                     modifier = Modifier.heightIn(min = 48.dp).testTag("dna-confirm"),
-                ) { Text(stringResource(R.string.dna_confirm)) }
+                ) { Text(dialogConfirm) }
             },
             dismissButton = {
                 TextButton(
                     onClick = onDismissCleanup,
                     modifier = Modifier.heightIn(min = 48.dp).testTag("dna-dismiss"),
-                ) { Text(stringResource(R.string.dna_cleanup_cancel)) }
+                ) { Text(dialogCancel) }
             },
         )
     }
