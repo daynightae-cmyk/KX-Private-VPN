@@ -74,7 +74,6 @@
     <string name="system_default">النظام</string>
     <string name="night">ليلي</string>
     <string name="day">نهاري</string>
-    <string name="local_account">الجهاز المحلي · مفيش حساب أو اشتراك Premium متضبط</string>
     <string name="volume_total">وحدة البيانات الداخلية · الإجمالي</string>
     <string name="volume_available">المتاح للتطبيقات</string>
     <string name="own_cache">كاش KX فقط · بايت مقاس فعليًا</string>
@@ -82,10 +81,9 @@
     <string name="storage_settings">افتح إعدادات التخزين في Android</string>
     <string name="refresh">حدّث القياسات</string>
     <string name="measured_at">وقت القياس %1$s</string>
-    <string name="pref_notifications_unavailable">الإشعارات: غير متاحة في هذا الإصدار. لم يُعرَّف إذن إشعارات، لذا KX لا يرسل أي تنبيهات.</string>
     <string name="pref_reset">إعادة تعيين التفضيلات</string>
     <string name="pref_reset_hint">اللغة والمظهر يعودان إلى إعدادات النظام.</string>
-    <string name="pref_privacy">الخصوصية: الملفات مشفرة بـ Android Keystore ومُستبعدة من النسخ الاحتياطي. لا يوجد حساب أو اشتراك. هذه الشاشة لا تجري أي تحليلات أو اتصالات.</string>
+    <string name="pref_privacy">الملفات مشفرة بـ Android Keystore ومُستبعدة من النسخ الاحتياطي. هذه الشاشة لا تجري أي تحليلات أو اتصالات.</string>
 
     <string name="repair_lab">عناية KX</string>
     <string name="repair_title">عناية بالجهاز</string>
