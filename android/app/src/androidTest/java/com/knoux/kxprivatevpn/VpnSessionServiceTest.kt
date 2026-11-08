@@ -147,36 +147,10 @@ class VpnSessionServiceTest {
     }
 
     @Test fun disconnectActionStopsTheSessionAndRemovesTheNotification() {
-        grantNotificationPermission()
-        val manager = context.getSystemService(NotificationManager::class.java)
-        val requests = AtomicInteger()
-        val handler: () -> Boolean = { requests.incrementAndGet() > 0 }
-        ActivityScenario.launch(MainActivity::class.java).use {
-            VpnSessionControl.register(handler)
-            try {
-                VpnSessionService.start(context, "KX device test", System.currentTimeMillis(), "en")
-                val posted = awaitSessionNotification(
-                    manager,
-                    context.getString(R.string.vpn_notification_title),
-                )
-                val action = posted.actions?.singleOrNull()
-                assertNotNull("the session notification has no disconnect action", action)
-                action!!.actionIntent.send()
-                assertTrue(
-                    "the notification action never reached the live session controller",
-                    waitUntil(5_000) { requests.get() == 1 },
-                )
-                assertTrue(
-                    "a tapped disconnect must remove the session notification",
-                    waitUntil(10_000) {
-                        manager.activeNotifications.none { it.id == VpnSessionService.NOTIFICATION_ID }
-                    },
-                )
-            } finally {
-                VpnSessionControl.unregister(handler)
-                context.stopService(Intent(context, VpnSessionService::class.java))
-            }
-        }
+        assertDisconnectAction(
+            accept = true,
+            removalFailure = "a tapped disconnect must remove the session notification",
+        )
     }
 
     @Test fun sessionNotificationUsesTheAppChosenLanguage() {
@@ -214,12 +188,25 @@ class VpnSessionServiceTest {
     }
 
     @Test fun disconnectActionWithoutALiveControllerStillRemovesTheSurface() {
+        assertDisconnectAction(
+            accept = false,
+            removalFailure = "a refused controller request must still stop the surface",
+        )
+    }
+
+    /**
+     * Proves the action always lands on the real surface. It must consult the registered
+     * controller exactly once, and the notification must disappear whether the controller
+     * accepted the stop or refused it. [accept] pins the controller's answer while the
+     * request count proves the notification never bypassed it.
+     */
+    private fun assertDisconnectAction(accept: Boolean, removalFailure: String) {
         grantNotificationPermission()
         val manager = context.getSystemService(NotificationManager::class.java)
         val requests = AtomicInteger()
-        val idle: () -> Boolean = { requests.incrementAndGet(); false }
+        val handler: () -> Boolean = { requests.incrementAndGet(); accept }
         ActivityScenario.launch(MainActivity::class.java).use {
-            VpnSessionControl.register(idle)
+            VpnSessionControl.register(handler)
             try {
                 VpnSessionService.start(context, "KX device test", System.currentTimeMillis(), "en")
                 val posted = awaitSessionNotification(
@@ -230,17 +217,17 @@ class VpnSessionServiceTest {
                 assertNotNull("the session notification has no disconnect action", action)
                 action!!.actionIntent.send()
                 assertTrue(
-                    "the action did not consult the session controller",
+                    "the notification action never reached the session controller",
                     waitUntil(5_000) { requests.get() == 1 },
                 )
                 assertTrue(
-                    "a refused controller request must still stop the surface",
+                    removalFailure,
                     waitUntil(10_000) {
                         manager.activeNotifications.none { it.id == VpnSessionService.NOTIFICATION_ID }
                     },
                 )
             } finally {
-                VpnSessionControl.unregister(idle)
+                VpnSessionControl.unregister(handler)
                 context.stopService(Intent(context, VpnSessionService::class.java))
             }
         }
@@ -313,24 +300,37 @@ class VpnSessionServiceTest {
                 bounds = waitForText(title)
             }
             check(bounds != null) { "the session notification was not visible in the shade" }
-            val x = bounds.centerX()
-            val y = bounds.centerY()
-            // A one-finger swipe down inside the notification expands its action row.
-            shell("input swipe $x $y $x ${y + 360} 300")
-            SystemClock.sleep(900)
-            if (!waitUntil(3_000) { textBounds(action) != null }) {
-                // Some API levels keep the expand affordance in the notification header.
-                expandAffordance()?.let { (cx, cy) ->
-                    shell("input tap $cx $cy")
-                    SystemClock.sleep(1_000)
+            // A swipe can animate before the shade finishes settling. Retry once from a
+            // refreshed anchor instead of failing a real capture on a single missed gesture.
+            repeat(2) { attempt ->
+                val anchor = bounds ?: return@repeat
+                val x = anchor.centerX()
+                val y = anchor.centerY()
+                // A one-finger swipe down inside the notification expands its action row.
+                shell("input swipe $x $y $x ${y + 360} 300")
+                SystemClock.sleep(900)
+                if (!waitUntil(3_000) { textBounds(action) != null }) {
+                    // Some API levels keep the expand affordance in the notification header.
+                    expandAffordance()?.let { (cx, cy) ->
+                        shell("input tap $cx $cy")
+                        SystemClock.sleep(1_000)
+                    }
+                }
+                if (waitUntil(3_000) { textBounds(action) != null }) {
+                    val bitmap = automation.takeScreenshot()
+                    val file = File(context.getExternalFilesDir(null), "$name.png")
+                    file.outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
+                    return
+                }
+                if (attempt == 0) {
+                    // A missed gesture can close the shade; reopen it and refresh the anchor.
+                    setShade(open = true)
+                    bounds = waitForText(title)
                 }
             }
-            check(waitUntil(3_000) { textBounds(action) != null }) {
+            check(false) {
                 "the session notification's $action action is not reachable in the shade"
             }
-            val bitmap = automation.takeScreenshot()
-            val file = File(context.getExternalFilesDir(null), "$name.png")
-            file.outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
         } finally {
             setShade(open = false)
         }
