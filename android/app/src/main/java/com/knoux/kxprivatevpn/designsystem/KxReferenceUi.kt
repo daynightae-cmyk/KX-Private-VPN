@@ -767,13 +767,11 @@ private fun DrawScope.drawKxIcon(kind: KxIconKind, tint: Color) {
                 }
             }
         }
-        KxIconKind.BACK -> {
-            drawLine(tint, Offset(s * .74f, s * .18f), Offset(s * .38f, s * .5f), s * .075f, StrokeCap.Round)
-            drawLine(tint, Offset(s * .38f, s * .5f), Offset(s * .74f, s * .82f), s * .075f, StrokeCap.Round)
-        }
-        KxIconKind.FORWARD -> {
-            drawLine(tint, Offset(s * .26f, s * .18f), Offset(s * .62f, s * .5f), s * .075f, StrokeCap.Round)
-            drawLine(tint, Offset(s * .62f, s * .5f), Offset(s * .26f, s * .82f), s * .075f, StrokeCap.Round)
+        KxIconKind.BACK, KxIconKind.FORWARD -> {
+            val tipX = if (kind == KxIconKind.BACK) .38f else .62f
+            val tailX = if (kind == KxIconKind.BACK) .74f else .26f
+            drawLine(tint, Offset(s * tailX, s * .18f), Offset(s * tipX, s * .5f), s * .075f, StrokeCap.Round)
+            drawLine(tint, Offset(s * tipX, s * .5f), Offset(s * tailX, s * .82f), s * .075f, StrokeCap.Round)
         }
         KxIconKind.POWER -> {
             drawArc(tint, startAngle = -48f, sweepAngle = 276f, useCenter = false,

@@ -90,7 +90,24 @@ def main() -> None:
         ),
     )
     args = parser.parse_args()
-    derive(args.master, args.output)
+    # Fixed, repository-owned targets: CLI input can only confirm these paths,
+    # never choose an arbitrary file to read, overwrite or create directories for.
+    root = Path(__file__).resolve().parents[2]
+    master = root / "docs/brand/KX_MASTER_LOGO_ORIGINAL_RGBA.png"
+    output = root / "android/app/src/main/res/drawable-nodpi/kx_brand.png"
+    for requested, relative, fixed, flag in (
+        (args.master, Path("docs/brand/KX_MASTER_LOGO_ORIGINAL_RGBA.png"), master, "--master"),
+        (args.output, Path("android/app/src/main/res/drawable-nodpi/kx_brand.png"), output, "--output"),
+    ):
+        # Preserve the historical relative defaults, and accept only the exact
+        # canonical file if the caller supplies an absolute path.
+        if requested != relative and requested.resolve(strict=False) != fixed:
+            parser.error(f"{flag} must refer to the repository's approved KX asset")
+        if not fixed.resolve(strict=False).is_relative_to(root):
+            parser.error(f"{flag} resolves outside the repository")
+        if fixed.is_symlink():
+            parser.error(f"{flag} may not refer to a symlink")
+    derive(master, output)
 
 
 if __name__ == "__main__":
