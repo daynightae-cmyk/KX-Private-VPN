@@ -95,6 +95,10 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                 )
                 return@CompositionLocalProvider
             }
+            if (route == "network") {
+                NetworkDoctorRoute(night, onBack = back)
+                return@CompositionLocalProvider
+            }
             if (route == "pro") {
                 ProRoute(night, onBack = back)
                 return@CompositionLocalProvider
@@ -187,7 +191,6 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                         "settings" -> R.string.settings
                         "storage" -> R.string.storage
                         "cache" -> R.string.cache_surgeon
-                        "network" -> R.string.network_doctor
                         "session" -> R.string.session_title
                         else -> R.string.home
                     }), fontSize = 28.sp, fontWeight = FontWeight.Bold)
@@ -214,7 +217,6 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                         "servers" -> ProfileList(state, model)
                         "settings" -> PreferenceScreen(state, model, onOpenPro = { navigate("pro") })
                         "cache" -> CacheScreen { repairBusy = it }
-                        "network" -> NetworkScreen()
                         "session" -> VpnSessionScreen(vpn, verifyPath = model::verifyVpnPath) { model.disconnectVpn() }
                         else -> {
                             KxOrb(1f, IntroTimeline.frame(1f), Modifier.size(210.dp).align(Alignment.CenterHorizontally))
@@ -237,7 +239,7 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                                 "advanced" to R.string.adv_title,
                                 "stats" to R.string.stats_title,
                                 "servers" to R.string.servers, "storage" to R.string.storage,
-                                "cache" to R.string.cache_surgeon, "network" to R.string.network_doctor,
+                                "cache" to R.string.cache_surgeon,
                                 "settings" to R.string.settings).forEach { (target, label) ->
                                 OutlinedButton(onClick = { navigate(target) }, modifier = Modifier.fillMaxWidth()
                                     .heightIn(min = 52.dp).testTag("open-$target")) { Text(stringResource(label)) }

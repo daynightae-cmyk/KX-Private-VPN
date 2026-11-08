@@ -13,4 +13,22 @@
     <string name="probe_consent">Send one HTTPS HEAD request to this address. Its operator can see my IP. Redirects are not followed.</string>
     <string name="probe_run">Measure authorized HTTPS request</string>
     <string name="probe_result">HTTP %1$d · request duration %2$d ms</string>
+    <string name="network_readonly_title">Read-only network check</string>
+    <string name="network_readonly_body">KX reads the state Android reports. It cannot run a speed test, inspect traffic, prove a VPN leak, or repair the network.</string>
+    <string name="network_measured_title">Measured from Android</string>
+    <string name="network_metric_present">Active network</string>
+    <string name="network_metric_validated">Internet validated</string>
+    <string name="network_metric_captive">Captive portal</string>
+    <string name="network_metric_vpn">VPN transport</string>
+    <string name="network_transports">Transports: %1$s</string>
+    <string name="network_dns_none">No DNS address reported</string>
+    <string name="network_reading_pending">Reading the current network…</string>
+    <string name="network_reading_failed">Android did not return a network reading.</string>
+    <string name="network_refresh">Read again</string>
+    <string name="network_probe_title">Authorized HTTPS request</string>
+    <string name="network_probe_requires">Only this one request leaves the device, and only after your consent.</string>
+    <string name="network_probe_invalid">Use an https:// address without credentials, query or fragment.</string>
+    <string name="network_probe_failed">The request did not complete. That is a measured failure, not a protection result.</string>
+    <string name="network_probe_receipt_title">Request receipt</string>
+    <string name="network_probe_receipt_note">One HEAD request. Not a speed test and not leak proof.</string>
 </resources>
