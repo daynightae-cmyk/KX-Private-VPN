@@ -25,6 +25,9 @@
     <string name="apps_handoff_title">Android handoff</string>
     <string name="apps_handoff_opened">Request sent to Android. KX has not verified any app removal or freed space.</string>
     <string name="apps_handoff_returned">Returned from Android. KX requested a fresh inventory; its scan status is shown above. This return does not confirm removal, cancellation, or freed space.</string>
+    <string name="apps_handoff_removed">Verified removed: Android no longer reports %1$s as installed. No freed storage is claimed.</string>
+    <string name="apps_handoff_still_installed">Still installed: Android reports %1$s as present. No removal is confirmed.</string>
+    <string name="apps_handoff_verify_failed">Returned from Android, but KX could not re-read the package state. Removal is unverified.</string>
     <string name="apps_handoff_unavailable">Android could not open this action, or the target is no longer eligible. No removal is confirmed. Scan again or use Android Settings.</string>
     <string name="apps_handoff_blocked">This approval is no longer valid. No action was launched. Scan again before choosing an app.</string>
 </resources>

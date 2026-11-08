@@ -296,12 +296,20 @@ private fun AppHandoffCard(night: Boolean, receipt: AppManagementReceipt) {
             Text(app.label, fontWeight = FontWeight.SemiBold)
             Text(app.packageName, fontSize = 13.sp, lineHeight = 19.sp)
         }
-        Text(stringResource(when (receipt.outcome) {
-            AppManagementOutcome.OPENED -> R.string.apps_handoff_opened
-            AppManagementOutcome.RETURNED -> R.string.apps_handoff_returned
-            AppManagementOutcome.UNAVAILABLE -> R.string.apps_handoff_unavailable
-            AppManagementOutcome.BLOCKED -> R.string.apps_handoff_blocked
-        }), fontSize = 14.sp, lineHeight = 21.sp,
+        val targetName = receipt.target?.label ?: receipt.target?.packageName.orEmpty()
+        val status = when (receipt.outcome) {
+            AppManagementOutcome.OPENED -> stringResource(R.string.apps_handoff_opened)
+            AppManagementOutcome.RETURNED -> stringResource(R.string.apps_handoff_returned)
+            AppManagementOutcome.REMOVED ->
+                stringResource(R.string.apps_handoff_removed, targetName)
+            AppManagementOutcome.STILL_INSTALLED ->
+                stringResource(R.string.apps_handoff_still_installed, targetName)
+            AppManagementOutcome.VERIFY_FAILED ->
+                stringResource(R.string.apps_handoff_verify_failed)
+            AppManagementOutcome.UNAVAILABLE -> stringResource(R.string.apps_handoff_unavailable)
+            AppManagementOutcome.BLOCKED -> stringResource(R.string.apps_handoff_blocked)
+        }
+        Text(status, fontSize = 14.sp, lineHeight = 21.sp,
             modifier = Modifier.padding(top = 8.dp).testTag("apps-handoff-status")
                 .semantics { liveRegion = LiveRegionMode.Polite })
     }

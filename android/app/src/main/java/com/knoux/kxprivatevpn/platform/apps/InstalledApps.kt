@@ -37,6 +37,26 @@ class InstalledApps(private val context: Context) {
 
     suspend fun inventory(): List<InstalledApp> = readApps(includeSelf = true, metadata = true)
 
+    /**
+     * Re-reads one exact package after an Android uninstall handoff. false is a measured
+     * PackageManager absence; null means the read failed, so removal must stay unverified.
+     * This only observes the current Android user's visible package state.
+     */
+    suspend fun isInstalled(packageName: String): Boolean? = withContext(Dispatchers.IO) {
+        if (packageName.isBlank()) return@withContext null
+        try {
+            @Suppress("DEPRECATION")
+            context.packageManager.getApplicationInfo(packageName, 0)
+            true
+        } catch (_: PackageManager.NameNotFoundException) {
+            false
+        } catch (_: SecurityException) {
+            null
+        } catch (_: Exception) {
+            null
+        }
+    }
+
     private suspend fun readApps(includeSelf: Boolean, metadata: Boolean): List<InstalledApp> =
         withContext(Dispatchers.IO) {
             val manager = context.packageManager

@@ -60,8 +60,11 @@ class AppInventoryModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun model(readInventory: suspend () -> List<InstalledApp>): AppInventoryModel =
-        AppInventoryModel(ownPackage, readInventory).also { models += it }
+    private fun model(
+        verifyInstalled: (suspend (String) -> Boolean?)? = null,
+        readInventory: suspend () -> List<InstalledApp>,
+    ): AppInventoryModel =
+        AppInventoryModel(ownPackage, readInventory, verifyInstalled).also { models += it }
 
     private fun TestScope.scannedModel(apps: List<InstalledApp> = observed): AppInventoryModel {
         val model = model { apps }
@@ -663,6 +666,150 @@ class AppInventoryModelTest {
         model.returnedFromAndroid()
         runCurrent()
         assertEquals(1, reads)
+        assertEquals(completed, model.state.value)
+    }
+
+    @Test fun verifiedRemovalRequiresAPackageManagerAbsenceAndStillRefreshesInventory() = runTest {
+        var reads = 0
+        val verified = mutableListOf<String>()
+        val model = model(
+            readInventory = {
+                reads++
+                if (reads == 1) observed else observed.filterNot { it == alpha }
+            },
+            verifyInstalled = { packageName -> verified += packageName; false },
+        )
+        model.scan()
+        runCurrent()
+        model.requestUninstall(alpha.packageName)
+        model.confirmUninstall { true }
+
+        model.returnedFromAndroid()
+        assertNoResults(model, AppScanPhase.SCANNING)
+        assertEquals(AppManagementOutcome.RETURNED, model.state.value.receipt?.outcome)
+        assertTrue("the verifier must not run before the UI is released", verified.isEmpty())
+
+        runCurrent()
+        assertEquals(listOf(alpha.packageName), verified)
+        assertEquals(2, reads)
+        assertEquals(AppScanPhase.RESULTS, model.state.value.phase)
+        assertEquals(observed.filterNot { it == alpha }, model.state.value.apps)
+        assertEquals(AppManagementReceipt(AppManagementAction.UNINSTALL, alpha,
+            AppManagementOutcome.REMOVED), model.state.value.receipt)
+        assertTrue(model.state.value.canManage)
+    }
+
+    @Test fun stillInstalledIsReportedWhenPackageManagerFindsTheExactPackage() = runTest {
+        var reads = 0
+        var verified = 0
+        val model = model(
+            readInventory = { reads++; observed },
+            verifyInstalled = { verified++; true },
+        )
+        model.scan()
+        runCurrent()
+        model.requestUninstall(alpha.packageName)
+        model.confirmUninstall { true }
+        model.returnedFromAndroid()
+        runCurrent()
+
+        assertEquals(1, verified)
+        assertEquals(2, reads)
+        assertEquals(AppScanPhase.RESULTS, model.state.value.phase)
+        assertEquals(observed, model.state.value.apps)
+        assertEquals(AppManagementReceipt(AppManagementAction.UNINSTALL, alpha,
+            AppManagementOutcome.STILL_INSTALLED), model.state.value.receipt)
+    }
+
+    @Test fun failedOrDeniedPackageReadNeverClaimsRemoval() = runTest {
+        val verifiers = listOf<suspend (String) -> Boolean?>(
+            { null },
+            { throw SecurityException("package state denied") },
+        )
+        verifiers.forEach { verifier ->
+            var reads = 0
+            val model = model(readInventory = { reads++; observed }, verifyInstalled = verifier)
+            model.scan()
+            runCurrent()
+            model.requestUninstall(alpha.packageName)
+            model.confirmUninstall { true }
+            model.returnedFromAndroid()
+            runCurrent()
+
+            assertEquals(2, reads)
+            assertEquals(AppScanPhase.RESULTS, model.state.value.phase)
+            assertEquals(AppManagementReceipt(AppManagementAction.UNINSTALL, alpha,
+                AppManagementOutcome.VERIFY_FAILED), model.state.value.receipt)
+        }
+    }
+
+    @Test fun returnFromDetailsOrSettingsNeverRunsTheUninstallVerifier() = runTest {
+        for (action in listOf(AppManagementAction.DETAILS, AppManagementAction.SETTINGS)) {
+            var reads = 0
+            var verified = 0
+            val model = model(
+                readInventory = { reads++; observed },
+                verifyInstalled = { verified++; false },
+            )
+            model.scan()
+            runCurrent()
+            handoff(model, action) { true }
+            model.returnedFromAndroid()
+            runCurrent()
+
+            assertEquals(action, model.state.value.receipt?.action)
+            assertEquals(AppManagementOutcome.RETURNED, model.state.value.receipt?.outcome)
+            assertEquals(0, verified)
+            assertEquals(2, reads)
+        }
+    }
+
+    @Test fun lateVerificationCannotOverwriteANewerHandoffReceipt() = runTest {
+        val pending = CompletableDeferred<Boolean?>()
+        var verified = 0
+        val model = model(
+            readInventory = { observed },
+            verifyInstalled = { verified++; pending.await() },
+        )
+        model.scan()
+        runCurrent()
+        model.requestUninstall(alpha.packageName)
+        model.confirmUninstall { true }
+        model.returnedFromAndroid()
+        runCurrent()
+        assertEquals(AppManagementOutcome.RETURNED, model.state.value.receipt?.outcome)
+        assertEquals(1, verified)
+
+        model.requestUninstall(beta.packageName)
+        model.confirmUninstall { true }
+        val newer = AppManagementReceipt(AppManagementAction.UNINSTALL, beta,
+            AppManagementOutcome.OPENED)
+        assertEquals(newer, model.state.value.receipt)
+
+        pending.complete(false)
+        runCurrent()
+        assertEquals(newer, model.state.value.receipt)
+    }
+
+    @Test fun repeatedReturnCannotRunASecondVerificationOrRestateTheOutcome() = runTest {
+        var verified = 0
+        val model = model(
+            readInventory = { observed },
+            verifyInstalled = { verified++; false },
+        )
+        model.scan()
+        runCurrent()
+        model.requestUninstall(alpha.packageName)
+        model.confirmUninstall { true }
+        model.returnedFromAndroid()
+        runCurrent()
+        assertEquals(1, verified)
+        assertEquals(AppManagementOutcome.REMOVED, model.state.value.receipt?.outcome)
+
+        val completed = model.state.value
+        repeat(3) { model.returnedFromAndroid() }
+        runCurrent()
+        assertEquals(1, verified)
         assertEquals(completed, model.state.value)
     }
 }

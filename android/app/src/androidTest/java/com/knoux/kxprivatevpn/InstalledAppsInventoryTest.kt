@@ -33,6 +33,12 @@ class InstalledAppsInventoryTest {
         }
     }
 
+    @Test fun packagePresenceReadDistinguishesTheExactInstalledPackageFromAnAbsentOne() = runBlocking {
+        val engine = InstalledApps(context)
+        assertEquals(true, engine.isInstalled(context.packageName))
+        assertEquals(false, engine.isInstalled("org.example.kx.absent.${System.nanoTime()}"))
+    }
+
     @Test fun manifestRequestsConfirmationOnlyAndDoesNotBroadenPackageVisibility() {
         @Suppress("DEPRECATION")
         val permissions = context.packageManager.getPackageInfo(context.packageName,

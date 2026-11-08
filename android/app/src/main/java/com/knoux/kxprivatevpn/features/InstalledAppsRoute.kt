@@ -32,8 +32,15 @@ import kotlinx.coroutines.withContext
 fun InstalledAppsRoute(night: Boolean, onBack: () -> Unit) {
     val context = LocalContext.current
     val appContext = context.applicationContext
+    val inventory = remember(appContext) { InstalledApps(appContext) }
     val model: AppInventoryModel = viewModel(factory = viewModelFactory {
-        initializer { AppInventoryModel(appContext.packageName, InstalledApps(appContext)::inventory) }
+        initializer {
+            AppInventoryModel(
+                ownPackage = appContext.packageName,
+                readInventory = inventory::inventory,
+                verifyInstalled = inventory::isInstalled,
+            )
+        }
     })
     val state by model.state.collectAsState()
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
