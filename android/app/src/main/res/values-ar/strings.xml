@@ -14,5 +14,6 @@
     <string name="vpn_notification_channel_description">حالة مستمرة أثناء نشاط نفق WireGuard</string>
     <string name="vpn_notification_title">جلسة KX VPN نشطة</string>
     <string name="vpn_notification_no_profile">نفق WireGuard</string>
+    <string name="vpn_notification_disconnect">قطع الاتصال</string>
     <string name="vpn_notification_hint">يطلب Android إذن الإشعارات ليبقى الاتصال النشط ظاهرًا. رفض الإذن لا يوقف النفق.</string>
 </resources>
