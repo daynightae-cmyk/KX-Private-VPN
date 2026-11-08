@@ -108,6 +108,18 @@ fun KxHomeScreen(
                 onNavigate = onNavigate,
             )
             MetricGrid(night, vpn, foreground)
+            KxServiceCard(
+                title = stringResource(R.string.guardian_title),
+                description = stringResource(R.string.guardian_home_description),
+                capability = stringResource(R.string.guardian_home_scope),
+                actionLabel = stringResource(R.string.guardian_home_action),
+                night = night,
+                modifier = Modifier.fillMaxWidth().testTag("open-guardian"),
+                glyph = {
+                    KxOrb(1f, IntroTimeline.frame(1f), Modifier.size(32.dp))
+                },
+                onClick = { onNavigate("guardian") },
+            )
             KxCareCard(night, onNavigate)
             ToolsGrid(night, onNavigate)
             vpn.issue?.let { issue ->
