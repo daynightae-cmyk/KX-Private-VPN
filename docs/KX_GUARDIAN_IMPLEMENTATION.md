@@ -30,3 +30,19 @@
 4. Reconcile any conflicts with the visual agent's unique work; never discard its edits or ours.
 5. Verify tunnel/no-profile/error/captive/low-space and failed-scan behavior on a test device. Confirm Android consent remains part of every actual change.
 6. Only then propose merging to main and verify CI and runtime separately.
+
+## Guardian 2.0 — prioritized evidence and diagnostic passport
+
+New implementation (feature branch only, no main merge):
+- `GuardianPolicy` distinguishes critical (<=5%) vs low (<=10%) internal free storage. This is a StatFs threshold only, **not** a whole-device cleaner or risk score.
+- Independent timestamps for network, storage and launchable-app observations. Network readings expire after 2m, storage 10m, apps 15m; future/missing timestamps are stale. A network callback cannot refresh old storage/app observations.
+- WireGuard CONNECTED vs Android default-network VPN transport discrepancy triggers a **review**, not an IP/DNS leak verdict.
+- `Trust Passport` shows counts of actionable/review/informational findings and navigates to the highest-priority existing review destination. Navigation never authorizes a mutation.
+- On explicit tap, `GuardianPassport.render` produces a *sanitized local diagnostic report* copied to the Android clipboard. No VPN profile names, private keys, endpoints, DNS/IP addresses, app/package names, file paths or personal identities.
+- The KX orb animates only during scanning, respecting Reduce Motion preferences.
+- Android services are still read-only during Guardian scans. Other KX tools perform user-confirmed actions.
+- Translations in `guardian_advanced_strings.xml` for EN/AR; stale readings are rendered as stale, not as current values.
+- `GuardianAdvancedTest` adds 11 JVM cases: freshness/unknown, source isolation, critical storage, transport discrepancy, priority routes and sanitized export.
+- Required release checks: full JVM test suite, APK assemble, Compose test compilation, **separate** Android emulator runtime/visual QA after the visual agent is done. Device pass has not been asserted.
+
+Note: the guardian worktree follows committed origin/main baseline b9fd077; the other agent's reference-screen work is a different worktree and may conflict in the Home/NativeClient navigation touch points. Preserve all unique changes during eventual integration.

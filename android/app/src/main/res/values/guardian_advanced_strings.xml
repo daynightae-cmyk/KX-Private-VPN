@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="guardian_passport_title">Trust Passport</string>
+    <string name="guardian_passport_counts">%1$d priority actions · %2$d reviews · %3$d informational</string>
+    <string name="guardian_passport_provenance">Evidence: live WireGuard state, Android network, internal storage and visible launcher apps. Unknown is never marked safe.</string>
+    <string name="guardian_priority_action">Review highest-priority action</string>
+    <string name="guardian_copy_passport">Copy privacy-safe diagnostic report</string>
+    <string name="guardian_copied">Diagnostic report copied. No account, endpoint, DNS address or app names included.</string>
+    <string name="guardian_copy_failed">Unable to copy diagnostic report.</string>
+    <string name="guardian_stale">Outdated measurement — rescan</string>
+    <string name="guardian_stale_scope">This observation has expired. Rescan before relying on it.</string>
+    <string name="guardian_transport_title">VPN transport needs cross-check</string>
+    <string name="guardian_transport_body">WireGuard reports a connected tunnel, but Android did not flag the default network as VPN. This can be valid app routing, not proof of a leak. Review Security Center.</string>
+    <string name="guardian_net_stale_title">Network snapshot expired</string>
+    <string name="guardian_net_stale_body">The network changed or this measurement is over two minutes old. Rescan before deciding anything.</string>
+    <string name="guardian_critical_storage_title">Critically low internal storage</string>
+    <string name="guardian_critical_storage_body">Five percent or less remains on the measured internal volume. Review storage safely before any removal.</string>
+    <string name="guardian_storage_stale_title">Storage snapshot expired</string>
+    <string name="guardian_storage_stale_body">The storage measurement is over ten minutes old. Rescan before cleanup decisions.</string>
+    <string name="guardian_apps_stale_title">App inventory expired</string>
+    <string name="guardian_apps_stale_body">The visible app list is over fifteen minutes old. Rescan before trusting the count.</string>
+</resources>

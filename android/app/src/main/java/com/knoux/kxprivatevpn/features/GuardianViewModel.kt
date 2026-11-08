@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-/** Every field is a genuine Android observation, nullable on failure, never an estimate. */
+/** Independent observation timestamps prevent a network event from freshening stale storage data. */
 data class GuardianUiState(
     val scanning: Boolean = false,
     val scanned: Boolean = false,
@@ -29,12 +29,14 @@ data class GuardianUiState(
     val storageFailed: Boolean = false,
     val appsFailed: Boolean = false,
     val measuredAtMillis: Long? = null,
+    val networkReadAtMillis: Long? = null,
+    val storageReadAtMillis: Long? = null,
+    val appsReadAtMillis: Long? = null,
 )
 
 /**
- * Read-only, on-device Guardian. Never contacts an external server, silently cleans files,
- * grants permissions, sends package lists or controls the VPN.
- * All mutations remain inside existing user-confirmed KX service screens.
+ * Local-only, read-only Guardian: no silent file actions, permissions, Cloud calls, or
+ * VPN mutations. Every recommendation opens a separately confirmed KX service.
  */
 class GuardianViewModel(app: Application) : AndroidViewModel(app) {
     private val networkContext = app.applicationContext
@@ -43,52 +45,68 @@ class GuardianViewModel(app: Application) : AndroidViewModel(app) {
     private val mutable = MutableStateFlow(GuardianUiState())
     val state: StateFlow<GuardianUiState> = mutable.asStateFlow()
     private var scanJob: Job? = null
+    private var networkJob: Job? = null
+    private var scanGeneration = 0
 
     fun scan() {
         if (scanJob?.isActive == true) return
+        val generation = ++scanGeneration
         mutable.update { it.copy(scanning = true) }
         scanJob = viewModelScope.launch {
-            val network = try {
-                withContext(Dispatchers.IO) { NetworkDoctor.read(networkContext) }
-            } catch (cancelled: CancellationException) {
-                throw cancelled
-            } catch (_: Exception) {
-                null
-            }
-            val storage = try {
-                measurer.measure()
-            } catch (cancelled: CancellationException) {
-                throw cancelled
-            } catch (_: Exception) {
-                null
-            }
-            val visibleApps = try {
-                apps.inventory().size
-            } catch (cancelled: CancellationException) {
-                throw cancelled
-            } catch (_: Exception) {
-                null
-            }
-            mutable.update {
-                it.copy(
-                    scanning = false,
-                    scanned = true,
-                    network = network,
-                    storage = storage,
-                    visibleApps = visibleApps,
-                    networkFailed = network == null,
-                    storageFailed = storage == null,
-                    appsFailed = visibleApps == null,
-                    measuredAtMillis = System.currentTimeMillis(),
-                )
+            try {
+                val network = try {
+                    withContext(Dispatchers.IO) { NetworkDoctor.read(networkContext) }
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
+                } catch (_: Exception) {
+                    null
+                }
+                val networkAt = if (network == null) null else System.currentTimeMillis()
+                val storage = try {
+                    measurer.measure()
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
+                } catch (_: Exception) {
+                    null
+                }
+                val storageAt = if (storage == null) null else System.currentTimeMillis()
+                val visibleApps = try {
+                    apps.inventory().size
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
+                } catch (_: Exception) {
+                    null
+                }
+                val appsAt = if (visibleApps == null) null else System.currentTimeMillis()
+                if (generation == scanGeneration) {
+                    mutable.update {
+                        it.copy(
+                            scanning = false,
+                            scanned = true,
+                            network = network,
+                            storage = storage,
+                            visibleApps = visibleApps,
+                            networkFailed = network == null,
+                            storageFailed = storage == null,
+                            appsFailed = visibleApps == null,
+                            measuredAtMillis = System.currentTimeMillis(),
+                            networkReadAtMillis = networkAt,
+                            storageReadAtMillis = storageAt,
+                            appsReadAtMillis = appsAt,
+                        )
+                    }
+                }
+            } finally {
+                if (generation == scanGeneration) mutable.update { it.copy(scanning = false) }
             }
         }
     }
 
-    /** Connectivity callbacks update only the network reading, not an expensive disk scan. */
+    /** Network callbacks refresh only network facts, not storage/app inventories. */
     fun refreshNetwork() {
-        if (!mutable.value.scanned || mutable.value.scanning) return
-        viewModelScope.launch {
+        if (!mutable.value.scanned || mutable.value.scanning || networkJob?.isActive == true) return
+        val generation = scanGeneration
+        networkJob = viewModelScope.launch {
             val network = try {
                 withContext(Dispatchers.IO) { NetworkDoctor.read(networkContext) }
             } catch (cancelled: CancellationException) {
@@ -96,10 +114,12 @@ class GuardianViewModel(app: Application) : AndroidViewModel(app) {
             } catch (_: Exception) {
                 null
             }
+            if (generation != scanGeneration || mutable.value.scanning) return@launch
             mutable.update {
                 it.copy(
                     network = network,
                     networkFailed = network == null,
+                    networkReadAtMillis = if (network == null) null else System.currentTimeMillis(),
                     measuredAtMillis = System.currentTimeMillis(),
                 )
             }

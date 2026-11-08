@@ -1,5 +1,7 @@
 package com.knoux.kxprivatevpn.features
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
@@ -45,15 +47,18 @@ import com.knoux.kxprivatevpn.designsystem.KxPageHeader
 import com.knoux.kxprivatevpn.designsystem.KxSectionHeader
 import com.knoux.kxprivatevpn.designsystem.glassForeground
 import com.knoux.kxprivatevpn.launch.IntroTimeline
+import com.knoux.kxprivatevpn.launch.rememberReducedMotion
 import com.knoux.kxprivatevpn.platform.guardian.GuardianCode
 import com.knoux.kxprivatevpn.platform.guardian.GuardianEvidence
 import com.knoux.kxprivatevpn.platform.guardian.GuardianPolicy
+import com.knoux.kxprivatevpn.platform.guardian.GuardianPassport
 import com.knoux.kxprivatevpn.platform.guardian.GuardianPriority
 import com.knoux.kxprivatevpn.platform.guardian.GuardianRecommendation
 import com.knoux.kxprivatevpn.platform.vpn.VpnPhase
 import com.knoux.kxprivatevpn.platform.vpn.VpnState
 import java.text.DateFormat
 import java.util.Date
+import kotlinx.coroutines.delay
 
 @Composable
 fun GuardianRoute(
@@ -103,11 +108,34 @@ fun GuardianScreen(
     val foreground = glassForeground(night)
     val muted = foreground.copy(alpha = .78f)
     val context = LocalContext.current
-    val findings = remember(vpn, hasProfile, state) {
-        if (!state.scanned) emptyList() else GuardianPolicy.recommendations(
-            GuardianEvidence(vpn, hasProfile, state.network, state.storage, state.visibleApps)
+    val now by produceState(initialValue = System.currentTimeMillis(), state.scanned) {
+        value = System.currentTimeMillis()
+        if (state.scanned) while (true) {
+            delay(30_000)
+            value = System.currentTimeMillis()
+        }
+    }
+    val evidence = remember(vpn, hasProfile, state, now) {
+        GuardianEvidence(
+            vpn = vpn,
+            hasProfile = hasProfile,
+            network = state.network,
+            storage = state.storage,
+            visibleApps = state.visibleApps,
+            nowMillis = now,
+            networkReadAtMillis = state.networkReadAtMillis,
+            storageReadAtMillis = state.storageReadAtMillis,
+            appsReadAtMillis = state.appsReadAtMillis,
         )
     }
+    val findings = remember(evidence, state.scanned) {
+        if (!state.scanned) emptyList()
+        else GuardianPolicy.recommendations(evidence)
+    }
+    val summary = remember(findings) { GuardianPolicy.summary(findings) }
+    val reducedMotion = rememberReducedMotion()
+    var passportCopied by remember(state.measuredAtMillis) { mutableStateOf(false) }
+    var passportFailed by remember(state.measuredAtMillis) { mutableStateOf(false) }
     KxGlassTheme(night) {
         Box(Modifier.fillMaxSize()) {
             Atmosphere(night, 0f)
@@ -133,12 +161,15 @@ fun GuardianScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                     ) {
-                        val transition = rememberInfiniteTransition(label = "guardian-orbit")
-                        val rotation by transition.animateFloat(
-                            initialValue = 0f, targetValue = 360f,
-                            animationSpec = infiniteRepeatable(tween(2600, easing = LinearEasing)),
-                            label = "guardian-orb-rotation",
-                        )
+                        val rotation = if (state.scanning && !reducedMotion) {
+                            val transition = rememberInfiniteTransition(label = "guardian-orbit")
+                            val animated by transition.animateFloat(
+                                initialValue = 0f, targetValue = 360f,
+                                animationSpec = infiniteRepeatable(tween(2600, easing = LinearEasing)),
+                                label = "guardian-orb-rotation",
+                            )
+                            animated
+                        } else 0f
                         Box(
                             Modifier.size(176.dp)
                                 .clickable(
@@ -195,6 +226,66 @@ fun GuardianScreen(
                         )
                     }
                 }
+                if (state.scanned) {
+                    GlassSurface(
+                        night, modifier = Modifier.testTag("guardian-trust-passport"),
+                        radius = 22.dp,
+                    ) {
+                        Text(
+                            stringResource(R.string.guardian_passport_title),
+                            fontSize = 19.sp, fontWeight = FontWeight.Bold,
+                            color = foreground,
+                        )
+                        Spacer(Modifier.height(6.dp))
+                        Text(
+                            stringResource(R.string.guardian_passport_counts,
+                                summary.actions, summary.reviews, summary.information),
+                            color = muted, fontSize = 14.sp,
+                            modifier = Modifier.testTag("guardian-priority-counts"),
+                        )
+                        Text(
+                            stringResource(R.string.guardian_passport_provenance),
+                            color = muted, fontSize = 12.sp, lineHeight = 18.sp,
+                        )
+                        summary.highestPriorityRoute?.let { route ->
+                            Spacer(Modifier.height(9.dp))
+                            OutlinedButton(
+                                onClick = { onNavigate(route) },
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+                                    .testTag("guardian-first-action"),
+                            ) { Text(stringResource(R.string.guardian_priority_action)) }
+                        }
+                        Spacer(Modifier.height(6.dp))
+                        TextButton(
+                            onClick = {
+                                try {
+                                    val clipboard = requireNotNull(
+                                        context.getSystemService(ClipboardManager::class.java)
+                                    )
+                                    clipboard.setPrimaryClip(ClipData.newPlainText(
+                                        "KX Guardian diagnostic",
+                                        GuardianPassport.render(evidence, findings),
+                                    ))
+                                    passportCopied = true
+                                    passportFailed = false
+                                } catch (_: Exception) {
+                                    passportCopied = false
+                                    passportFailed = true
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+                                .testTag("guardian-copy-passport"),
+                        ) { Text(stringResource(R.string.guardian_copy_passport)) }
+                        if (passportCopied || passportFailed) {
+                            Text(
+                                stringResource(if (passportCopied)
+                                    R.string.guardian_copied else R.string.guardian_copy_failed),
+                                color = muted, fontSize = 12.sp,
+                                modifier = Modifier.testTag("guardian-copy-result"),
+                            )
+                        }
+                    }
+                }
                 KxSectionHeader(stringResource(R.string.guardian_evidence), night)
                 val vpnStatus = when (vpn.phase) {
                     VpnPhase.CONNECTED -> if (vpn.session != null) R.string.guardian_vpn_tunnel
@@ -212,9 +303,13 @@ fun GuardianScreen(
                     "guardian-evidence-vpn", { onNavigate("security") },
                 )
                 val network = state.network
+                val networkFresh = GuardianPolicy.fresh(
+                    now, state.networkReadAtMillis, GuardianPolicy.NETWORK_MAX_AGE_MILLIS
+                )
                 val networkStatus = when {
                     !state.scanned -> R.string.guardian_unknown
                     network == null -> R.string.guardian_unknown
+                    !networkFresh -> R.string.guardian_stale
                     !network.present -> R.string.guardian_network_offline
                     network.captive -> R.string.guardian_network_captive
                     network.validated -> R.string.guardian_network_validated
@@ -222,6 +317,8 @@ fun GuardianScreen(
                 }
                 val networkDetail = if (network == null) {
                     stringResource(R.string.guardian_network_unknown_scope)
+                } else if (!networkFresh) {
+                    stringResource(R.string.guardian_stale_scope)
                 } else {
                     stringResource(
                         R.string.guardian_network_details,
@@ -234,15 +331,22 @@ fun GuardianScreen(
                     stringResource(networkStatus), networkDetail,
                     "guardian-evidence-network", { onNavigate("network") },
                 )
+                val storageFresh = GuardianPolicy.fresh(
+                    now, state.storageReadAtMillis, GuardianPolicy.STORAGE_MAX_AGE_MILLIS
+                )
                 val total = state.storage?.totalBytes
                 val free = state.storage?.availableBytes
-                val storageStatus = if (total != null && free != null && total > 0 && free in 0..total) {
+                val storageStatus = if (!storageFresh && state.storage != null) {
+                    stringResource(R.string.guardian_stale)
+                } else if (storageFresh && total != null && free != null && total > 0 && free in 0..total) {
                     val percent = (free.toDouble() * 100.0 / total.toDouble()).toInt()
                     stringResource(R.string.guardian_storage_free,
                         Formatter.formatFileSize(context, free), percent)
                 } else stringResource(R.string.guardian_unknown)
                 val cache = state.storage?.cacheBytes
-                val storageDetail = if (cache == null) stringResource(R.string.guardian_storage_scope)
+                val storageDetail = if (!storageFresh && state.storage != null) {
+                    stringResource(R.string.guardian_stale_scope)
+                } else if (cache == null) stringResource(R.string.guardian_storage_scope)
                     else stringResource(R.string.guardian_cache_measured, Formatter.formatFileSize(context, cache))
                 GuardianEvidenceCard(
                     night, stringResource(R.string.guardian_storage), storageStatus, storageDetail,
@@ -250,7 +354,10 @@ fun GuardianScreen(
                 )
                 GuardianEvidenceCard(
                     night, stringResource(R.string.guardian_apps),
-                    state.visibleApps?.let {
+                    if (state.visibleApps != null && !GuardianPolicy.fresh(
+                        now, state.appsReadAtMillis, GuardianPolicy.APPS_MAX_AGE_MILLIS
+                    )) stringResource(R.string.guardian_stale)
+                    else state.visibleApps?.let {
                         stringResource(R.string.guardian_visible_apps, it)
                     } ?: stringResource(R.string.guardian_unknown),
                     stringResource(R.string.guardian_apps_scope),
@@ -335,15 +442,20 @@ private fun guardianCopy(code: GuardianCode): Pair<Int, Int> = when (code) {
     GuardianCode.VPN_ISSUE -> R.string.guardian_vpn_issue_title to R.string.guardian_vpn_issue_body
     GuardianCode.VPN_TRANSITION -> R.string.guardian_transition_title to R.string.guardian_transition_body
     GuardianCode.VERIFY_VPN_PATH -> R.string.guardian_verify_title to R.string.guardian_verify_body
+    GuardianCode.VPN_TRANSPORT_NOT_REPORTED -> R.string.guardian_transport_title to R.string.guardian_transport_body
     GuardianCode.NETWORK_UNAVAILABLE -> R.string.guardian_offline_title to R.string.guardian_offline_body
     GuardianCode.CAPTIVE_PORTAL -> R.string.guardian_captive_title to R.string.guardian_captive_body
     GuardianCode.NETWORK_UNVERIFIED -> R.string.guardian_net_unverified_title to R.string.guardian_net_unverified_body
     GuardianCode.NETWORK_UNKNOWN -> R.string.guardian_net_unknown_title to R.string.guardian_net_unknown_body
+    GuardianCode.NETWORK_STALE -> R.string.guardian_net_stale_title to R.string.guardian_net_stale_body
     GuardianCode.DNS_NOT_REPORTED -> R.string.guardian_dns_title to R.string.guardian_dns_body
     GuardianCode.STORAGE_LOW -> R.string.guardian_low_storage_title to R.string.guardian_low_storage_body
+    GuardianCode.STORAGE_CRITICAL -> R.string.guardian_critical_storage_title to R.string.guardian_critical_storage_body
+    GuardianCode.STORAGE_STALE -> R.string.guardian_storage_stale_title to R.string.guardian_storage_stale_body
     GuardianCode.STORAGE_UNKNOWN -> R.string.guardian_storage_unknown_title to R.string.guardian_storage_unknown_body
     GuardianCode.REVIEW_KX_CACHE -> R.string.guardian_cache_title to R.string.guardian_cache_body
     GuardianCode.APPS_UNKNOWN -> R.string.guardian_apps_unknown_title to R.string.guardian_apps_unknown_body
+    GuardianCode.APPS_STALE -> R.string.guardian_apps_stale_title to R.string.guardian_apps_stale_body
     GuardianCode.REVIEW_APPS -> R.string.guardian_apps_review_title to R.string.guardian_apps_review_body
     GuardianCode.NO_ACTIONS -> R.string.guardian_no_actions_title to R.string.guardian_no_actions_body
 }
