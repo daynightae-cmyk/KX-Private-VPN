@@ -50,10 +50,11 @@ jobs:
         api: [26, 35]
         include:
           - api: 26
-            emulator_feature_options: ''
+            emulator_gpu_mode: swiftshader_indirect
           - api: 35
-            # Android's documented Vulkan compatibility fallback for CI renderer crashes.
-            emulator_feature_options: '-feature -Vulkan'
+            # This mode is supported on Emulator 36.4.10; swiftshader_indirect
+            # was deprecated in 36.4.9 and crashes in the CI host RenderThread.
+            emulator_gpu_mode: swangle
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -76,12 +77,11 @@ jobs:
           emulator-build: 15004761
           # API35 cold boots can exceed three minutes on hosted KVM runners.
           emulator-boot-timeout: 600
-          # API35 qemu exits as a zombie during UI instrumentation despite ~14GB free
-          # host RAM; two focused test classes pass in a fresh AVD. Android's official
-          # troubleshooting recommends -feature -Vulkan for renderer incompatibilities.
-          # Apply this ONE-variable A/B experiment to API35 only, retaining API26 and
-          # all 320 full-suite tests unchanged.
-          emulator-options: -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader_indirect -skin 720x1280 -camera-back none -camera-front none ${{ matrix.emulator_feature_options }}
+          # Actual CI host kernel records RenderThread SIGSEGV and QEMU signal 11;
+          # disabling Vulkan did not repair it. Test the supported ANGLE/SwiftShader
+          # backend on API35 only; retain the passing API26 renderer unchanged.
+          # All 320 API35 instrumented tests remain mandatory.
+          emulator-options: -no-window -no-audio -no-boot-anim -no-snapshot -gpu ${{ matrix.emulator_gpu_mode }} -skin 720x1280 -camera-back none -camera-front none
           disable-animations: false
           working-directory: android
           script: bash scripts/verify-device.sh
@@ -121,7 +121,7 @@ jobs:
           profile: Nexus 5
           emulator-build: 15004761
           emulator-boot-timeout: 600
-          emulator-options: -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader_indirect -skin 720x1280 -camera-back none -camera-front none
+          emulator-options: -no-window -no-audio -no-boot-anim -no-snapshot -gpu swangle -skin 720x1280 -camera-back none -camera-front none
           disable-animations: false
           working-directory: android
           script: KX_TEST_CLASS="com.knoux.kxprivatevpn.CacheFlowTest,com.knoux.kxprivatevpn.ClientFlowTest" bash scripts/verify-device.sh
