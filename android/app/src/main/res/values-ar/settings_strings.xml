@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_device_title">على هذا الجهاز</string>
+    <string name="settings_version">الإصدار %1$s (رقم البناء %2$d)</string>
+    <plurals name="settings_profiles_count">
+        <item quantity="zero">لا توجد ملفات تعريف محفوظة</item>
+        <item quantity="one">ملف تعريف محفوظ واحد</item>
+        <item quantity="two">ملفا تعريف محفوظان</item>
+        <item quantity="few">%1$d ملفات تعريف محفوظة</item>
+        <item quantity="many">%1$d ملف تعريفًا محفوظًا</item>
+        <item quantity="other">%1$d ملف تعريف محفوظ</item>
+    </plurals>
+    <string name="settings_account_body">لا يلزم تسجيل دخول أو حساب. KX Pro اختياري ويُفعَّل من شاشة Pro.</string>
+    <string name="settings_language_body">يُطبَّق فورًا في كل التطبيق. يتبع خيار النظام لغة Android.</string>
+    <string name="settings_appearance_body">يتبع خيار النظام إعداد Android للوضع الفاتح أو الداكن.</string>
+
+    <string name="settings_notifications_title">الإشعارات</string>
+    <string name="settings_notifications_allowed">مفعّلة</string>
+    <string name="settings_notifications_denied">الإذن غير ممنوح</string>
+    <string name="settings_notifications_disabled">متوقفة في Android</string>
+    <string name="settings_notifications_allowed_body">يعرض KX إشعارًا واحدًا مستمرًا أثناء اتصال جلسة VPN. لا تُرسل أي تنبيهات تسويقية أو خلفية.</string>
+    <string name="settings_notifications_denied_body">يمكن أن يعرض KX إشعارًا واحدًا مستمرًا أثناء اتصال جلسة VPN. النفق يعمل دون هذا الإذن.</string>
+    <string name="settings_notifications_disabled_body">إشعارات KX متوقفة في Android. النفق يعمل دونها.</string>
+    <string name="settings_notifications_allow">السماح بالإشعارات</string>
+    <string name="settings_notifications_open">فتح إعدادات الإشعارات في Android</string>
+    <string name="settings_notifications_scope">لا يرسل KX أبدًا تنبيهات تسويقية أو ترويجية أو خلفية. إشعار الجلسة المستمر هو الإشعار الوحيد الذي يصدره هذا البناء.</string>
+
+    <string name="settings_privacy_title">الخصوصية</string>
+    <string name="settings_reset_title">إعادة الضبط</string>
+    <string name="settings_reset_confirm_title">إعادة ضبط التفضيلات؟</string>
+    <string name="settings_reset_confirm_body">تعود اللغة والمظهر إلى إعداد النظام. لا تتغير ملفات التعريف المحفوظة أو سجل الإصلاح أو تفعيل Pro.</string>
+    <string name="settings_reset_confirm">إعادة الضبط</string>
+</resources>

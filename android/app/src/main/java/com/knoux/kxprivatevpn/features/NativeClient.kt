@@ -2,7 +2,6 @@ package com.knoux.kxprivatevpn.features
 
 import android.Manifest
 import android.content.ClipboardManager
-import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.view.WindowManager
@@ -12,7 +11,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -25,7 +23,6 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -173,6 +170,20 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                 RepairServiceRoute(route, night, onBack = back)
                 return@CompositionLocalProvider
             }
+            if (route == "settings") {
+                SettingsRoute(
+                    night = night,
+                    settings = state.settings,
+                    profileCount = state.snapshot.profiles.size,
+                    busy = state.busy,
+                    onBack = back,
+                    onLanguage = { model.appearance(it, state.settings.theme) },
+                    onTheme = { model.appearance(state.settings.language, it) },
+                    onOpenPro = { navigate("pro") },
+                    onReset = { model.appearance("system", "system") },
+                )
+                return@CompositionLocalProvider
+            }
             Box(Modifier.fillMaxSize()) {
                 Atmosphere(night, 0f)
                 Column(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 20.dp)
@@ -215,7 +226,6 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                         }
                         "import" -> ImportScreen(state, model)
                         "servers" -> ProfileList(state, model)
-                        "settings" -> PreferenceScreen(state, model, onOpenPro = { navigate("pro") })
                         "cache" -> CacheScreen { repairBusy = it }
                         "session" -> VpnSessionScreen(vpn, verifyPath = model::verifyVpnPath) { model.disconnectVpn() }
                         else -> {
@@ -332,41 +342,4 @@ private fun ProfileList(state: ClientState, model: ClientViewModel) {
         text = { Text(body, Modifier.verticalScroll(rememberScrollState())) },
         confirmButton = { TextButton(onClick = { removing?.let(model::remove); removing = null }) { Text(remove) } },
         dismissButton = { TextButton(onClick = { removing = null }) { Text(cancel) } })
-}
-
-@Composable
-private fun PreferenceScreen(state: ClientState, model: ClientViewModel, onOpenPro: () -> Unit) {
-    CrystalPanel {
-        Text(stringResource(R.string.local_account))
-        OutlinedButton(onClick = onOpenPro, enabled = !state.busy,
-            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("open-pro")) {
-            Text(stringResource(R.string.pro_title))
-        }
-        Text(stringResource(R.string.language), fontWeight = FontWeight.Bold)
-        listOf("system" to stringResource(R.string.system_default), "en" to "English", "ar" to "العربية").forEach { (id, label) ->
-            Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).selectable(
-                selected = state.settings.language == id, enabled = !state.busy, role = Role.RadioButton,
-                onClick = { model.appearance(id, state.settings.theme) }), verticalAlignment = Alignment.CenterVertically) {
-                RadioButton(selected = state.settings.language == id, onClick = null, enabled = !state.busy)
-                Text(label)
-            }
-        }
-        Text(stringResource(R.string.appearance), fontWeight = FontWeight.Bold)
-        listOf("system" to R.string.system_default, "night" to R.string.night, "day" to R.string.day).forEach { (id, label) ->
-            Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).selectable(
-                selected = state.settings.theme == id, enabled = !state.busy, role = Role.RadioButton,
-                onClick = { model.appearance(state.settings.language, id) }), verticalAlignment = Alignment.CenterVertically) {
-                RadioButton(selected = state.settings.theme == id, onClick = null, enabled = !state.busy)
-                Text(stringResource(label))
-            }
-        }
-        Text(stringResource(R.string.pref_notifications_unavailable), fontSize = 12.sp,
-            modifier = Modifier.testTag("pref-notifications"))
-        OutlinedButton(onClick = { model.appearance("system", "system") }, enabled = !state.busy,
-            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("pref-reset")) {
-            Text(stringResource(R.string.pref_reset))
-        }
-        Text(stringResource(R.string.pref_reset_hint), fontSize = 11.sp)
-        Text(stringResource(R.string.pref_privacy), fontSize = 11.sp, modifier = Modifier.testTag("pref-privacy"))
-    }
 }
