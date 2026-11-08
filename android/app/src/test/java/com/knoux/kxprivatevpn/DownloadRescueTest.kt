@@ -1,6 +1,9 @@
 package com.knoux.kxprivatevpn
 
 import com.knoux.kxprivatevpn.platform.repair.DownloadFormat
+import com.knoux.kxprivatevpn.platform.repair.DownloadRemovalVerdict
+import com.knoux.kxprivatevpn.platform.repair.downloadRemovalVerdict
+import com.knoux.kxprivatevpn.platform.repair.verifiedRemovalBytes
 import com.knoux.kxprivatevpn.platform.storage.DownloadCollections
 import com.knoux.kxprivatevpn.platform.repair.DownloadHealth
 import com.knoux.kxprivatevpn.platform.repair.DownloadValidator
@@ -254,5 +257,42 @@ class DownloadRescueTest {
         assertFalse(DownloadHealth.INTACT.isDeletable)
         assertFalse(DownloadHealth.UNSUPPORTED.isDeletable)
         assertFalse(DownloadHealth.UNREADABLE.isDeletable)
+    }
+
+    /**
+     * Removal is only claimed when the document was measured present before
+     * and measurably absent after. The provider boolean alone is not proof.
+     */
+    @Test fun removalVerdictRequiresPresentBeforeAndAbsentAfter() {
+        assertEquals(DownloadRemovalVerdict.REMOVED, downloadRemovalVerdict(true, true, false))
+        assertEquals(DownloadRemovalVerdict.STILL_PRESENT, downloadRemovalVerdict(true, true, true))
+        assertEquals(DownloadRemovalVerdict.DELETE_REJECTED, downloadRemovalVerdict(true, false, false))
+        assertEquals(DownloadRemovalVerdict.ALREADY_ABSENT, downloadRemovalVerdict(false, true, false))
+        assertEquals(DownloadRemovalVerdict.UNVERIFIED, downloadRemovalVerdict(null, true, false))
+        assertEquals(DownloadRemovalVerdict.UNVERIFIED, downloadRemovalVerdict(true, true, null))
+        assertEquals("removed", DownloadRemovalVerdict.REMOVED.code)
+    }
+
+    @Test fun onlyProvenRemovedBytesCountTowardTheReceipt() {
+        val results = listOf(
+            com.knoux.kxprivatevpn.platform.repair.DownloadActionResult(
+                documentId = "a", displayName = "a", action = com.knoux.kxprivatevpn.platform.repair.DownloadAction.REMOVE,
+                succeeded = true, bytesRemoved = 120L,
+            ),
+            com.knoux.kxprivatevpn.platform.repair.DownloadActionResult(
+                documentId = "b", displayName = "b", action = com.knoux.kxprivatevpn.platform.repair.DownloadAction.REMOVE,
+                succeeded = false, bytesRemoved = 999L,
+            ),
+            com.knoux.kxprivatevpn.platform.repair.DownloadActionResult(
+                documentId = "c", displayName = "c", action = com.knoux.kxprivatevpn.platform.repair.DownloadAction.EXPORT,
+                succeeded = true, bytesCopied = 500L,
+            ),
+            com.knoux.kxprivatevpn.platform.repair.DownloadActionResult(
+                documentId = "d", displayName = "d", action = com.knoux.kxprivatevpn.platform.repair.DownloadAction.REMOVE,
+                succeeded = true, bytesRemoved = 30L,
+            ),
+        )
+        assertEquals(150L, verifiedRemovalBytes(results))
+        assertEquals(0L, verifiedRemovalBytes(emptyList()))
     }
 }
