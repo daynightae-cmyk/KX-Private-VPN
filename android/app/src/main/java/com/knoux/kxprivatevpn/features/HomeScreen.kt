@@ -45,6 +45,8 @@ import com.knoux.kxprivatevpn.designsystem.GlassSurface
 import com.knoux.kxprivatevpn.designsystem.KxBrandLockup
 import com.knoux.kxprivatevpn.designsystem.KxOrb
 import com.knoux.kxprivatevpn.designsystem.KxServiceGlyph
+import com.knoux.kxprivatevpn.designsystem.KxServiceCard
+import com.knoux.kxprivatevpn.designsystem.KxSectionHeader
 import com.knoux.kxprivatevpn.designsystem.RepairGlyph
 import com.knoux.kxprivatevpn.designsystem.repairAccent
 import com.knoux.kxprivatevpn.launch.IntroTimeline
@@ -96,16 +98,16 @@ fun KxHomeScreen(
             HomeHero(night, selected?.name, busy, vpn, onConnect, onDisconnect, onSession)
             SmartChoiceCard(night, selected, foreground, onNavigate)
             MetricGrid(night, vpn, foreground)
-            KxCareCard(night, foreground, onNavigate)
-            ToolsGrid(night, foreground, onNavigate)
+            KxCareCard(night, onNavigate)
+            ToolsGrid(night, onNavigate)
             vpn.issue?.let { issue ->
                 GlassSurface(night) {
                     Text(vpnIssueText(issue), fontSize = 12.sp,
                         modifier = Modifier.testTag("vpn-issue"))
                     TextButton(
-                        onClick = onDismissIssue,
+                        onClick = if (issue == com.knoux.kxprivatevpn.platform.vpn.VpnIssue.STOP_FAILED) onDisconnect else onDismissIssue,
                         modifier = Modifier.heightIn(min = 48.dp).testTag("vpn-dismiss-issue"),
-                    ) { Text(stringResource(R.string.dismiss)) }
+                    ) { Text(stringResource(if (issue == com.knoux.kxprivatevpn.platform.vpn.VpnIssue.STOP_FAILED) R.string.retry else R.string.dismiss)) }
                 }
             }
             Spacer(Modifier.height(16.dp))
@@ -162,10 +164,12 @@ private fun HomeHero(
     onSession: () -> Unit,
 ) {
     val foreground = if (night) Color(0xFFF7F3FF) else Color(0xFF171050)
-    val status = when (vpn.phase) {
-        VpnPhase.CONNECTED -> stringResource(R.string.connected)
-        VpnPhase.CONNECTING -> stringResource(R.string.connecting)
-        VpnPhase.DISCONNECTING -> stringResource(R.string.disconnecting)
+    val stopFailed = vpn.issue == com.knoux.kxprivatevpn.platform.vpn.VpnIssue.STOP_FAILED
+    val status = when {
+        stopFailed -> stringResource(R.string.unknown_value)
+        vpn.phase == VpnPhase.CONNECTED -> stringResource(R.string.connected)
+        vpn.phase == VpnPhase.CONNECTING -> stringResource(R.string.connecting)
+        vpn.phase == VpnPhase.DISCONNECTING -> stringResource(R.string.disconnecting)
         else -> stringResource(R.string.disconnected)
     }
     Column(
@@ -174,19 +178,19 @@ private fun HomeHero(
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         Box(Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
-            val orbEnabled = !busy && when (vpn.phase) {
+            val orbEnabled = !busy && (stopFailed || when (vpn.phase) {
                 VpnPhase.CONNECTED -> true
                 VpnPhase.IDLE, VpnPhase.ERROR -> profileName != null
                 else -> false
-            }
+            })
             val actionLabel = stringResource(
-                if (vpn.phase == VpnPhase.CONNECTED) R.string.disconnect else R.string.connect)
+                if (vpn.phase == VpnPhase.CONNECTED || stopFailed) R.string.disconnect else R.string.connect)
             KxOrb(1f, IntroTimeline.frame(1f), Modifier.size(176.dp)
                 .testTag("vpn-orb-action")
                 .semantics { contentDescription = actionLabel }
                 .clickable(enabled = orbEnabled, role = Role.Button,
                     onClick = {
-                        if (vpn.phase == VpnPhase.CONNECTED) onDisconnect()
+                        if (vpn.phase == VpnPhase.CONNECTED || stopFailed) onDisconnect()
                         else onConnect()
                     }))
             StatusPill(
@@ -223,7 +227,11 @@ private fun HomeHero(
             VpnPhase.CONNECTING, VpnPhase.DISCONNECTING -> {
                 LinearProgressIndicator(Modifier.fillMaxWidth().padding(horizontal = 28.dp))
             }
-            else -> {
+            else -> if (stopFailed) {
+                GlassAction(stringResource(R.string.disconnect),
+                    Modifier.fillMaxWidth().testTag("vpn-disconnect"), enabled = !busy,
+                ) { onDisconnect() }
+            } else {
                 GlassAction(
                     stringResource(R.string.connect),
                     Modifier.fillMaxWidth().testTag("vpn-connect"),
@@ -353,7 +361,6 @@ private fun MetricGrid(night: Boolean, vpn: VpnState, foreground: Color) {
 }
 
 private enum class MetricKind { HANDSHAKE, RECEIVED, SENT, TUNNEL }
-private enum class ToolKind { STORAGE, CACHE, NETWORK, SECURITY, STATS, SPLIT, ADVANCED, IMPORT, APPS }
 private enum class NavKind { HOME, SERVERS, SECURITY, STATS, SETTINGS }
 
 @Composable
@@ -395,137 +402,51 @@ private fun MetricTile(
 }
 
 @Composable
-private fun KxCareCard(night: Boolean, foreground: Color, onNavigate: (String) -> Unit) {
-    GlassSurface(
-        night,
-        modifier = Modifier.fillMaxWidth()
-            .clickable(role = Role.Button, onClick = { onNavigate("repair") })
-            .testTag("open-repair"),
-        contentPadding = PaddingValues(14.dp),
-        radius = 22.dp,
-    ) {
-        Row(
-            Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            RepairGlyph(RepairServiceId.AUTOPILOT, Modifier.size(42.dp))
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Row(
-                    Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    Text(stringResource(R.string.kx_care), fontSize = 16.sp, maxLines = 1,
-                        overflow = TextOverflow.Ellipsis, fontWeight = FontWeight.Bold,
-                        color = foreground, modifier = Modifier.weight(1f))
-                    // The ready count rides next to the title so a large font scale can wrap
-                    // the body underneath it instead of colliding with the number.
-                    Text(
-                        stringResource(R.string.repair_services_count,
-                            RepairCatalog.available(), RepairCatalog.services.size),
-                        fontSize = 10.sp, maxLines = 1,
-                        fontWeight = FontWeight.SemiBold,
-                        color = if (night) Color(0xFF64EEFF) else Color(0xFF3B2AA8),
-                    )
-                }
-                Text(stringResource(R.string.kx_care_body), fontSize = 11.sp, maxLines = 2,
-                    lineHeight = 14.sp, overflow = TextOverflow.Ellipsis,
-                    color = foreground.copy(alpha = .68f))
-            }
-            ChevronGlyph(foreground)
-        }
-    }
+private fun KxCareCard(night: Boolean, onNavigate: (String) -> Unit) {
+    KxServiceCard(
+        title = stringResource(R.string.kx_care),
+        description = stringResource(R.string.home_repair_description),
+        capability = stringResource(R.string.home_repair_scope, RepairCatalog.available()),
+        actionLabel = stringResource(R.string.home_action_repair),
+        night = night,
+        modifier = Modifier.fillMaxWidth().testTag("open-repair"),
+        glyph = { RepairGlyph(RepairServiceId.AUTOPILOT, Modifier.size(32.dp)) },
+        onClick = { onNavigate("repair") },
+    )
 }
 
 @Composable
-private fun ToolsGrid(night: Boolean, foreground: Color, onNavigate: (String) -> Unit) {
-    // Four across fits at normal text size. Under a large font scale the same tiles would
-    // break words mid-label, so the grid drops to two wider tiles per row.
-    val perRow = 2 // Readable square service cards at normal and large font scales.
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(stringResource(R.string.more_tools), fontSize = 13.sp,
-            fontWeight = FontWeight.Bold, color = foreground.copy(alpha = .86f))
-        val tools = listOf(
-            ToolKind.STORAGE to ("storage" to R.string.storage),
-            ToolKind.CACHE to ("cache" to R.string.cache_surgeon),
-            ToolKind.NETWORK to ("network" to R.string.network_doctor),
-            ToolKind.SECURITY to ("security" to R.string.security_center),
-            ToolKind.STATS to ("stats" to R.string.stats_title),
-            ToolKind.SPLIT to ("split" to R.string.split_title),
-            ToolKind.ADVANCED to ("advanced" to R.string.adv_title),
-            ToolKind.IMPORT to ("import" to R.string.import_config),
-            ToolKind.APPS to ("apps" to R.string.app_inventory_title),
-        )
-        tools.chunked(perRow).forEach { row ->
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                row.forEach { (kind, target) ->
-                    ToolTile(kind, stringResource(target.second), night, foreground,
-                        Modifier.weight(1f).testTag("open-${target.first}")) {
-                        onNavigate(target.first)
+private fun ToolsGrid(night: Boolean, onNavigate: (String) -> Unit) {
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+        // Descriptions need a reading column, not a phone-sized dashboard grid. Tablets
+        // can show two columns; large fonts always keep one continuous reading order.
+        val perRow = if (maxWidth >= 600.dp && LocalDensity.current.fontScale <= 1.3f) 2 else 1
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            HomeServiceSection.entries.forEach { section ->
+                KxSectionHeader(stringResource(section.title), night)
+                HomeServiceCatalog.entries.filter { it.section == section }.chunked(perRow).forEach { row ->
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        row.forEach { service ->
+                            KxServiceCard(
+                                title = stringResource(service.title),
+                                description = stringResource(service.description),
+                                capability = stringResource(service.capability),
+                                actionLabel = stringResource(service.action),
+                                night = night,
+                                modifier = Modifier.weight(1f).testTag("open-${service.route}"),
+                                glyph = {
+                                    KxServiceGlyph(service.route,
+                                        if (night) Color(0xFF99EBFF) else Color(0xFF4420B3),
+                                        Modifier.size(28.dp))
+                                },
+                                onClick = { onNavigate(service.route) },
+                            )
+                        }
+                        repeat(perRow - row.size) { Spacer(Modifier.weight(1f)) }
                     }
                 }
-                repeat(perRow - row.size) { Spacer(Modifier.weight(1f)) }
             }
         }
-    }
-}
-
-@Composable
-private fun ToolTile(
-    kind: ToolKind,
-    label: String,
-    night: Boolean,
-    foreground: Color,
-    modifier: Modifier,
-    onClick: () -> Unit,
-) {
-    val accent = when (kind) {
-        ToolKind.STORAGE -> Color(0xFF64EEFF)
-        ToolKind.CACHE -> Color(0xFFAD71FF)
-        ToolKind.NETWORK -> Color(0xFF7C6BFF)
-        ToolKind.SECURITY -> Color(0xFFB9E9FF)
-        ToolKind.STATS -> Color(0xFF64EEFF)
-        ToolKind.SPLIT -> Color(0xFFFF8AD8)
-        ToolKind.ADVANCED -> Color(0xFFAD71FF)
-        ToolKind.IMPORT -> Color(0xFFB9E9FF)
-        ToolKind.APPS -> Color(0xFF64EEFF)
-    }
-    Column(
-        modifier.heightIn(min = 112.dp).clip(RoundedCornerShape(18.dp))
-            .background(Color.White.copy(alpha = if (night) .08f else .42f))
-            .border(1.dp, Color.White.copy(alpha = if (night) .22f else .72f),
-                RoundedCornerShape(18.dp))
-            .clickable(role = Role.Button, onClick = onClick)
-            .padding(8.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
-        horizontalAlignment = Alignment.Start,
-    ) {
-        // One glyph family across Home tools, so adjacent tiles share stroke weight and
-        // optical size instead of mixing repair-specific art with generic tool shapes.
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween) {
-        KxServiceGlyph(
-            kind = when (kind) {
-                ToolKind.STORAGE -> "storage"
-                ToolKind.CACHE -> "cache"
-                ToolKind.NETWORK -> "network"
-                ToolKind.SECURITY -> "security"
-                ToolKind.STATS -> "stats"
-                ToolKind.SPLIT -> "split"
-                ToolKind.ADVANCED -> "advanced"
-                ToolKind.IMPORT -> "import"
-                ToolKind.APPS -> "security"
-            },
-            tint = if (night) accent else Color(0xFF3B2AA8),
-            modifier = Modifier.size(27.dp),
-        )
-        // The visible KX emblem is part of every tap surface for consistent branding.
-        KxOrb(1f, IntroTimeline.frame(1f), Modifier.size(42.dp))
-        }
-        Text(label, fontSize = 13.sp, lineHeight = 16.sp, maxLines = 2,
-            overflow = TextOverflow.Ellipsis, color = foreground,
-            fontWeight = FontWeight.Medium)
     }
 }
 
@@ -559,7 +480,7 @@ private fun HomeBottomBar(
             val active = route == selected
             val foreground = if (night) Color(0xFFF7F3FF) else Color(0xFF171050)
             Column(
-                Modifier.weight(1f).clip(RoundedCornerShape(22.dp))
+                Modifier.weight(1f).heightIn(min = 48.dp).clip(RoundedCornerShape(22.dp))
                     .then(if (active) Modifier.background(Brush.horizontalGradient(
                         listOf(Color(0xFFAD71FF).copy(alpha = .55f),
                             Color(0xFF64EEFF).copy(alpha = .45f)))) else Modifier)
@@ -665,68 +586,6 @@ private fun MetricGlyph(kind: MetricKind, color: Color, modifier: Modifier) {
                 drawLine(color, Offset(c.x - s * .34f, c.y), Offset(c.x + s * .34f, c.y),
                     s * .07f)
             }
-        }
-    }
-}
-
-@Composable
-private fun ToolGlyph(kind: ToolKind, color: Color, modifier: Modifier) {
-    Canvas(modifier) {
-        val s = size.minDimension
-        val c = Offset(size.width / 2, size.height / 2)
-        val stroke = Stroke(s * .085f, cap = StrokeCap.Round)
-        when (kind) {
-            ToolKind.SECURITY -> {
-                val shield = Path().apply {
-                    moveTo(c.x, s * .12f)
-                    cubicTo(c.x - s * .24f, s * .20f, c.x - s * .34f, s * .20f,
-                        c.x - s * .34f, s * .36f)
-                    cubicTo(c.x - s * .34f, s * .62f, c.x - s * .18f, s * .78f,
-                        c.x, s * .88f)
-                    cubicTo(c.x + s * .18f, s * .78f, c.x + s * .34f, s * .62f,
-                        c.x + s * .34f, s * .36f)
-                    cubicTo(c.x + s * .34f, s * .20f, c.x + s * .24f, s * .20f,
-                        c.x, s * .12f)
-                }
-                drawPath(shield, color, style = stroke)
-            }
-            ToolKind.STATS -> {
-                listOf(.32f, .54f, .76f).forEachIndexed { i, x ->
-                    val top = s * (.68f - i * .14f)
-                    drawLine(color, Offset(s * x, s * .82f), Offset(s * x, top),
-                        s * .12f, StrokeCap.Round)
-                }
-            }
-            ToolKind.SPLIT -> {
-                drawLine(color, Offset(s * .18f, c.y), Offset(s * .44f, c.y),
-                    s * .085f, StrokeCap.Round)
-                drawLine(color, Offset(s * .44f, c.y), Offset(s * .76f, s * .30f),
-                    s * .085f, StrokeCap.Round)
-                drawLine(color, Offset(s * .44f, c.y), Offset(s * .76f, s * .70f),
-                    s * .085f, StrokeCap.Round)
-                drawCircle(color, s * .07f, Offset(s * .18f, c.y))
-                drawCircle(color, s * .07f, Offset(s * .76f, s * .30f))
-                drawCircle(color, s * .07f, Offset(s * .76f, s * .70f))
-            }
-            ToolKind.ADVANCED -> {
-                listOf(.28f, .50f, .72f).forEachIndexed { i, y ->
-                    drawLine(color, Offset(s * .16f, s * y), Offset(s * .84f, s * y),
-                        s * .065f, StrokeCap.Round)
-                    val x = s * (.34f + i * .18f)
-                    drawCircle(color, s * .075f, Offset(x, s * y))
-                }
-            }
-            ToolKind.IMPORT -> {
-                drawLine(color, Offset(c.x, s * .18f), Offset(c.x, s * .62f),
-                    s * .09f, StrokeCap.Round)
-                drawLine(color, Offset(s * .30f, s * .44f), Offset(c.x, s * .64f),
-                    s * .09f, StrokeCap.Round)
-                drawLine(color, Offset(s * .70f, s * .44f), Offset(c.x, s * .64f),
-                    s * .09f, StrokeCap.Round)
-                drawLine(color, Offset(s * .22f, s * .80f), Offset(s * .78f, s * .80f),
-                    s * .09f, StrokeCap.Round)
-            }
-            else -> Unit
         }
     }
 }

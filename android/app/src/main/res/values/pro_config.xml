@@ -1,0 +1,6 @@
+<resources>
+    <!-- Release owner must configure a trusted owner-operated HTTPS origin and approved E.164 contact.
+         Empty defaults intentionally perform no requests and expose no invented contact. -->
+    <string name="pro_authority_url" translatable="false"></string>
+    <string name="pro_owner_whatsapp_e164" translatable="false"></string>
+</resources>

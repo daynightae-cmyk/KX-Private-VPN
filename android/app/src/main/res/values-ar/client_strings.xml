@@ -363,5 +363,36 @@
     <string name="app_inventory_uninstall">إلغاء التثبيت</string>
     <string name="app_inventory_confirm_title">فتح تأكيد إزالة التطبيق من النظام؟</string>
     <string name="app_inventory_confirm_body">سيطلب Android موافقتك لإزالة %1$s. لا يستطيع KX إزالة التطبيقات دون تأكيد.</string>
+    <string name="home_section_device">التخزين والتطبيقات</string>
+    <string name="home_section_diagnostics">الخصوصية والتشخيص</string>
+    <string name="home_section_vpn">إعداد اتصال VPN</string>
+    <string name="home_storage_description">قِس مساحة التخزين واستعرض الملفات التي يتيحها لك Android.</string>
+    <string name="home_cache_description">راجع ملفات KX المؤقتة قبل اختيار ما تريد حذفه.</string>
+    <string name="home_apps_description">استعرض التطبيقات الظاهرة وخيارات إدارتها في Android.</string>
+    <string name="home_network_description">افحص الاتصال وDNS وشغّل اختبار اتصال اختياريًا.</string>
+    <string name="home_security_description">تعرّف على حالة النفق وإعدادات الحماية في Android.</string>
+    <string name="home_stats_description">راجع حركة البيانات المقاسة لجلسات VPN المسجلة.</string>
+    <string name="home_import_description">أضف إعداد WireGuard من ملف أو صورة QR أو نص.</string>
+    <string name="home_split_description">اختر التطبيقات الظاهرة التي تستخدم نفق VPN.</string>
+    <string name="home_advanced_description">اضبط DNS وحجم الحزم وإبقاء الاتصال لإعدادك.</string>
+    <string name="home_scope_chosen_access">النطاق: الوسائط المسموح بها والمجلدات التي تختارها</string>
+    <string name="home_scope_kx_only">ملفات KX المؤقتة فقط · موافقة قبل الحذف</string>
+    <string name="home_scope_visible_apps">التطبيقات الظاهرة فقط · Android يؤكد الإزالة</string>
+    <string name="home_scope_read_only">تشخيص للقراءة فقط · ليس إصلاحًا أو ضمان حماية</string>
+    <string name="home_scope_local_history">سجل محلي · بلا تتبع لتطبيقات الجهاز الأخرى</string>
+    <string name="home_scope_own_profile">إعدادك الخاص · لا توجد خوادم مضمّنة</string>
+    <string name="home_scope_profile_required">يلزم استيراد إعداد للاتصال</string>
+    <string name="home_action_storage">استكشاف التخزين</string>
+    <string name="home_action_cache">مراجعة الملفات المؤقتة</string>
+    <string name="home_action_apps">استكشاف التطبيقات</string>
+    <string name="home_action_network">فتح فحص الشبكة</string>
+    <string name="home_action_security">مراجعة الحماية</string>
+    <string name="home_action_stats">عرض سجل الجلسات</string>
+    <string name="home_action_import">استيراد إعداد</string>
+    <string name="home_action_split">اختيار توجيه التطبيقات</string>
+    <string name="home_action_advanced">ضبط الشبكة</string>
+    <string name="home_repair_description">اختر فحصًا متخصصًا أو خطة صيانة تتطلب موافقتك.</string>
+    <string name="home_repair_scope">%1$d أدوات · نطاق الوصول والإجراءات موضّح داخل كل خدمة</string>
+    <string name="home_action_repair">استكشاف مختبر الإصلاح</string>
 </resources>
 
