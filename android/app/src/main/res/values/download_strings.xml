@@ -15,7 +15,7 @@
     <string name="download_select_attention">Select the ones needing attention</string>
     <string name="download_clear">Clear selection</string>
     <string name="download_remove">Remove the selected files</string>
-    <string name="download_export">Export the selected files</string>
+    <string name="download_export">Export one copy</string>
     <string name="download_rename">Rename the selected file</string>
     <string name="download_selected">%1$d selected, %2$s</string>
     <string name="download_empty">No downloads were found in the authorised folder.</string>
@@ -46,7 +46,7 @@
     <string name="download_no_repair">KX never rewrites a damaged file. A broken download can be exported, renamed or removed.</string>
     <string name="download_privacy">Only the folder you authorised is read. No other application data is accessed.</string>
     <string name="download_export_title">Export a copy</string>
-    <string name="download_export_hint">The copy is written where you choose. The original stays untouched.</string>
+    <string name="download_export_hint">Select exactly one file to export. Choose a different destination; KX reads the copy back to verify it. The original stays untouched.</string>
     <string name="download_rename_title">Rename the file</string>
     <string name="download_rename_hint">The content is never changed by a rename.</string>
     <string name="download_rename_confirm">Rename</string>

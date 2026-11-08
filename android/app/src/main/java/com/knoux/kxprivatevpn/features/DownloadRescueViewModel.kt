@@ -9,19 +9,18 @@ import androidx.lifecycle.viewModelScope
 import com.knoux.kxprivatevpn.platform.repair.DownloadAction
 import com.knoux.kxprivatevpn.platform.repair.DownloadActionResult
 import com.knoux.kxprivatevpn.platform.repair.DownloadCandidate
+import com.knoux.kxprivatevpn.platform.repair.DownloadExportCoordinator
 import com.knoux.kxprivatevpn.platform.repair.DownloadHealth
+import com.knoux.kxprivatevpn.platform.repair.DownloadTarget
+import com.knoux.kxprivatevpn.platform.repair.freezeDownloadSelection
 import com.knoux.kxprivatevpn.platform.storage.DownloadCatalog
-import com.knoux.kxprivatevpn.platform.storage.DownloadListing
-import com.knoux.kxprivatevpn.platform.storage.DownloadRow
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /** What one approved operation really did. Every number here comes from the platform. */
 data class DownloadReceipt(
@@ -49,7 +48,8 @@ data class DownloadRescueUiState(
     /** Android before 10 has no shared download collection; the folder stays the only source. */
     val mediaStoreUnavailable: Boolean = false,
     val selected: Set<String> = emptySet(),
-    val confirming: Boolean = false,
+    val removalTargets: List<DownloadTarget> = emptyList(),
+    val exportPending: Boolean = false,
     val busy: Boolean = false,
     val receipt: DownloadReceipt? = null,
     val message: String? = null,
@@ -61,6 +61,16 @@ data class DownloadRescueUiState(
     val selectedBytes: Long get() = selectedCandidates.sumOf { it.bytes }
     val byHealth: Map<DownloadHealth, Int>
         get() = candidates.groupingBy { it.health }.eachCount()
+    val confirming: Boolean get() = removalTargets.isNotEmpty()
+    val actionsBlocked: Boolean get() = loading || busy || scanning || exportPending || confirming
+    val canExport: Boolean get() = !actionsBlocked && selected.size == 1 && selectedCandidates.size == 1
+    val canConfirmRemove: Boolean get() = confirming && !loading && !busy && !scanning && !exportPending
+
+    /** Automatic post-action refreshes retain receipts; a deliberate new scan clears them. */
+    fun startingScan(clearReceipt: Boolean): DownloadRescueUiState = copy(
+        scanning = true, scanProgress = 0, scanFailed = false, truncated = false,
+        receipt = if (clearReceipt) null else receipt, message = null,
+    )
 }
 
 /** Persisted grant of the folder the user authorised for Download Rescue. */
@@ -87,7 +97,7 @@ class DownloadRescueViewModel(app: Application) : AndroidViewModel(app) {
     private val catalog = DownloadCatalog(app)
     private val mutable = MutableStateFlow(DownloadRescueUiState())
     private var scanJob: Job? = null
-    private var actionJob: Job? = null
+    private val exports = DownloadExportCoordinator()
     /** The real document URI of every inspected row, keyed by its provider id. */
     private val uriByDocument = mutableMapOf<String, String>()
     val state: StateFlow<DownloadRescueUiState> = mutable.asStateFlow()
@@ -98,6 +108,7 @@ class DownloadRescueViewModel(app: Application) : AndroidViewModel(app) {
 
     /** The Activity result already granted the folder; the grant is persisted when possible. */
     fun attachTree(uri: Uri) {
+        if (mutable.value.actionsBlocked) return
         val name = uri.lastPathSegment?.substringAfterLast(':')?.substringAfterLast('/') ?: "Downloads"
         viewModelScope.launch {
             try {
@@ -114,6 +125,7 @@ class DownloadRescueViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun forgetTree() {
+        if (mutable.value.actionsBlocked) return
         val uri = mutable.value.treeUri
         if (uri != null) {
             try {
@@ -126,6 +138,7 @@ class DownloadRescueViewModel(app: Application) : AndroidViewModel(app) {
             }
         }
         store.clear()
+        uriByDocument.clear()
         mutable.update {
             it.copy(treeUri = null, treeName = null, candidates = emptyList(), selected = emptySet(),
                 truncated = false, scanFailed = false, mediaStoreRows = 0, mediaStoreFailed = false,
@@ -133,27 +146,27 @@ class DownloadRescueViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    /** Reads the authorised folder, judges every file by its real bytes and reports the result. */
-    fun scan() {
-        val uri = mutable.value.treeUri ?: return
-        if (scanJob?.isActive == true) return
-        mutable.update {
-            it.copy(scanning = true, scanProgress = 0, scanFailed = false, truncated = false,
-                receipt = null, message = null)
-        }
+    /** A deliberate new scan clears the previous receipt; automatic refreshes do not. */
+    fun scan() = scan(clearReceipt = true)
+
+    private fun scan(clearReceipt: Boolean) {
+        val current = mutable.value
+        val uri = current.treeUri ?: return
+        if (current.actionsBlocked || scanJob?.isActive == true) return
+        mutable.update { it.startingScan(clearReceipt) }
         scanJob = viewModelScope.launch {
             try {
                 val listing = catalog.listTree(Uri.parse(uri))
                 val media = catalog.listMediaStore()
                 val treeUris = listing.rows.map { it.uri }.toSet()
                 val rows = listing.rows + media.rows.filter { row -> row.uri !in treeUris }
-                uriByDocument.clear()
-                rows.forEach { row -> uriByDocument[row.documentId] = row.uri }
                 val judged = mutableListOf<DownloadCandidate>()
                 rows.forEachIndexed { index, row ->
                     judged += catalog.classify(row)
                     mutable.update { it.copy(scanProgress = index + 1) }
                 }
+                uriByDocument.clear()
+                rows.forEach { row -> uriByDocument[row.documentId] = row.uri }
                 mutable.update {
                     it.copy(
                         scanning = false,
@@ -169,117 +182,146 @@ class DownloadRescueViewModel(app: Application) : AndroidViewModel(app) {
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {
-                mutable.update { it.copy(scanning = false, scanFailed = true) }
+                mutable.update { it.copy(scanFailed = true) }
+            } finally {
+                mutable.update { it.copy(scanning = false) }
             }
         }
     }
 
     fun toggle(documentId: String) = mutable.update { current ->
+        if (current.actionsBlocked || current.candidates.none { it.documentId == documentId }) return@update current
         val next = if (current.selected.contains(documentId)) current.selected - documentId
         else current.selected + documentId
         current.copy(selected = next)
     }
 
     fun selectAttention() = mutable.update { current ->
+        if (current.actionsBlocked) return@update current
         val ids = current.candidates.filter { it.health.needsAttention }.map { it.documentId }
         current.copy(selected = ids.toSet())
     }
 
-    fun clearSelection() = mutable.update { it.copy(selected = emptySet(), confirming = false) }
-
-    /** Removal is a destructive action: it is only performed after the user confirms. */
-    fun requestRemove() {
-        if (mutable.value.selected.isEmpty()) return
-        mutable.update { it.copy(confirming = true) }
+    fun clearSelection() = mutable.update {
+        if (it.actionsBlocked) it else it.copy(selected = emptySet())
     }
 
-    fun dismissConfirmation() = mutable.update { it.copy(confirming = false) }
+    private fun frozenSelection(current: DownloadRescueUiState): List<DownloadTarget> =
+        freezeDownloadSelection(current.candidates, current.selected, uriByDocument)
 
-    /** Removes exactly the selected documents and reports what the platform really did. */
+    /** Freeze the exact files and URIs shown by the destructive confirmation. */
+    fun requestRemove() {
+        val current = mutable.value
+        if (current.actionsBlocked) return
+        val targets = frozenSelection(current)
+        if (targets.isEmpty()) return
+        mutable.update { it.copy(removalTargets = targets) }
+    }
+
+    fun dismissConfirmation() = mutable.update { it.copy(removalTargets = emptyList()) }
+
+    /** Consume the approval once, never substituting the current selection or a remapped URI. */
     fun confirmRemove() {
         val current = mutable.value
-        val targets = current.selectedCandidates
-        if (targets.isEmpty()) {
-            mutable.update { it.copy(confirming = false) }
-            return
-        }
-        mutable.update { it.copy(confirming = false, busy = true) }
-        actionJob = viewModelScope.launch {
-            val results = mutableListOf<DownloadActionResult>()
-            var removedBytes = 0L
-            targets.forEach { candidate ->
-                val result = catalog.remove(uriOf(candidate), candidate.displayName)
-                results += result
-                if (result.succeeded) removedBytes += candidate.bytes
-            }
-            val receipt = DownloadReceipt(
-                action = DownloadAction.REMOVE,
-                attempted = targets.size,
-                succeeded = results.count { it.succeeded },
-                failed = results.count { !it.succeeded },
-                bytesCopied = 0L,
-                bytesRemoved = removedBytes,
-                results = results,
-                atMillis = System.currentTimeMillis(),
-            )
-            mutable.update { it.copy(busy = false, receipt = receipt, selected = emptySet()) }
-            scan()
-        }
-    }
-
-    /** Copies the selected documents to the destination the user picked and verifies the size. */
-    fun exportTo(target: Uri) {
-        val current = mutable.value
-        val targets = current.selectedCandidates
+        if (!current.canConfirmRemove) return
+        val targets = current.removalTargets
         if (targets.isEmpty()) return
-        mutable.update { it.copy(busy = true) }
-        actionJob = viewModelScope.launch {
-            val results = mutableListOf<DownloadActionResult>()
-            var copied = 0L
-            targets.forEach { candidate ->
-                val result = catalog.export(uriOf(candidate), target, candidate.bytes)
-                results += result
-                if (result.succeeded) copied += result.bytesCopied
+        mutable.update { it.copy(removalTargets = emptyList(), busy = true) }
+        viewModelScope.launch {
+            try {
+                val results = mutableListOf<DownloadActionResult>()
+                var removedBytes = 0L
+                targets.forEach { target ->
+                    val result = catalog.remove(Uri.parse(target.uri), target.candidate.displayName)
+                    results += result
+                    if (result.succeeded) removedBytes += target.candidate.bytes
+                }
+                val receipt = DownloadReceipt(
+                    action = DownloadAction.REMOVE,
+                    attempted = targets.size,
+                    succeeded = results.count { it.succeeded },
+                    failed = results.count { !it.succeeded },
+                    bytesCopied = 0L,
+                    bytesRemoved = removedBytes,
+                    results = results,
+                    atMillis = System.currentTimeMillis(),
+                )
+                mutable.update { it.copy(receipt = receipt, selected = emptySet()) }
+            } finally {
+                mutable.update { it.copy(busy = false) }
             }
-            val receipt = DownloadReceipt(
-                action = DownloadAction.EXPORT,
-                attempted = targets.size,
-                succeeded = results.count { it.succeeded },
-                failed = results.count { !it.succeeded },
-                bytesCopied = copied,
-                bytesRemoved = 0L,
-                results = results,
-                atMillis = System.currentTimeMillis(),
-            )
-            mutable.update { it.copy(busy = false, receipt = receipt) }
+            scan(clearReceipt = false)
         }
     }
 
-    /** Renames the selected document inside the granted folder. The bytes are untouched. */
-    /** The document URI that was really read for a candidate. */
-    private fun uriOf(candidate: DownloadCandidate): Uri =
-        uriByDocument[candidate.documentId]?.let { Uri.parse(it) } ?: Uri.EMPTY
+    /** Called before launching CreateDocument, not when its result arrives. */
+    fun prepareExport(): Boolean {
+        val current = mutable.value
+        if (!current.canExport) return false
+        if (!exports.prepare(frozenSelection(current), current.busy, current.scanning)) return false
+        mutable.update { it.copy(exportPending = true) }
+        return true
+    }
 
+    /** A null picker result (including launch failure) cancels the frozen, one-shot request. */
+    fun exportTo(target: Uri?) {
+        val current = mutable.value
+        val request = exports.complete(
+            target?.toString(),
+            busy = current.busy || current.loading || current.confirming,
+            scanning = current.scanning,
+        )
+        mutable.update { it.copy(exportPending = false) }
+        if (request == null) return
+        mutable.update { it.copy(busy = true) }
+        viewModelScope.launch {
+            try {
+                val result = catalog.export(
+                    Uri.parse(request.source.uri), Uri.parse(request.targetUri), request.source.candidate.bytes,
+                ).copy(displayName = request.source.candidate.displayName)
+                val receipt = DownloadReceipt(
+                    action = DownloadAction.EXPORT,
+                    attempted = 1,
+                    succeeded = if (result.succeeded) 1 else 0,
+                    failed = if (result.succeeded) 0 else 1,
+                    bytesCopied = if (result.succeeded) result.bytesCopied else 0L,
+                    bytesRemoved = 0L,
+                    results = listOf(result),
+                    atMillis = System.currentTimeMillis(),
+                )
+                mutable.update { it.copy(receipt = receipt) }
+            } finally {
+                mutable.update { it.copy(busy = false) }
+            }
+        }
+    }
+
+    /** Renames a single frozen document; no action may overlap a scan or another submission. */
     fun renameSelected(newName: String) {
         val current = mutable.value
-        val target = current.selectedCandidates.firstOrNull() ?: return
+        if (current.actionsBlocked) return
+        val target = frozenSelection(current).singleOrNull() ?: return
         val name = newName.trim()
         if (name.isEmpty()) return
         mutable.update { it.copy(busy = true) }
-        actionJob = viewModelScope.launch {
-            val result = catalog.rename(uriOf(target), name)
-            val receipt = DownloadReceipt(
-                action = DownloadAction.RENAME,
-                attempted = 1,
-                succeeded = if (result.succeeded) 1 else 0,
-                failed = if (result.succeeded) 0 else 1,
-                bytesCopied = 0L,
-                bytesRemoved = 0L,
-                results = listOf(result),
-                atMillis = System.currentTimeMillis(),
-            )
-            mutable.update { it.copy(busy = false, receipt = receipt) }
-            scan()
+        viewModelScope.launch {
+            try {
+                val result = catalog.rename(Uri.parse(target.uri), name)
+                val receipt = DownloadReceipt(
+                    action = DownloadAction.RENAME,
+                    attempted = 1,
+                    succeeded = if (result.succeeded) 1 else 0,
+                    failed = if (result.succeeded) 0 else 1,
+                    bytesCopied = 0L,
+                    bytesRemoved = 0L,
+                    results = listOf(result),
+                    atMillis = System.currentTimeMillis(),
+                )
+                mutable.update { it.copy(receipt = receipt) }
+            } finally {
+                mutable.update { it.copy(busy = false) }
+            }
+            scan(clearReceipt = false)
         }
     }
 }

@@ -3,6 +3,7 @@ package com.knoux.kxprivatevpn
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Bitmap
+import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.CompositionLocalProvider
@@ -23,6 +24,9 @@ import com.knoux.kxprivatevpn.platform.repair.DownloadActionResult
 import com.knoux.kxprivatevpn.platform.repair.DownloadCandidate
 import com.knoux.kxprivatevpn.platform.repair.DownloadFormat
 import com.knoux.kxprivatevpn.platform.repair.DownloadHealth
+import com.knoux.kxprivatevpn.platform.repair.DownloadTarget
+import com.knoux.kxprivatevpn.platform.storage.downloadDocumentIdentity
+import org.junit.Assert.assertTrue
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -187,7 +191,10 @@ class DownloadRescueScreenTest {
                 treeUri = "content://tree/download",
                 candidates = listOf(candidate("a", "cut.pdf", 900L, DownloadHealth.TRUNCATED, "missing_tail")),
                 selected = setOf("a"),
-                confirming = true,
+                removalTargets = listOf(DownloadTarget(
+                    candidate("a", "cut.pdf", 900L, DownloadHealth.TRUNCATED, "missing_tail"),
+                    "content://fixture/document/a",
+                )),
             ),
             onConfirmRemove = { confirmed++ },
             onDismissConfirmation = { dismissed++ },
@@ -218,6 +225,73 @@ class DownloadRescueScreenTest {
         compose.onNodeWithTag("download-receipt-summary").assertTextContains("1", substring = true)
         compose.onNodeWithText("cut.pdf — removed").assertExists()
         compose.onNodeWithText("empty.pdf — delete_rejected").assertExists()
+    }
+
+    private fun exportState(selected: Set<String>) = DownloadRescueUiState(
+        loading = false,
+        candidates = listOf(
+            candidate("a", "one.pdf", 1024L, DownloadHealth.INTACT, "verified"),
+            candidate("b", "two.pdf", 2048L, DownloadHealth.TRUNCATED, "missing_tail"),
+        ),
+        selected = selected,
+    )
+
+    @Test fun exportIsDisabledWithNoSelection() {
+        screen(exportState(emptySet()))
+        compose.onNodeWithTag("download-export").performScrollTo().assertIsNotEnabled()
+        compose.onNodeWithTag("download-export-hint").assertTextContains("exactly one", substring = true)
+    }
+
+    @Test fun exportIsDisabledForMultipleFilesAndExplainsTheLimit() {
+        screen(exportState(setOf("a", "b")))
+        compose.onNodeWithTag("download-export").performScrollTo().assertIsNotEnabled()
+        compose.onNodeWithTag("download-export-hint").assertTextContains("exactly one", substring = true)
+        assertTrue(localized(base, "ar").getString(R.string.download_export_hint).contains("واحدًا فقط"))
+    }
+
+    @Test fun oneIdleSelectionCanRequestTheDocumentPicker() {
+        var requested = 0
+        screen(exportState(setOf("a")), onExport = { requested++ })
+        compose.onNodeWithTag("download-export").performScrollTo().assertIsEnabled().performClick()
+        assertEquals(1, requested)
+    }
+
+    @Test fun pendingPickerDisablesAnotherExportAndOtherMutations() {
+        screen(exportState(setOf("a")).copy(exportPending = true))
+        compose.onNodeWithTag("download-export").performScrollTo().assertIsNotEnabled()
+        compose.onNodeWithTag("download-remove").assertIsNotEnabled()
+        compose.onNodeWithTag("download-rename").assertIsNotEnabled()
+        compose.onNodeWithTag("download-select-0").assertIsNotEnabled()
+    }
+
+    @Test fun scanningDisablesExportEvenWithOneSelectedFile() {
+        screen(exportState(setOf("a")).copy(scanning = true))
+        compose.onNodeWithTag("download-export").performScrollTo().assertIsNotEnabled()
+        compose.onNodeWithTag("download-remove").assertIsNotEnabled()
+    }
+
+    @Test fun theConfirmationDescribesFrozenTargetsNotANewSelection() {
+        val original = candidate("a", "one.pdf", 1024L, DownloadHealth.INTACT, "verified")
+        screen(exportState(setOf("b")).copy(
+            removalTargets = listOf(DownloadTarget(original, "content://fixture/document/a")),
+        ))
+        compose.onNodeWithText(context.getString(R.string.download_confirm_body, 1, "1 KB")).assertExists()
+        compose.onNodeWithTag("download-confirm").assertIsEnabled()
+    }
+
+    @Test fun renameReceiptRemainsReadableDuringAutomaticRescan() {
+        val receipt = DownloadReceipt(DownloadAction.RENAME, 1, 1, 0, 0L, 0L,
+            listOf(DownloadActionResult("a", "new.pdf", DownloadAction.RENAME, true, message = "renamed")), 1L)
+        screen(DownloadRescueUiState(loading = false, receipt = receipt).startingScan(clearReceipt = false))
+        compose.onNodeWithTag("download-receipt-summary").assertTextEquals("1 renamed, 0 failed")
+    }
+
+    @Test fun androidDocumentIdsIdentifyTreeAndStandaloneAliasesWithoutProviderAccess() {
+        val standalone = downloadDocumentIdentity(Uri.parse("content://fixture/document/primary%3ADownload%2Fa.bin"))
+        val tree = downloadDocumentIdentity(Uri.parse("content://fixture/tree/primary%3ADownload/document/primary%3ADownload%2Fa.bin"))
+        assertEquals("primary:Download/a.bin", standalone.documentId)
+        assertEquals(standalone.documentId, tree.documentId)
+        assertTrue(standalone.sameDocument(tree))
     }
 
     @Test fun selectionIsOwnedByTheCallerAndCountsTheRealBytes() {
