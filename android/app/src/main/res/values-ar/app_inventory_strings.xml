@@ -25,6 +25,9 @@
     <string name="apps_handoff_title">الإحالة إلى Android</string>
     <string name="apps_handoff_opened">أُرسل الطلب إلى Android. لم يتحقق KX من إزالة أي تطبيق أو توفير مساحة.</string>
     <string name="apps_handoff_returned">عدت من Android. طلب KX تحديث القائمة، وتظهر حالة الفحص أعلاه. الرجوع لا يؤكد الإزالة أو الإلغاء أو توفير مساحة.</string>
+    <string name="apps_handoff_removed">تم التحقق من الإزالة: لم يعد Android يبلغ أن %1$s مثبّت. لا ندّعي توفير مساحة.</string>
+    <string name="apps_handoff_still_installed">ما زال مثبّتًا: يبلغ Android أن %1$s موجود. لم تُؤكَّد أي إزالة.</string>
+    <string name="apps_handoff_verify_failed">عدت من Android، لكن تعذّرت إعادة قراءة حالة الحزمة. الإزالة غير متحققة.</string>
     <string name="apps_handoff_unavailable">تعذّر على Android فتح الإجراء، أو لم يعد التطبيق مؤهلًا له. لم تُؤكّد أي إزالة. افحص مجددًا أو استخدم إعدادات Android.</string>
     <string name="apps_handoff_blocked">لم تعد هذه الموافقة صالحة. لم يُفتح أي إجراء. افحص مجددًا قبل اختيار تطبيق.</string>
 </resources>

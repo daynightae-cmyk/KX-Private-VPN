@@ -193,6 +193,34 @@ class InstalledAppsScreenTest {
         expect()
     }
 
+    @Test fun verifiedPackageReadsUseTheirExactMeasuredOutcomeCopy() {
+        show(results().copy(receipt = AppManagementReceipt(
+            AppManagementAction.UNINSTALL, user, AppManagementOutcome.REMOVED)))
+        at("apps-handoff-status")
+            .assertTextEquals(text(R.string.apps_handoff_removed, user.label))
+        update(results().copy(receipt = AppManagementReceipt(
+            AppManagementAction.UNINSTALL, user, AppManagementOutcome.STILL_INSTALLED)))
+        at("apps-handoff-status")
+            .assertTextEquals(text(R.string.apps_handoff_still_installed, user.label))
+        update(results().copy(receipt = AppManagementReceipt(
+            AppManagementAction.UNINSTALL, user, AppManagementOutcome.VERIFY_FAILED)))
+        at("apps-handoff-status")
+            .assertTextEquals(text(R.string.apps_handoff_verify_failed))
+        expect()
+    }
+
+    @Test fun arabicVerifiedRemovalReceiptStaysArabicInRtl() {
+        ui.value = results().copy(receipt = AppManagementReceipt(
+            AppManagementAction.UNINSTALL, user, AppManagementOutcome.REMOVED))
+        compose.setContent { LayoutFixture(LayoutMode(language = "ar")) }
+        val arabic = context.createConfigurationContext(Configuration(context.resources.configuration).apply {
+            setLocale(Locale.forLanguageTag("ar"))
+        })
+        at("apps-handoff-status").assertTextEquals(
+            arabic.getString(R.string.apps_handoff_removed, user.label))
+        compose.onNodeWithTag("apps-handoff").assertExists()
+    }
+
     private data class LayoutMode(val width: Int = 411, val night: Boolean = true,
         val language: String = "en", val font: Float = 1f) {
         val direction get() = if (language == "ar") LayoutDirection.Rtl else LayoutDirection.Ltr

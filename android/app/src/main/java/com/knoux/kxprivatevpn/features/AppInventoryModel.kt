@@ -17,9 +17,14 @@ internal enum class AppScanPhase { READY, SCANNING, RESULTS, CANCELLED, FAILED }
 internal enum class AppFilter { ALL, USER, SYSTEM }
 internal enum class AppSort { NAME, PACKAGE }
 internal enum class AppManagementAction { DETAILS, UNINSTALL, SETTINGS }
-internal enum class AppManagementOutcome { OPENED, RETURNED, UNAVAILABLE, BLOCKED }
+internal enum class AppManagementOutcome {
+    OPENED, RETURNED, REMOVED, STILL_INSTALLED, VERIFY_FAILED, UNAVAILABLE, BLOCKED,
+}
 
-/** A handoff receipt, NOT evidence that Android removed an app or freed any bytes. */
+/**
+ * A handoff receipt. [AppManagementOutcome.REMOVED] is set only after PackageManager
+ * reports the exact package absent; return codes and a missing launcher entry are not proof.
+ */
 internal data class AppManagementReceipt(
     val action: AppManagementAction,
     val target: InstalledApp?,
@@ -54,10 +59,17 @@ internal data class AppInventoryState(
 internal class AppInventoryModel(
     private val ownPackage: String,
     private val readInventory: suspend () -> List<InstalledApp>,
+    /**
+     * Re-reads the exact approved package after Android returns. false means PackageManager
+     * reports it absent; true means it is still installed; null means the read failed and no
+     * removal may be claimed. A null verifier is used by fixtures that never claim removal.
+     */
+    private val verifyInstalled: (suspend (String) -> Boolean?)? = null,
 ) : ViewModel() {
     private val mutable = MutableStateFlow(AppInventoryState())
     val state = mutable.asStateFlow()
     private var scanJob: Job? = null
+    private var verifyJob: Job? = null
     private var generation = 0
 
     fun scan() {
@@ -135,7 +147,11 @@ internal class AppInventoryModel(
         if (!opened) mutable.update { it.copy(receipt = receipt.copy(outcome = AppManagementOutcome.UNAVAILABLE)) }
     }
 
-    /** Activity result codes and launcher visibility cannot prove an uninstall. Refresh only. */
+    /**
+     * Activity result codes and launcher visibility cannot prove an uninstall. Refresh the
+     * inventory, then re-read the exact approved package through PackageManager. A verified
+     * absence is the only path to [AppManagementOutcome.REMOVED].
+     */
     fun returnedFromAndroid() {
         val current = mutable.value
         val receipt = current.receipt
@@ -146,7 +162,30 @@ internal class AppInventoryModel(
             return
         }
         if (receipt.outcome != AppManagementOutcome.OPENED) return
-        mutable.update { it.copy(receipt = receipt.copy(outcome = AppManagementOutcome.RETURNED)) }
+        val returned = receipt.copy(outcome = AppManagementOutcome.RETURNED)
+        mutable.update { it.copy(receipt = returned) }
         scan()
+        val target = receipt.target
+        val verifier = verifyInstalled
+        if (receipt.action != AppManagementAction.UNINSTALL || target == null || verifier == null) return
+        verifyJob?.cancel()
+        verifyJob = viewModelScope.launch {
+            val installed = try {
+                verifier(target.packageName)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                null
+            }
+            val outcome = when (installed) {
+                false -> AppManagementOutcome.REMOVED
+                true -> AppManagementOutcome.STILL_INSTALLED
+                null -> AppManagementOutcome.VERIFY_FAILED
+            }
+            // A newer handoff owns the receipt now; its state must not be replaced by this read.
+            mutable.update {
+                if (it.receipt == returned) it.copy(receipt = returned.copy(outcome = outcome)) else it
+            }
+        }
     }
 }
