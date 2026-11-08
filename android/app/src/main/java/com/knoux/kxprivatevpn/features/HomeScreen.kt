@@ -53,6 +53,7 @@ import com.knoux.kxprivatevpn.launch.IntroTimeline
 import com.knoux.kxprivatevpn.platform.repair.RepairCatalog
 import com.knoux.kxprivatevpn.platform.repair.RepairServiceId
 import com.knoux.kxprivatevpn.platform.vpn.VpnPhase
+import com.knoux.kxprivatevpn.platform.vpn.VpnSessionOwnership
 import com.knoux.kxprivatevpn.platform.vpn.VpnState
 import java.text.DateFormat
 import java.util.Date
@@ -81,7 +82,9 @@ fun KxHomeScreen(
 ) {
     val context = LocalContext.current
     val selected = snapshot.profiles.firstOrNull { it.id == snapshot.selectedId }
-    val session = vpn.session
+    // While this process owns a tunnel, the live session server is the truth. The saved
+    // selection only matters for the next connection.
+    val activeSession = if (VpnSessionOwnership.ownsTunnel(vpn)) vpn.session else null
     val foreground = if (night) Color(0xFFF7F3FF) else Color(0xFF171050)
     Box(Modifier.fillMaxSize()) {
         Atmosphere(night, 0f)
@@ -95,8 +98,15 @@ fun KxHomeScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             HomeHeader(night, foreground, onNavigate)
-            HomeHero(night, selected?.name, busy, vpn, onConnect, onDisconnect, onSession)
-            SmartChoiceCard(night, selected, foreground, onNavigate)
+            HomeHero(night, activeSession?.profileName ?: selected?.name, busy, vpn, onConnect, onDisconnect, onSession)
+            SmartChoiceCard(
+                night = night,
+                name = activeSession?.profileName ?: selected?.name,
+                endpoint = activeSession?.endpoint ?: selected?.endpoint,
+                active = activeSession != null,
+                foreground = foreground,
+                onNavigate = onNavigate,
+            )
             MetricGrid(night, vpn, foreground)
             KxCareCard(night, onNavigate)
             ToolsGrid(night, onNavigate)
@@ -281,7 +291,9 @@ private fun StatusPill(
 @Composable
 private fun SmartChoiceCard(
     night: Boolean,
-    selected: com.knoux.kxprivatevpn.data.config.Profile?,
+    name: String?,
+    endpoint: String?,
+    active: Boolean,
     foreground: Color,
     onNavigate: (String) -> Unit,
 ) {
@@ -300,14 +312,16 @@ private fun SmartChoiceCard(
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Text(
-                    stringResource(R.string.selected_server).uppercase(),
+                    stringResource(if (active) R.string.active_server else R.string.selected_server)
+                        .uppercase(),
                     fontSize = 9.sp,
                     letterSpacing = 1.4.sp,
                     color = foreground.copy(alpha = .60f),
                     fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.testTag("home-server-label"),
                 )
                 Text(
-                    selected?.name ?: stringResource(R.string.no_profiles),
+                    name ?: stringResource(R.string.no_profiles),
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold,
                     color = foreground,
@@ -316,7 +330,7 @@ private fun SmartChoiceCard(
                     modifier = Modifier.testTag("home-profile"),
                 )
                 Text(
-                    selected?.endpoint?.takeIf { it.isNotBlank() }
+                    endpoint?.takeIf { it.isNotBlank() }
                         ?: stringResource(R.string.smart_choice_hint),
                     fontSize = 11.sp,
                     lineHeight = 14.sp,
@@ -333,7 +347,9 @@ private fun SmartChoiceCard(
 @Composable
 private fun MetricGrid(night: Boolean, vpn: VpnState, foreground: Color) {
     val context = LocalContext.current
-    val session = vpn.session
+    // A session object can exist on a failed start. Counters are real only while the
+    // backend is actually owned by this process; otherwise show an em dash.
+    val session = if (VpnSessionOwnership.ownsTunnel(vpn)) vpn.session else null
     val handshake = session?.latestHandshakeMillis?.let { clock(context, it) }
         ?: stringResource(R.string.unknown_value)
     val received = session?.rxBytes?.let { Formatter.formatFileSize(context, it) }

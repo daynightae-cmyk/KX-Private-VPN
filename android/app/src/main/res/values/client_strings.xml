@@ -317,6 +317,20 @@
     <string name="dna_action">Duplicate cleanup</string>
 
     <string name="selected_server">Selected server</string>
+    <string name="active_server">Active server</string>
+    <string name="server_active">Active</string>
+    <string name="server_active_tunnel">Active tunnel: %1$s</string>
+    <string name="server_active_tunnel_body">This is the server the running tunnel uses. Choosing another server disconnects it first.</string>
+    <string name="server_selection_locked">Server selection locked</string>
+    <string name="server_connecting_locked">Connecting to %1$s. Server selection is locked until the tunnel settles.</string>
+    <string name="server_disconnecting_locked">Disconnecting the current tunnel. Server selection is locked until it stops.</string>
+    <string name="server_stop_failed_locked">The tunnel could not be stopped. Retry the disconnect before switching servers.</string>
+    <string name="server_retry_disconnect">Retry disconnect</string>
+    <string name="server_switch_title">Switch server?</string>
+    <string name="server_switch_body">The active tunnel to %1$s will be disconnected. %2$s becomes the selected server for your next connection.</string>
+    <string name="server_switch_confirm">Disconnect and switch</string>
+    <string name="server_switch_cancel">Keep current server</string>
+    <string name="remove_active_warning">This configuration is in use by the active tunnel. Removing it disconnects the tunnel first.</string>
     <string name="no_server_yet">No server yet</string>
     <string name="smart_choice_hint">Tap to choose a real imported endpoint</string>
     <string name="metric_handshake">Handshake</string>

@@ -117,8 +117,7 @@ class HomeScreenTest {
         capture("70-home-disconnected-en")
     }
 
-    @Test fun connectedStateShowsRealSessionValuesOnly() {
-        val session = VpnSession(
+    @Test fun connectedStateShowsRealSessionValuesOnly() {        val session = VpnSession(
             profileId = profile.id,
             profileName = profile.name,
             endpoint = profile.endpoint,
@@ -146,6 +145,34 @@ class HomeScreenTest {
             .assertTextEquals(android.text.format.Formatter.formatFileSize(context, 1_024))
         compose.onNodeWithTag("metric-tunnel").assertTextEquals("10.7.0.2")
         capture("72-home-connected-en")
+    }
+
+    @Test fun connectedHomeShowsTheLiveSessionServerNotTheStoredSelection() {
+        val stored = Profile("p2", "Stored next choice", "203.0.113.9:51820")
+        val session = VpnSession(profile.id, profile.name, profile.endpoint)
+        screen(
+            ProfileSnapshot(listOf(profile, stored), stored.id),
+            VpnState(VpnPhase.CONNECTED, session),
+        )
+
+        compose.onNodeWithTag("home-server-label", useUnmergedTree = true)
+            .assertTextEquals(context.getString(R.string.active_server).uppercase())
+        compose.onNodeWithTag("home-profile", useUnmergedTree = true)
+            .assertTextEquals(profile.name)
+        capture("76-home-connected-active-server")
+    }
+
+    @Test fun connectedHomeArabicNamesTheActiveServerInArabic() {
+        val ar = localized(context, "ar")
+        val session = VpnSession(profile.id, profile.name, profile.endpoint)
+        screen(
+            ProfileSnapshot(listOf(profile), profile.id),
+            VpnState(VpnPhase.CONNECTED, session),
+            arabic = true,
+        )
+
+        compose.onNodeWithTag("home-server-label", useUnmergedTree = true)
+            .assertTextEquals(ar.getString(R.string.active_server))
     }
 
     @Test fun navigationAndToolsActuallyInvokeTargets() {

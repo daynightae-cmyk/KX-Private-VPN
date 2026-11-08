@@ -38,6 +38,10 @@ import com.knoux.kxprivatevpn.data.config.Profile
 import com.knoux.kxprivatevpn.designsystem.Atmosphere
 import com.knoux.kxprivatevpn.designsystem.GlassSurface
 import com.knoux.kxprivatevpn.designsystem.KxPageHeader
+import com.knoux.kxprivatevpn.platform.vpn.VpnIssue
+import com.knoux.kxprivatevpn.platform.vpn.VpnPhase
+import com.knoux.kxprivatevpn.platform.vpn.VpnSessionOwnership
+import com.knoux.kxprivatevpn.platform.vpn.VpnState
 
 /**
  * Real endpoint selection: only configurations the user imported are shown. There is no
@@ -47,47 +51,25 @@ import com.knoux.kxprivatevpn.designsystem.KxPageHeader
 @Composable
 fun ServerSelectionRoute(
     state: ClientState,
+    vpn: VpnState,
     model: ClientViewModel,
     night: Boolean,
     onBack: () -> Unit,
     onImport: () -> Unit,
 ) {
     var query by remember { mutableStateOf("") }
-    var removing by remember { mutableStateOf<Profile?>(null) }
     ServerSelectionScreen(
         night = night,
         state = state,
+        vpn = vpn,
         query = query,
         onQueryChange = { if (it.length <= 64) query = it },
         onBack = onBack,
         onImport = onImport,
         onSelect = model::select,
-        onRemove = { removing = it },
+        onRemove = model::remove,
+        onRetryDisconnect = { model.disconnectVpn() },
     )
-    removing?.let { profile ->
-        // Dialog windows resolve resources against the Activity context. Resolve the copy here,
-        // in the localized screen composition, so Arabic never falls back to English.
-        val dialogTitle = stringResource(R.string.remove_title)
-        val dialogBody = stringResource(R.string.remove_body)
-        val dialogConfirm = stringResource(R.string.remove_profile)
-        val dialogCancel = stringResource(R.string.cancel)
-        AlertDialog(
-            onDismissRequest = { removing = null },
-            title = { Text(dialogTitle) },
-            text = {
-                Text(dialogBody, modifier = Modifier.verticalScroll(rememberScrollState()))
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    removing = null
-                    model.remove(profile.id)
-                }) { Text(dialogConfirm) }
-            },
-            dismissButton = {
-                TextButton(onClick = { removing = null }) { Text(dialogCancel) }
-            },
-        )
-    }
 }
 
 @Composable
@@ -99,7 +81,9 @@ fun ServerSelectionScreen(
     onBack: () -> Unit,
     onImport: () -> Unit,
     onSelect: (String) -> Unit,
-    onRemove: (Profile) -> Unit,
+    onRemove: (String) -> Unit,
+    vpn: VpnState = VpnState(),
+    onRetryDisconnect: () -> Unit = {},
 ) {
     val foreground = if (night) Color(0xFFF7F3FF) else Color(0xFF171050)
     val profiles = state.snapshot.profiles
@@ -110,6 +94,11 @@ fun ServerSelectionScreen(
             it.endpoint.contains(searchQuery, ignoreCase = true)
     }
     val selectedId = state.snapshot.selectedId
+    val activeId = VpnSessionOwnership.activeProfileId(vpn)
+    val locked = VpnSessionOwnership.selectionLocked(vpn)
+    val activeName = vpn.session?.profileName
+    var pendingSwitch by remember { mutableStateOf<Profile?>(null) }
+    var removing by remember { mutableStateOf<Profile?>(null) }
     Box(Modifier.fillMaxSize()) {
         Atmosphere(night, 0f)
         Column(
@@ -132,6 +121,9 @@ fun ServerSelectionScreen(
                 lineHeight = 17.sp,
                 color = foreground.copy(alpha = .72f),
             )
+            if (activeId != null || locked) {
+                TunnelNotice(vpn, night, foreground, onRetryDisconnect)
+            }
             OutlinedTextField(
                 value = query,
                 onValueChange = onQueryChange,
@@ -162,12 +154,22 @@ fun ServerSelectionScreen(
                     filtered.forEach { profile ->
                         ServerCard(
                             profile = profile,
-                            selected = profile.id == selectedId,
+                            selected = activeId == null && profile.id == selectedId,
+                            active = profile.id == activeId,
                             night = night,
                             foreground = foreground,
-                            busy = state.busy,
-                            onSelect = { onSelect(profile.id) },
-                            onRemove = { onRemove(profile) },
+                            busy = state.busy || locked,
+                            onSelect = {
+                                when {
+                                    // The live server is already in use; tapping its card is a no-op.
+                                    profile.id == activeId -> Unit
+                                    activeName != null &&
+                                        VpnSessionOwnership.requiresStopBeforeSelect(vpn, profile.id) ->
+                                        pendingSwitch = profile
+                                    else -> onSelect(profile.id)
+                                }
+                            },
+                            onRemove = { removing = profile },
                         )
                     }
                 }
@@ -187,12 +189,113 @@ fun ServerSelectionScreen(
             )
         }
     }
+    pendingSwitch?.let { target ->
+        // Resolve copy in the localized screen composition, never through the Activity locale.
+        val dialogTitle = stringResource(R.string.server_switch_title)
+        val dialogBody = stringResource(
+            R.string.server_switch_body, activeName ?: "", target.name,
+        )
+        val dialogConfirm = stringResource(R.string.server_switch_confirm)
+        val dialogCancel = stringResource(R.string.server_switch_cancel)
+        AlertDialog(
+            onDismissRequest = { pendingSwitch = null },
+            title = { Text(dialogTitle) },
+            text = { Text(dialogBody, modifier = Modifier.verticalScroll(rememberScrollState())) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        pendingSwitch = null
+                        onSelect(target.id)
+                    },
+                    modifier = Modifier.testTag("server-switch-confirm"),
+                ) { Text(dialogConfirm) }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { pendingSwitch = null },
+                    modifier = Modifier.testTag("server-switch-cancel"),
+                ) { Text(dialogCancel) }
+            },
+        )
+    }
+    removing?.let { profile ->
+        val dialogTitle = stringResource(R.string.remove_title)
+        val baseBody = stringResource(R.string.remove_body)
+        val activeWarning = if (profile.id == activeId) {
+            stringResource(R.string.remove_active_warning)
+        } else null
+        val dialogBody = listOfNotNull(baseBody, activeWarning).joinToString("\n\n")
+        val dialogConfirm = stringResource(R.string.remove_profile)
+        val dialogCancel = stringResource(R.string.cancel)
+        AlertDialog(
+            onDismissRequest = { removing = null },
+            title = { Text(dialogTitle) },
+            text = {
+                Text(dialogBody, modifier = Modifier.verticalScroll(rememberScrollState()))
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        removing = null
+                        onRemove(profile.id)
+                    },
+                    modifier = Modifier.testTag("server-remove-confirm"),
+                ) { Text(dialogConfirm) }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { removing = null },
+                    modifier = Modifier.testTag("server-remove-cancel"),
+                ) { Text(dialogCancel) }
+            },
+        )
+    }
+}
+
+@Composable
+private fun TunnelNotice(
+    vpn: VpnState,
+    night: Boolean,
+    foreground: Color,
+    onRetryDisconnect: () -> Unit,
+) {
+    val stopFailed = vpn.issue == VpnIssue.STOP_FAILED
+    val title = when {
+        vpn.phase == VpnPhase.CONNECTED && !stopFailed ->
+            stringResource(R.string.server_active_tunnel, vpn.session?.profileName ?: "")
+        else -> stringResource(R.string.server_selection_locked)
+    }
+    val body = when {
+        stopFailed -> stringResource(R.string.server_stop_failed_locked)
+        vpn.phase == VpnPhase.CONNECTING ->
+            stringResource(R.string.server_connecting_locked, vpn.session?.profileName ?: "")
+        vpn.phase == VpnPhase.DISCONNECTING ->
+            stringResource(R.string.server_disconnecting_locked)
+        else -> stringResource(R.string.server_active_tunnel_body)
+    }
+    GlassSurface(night, modifier = Modifier.fillMaxWidth().testTag("server-tunnel-notice")) {
+        Text(title, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = foreground)
+        Text(body, fontSize = 11.5.sp, lineHeight = 16.sp,
+            color = foreground.copy(alpha = .76f))
+        if (stopFailed) {
+            TextButton(
+                onClick = onRetryDisconnect,
+                modifier = Modifier.heightIn(min = 48.dp)
+                    .testTag("server-retry-disconnect"),
+            ) {
+                Text(stringResource(R.string.server_retry_disconnect), fontSize = 11.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = if (night) Color(0xFF8FF3FF) else Color(0xFF2A6DE0))
+            }
+        }
+    }
 }
 
 @Composable
 private fun ServerCard(
     profile: Profile,
     selected: Boolean,
+    active: Boolean,
     night: Boolean,
     foreground: Color,
     busy: Boolean,
@@ -200,24 +303,25 @@ private fun ServerCard(
     onRemove: () -> Unit,
 ) {
     val shape = RoundedCornerShape(22.dp)
-    val accent = if (selected) Color(0xFF64EEFF) else Color(0xFFAD71FF)
+    val inUse = selected || active
+    val accent = if (inUse) Color(0xFF64EEFF) else Color(0xFFAD71FF)
     Column(
         Modifier.fillMaxWidth()
             .clip(shape)
             .background(Brush.linearGradient(listOf(
                 Color.White.copy(alpha = if (night) .10f else .52f),
                 accent.copy(alpha = if (night) .14f else .16f))))
-            .border(if (selected) 1.6.dp else 1.dp,
-                if (selected) Color(0xFF64EEFF).copy(alpha = .9f)
+            .border(if (inUse) 1.6.dp else 1.dp,
+                if (inUse) Color(0xFF64EEFF).copy(alpha = .9f)
                 else Color.White.copy(alpha = if (night) .26f else .78f),
                 shape)
-            .selectable(selected = selected, enabled = !busy, role = Role.RadioButton, onClick = onSelect)
+            .selectable(selected = inUse, enabled = !busy, role = Role.RadioButton, onClick = onSelect)
             .padding(14.dp)
             .testTag("server-card-${profile.id}"),
         verticalArrangement = Arrangement.spacedBy(3.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            ServerCardGlyph(accent, selected, night)
+            ServerCardGlyph(accent, inUse, night)
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Text(profile.name, fontSize = 16.sp, fontWeight = FontWeight.Bold,
@@ -227,19 +331,21 @@ private fun ServerCard(
                 Text(stringResource(R.string.server_latency_unmeasured), fontSize = 10.sp,
                     color = foreground.copy(alpha = .56f))
             }
-            if (selected) {
-                SelectedPill(night)
-            } else {
-                TextButton(
-                    onClick = onSelect,
-                    enabled = !busy,
-                    modifier = Modifier.heightIn(min = 48.dp).testTag("server-select-${profile.id}"),
-                ) {
-                    // Explicit colour: the label must stay readable on the dark card even when
-                    // the screen is rendered outside the app's MaterialTheme (instrumented runs).
-                    Text(stringResource(R.string.server_select), fontSize = 11.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = if (night) Color(0xFF8FF3FF) else Color(0xFF2A6DE0))
+            when {
+                active -> ActivePill(night)
+                selected -> SelectedPill(night)
+                else -> {
+                    TextButton(
+                        onClick = onSelect,
+                        enabled = !busy,
+                        modifier = Modifier.heightIn(min = 48.dp).testTag("server-select-${profile.id}"),
+                    ) {
+                        // Explicit colour: the label must stay readable on the dark card even when
+                        // the screen is rendered outside the app's MaterialTheme (instrumented runs).
+                        Text(stringResource(R.string.server_select), fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = if (night) Color(0xFF8FF3FF) else Color(0xFF2A6DE0))
+                    }
                 }
             }
         }
@@ -253,6 +359,22 @@ private fun ServerCard(
                     color = foreground.copy(alpha = .78f))
             }
         }
+    }
+}
+
+@Composable
+private fun ActivePill(night: Boolean) {
+    val accent = if (night) Color(0xFF64EEFF) else Color(0xFF2A6DE0)
+    Row(
+        Modifier.clip(RoundedCornerShape(50))
+            .background(accent.copy(alpha = .18f))
+            .border(.8.dp, accent.copy(alpha = .70f), RoundedCornerShape(50))
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .testTag("server-active"),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(stringResource(R.string.server_active), fontSize = 9.sp, color = accent,
+            fontWeight = FontWeight.Bold)
     }
 }
 

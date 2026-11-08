@@ -317,6 +317,20 @@
     <string name="dna_action">تنظيف التكرارات</string>
 
     <string name="selected_server">الخادم المحدد</string>
+    <string name="active_server">الخادم النشط</string>
+    <string name="server_active">نشط</string>
+    <string name="server_active_tunnel">النفق النشط: %1$s</string>
+    <string name="server_active_tunnel_body">هذا هو الخادم الذي يستخدمه النفق الحالي. اختيار خادم آخر يفصل النفق أولًا.</string>
+    <string name="server_selection_locked">اختيار الخادم مقفل</string>
+    <string name="server_connecting_locked">جارٍ الاتصال بـ %1$s. اختيار الخادم مقفل حتى يستقر النفق.</string>
+    <string name="server_disconnecting_locked">جارٍ فصل النفق الحالي. اختيار الخادم مقفل حتى يتوقف.</string>
+    <string name="server_stop_failed_locked">تعذّر إيقاف النفق. أعد محاولة الفصل قبل تبديل الخوادم.</string>
+    <string name="server_retry_disconnect">إعادة محاولة الفصل</string>
+    <string name="server_switch_title">تبديل الخادم؟</string>
+    <string name="server_switch_body">سيتم فصل النفق النشط المتصل بـ %1$s. سيصبح %2$s هو الخادم المحدد لاتصالك التالي.</string>
+    <string name="server_switch_confirm">الفصل والتبديل</string>
+    <string name="server_switch_cancel">الإبقاء على الخادم الحالي</string>
+    <string name="remove_active_warning">هذا الإعداد مستخدم من النفق النشط. إزالته تفصل النفق أولًا.</string>
     <string name="no_server_yet">لا يوجد خادم بعد</string>
     <string name="smart_choice_hint">اضغط لاختيار اتصال مستورد حقيقي</string>
     <string name="metric_handshake">آخر مصافحة</string>

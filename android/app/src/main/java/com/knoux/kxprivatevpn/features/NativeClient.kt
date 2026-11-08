@@ -101,7 +101,7 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                 return@CompositionLocalProvider
             }
             if (route == "servers") {
-                ServerSelectionRoute(state, model, night, back) { navigate("import") }
+                ServerSelectionRoute(state, vpn, model, night, back) { navigate("import") }
                 return@CompositionLocalProvider
             }
             if (route == "security") {
