@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="network_ref_subtitle">افحص حالة الشبكة وDNS التي يبلغ عنها Android، واختبر HTTPS بموافقتك فقط، دون نتائج حماية وهمية.</string>
+    <string name="network_ref_ready">جاهز لفحص شبكة Android</string>
+    <string name="network_ref_read_unavailable">تعذرت قراءة حالة الشبكة</string>
+    <string name="network_ref_android_validated">Android أكد الوصول للإنترنت</string>
+    <string name="network_ref_needs_review">الاتصال يحتاج مراجعة</string>
+    <string name="network_ref_offline">غير متصل</string>
+    <string name="network_ref_start">ابدأ تشخيص الشبكة</string>
+    <string name="network_ref_scan_scope">الزر يقرأ حالة Android محليًا فقط. اختبار HTTPS يحتاج موافقتك أدناه.</string>
+    <string name="network_ref_summary">ملخص الشبكة</string>
+    <string name="network_ref_summary_note">بيانات Android الفعلية ونتائج طلب HTTPS المقاس فقط</string>
+    <string name="network_ref_network">الشبكة</string>
+    <string name="network_ref_dns">DNS</string>
+    <string name="network_ref_https">طلب HTTPS</string>
+    <string name="network_ref_latency">زمن الطلب</string>
+    <string name="network_ref_unknown">—</string>
+    <string name="network_ref_reported">معلن</string>
+    <string name="network_ref_dns_reported">معلن</string>
+    <string name="network_ref_not_reported">غير معلن</string>
+    <string name="network_ref_running">جارٍ الاختبار…</string>
+    <string name="network_ref_request_failed">فشل الطلب</string>
+    <string name="network_ref_http_status">HTTP %1$d</string>
+    <string name="network_ref_not_tested">لم يُختبر</string>
+    <string name="network_ref_latency_ms">%1$d مللي ثانية</string>
+    <string name="network_ref_os_validated">Android أكد الوصول للإنترنت</string>
+    <string name="network_ref_os_not_validated">صلاحية الإنترنت غير مؤكدة</string>
+    <string name="network_ref_dns_unconfirmed">Android لم يعلن عن خوادم DNS</string>
+    <string name="network_ref_https_response">وصلت استجابة HTTP من طلب HTTPS</string>
+    <string name="network_ref_https_unverified">اختبار HTTPS لم يُجرَ بعد</string>
+</resources>
