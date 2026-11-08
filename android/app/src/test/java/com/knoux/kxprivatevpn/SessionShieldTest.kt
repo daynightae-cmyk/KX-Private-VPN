@@ -1,9 +1,12 @@
 package com.knoux.kxprivatevpn
 
+import com.knoux.kxprivatevpn.platform.security.ShieldBulkRevoke
 import com.knoux.kxprivatevpn.platform.security.ShieldEntry
 import com.knoux.kxprivatevpn.platform.security.ShieldInventory
 import com.knoux.kxprivatevpn.platform.security.ShieldKind
+import com.knoux.kxprivatevpn.platform.security.ShieldReceiptCode
 import com.knoux.kxprivatevpn.platform.security.ShieldRetention
+import com.knoux.kxprivatevpn.platform.security.ShieldRevoke
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -96,5 +99,52 @@ class SessionShieldTest {
         assertEquals(0, inventory.secretCount)
         assertEquals(null, inventory.oldestMillis)
         assertFalse(inventory.failed)
+    }
+
+    @Test fun bulkSelectionAcceptsOnlyRemovableProfiles() {
+        val inventory = ShieldInventory(
+            entries = listOf(
+                profile("profile:a"),
+                history("repair:1", 1L),
+                usage("usage:1", 2L),
+                ShieldEntry("hint:vpn-active", ShieldKind.SESSION_HINT, "hint", "detail", 0L),
+            ),
+        )
+        assertEquals(setOf("profile:a"), inventory.removableProfileIds)
+        assertEquals(
+            listOf("a"),
+            inventory.selectedProfileIds(setOf("profile:a", "repair:1", "hint:vpn-active")),
+        )
+    }
+
+    @Test fun oldestHistoryIgnoresProfilesWithoutATimestamp() {
+        val inventory = ShieldInventory(
+            entries = listOf(
+                profile("profile:a"),
+                history("repair:new", 5L),
+                usage("usage:old", 2L),
+            ),
+        )
+        assertEquals(2L, inventory.oldestMillis)
+    }
+
+    @Test fun aSingleRevokeNeverClaimsSuccessWithoutAReadBack() {
+        assertEquals(ShieldReceiptCode.SECRET_UNVERIFIED, ShieldRevoke.code(verified = false, stillPresent = false))
+        assertEquals(ShieldReceiptCode.SECRET_STILL_PRESENT, ShieldRevoke.code(verified = true, stillPresent = true))
+        assertEquals(ShieldReceiptCode.SECRET_REMOVED, ShieldRevoke.code(verified = true, stillPresent = false))
+    }
+
+    @Test fun aBulkReceiptReportsTheVerifiedCountAndNothingMore() {
+        assertEquals(ShieldReceiptCode.SECRETS_REMOVED, ShieldBulkRevoke.code(2, 2, verified = true))
+        assertEquals(ShieldReceiptCode.SECRETS_PARTIAL, ShieldBulkRevoke.code(2, 1, verified = true))
+        assertEquals(ShieldReceiptCode.SECRETS_NONE_REMOVED, ShieldBulkRevoke.code(2, 0, verified = true))
+        assertEquals(ShieldReceiptCode.SECRETS_UNVERIFIED, ShieldBulkRevoke.code(2, 0, verified = false))
+        assertEquals(ShieldReceiptCode.SECRETS_NONE_REMOVED, ShieldBulkRevoke.code(0, 0, verified = true))
+    }
+
+    @Test fun receiptCodesKeepStableStorageKeys() {
+        assertEquals("secret_removed", ShieldReceiptCode.SECRET_REMOVED.key)
+        assertEquals("secrets_partial", ShieldReceiptCode.SECRETS_PARTIAL.key)
+        assertEquals("prune_incomplete", ShieldReceiptCode.PRUNE_INCOMPLETE.key)
     }
 }

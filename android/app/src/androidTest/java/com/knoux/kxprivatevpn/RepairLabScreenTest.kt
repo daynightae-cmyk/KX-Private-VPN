@@ -129,7 +129,7 @@ class RepairLabScreenTest {
         compose.onNodeWithTag("repair-volume").assertTextContains("free of", substring = true)
         compose.onNodeWithTag("repair-cache").assertTextContains("5 files", substring = true)
         compose.onNodeWithTag("repair-measured-at").assertExists()
-        compose.onNodeWithTag("repair-analyze").assertIsDisplayed()
+        compose.onNodeWithTag("repair-analyze").performScrollTo().assertIsDisplayed()
         capture("43-repair-lab-day-light")
         compose.onNodeWithTag("repair-card-autopilot").performScrollTo().assertIsDisplayed()
         capture("43b-repair-lab-services-day")

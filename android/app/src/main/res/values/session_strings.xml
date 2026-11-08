@@ -3,9 +3,18 @@
     <string name="shield_title">Session privacy</string>
     <string name="shield_owned_title">What KX keeps</string>
     <string name="shield_owned_body">Only data that belongs to KX itself. The shield never reads, lists or ends another application\'s session.</string>
-    <string name="shield_profiles">%1$d profiles</string>
-    <string name="shield_history">%1$d history entries</string>
-    <string name="shield_secrets">%1$d items hold a credential</string>
+    <plurals name="shield_profiles_count">
+        <item quantity="one">%1$d profile</item>
+        <item quantity="other">%1$d profiles</item>
+    </plurals>
+    <plurals name="shield_history_count">
+        <item quantity="one">%1$d history entry</item>
+        <item quantity="other">%1$d history entries</item>
+    </plurals>
+    <plurals name="shield_secrets_count">
+        <item quantity="one">%1$d item holds a credential</item>
+        <item quantity="other">%1$d items hold a credential</item>
+    </plurals>
     <string name="shield_refresh">Refresh</string>
     <string name="shield_select_all">Select all</string>
     <string name="shield_clear_selection">Clear</string>
@@ -20,11 +29,53 @@
     <string name="shield_prune">Apply the retention rule</string>
     <string name="shield_erase">Erase the history</string>
     <string name="shield_erase_title">Erase the history?</string>
-    <string name="shield_erase_body">%1$d history entries, the measured usage records and the session hint will be deleted from KX\'s own storage. Profiles are kept; revoke them separately.</string>
+    <plurals name="shield_erase_body_count">
+        <item quantity="one">%1$d history entry, the measured usage records and the session hint will be deleted from KX\'s own storage. Profiles are kept; revoke them separately.</item>
+        <item quantity="other">%1$d history entries, the measured usage records and the session hint will be deleted from KX\'s own storage. Profiles are kept; revoke them separately.</item>
+    </plurals>
     <string name="shield_vpn_settings">Open the Android VPN settings</string>
     <string name="shield_app_info">Open the KX app info</string>
     <string name="shield_android_guidance">Android decides who may use a VPN. Only this screen can withdraw the consent, and it belongs to the system, not to KX.</string>
     <string name="shield_scope">The shield touches only the files of this application. It cannot read, delete or end the data or the session of any other application.</string>
     <string name="shield_receipt_title">What actually happened</string>
     <string name="shield_receipt_counts">%1$d removed, %2$d pruned</string>
+    <string name="shield_profiles_title">Profiles KX holds</string>
+    <string name="shield_empty_title">Nothing stored yet</string>
+    <string name="shield_empty_body">KX holds no profile, repair record, usage record or session hint. There is nothing to revoke or erase.</string>
+    <string name="shield_loading">Reading what KX keeps…</string>
+    <string name="shield_load_failed">KX could not read its own storage. Nothing was changed.</string>
+    <string name="shield_retry">Try again</string>
+    <string name="shield_selected_count">%1$d selected</string>
+    <string name="shield_revoke_selected">Revoke selected profiles (%1$d)</string>
+    <string name="shield_revoke_selected_title">Revoke the selected profiles?</string>
+    <plurals name="shield_revoke_selected_body_count">
+        <item quantity="one">%1$d profile will be removed from the encrypted store, and the private key it carries is removed with it. This cannot be undone.</item>
+        <item quantity="other">%1$d profiles will be removed from the encrypted store, and the private keys they carry are removed with them. This cannot be undone.</item>
+    </plurals>
+    <plurals name="shield_revoke_selected_confirm_count">
+        <item quantity="one">Revoke %1$d profile</item>
+        <item quantity="other">Revoke %1$d profiles</item>
+    </plurals>
+    <string name="shield_unknown_profile">This profile</string>
+    <string name="shield_receipt_secret_removed">The profile and its private key are gone from the encrypted store.</string>
+    <string name="shield_receipt_secret_still_present">The profile is still in the encrypted store. Nothing was reported as removed.</string>
+    <string name="shield_receipt_secret_unverified">KX could not verify the encrypted store after the revoke. Reopen the shield before trusting the result.</string>
+    <string name="shield_receipt_secrets_removed">All selected profiles and their private keys are gone from the encrypted store.</string>
+    <string name="shield_receipt_secrets_partial">Some selected profiles are gone; at least one is still in the encrypted store.</string>
+    <string name="shield_receipt_secrets_none_removed">No selected profile was removed. The encrypted store still holds them.</string>
+    <string name="shield_receipt_secrets_unverified">KX could not verify the encrypted store after the bulk revoke. Reopen the shield before trusting the result.</string>
+    <string name="shield_receipt_erased">The history KX kept is gone.</string>
+    <string name="shield_receipt_erase_incomplete">The history could not be erased completely. The remaining entries are still listed.</string>
+    <string name="shield_receipt_pruned">The retention rule removed the expired history.</string>
+    <string name="shield_receipt_prune_incomplete">The retention rule could not remove every expired entry. The rest are still listed.</string>
+    <string name="shield_history_repair_detail">%1$s · %2$s · %3$s</string>
+    <plurals name="shield_items_count">
+        <item quantity="one">%1$d item</item>
+        <item quantity="other">%1$d items</item>
+    </plurals>
+    <string name="shield_history_recovered">Recovered after the process stopped</string>
+    <string name="shield_history_usage_fallback">Measured session</string>
+    <string name="shield_history_no_endpoint">No endpoint stored</string>
+    <string name="shield_hint_title">Session hint</string>
+    <string name="shield_hint_detail">KX recorded that a tunnel was active when the process last stopped. This is a hint, not a live tunnel.</string>
 </resources>
