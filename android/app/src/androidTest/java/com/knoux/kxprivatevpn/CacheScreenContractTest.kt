@@ -133,4 +133,22 @@ class CacheScreenContractTest {
         compose.onNodeWithTag("cache-remove").performScrollTo().assertIsDisplayed()
         capture("61b-cache-night-ar-large-selected")
     }
+
+    @Test fun nativeHeroDoesNotInventResultsBeforeScan() {
+        val ar = localized(context, "ar")
+        render(state = CacheState(preview = null), arabic = true, night = true)
+        compose.onNodeWithTag("cache-ref-hero").assertExists()
+        compose.onNodeWithTag("cache-ref-metrics").assertDoesNotExist()
+        compose.onNodeWithText(ar.getString(R.string.cache_scope)).performScrollTo().assertExists()
+        compose.onNodeWithTag("cache-scan").performScrollTo().assertIsEnabled()
+    }
+
+    @Test fun measuredPreviewShowsRealDataWithExplicitCleanupGate() {
+        val en = localized(context, "en")
+        render(state = CacheState(preview = preview()), arabic = false, night = false)
+        compose.onNodeWithTag("cache-ref-metrics").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText(en.getString(R.string.cache_ref_scope_value)).assertExists()
+        compose.onNodeWithText(en.getString(R.string.cache_ref_safety)).performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("cache-remove").performScrollTo().assertIsNotEnabled()
+    }
 }

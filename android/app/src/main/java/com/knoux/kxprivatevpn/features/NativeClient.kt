@@ -150,6 +150,10 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                 StorageXrayRoute(night, onBack = back)
                 return@CompositionLocalProvider
             }
+            if (route == "cache") {
+                CacheScreen(night = night, onBack = back, onBusy = { repairBusy = it })
+                return@CompositionLocalProvider
+            }
             if (route == "apps") {
                 InstalledAppsRoute(night, onBack = back)
                 return@CompositionLocalProvider
@@ -242,7 +246,6 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                         }
                         "import" -> ImportScreen(state, model)
                         "servers" -> ProfileList(state, model)
-                        "cache" -> CacheScreen { repairBusy = it }
                         "session" -> VpnSessionScreen(vpn, verifyPath = model::verifyVpnPath) { model.disconnectVpn() }
                         else -> {
                             KxOrb(1f, IntroTimeline.frame(1f), Modifier.size(210.dp).align(Alignment.CenterHorizontally))
