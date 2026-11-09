@@ -14,6 +14,7 @@
     <string name="download_ref_media">التنزيلات المشتركة الظاهرة للنظام: %1$d</string>
     <string name="download_ref_last_scan">نتائج آخر فحص مقاس</string>
     <string name="download_ref_no_scan">لا يوجد فحص مقاس بعد. اختر مجلدًا ثم شغّل فحصًا بنيويًا حقيقيًا.</string>
+    <string name="download_ref_last_scan_result">الملفات المفحوصة في آخر فحص مقاس: %1$d</string>
     <string name="download_ref_summary_title">ملخص التنزيلات المتعثرة</string>
     <string name="download_ref_summary_note">الأعداد مقاسة من هذا الفحص. لا يقدّر KX نسبة تقدم التنزيل أبدًا.</string>
     <string name="download_ref_total">الإجمالي</string>

@@ -81,6 +81,8 @@ import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin
 
+private const val CHOOSE_FOLDER_TAG = "download-choose-folder"
+
 /**
  * Download Rescue.
  *
@@ -282,7 +284,7 @@ fun DownloadRescueScreen(
                                 label = stringResource(R.string.download_ref_choose_action),
                                 night = night,
                                 enabled = !state.actionsBlocked,
-                                tag = "download-choose-folder",
+                                tag = CHOOSE_FOLDER_TAG,
                                 icon = KxIconKind.FOLDER,
                                 onClick = onChooseFolder,
                             )
@@ -624,164 +626,190 @@ private fun FolderScopeCard(
     onScan: () -> Unit,
     onForget: () -> Unit,
 ) {
-    val ink = kxInk(night)
     KxGlassPanel(
         night,
         modifier = Modifier.testTag(if (compact) "download-scope" else "download-scope-card"),
         radius = 22.dp,
         padding = PaddingValues(if (compact) 12.dp else 14.dp),
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            KxGlassIconTile(
-                night, KxIconKind.FOLDER, kxViolet(night),
-                size = if (compact) 42.dp else 46.dp,
-            )
-            Spacer(Modifier.width(10.dp))
-            Column(Modifier.weight(1f)) {
-                Text(
-                    stringResource(R.string.download_ref_folder),
-                    fontSize = 9.5.sp,
-                    lineHeight = 13.sp,
-                    color = kxMuted(night),
-                )
-                val treeName = state.treeName
-                if (treeName != null) {
-                    Text(
-                        stringResource(R.string.download_scope_folder, treeName),
-                        fontSize = if (compact) 14.sp else 16.sp,
-                        lineHeight = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = ink,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.testTag("download-tree-name"),
-                    )
-                } else {
-                    Text(
-                        stringResource(R.string.download_ref_no_folder),
-                        fontSize = 13.sp,
-                        lineHeight = 18.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = ink,
-                    )
-                }
-                if (state.treeUri == null) {
-                    Spacer(Modifier.height(2.dp))
-                    Text(
-                        stringResource(R.string.download_scope_none),
-                        fontSize = 10.5.sp,
-                        lineHeight = 15.sp,
-                        color = kxMuted(night),
-                    )
-                }
-            }
-        }
+        FolderScopeHeader(night, state, compact)
+        if (state.treeUri != null) FolderScopeAvailability(night, state)
+        Spacer(Modifier.height(8.dp))
+        FolderScopeCounts(night, state)
+        Spacer(Modifier.height(10.dp))
+        FolderScopeActions(night, state, compact, onChooseFolder, onScan, onForget)
+    }
+}
 
-        if (state.treeUri != null) {
-            Spacer(Modifier.height(8.dp))
-            if (state.mediaStoreUnavailable) {
+@Composable
+private fun FolderScopeHeader(
+    night: Boolean,
+    state: DownloadRescueUiState,
+    compact: Boolean,
+) {
+    val ink = kxInk(night)
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        KxGlassIconTile(
+            night, KxIconKind.FOLDER, kxViolet(night),
+            size = if (compact) 42.dp else 46.dp,
+        )
+        Spacer(Modifier.width(10.dp))
+        Column(Modifier.weight(1f)) {
+            Text(
+                stringResource(R.string.download_ref_folder),
+                fontSize = 9.5.sp,
+                lineHeight = 13.sp,
+                color = kxMuted(night),
+            )
+            val treeName = state.treeName
+            if (treeName != null) {
                 Text(
-                    stringResource(R.string.download_scope_media_unavailable),
-                    fontSize = 10.5.sp,
-                    lineHeight = 15.sp,
-                    color = kxMuted(night),
-                    modifier = Modifier.testTag("download-media-unavailable"),
+                    stringResource(R.string.download_scope_folder, treeName),
+                    fontSize = if (compact) 14.sp else 16.sp,
+                    lineHeight = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = ink,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.testTag("download-tree-name"),
                 )
             } else {
                 Text(
-                    stringResource(R.string.download_ref_media, state.mediaStoreRows),
+                    stringResource(R.string.download_ref_no_folder),
+                    fontSize = 13.sp,
+                    lineHeight = 18.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = ink,
+                )
+            }
+            if (state.treeUri == null) {
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    stringResource(R.string.download_scope_none),
                     fontSize = 10.5.sp,
                     lineHeight = 15.sp,
                     color = kxMuted(night),
                 )
             }
-            if (state.truncated) {
-                Text(
-                    stringResource(R.string.download_truncated),
-                    fontSize = 10.5.sp,
-                    lineHeight = 15.sp,
-                    color = kxRose(night),
-                )
-            }
         }
+    }
+}
 
-        Spacer(Modifier.height(8.dp))
-        Row(Modifier.fillMaxWidth()) {
-            Column(Modifier.weight(1f)) {
-                Text(
-                    stringResource(R.string.download_inspected, state.inspected),
-                    fontSize = 11.sp,
-                    lineHeight = 15.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = ink,
-                    modifier = Modifier.testTag("download-count"),
-                )
-            }
-            Column(Modifier.weight(1f)) {
-                Text(
-                    stringResource(R.string.download_attention, state.attention),
-                    fontSize = 11.sp,
-                    lineHeight = 15.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = if (state.attention > 0) kxRose(night) else kxGreen(night),
-                    textAlign = TextAlign.End,
-                    modifier = Modifier.testTag("download-attention"),
-                )
-            }
+@Composable
+private fun FolderScopeAvailability(night: Boolean, state: DownloadRescueUiState) {
+    Spacer(Modifier.height(8.dp))
+    if (state.mediaStoreUnavailable) {
+        Text(
+            stringResource(R.string.download_scope_media_unavailable),
+            fontSize = 10.5.sp,
+            lineHeight = 15.sp,
+            color = kxMuted(night),
+            modifier = Modifier.testTag("download-media-unavailable"),
+        )
+    } else {
+        Text(
+            stringResource(R.string.download_ref_media, state.mediaStoreRows),
+            fontSize = 10.5.sp,
+            lineHeight = 15.sp,
+            color = kxMuted(night),
+        )
+    }
+    if (state.truncated) {
+        Text(
+            stringResource(R.string.download_truncated),
+            fontSize = 10.5.sp,
+            lineHeight = 15.sp,
+            color = kxRose(night),
+        )
+    }
+}
+
+@Composable
+private fun FolderScopeCounts(night: Boolean, state: DownloadRescueUiState) {
+    Row(Modifier.fillMaxWidth()) {
+        Column(Modifier.weight(1f)) {
+            Text(
+                stringResource(R.string.download_inspected, state.inspected),
+                fontSize = 11.sp,
+                lineHeight = 15.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = kxInk(night),
+                modifier = Modifier.testTag("download-count"),
+            )
         }
+        Column(Modifier.weight(1f)) {
+            Text(
+                stringResource(R.string.download_attention, state.attention),
+                fontSize = 11.sp,
+                lineHeight = 15.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = if (state.attention > 0) kxRose(night) else kxGreen(night),
+                textAlign = TextAlign.End,
+                modifier = Modifier.testTag("download-attention"),
+            )
+        }
+    }
+}
 
-        Spacer(Modifier.height(10.dp))
-        if (compact) {
-            Row(
-                Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
+@Composable
+private fun FolderScopeActions(
+    night: Boolean,
+    state: DownloadRescueUiState,
+    compact: Boolean,
+    onChooseFolder: () -> Unit,
+    onScan: () -> Unit,
+    onForget: () -> Unit,
+) {
+    if (compact) {
+        Row(
+            Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            DownloadPillAction(
+                label = stringResource(
+                    if (state.treeUri == null) R.string.download_ref_choose_action
+                    else R.string.download_ref_change_folder
+                ),
+                night = night,
+                enabled = !state.actionsBlocked,
+                tag = CHOOSE_FOLDER_TAG,
+                onClick = onChooseFolder,
+            )
+            if (state.treeUri != null) {
                 DownloadPillAction(
-                    label = stringResource(
-                        if (state.treeUri == null) R.string.download_ref_choose_action
-                        else R.string.download_ref_change_folder
-                    ),
+                    label = stringResource(R.string.download_ref_rescan),
                     night = night,
                     enabled = !state.actionsBlocked,
-                    tag = "download-choose-folder",
+                    tag = "download-scan",
+                    onClick = onScan,
+                )
+                DownloadPillAction(
+                    label = stringResource(R.string.download_forget),
+                    night = night,
+                    enabled = !state.actionsBlocked,
+                    tag = "download-forget",
+                    onClick = onForget,
+                )
+            }
+        }
+    } else {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            if (state.treeUri != null) {
+                DownloadGlassButton(
+                    label = stringResource(R.string.download_ref_change_folder),
+                    night = night,
+                    enabled = !state.actionsBlocked,
+                    tag = CHOOSE_FOLDER_TAG,
+                    icon = KxIconKind.FOLDER,
                     onClick = onChooseFolder,
                 )
-                if (state.treeUri != null) {
-                    DownloadPillAction(
-                        label = stringResource(R.string.download_ref_rescan),
-                        night = night,
-                        enabled = !state.actionsBlocked,
-                        tag = "download-scan",
-                        onClick = onScan,
-                    )
-                    DownloadPillAction(
-                        label = stringResource(R.string.download_forget),
-                        night = night,
-                        enabled = !state.actionsBlocked,
-                        tag = "download-forget",
-                        onClick = onForget,
-                    )
-                }
-            }
-        } else {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                if (state.treeUri != null) {
-                    DownloadGlassButton(
-                        label = stringResource(R.string.download_ref_change_folder),
-                        night = night,
-                        enabled = !state.actionsBlocked,
-                        tag = "download-choose-folder",
-                        icon = KxIconKind.FOLDER,
-                        onClick = onChooseFolder,
-                    )
-                    DownloadGlassButton(
-                        label = stringResource(R.string.download_forget),
-                        night = night,
-                        enabled = !state.actionsBlocked,
-                        tag = "download-forget",
-                        onClick = onForget,
-                    )
-                }
+                DownloadGlassButton(
+                    label = stringResource(R.string.download_forget),
+                    night = night,
+                    enabled = !state.actionsBlocked,
+                    tag = "download-forget",
+                    onClick = onForget,
+                )
             }
         }
     }
@@ -806,13 +834,24 @@ private fun LastScanCard(night: Boolean, state: DownloadRescueUiState) {
                     fontWeight = FontWeight.Bold,
                     color = kxInk(night),
                 )
-                Text(
-                    stringResource(R.string.download_ref_no_scan),
-                    fontSize = 10.5.sp,
-                    lineHeight = 15.sp,
-                    color = kxMuted(night),
-                    modifier = Modifier.testTag("download-no-scan"),
-                )
+                val lastScanCount = state.lastScanCount
+                if (lastScanCount == null) {
+                    Text(
+                        stringResource(R.string.download_ref_no_scan),
+                        fontSize = 10.5.sp,
+                        lineHeight = 15.sp,
+                        color = kxMuted(night),
+                        modifier = Modifier.testTag("download-no-scan"),
+                    )
+                } else {
+                    Text(
+                        stringResource(R.string.download_ref_last_scan_result, lastScanCount),
+                        fontSize = 10.5.sp,
+                        lineHeight = 15.sp,
+                        color = kxMuted(night),
+                        modifier = Modifier.testTag("download-last-scan-result"),
+                    )
+                }
             }
         }
     }

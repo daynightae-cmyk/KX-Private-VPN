@@ -213,10 +213,21 @@ class DownloadRescueScreenTest {
     }
 
     @Test fun anEmptyFolderIsAnEmptyResultNotAFailure() {
-        screen(DownloadRescueUiState(loading = false, treeName = "Download", treeUri = "content://tree/d"))
+        screen(
+            DownloadRescueUiState(
+                loading = false,
+                treeName = "Download",
+                treeUri = "content://tree/d",
+                lastScanCount = 0,
+            ),
+        )
         compose.onNodeWithTag("download-empty").assertExists()
         compose.onNodeWithTag("download-failed").assertDoesNotExist()
         compose.onNodeWithTag("download-count").assertTextContains("0", substring = true)
+        // A completed zero-row scan is measured; it must not keep claiming no scan happened.
+        compose.onNodeWithTag("download-last-scan-result")
+            .assertTextEquals("Files inspected in the last measured scan: 0")
+        compose.onNodeWithTag("download-no-scan").assertDoesNotExist()
     }
 
     @Test fun removalNeedsAnExplicitConfirmation() {
@@ -420,6 +431,7 @@ class DownloadRescueScreenTest {
         compose.onNodeWithTag("download-hero").assertExists()
         compose.onNodeWithText(context.getString(R.string.download_ref_hero_hint)).assertExists()
         compose.onNodeWithTag("download-choose-folder").assertExists()
+        compose.onNodeWithTag("download-no-scan").assertExists()
         // No result, no selected file and no invented progress before a real scan.
         compose.onNodeWithTag("download-selection-bar").assertDoesNotExist()
         compose.onNodeWithTag("download-health-0").assertDoesNotExist()

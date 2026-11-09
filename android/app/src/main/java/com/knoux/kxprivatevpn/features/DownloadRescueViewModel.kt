@@ -42,6 +42,8 @@ data class DownloadRescueUiState(
     val scanning: Boolean = false,
     val scanProgress: Int = 0,
     val candidates: List<DownloadCandidate> = emptyList(),
+    /** Rows inspected by the last completed scan; null until a scan actually succeeds. */
+    val lastScanCount: Int? = null,
     val truncated: Boolean = false,
     val scanFailed: Boolean = false,
     val mediaStoreRows: Int = 0,
@@ -142,7 +144,8 @@ class DownloadRescueViewModel(app: Application) : AndroidViewModel(app) {
         uriByDocument.clear()
         mutable.update {
             it.copy(treeUri = null, treeName = null, candidates = emptyList(), selected = emptySet(),
-                truncated = false, scanFailed = false, mediaStoreRows = 0, mediaStoreFailed = false,
+                lastScanCount = null, truncated = false, scanFailed = false,
+                mediaStoreRows = 0, mediaStoreFailed = false,
                 receipt = null, message = null)
         }
     }
@@ -172,6 +175,7 @@ class DownloadRescueViewModel(app: Application) : AndroidViewModel(app) {
                     it.copy(
                         scanning = false,
                         candidates = judged,
+                        lastScanCount = judged.size,
                         truncated = listing.truncated || media.truncated,
                         scanFailed = listing.failed,
                         mediaStoreRows = media.rows.size,

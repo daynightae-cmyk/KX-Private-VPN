@@ -14,6 +14,7 @@
     <string name="download_ref_media">Shared downloads visible to the system: %1$d</string>
     <string name="download_ref_last_scan">Last measured scan</string>
     <string name="download_ref_no_scan">No measured scan yet. Choose a folder, then run a real structural scan.</string>
+    <string name="download_ref_last_scan_result">Files inspected in the last measured scan: %1$d</string>
     <string name="download_ref_summary_title">Troubled downloads summary</string>
     <string name="download_ref_summary_note">Counts are measured from this scan. KX never estimates download progress.</string>
     <string name="download_ref_total">Total</string>
