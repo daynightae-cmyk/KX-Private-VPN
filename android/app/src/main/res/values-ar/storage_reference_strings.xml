@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="storage_ref_start_analysis">ابدأ تحليل التخزين</string>
+    <string name="storage_ref_analyzing">جارٍ تحليل التخزين…</string>
+    <string name="storage_ref_status">حالة التخزين</string>
+    <string name="storage_ref_status_measuring">قيد القياس…</string>
+    <string name="storage_ref_status_measured">مقاسة</string>
+    <string name="storage_ref_status_partial">جزئية</string>
+    <string name="storage_ref_status_unavailable">غير متاحة</string>
+    <string name="storage_ref_health_score">درجة صحة التخزين</string>
+    <string name="storage_ref_score_unavailable">غير متاحة</string>
+    <string name="storage_ref_score_note">لا يوجد نموذج صحة معتمد، لذا لا تحسب KX أي درجة.</string>
+    <string name="storage_ref_health_note">تعرض الصفوف بايتات مقاسة فقط. النسب إلى سعة التخزين الداخلية، وقد تتداخل الفئات.</string>
+    <string name="storage_ref_panel_source_note">بيانات KX من تخزين التطبيق الخاص، وقد تتداخل إجماليات MediaStore والمجلد المصرح.</string>
+    <string name="storage_ref_of_total">%1$s من %2$s</string>
+    <string name="storage_ref_join">%1$s · %2$s</string>
+    <string name="storage_ref_partial_note">قياس جزئي</string>
+    <string name="storage_ref_lower_bound">حد أدنى مقاس</string>
+    <string name="storage_ref_folder_only">المجلد المصرح فقط</string>
+    <string name="storage_ref_less_than_one">&lt;1%</string>
+</resources>

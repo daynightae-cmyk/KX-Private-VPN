@@ -164,8 +164,8 @@
     <string name="repair_unknown_service">تعذر فتح خدمة الإصلاح هذه.</string>
     <string name="repair_permission_note">لا يُطلب إذن تخزين. لا تستطيع KX قراءة البيانات الخاصة بتطبيقات أخرى.</string>
 
-    <string name="storage_xray_title">تحليل التخزين</string>
-    <string name="storage_xray_subtitle">تخزين متاح بالقياس — لا بالتخمين.</string>
+    <string name="storage_xray_title">صحة التخزين</string>
+    <string name="storage_xray_subtitle">تحليل آمن لفئات التخزين وتجزئة الملفات غير الضرورية لتحرير المساحة وتحسين أداء جهازك، دون الوصول إلى أي بيانات خاصة.</string>
     <string name="storage_used_label">مستخدم</string>
     <string name="storage_free_label">متاح</string>
     <string name="storage_volume_unavailable">تعذر قياس وحدة التخزين الداخلية. لا تُعرض أي أرقام.</string>

@@ -164,8 +164,8 @@
     <string name="repair_unknown_service">This repair service could not be opened.</string>
     <string name="repair_permission_note">No storage permission is requested. KX cannot read private data of other apps.</string>
 
-    <string name="storage_xray_title">Storage analysis</string>
-    <string name="storage_xray_subtitle">Accessible storage, measured — never guessed.</string>
+    <string name="storage_xray_title">Storage health</string>
+    <string name="storage_xray_subtitle">A safe analysis of storage categories and unnecessary files to free space and improve your device, without accessing any private data.</string>
     <string name="storage_used_label">used</string>
     <string name="storage_free_label">free</string>
     <string name="storage_volume_unavailable">The internal volume could not be measured. No numbers are shown.</string>
