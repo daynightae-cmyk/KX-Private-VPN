@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dna_ref_subtitle">اكتشف التكرارات بدقة باستخدام بصمة الملفات (SHA-256) للعثور على النسخ المتطابقة بأمان، وتحرير مساحة ثمينة على جهازك.</string>
+    <string name="dna_ref_results_subtitle">راجع المجموعات المقاسة، وحدد النسخ الزائدة، ثم احذفها بعد تأكيد صريح.</string>
+    <string name="dna_ref_start_scan">ابدأ فحص التكرارات</string>
+    <string name="dna_ref_scanning_hint">جاري الفحص المحلي…</string>
+    <string name="dna_ref_scan_hint">فحص SHA-256 محلي</string>
+    <string name="dna_ref_folder">المجلد المسموح</string>
+    <string name="dna_ref_no_folder">لم يتم اختيار مجلد</string>
+    <string name="dna_ref_choose_folder">اختر مجلدًا</string>
+    <string name="dna_ref_change_folder">تغيير المجلد</string>
+    <string name="dna_ref_folder_scope">لا يُقرأ إلا المجلد الذي تسمح به. تتم المقارنة محليًا دون رفع أي محتوى.</string>
+    <string name="dna_ref_last_scan">نتائج آخر فحص مقاس</string>
+    <string name="dna_ref_no_scan">لا يوجد فحص مقاس بعد. اختر مجلدًا ثم ابدأ فحص SHA-256 حقيقيًا.</string>
+    <string name="dna_ref_duplicates">ملفات مكررة</string>
+    <string name="dna_ref_reclaimable">مساحة قابلة للاستعادة</string>
+    <string name="dna_ref_groups">مجموعات مكررة</string>
+    <string name="dna_ref_filters">تصفية وبحث</string>
+    <string name="dna_ref_search_hint">ابحث في الملفات المكررة…</string>
+    <string name="dna_ref_search_clear">مسح البحث</string>
+    <string name="dna_ref_search_scope">يبحث في المجموعات المقاسة فقط، ولا يعيد فحص المجلد.</string>
+    <string name="dna_ref_all">الكل</string>
+    <string name="dna_ref_images">صور</string>
+    <string name="dna_ref_videos">فيديوهات</string>
+    <string name="dna_ref_documents">مستندات</string>
+    <string name="dna_ref_other">أخرى</string>
+    <string name="dna_ref_group_title">%1$s · %2$s</string>
+    <string name="dna_ref_group_meta">%1$s لكل ملف · %2$s قابلة للاستعادة</string>
+    <string name="dna_ref_select_copies">حدد النسخ</string>
+    <string name="dna_ref_keep">احتفظ</string>
+    <string name="dna_ref_entry_meta">%1$s · %2$s</string>
+    <string name="dna_ref_selected_bytes">%1$s للاستعادة</string>
+    <string name="dna_ref_delete_selected">حذف المحدد (%1$d)</string>
+    <string name="dna_ref_read_only">المجلد للقراءة فقط؛ الحذف معطّل.</string>
+    <string name="dna_ref_no_write">صلاحية الحذف: غير ممنوحة</string>
+    <string name="dna_ref_regrant">أعد منح إذن الكتابة</string>
+    <string name="dna_ref_no_matches">لا توجد مجموعات مقاسة تطابق هذا التصفية.</string>
+    <plurals name="dna_ref_copies">
+        <item quantity="zero">لا نسخ</item>
+        <item quantity="one">نسخة واحدة</item>
+        <item quantity="two">نسختان</item>
+        <item quantity="few">%1$d نسخ</item>
+        <item quantity="many">%1$d نسخة</item>
+        <item quantity="other">%1$d نسخة</item>
+    </plurals>
+    <plurals name="dna_ref_group_count">
+        <item quantity="zero">لا مجموعات</item>
+        <item quantity="one">مجموعة واحدة</item>
+        <item quantity="two">مجموعتان</item>
+        <item quantity="few">%1$d مجموعات</item>
+        <item quantity="many">%1$d مجموعة</item>
+        <item quantity="other">%1$d مجموعة</item>
+    </plurals>
+</resources>

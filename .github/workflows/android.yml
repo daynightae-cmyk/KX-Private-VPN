@@ -39,7 +39,7 @@ jobs:
             android/app/build/outputs/apk
   device:
     runs-on: ubuntu-latest
-    # Emulator boot (10m) + APK install (6m) + the current 324-test suite
+    # Emulator boot (10m) + APK install (6m) + the current 333-test suite
     # (30m measured upper bound) + evidence upload. Timeouts remain failures.
     # This includes the PR28 VPN/Pro matrix, PR29 Home tests, the 2026-11-08
     # app-inventory/Network Doctor/Download Rescue coverage and the cache tests.
@@ -80,7 +80,7 @@ jobs:
           # Actual CI host kernel records RenderThread SIGSEGV and QEMU signal 11;
           # disabling Vulkan did not repair it. Test the supported ANGLE/SwiftShader
           # backend on API35 only; retain the passing API26 renderer unchanged.
-          # All 320 API35 instrumented tests remain mandatory.
+          # All 333 API35 instrumented tests remain mandatory.
           emulator-options: -no-window -no-audio -no-boot-anim -no-snapshot -gpu ${{ matrix.emulator_gpu_mode }} -skin 720x1280 -camera-back none -camera-front none
           disable-animations: false
           working-directory: android
@@ -97,7 +97,7 @@ jobs:
 
   # Temporary PR40 diagnostic: reproduce the two classes involved in
   # repeated API35 emulator loss in a FRESH, isolated emulator process.
-  # The mandatory device(35) full 320-test gate above remains unchanged.
+  # The mandatory device(35) full 333-test gate above remains unchanged.
   api35-focused-diagnostic:
     if: ${{ github.event_name == 'pull_request' && github.event.pull_request.number == 40 }}
     runs-on: ubuntu-latest

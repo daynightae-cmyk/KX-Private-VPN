@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dna_ref_subtitle">Find exact duplicates by SHA-256 fingerprint, recover valuable space safely, and never guess.</string>
+    <string name="dna_ref_results_subtitle">Review measured groups, select surplus copies, then delete only after explicit confirmation.</string>
+    <string name="dna_ref_start_scan">Start duplicate scan</string>
+    <string name="dna_ref_scanning_hint">Local scan in progress…</string>
+    <string name="dna_ref_scan_hint">Local SHA-256 scan</string>
+    <string name="dna_ref_folder">Allowed folder</string>
+    <string name="dna_ref_no_folder">No folder chosen</string>
+    <string name="dna_ref_choose_folder">Choose a folder</string>
+    <string name="dna_ref_change_folder">Change folder</string>
+    <string name="dna_ref_folder_scope">Only the folder you authorize is read. Comparison happens on this device; no content is uploaded.</string>
+    <string name="dna_ref_last_scan">Last measured scan</string>
+    <string name="dna_ref_no_scan">No measured scan yet. Choose a folder, then run a real SHA-256 scan.</string>
+    <string name="dna_ref_duplicates">Duplicate files</string>
+    <string name="dna_ref_reclaimable">Reclaimable</string>
+    <string name="dna_ref_groups">Duplicate groups</string>
+    <string name="dna_ref_filters">Filter and search</string>
+    <string name="dna_ref_search_hint">Search duplicate files…</string>
+    <string name="dna_ref_search_clear">Clear search</string>
+    <string name="dna_ref_search_scope">Searches the measured groups already on this screen; it never rescans the folder.</string>
+    <string name="dna_ref_all">All</string>
+    <string name="dna_ref_images">Images</string>
+    <string name="dna_ref_videos">Videos</string>
+    <string name="dna_ref_documents">Documents</string>
+    <string name="dna_ref_other">Other</string>
+    <string name="dna_ref_group_title">%1$s · %2$s</string>
+    <string name="dna_ref_group_meta">%1$s each · %2$s reclaimable</string>
+    <string name="dna_ref_select_copies">Select copies</string>
+    <string name="dna_ref_keep">Keep</string>
+    <string name="dna_ref_entry_meta">%1$s · %2$s</string>
+    <string name="dna_ref_selected_bytes">%1$s to reclaim</string>
+    <string name="dna_ref_delete_selected">Delete selected (%1$d)</string>
+    <string name="dna_ref_read_only">Folder is read-only; cleanup is disabled.</string>
+    <string name="dna_ref_no_write">Cleanup access: not granted</string>
+    <string name="dna_ref_regrant">Regrant write access</string>
+    <string name="dna_ref_no_matches">No measured groups match this filter.</string>
+    <plurals name="dna_ref_copies">
+        <item quantity="one">%1$d copy</item>
+        <item quantity="other">%1$d copies</item>
+    </plurals>
+    <plurals name="dna_ref_group_count">
+        <item quantity="one">%1$d group</item>
+        <item quantity="other">%1$d groups</item>
+    </plurals>
+</resources>
