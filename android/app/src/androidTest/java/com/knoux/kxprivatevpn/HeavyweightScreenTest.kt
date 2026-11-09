@@ -3,10 +3,12 @@ package com.knoux.kxprivatevpn
 import android.content.Context
 import android.content.res.Configuration
 import android.text.format.Formatter
+import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -15,6 +17,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.Density
@@ -36,6 +39,7 @@ import java.util.Locale
  */
 class HeavyweightScreenTest {
     @get:Rule val compose = createComposeRule()
+    private var hostView: View? = null
     private val context: Context
         get() = InstrumentationRegistry.getInstrumentation().targetContext
     private val now = 1_760_000_000_000L
@@ -160,17 +164,15 @@ class HeavyweightScreenTest {
     }
 
     /**
-     * The search field is a real text field, so the platform IME can cover the Compose window
-     * while an evidence frame is captured. Back is sent only when an IME is accepting text, so
-     * a host with a hardware keyboard can never lose its activity to this helper.
+     * Hides the platform IME through the host window token. Never send a back key here: on a
+     * headless CI emulator `isAcceptingText` can be true while no IME owns the back press, which
+     * finishes the test activity and leaves no Compose hierarchy to capture.
      */
     private fun hideKeyboard() {
-        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val view = hostView ?: return
         val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        if (imm.isAcceptingText) {
-            instrumentation.uiAutomation.executeShellCommand("input keyevent 4").close()
-            instrumentation.waitForIdleSync()
-            Thread.sleep(250)
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            imm.hideSoftInputFromWindow(view.windowToken, 0)
         }
         compose.waitForIdle()
     }
@@ -258,6 +260,8 @@ class HeavyweightScreenTest {
         var scans = 0
         val base = state()
         compose.setContent {
+            val view = LocalView.current
+            SideEffect { hostView = view }
             HeavyweightScreen(
                 night = false,
                 state = base,
