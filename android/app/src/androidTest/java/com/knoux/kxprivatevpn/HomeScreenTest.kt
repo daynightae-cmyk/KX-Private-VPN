@@ -117,14 +117,18 @@ class HomeScreenTest {
         capture("70-home-disconnected-en")
     }
 
-    @Test fun connectedStateShowsRealSessionValuesOnly() {        val session = VpnSession(
+    @Test fun connectedStateShowsRealSessionValuesOnly() {
+        // A recent fixture timestamp keeps the measured duration readable in evidence
+        // instead of showing 26k hours for a session started in 2023.
+        val startedAt = System.currentTimeMillis() - 42 * 60_000L
+        val session = VpnSession(
             profileId = profile.id,
             profileName = profile.name,
             endpoint = profile.endpoint,
-            startedAtMillis = 1_700_000_000_000,
+            startedAtMillis = startedAt,
             rxBytes = 2_048,
             txBytes = 1_024,
-            latestHandshakeMillis = 1_700_000_060_000,
+            latestHandshakeMillis = startedAt + 60_000L,
             addresses = listOf("10.7.0.2/32"),
         )
         screen(

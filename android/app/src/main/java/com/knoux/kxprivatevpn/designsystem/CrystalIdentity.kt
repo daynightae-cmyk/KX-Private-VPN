@@ -71,10 +71,17 @@ fun Atmosphere(night: Boolean, pulse: Float) {
 }
 
 @Composable
-fun KxOrb(progress: Float, frame: IntroFrame, modifier: Modifier = Modifier) {
+fun KxOrb(
+    progress: Float,
+    frame: IntroFrame,
+    modifier: Modifier = Modifier,
+    decorative: Boolean = false,
+) {
     val artwork = ImageBitmap.imageResource(R.drawable.kx_brand)
     val description = stringResource(R.string.brand_description)
-    Canvas(modifier.semantics { contentDescription = description }) {
+    val semantics = if (decorative) Modifier.clearAndSetSemantics {}
+    else Modifier.semantics { contentDescription = description }
+    Canvas(modifier.then(semantics)) {
         val unit = size.minDimension / 1000f
         scale(unit, unit, Offset.Zero) {
             val center = Offset(500f, 500f)
@@ -111,62 +118,20 @@ fun KxOrb(progress: Float, frame: IntroFrame, modifier: Modifier = Modifier) {
                     alpha = (1f - frame.artwork) * .6f)
                 drawCircle(Pearl, 1f + (i % 3) * .5f, p, alpha = 1f - frame.artwork)
             }
-            // Reference shield contour, woven ribbons with pearlescent facing and shaded reverse.
-            val shield = Path().apply {
-                moveTo(500f, 177f)
-                cubicTo(445f, 238f, 365f, 225f, 305f, 248f)
-                cubicTo(292f, 425f, 334f, 533f, 500f, 624f)
-                cubicTo(666f, 533f, 708f, 425f, 695f, 248f)
-                cubicTo(635f, 225f, 555f, 238f, 500f, 177f); close()
-            }
-            val nativeAlpha = frame.ribbons * (1f - frame.artwork)
-            if (nativeAlpha > 0f) {
-                // Measured against the cropped source: apex ~182, base ~573, width ~350/1000.
-                scale(.90f, .88f, Offset(500f, 177f)) {
-                    drawPath(shield, Brush.linearGradient(listOf(Color(0xFFDD91FF), Color(0xFF3412BB),
-                        Color(0xFF0059D0), Cyan), Offset(300f, 250f), Offset(700f, 540f)), alpha = nativeAlpha)
-                    drawPath(shield, Brush.linearGradient(listOf(Pearl, Cyan, Violet, Pearl)),
-                        style = Stroke(3f), alpha = nativeAlpha)
-                    clipPath(shield) {
-                        for (i in 0..3) {
-                            val y = 238f + i * 96f
-                            val shift = (1f - frame.ribbons) * (if (i % 2 == 0) -280f else 280f)
-                            translate(shift, 0f) {
-                                val ribbon = Path().apply {
-                                    if (i % 2 == 0) {
-                                        moveTo(290f, y); cubicTo(310f, y + 80f, 625f, y + 96f, 710f, y + 230f)
-                                        lineTo(710f, y + 165f)
-                                        cubicTo(590f, y + 50f, 335f, y + 24f, 290f, y - 35f)
-                                    } else {
-                                        moveTo(710f, y - 80f); cubicTo(670f, y, 360f, y + 75f, 300f, y + 180f)
-                                        lineTo(300f, y + 106f)
-                                        cubicTo(355f, y + 25f, 640f, y - 42f, 710f, y - 119f)
-                                    }; close()
-                                }
-                                drawPath(ribbon, Brush.linearGradient(listOf(Pearl, Cyan.copy(alpha = .95f),
-                                    Color(0xFF7D5FE9), Color(0xFFF2C4FF), Pearl), Offset(295f, y), Offset(710f, y + 160f)),
-                                    alpha = nativeAlpha)
-                                drawPath(ribbon, Pearl.copy(alpha = .8f), style = Stroke(1.6f), alpha = nativeAlpha)
-                            }
-                        }
-                    }
-                }
-                rotate(24f, Offset(630f, 178f)) {
-                    drawOval(Brush.linearGradient(listOf(Pearl, Cyan.copy(alpha = .4f), Color.Transparent)),
-                        Offset(545f, 140f), Size(240f, 56f), alpha = nativeAlpha * .75f)
-                }
-            }
-            // Reveal original, byte-preserved owner artwork after the native formation.
-            // Only the orb is drawn, never a screenshot-as-screen. The outside black margin is clipped.
+            drawKxOrbNativeShield(frame)
+            // Reveal the byte-preserved owner artwork after the native formation. The runtime
+            // asset has a clean feathered alpha rim; draw it full-square so Compose never crops
+            // the emblem into the old black square silhouette.
             if (frame.artwork > 0f) {
-                // Inset inside the source orb's irregular black silhouette; the native glass rim
-                // supplies the outer edge, preventing black fringes against the day atmosphere.
-                val crop = Path().apply { addOval(androidx.compose.ui.geometry.Rect(101f, 101f, 899f, 899f)) }
-                clipPath(crop) {
-                    drawImage(artwork, srcOffset = IntOffset(80, 88), srcSize = IntSize(1085, 1085),
-                        dstOffset = IntOffset(88, 88), dstSize = IntSize(824, 824), alpha = frame.artwork,
-                        filterQuality = FilterQuality.Medium)
-                }
+                drawImage(
+                    artwork,
+                    srcOffset = IntOffset.Zero,
+                    srcSize = IntSize(artwork.width, artwork.height),
+                    dstOffset = IntOffset.Zero,
+                    dstSize = IntSize(1000, 1000),
+                    alpha = frame.artwork,
+                    filterQuality = FilterQuality.High,
+                )
             }
             // Native satellites, soft caustic sweep and one final halo pulse remain above the artwork.
             for (i in 0..2) {
@@ -188,6 +153,55 @@ fun KxOrb(progress: Float, frame: IntroFrame, modifier: Modifier = Modifier) {
                 center, style = Stroke(2f), alpha = frame.pulse * .55f)
             star(Offset(790f, 172f), 18f, frame.ribbons)
             star(Offset(192f, 640f), 13f, frame.ribbons)
+        }
+    }
+}
+
+/* Rendering order retained: extracted from KxOrb to keep cognitive complexity bounded. */
+private fun DrawScope.drawKxOrbNativeShield(frame: IntroFrame) {
+    // Reference shield contour, woven ribbons with pearlescent facing and shaded reverse.
+    val shield = Path().apply {
+        moveTo(500f, 177f)
+        cubicTo(445f, 238f, 365f, 225f, 305f, 248f)
+        cubicTo(292f, 425f, 334f, 533f, 500f, 624f)
+        cubicTo(666f, 533f, 708f, 425f, 695f, 248f)
+        cubicTo(635f, 225f, 555f, 238f, 500f, 177f); close()
+    }
+    val nativeAlpha = frame.ribbons * (1f - frame.artwork)
+    if (nativeAlpha > 0f) {
+        // Measured against the cropped source: apex ~182, base ~573, width ~350/1000.
+        scale(.90f, .88f, Offset(500f, 177f)) {
+            drawPath(shield, Brush.linearGradient(listOf(Color(0xFFDD91FF), Color(0xFF3412BB),
+                Color(0xFF0059D0), Cyan), Offset(300f, 250f), Offset(700f, 540f)), alpha = nativeAlpha)
+            drawPath(shield, Brush.linearGradient(listOf(Pearl, Cyan, Violet, Pearl)),
+                style = Stroke(3f), alpha = nativeAlpha)
+            clipPath(shield) {
+                for (i in 0..3) {
+                    val y = 238f + i * 96f
+                    val shift = (1f - frame.ribbons) * (if (i % 2 == 0) -280f else 280f)
+                    translate(shift, 0f) {
+                        val ribbon = Path().apply {
+                            if (i % 2 == 0) {
+                                moveTo(290f, y); cubicTo(310f, y + 80f, 625f, y + 96f, 710f, y + 230f)
+                                lineTo(710f, y + 165f)
+                                cubicTo(590f, y + 50f, 335f, y + 24f, 290f, y - 35f)
+                            } else {
+                                moveTo(710f, y - 80f); cubicTo(670f, y, 360f, y + 75f, 300f, y + 180f)
+                                lineTo(300f, y + 106f)
+                                cubicTo(355f, y + 25f, 640f, y - 42f, 710f, y - 119f)
+                            }; close()
+                        }
+                        drawPath(ribbon, Brush.linearGradient(listOf(Pearl, Cyan.copy(alpha = .95f),
+                            Color(0xFF7D5FE9), Color(0xFFF2C4FF), Pearl), Offset(295f, y), Offset(710f, y + 160f)),
+                            alpha = nativeAlpha)
+                        drawPath(ribbon, Pearl.copy(alpha = .8f), style = Stroke(1.6f), alpha = nativeAlpha)
+                    }
+                }
+            }
+        }
+        rotate(24f, Offset(630f, 178f)) {
+            drawOval(Brush.linearGradient(listOf(Pearl, Cyan.copy(alpha = .4f), Color.Transparent)),
+                Offset(545f, 140f), Size(240f, 56f), alpha = nativeAlpha * .75f)
         }
     }
 }

@@ -13,6 +13,7 @@ import com.knoux.kxprivatevpn.features.NetworkDoctorScreen
 import com.knoux.kxprivatevpn.features.NetworkUiState
 import com.knoux.kxprivatevpn.platform.network.HttpsReading
 import com.knoux.kxprivatevpn.platform.network.NetworkReading
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
@@ -22,7 +23,7 @@ class NetworkDoctorScreenTest {
 
     private val context = InstrumentationRegistry.getInstrumentation().targetContext
 
-    private fun show(initial: NetworkUiState): MutableState<NetworkUiState> {
+    private fun show(initial: NetworkUiState, onRefresh: () -> Unit = {}): MutableState<NetworkUiState> {
         val state = mutableStateOf(initial)
         compose.setContent {
             KxGlassTheme(night = true) {
@@ -31,7 +32,7 @@ class NetworkDoctorScreenTest {
                         night = true,
                         state = state.value,
                         onBack = {},
-                        onRefresh = {},
+                        onRefresh = onRefresh,
                         onUrlChange = {},
                         onConsentChange = {},
                         onRunProbe = {},
@@ -40,6 +41,31 @@ class NetworkDoctorScreenTest {
             }
         }
         return state
+    }
+
+    @Test fun reference02HasActualKxOrbAndNoFabricatedHttpsMeasurement() {
+        show(NetworkUiState(reading = NetworkReading(
+            present = true,
+            validated = true,
+            captive = false,
+            vpn = false,
+            transports = listOf("Wi-Fi"),
+            dns = listOf("1.1.1.1"),
+        )))
+        compose.onNodeWithTag("network-ref-hero").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("network-ref-brand-orb").assertIsDisplayed()
+        compose.onNodeWithTag("network-ref-summary").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("network-ref-https").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("network-ref-latency").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText(context.getString(R.string.network_ref_not_tested)).assertIsDisplayed()
+    }
+
+    @Test fun reference02StartCallsReadOnlyNetworkRefreshNotProbe() {
+        var refreshes = 0
+        show(NetworkUiState(), onRefresh = { refreshes++ })
+        compose.onNodeWithTag("network-ref-start").performScrollTo().performClick()
+        compose.runOnIdle { assertEquals(1, refreshes) }
+        compose.onNodeWithTag("probe-run").performScrollTo().assertIsNotEnabled()
     }
 
     @Test fun reportsEveryMeasuredValueAndItsLimits() {
@@ -70,7 +96,7 @@ class NetworkDoctorScreenTest {
         // The limits copy is the product promise: no speed, traffic or leak claim.
         compose.onNodeWithTag("network-limits")
             .assertTextEquals(context.getString(R.string.network_readonly_body))
-        compose.onNodeWithTag("network-scope").assertIsDisplayed()
+        compose.onNodeWithTag("network-scope").performScrollTo().assertIsDisplayed()
     }
 
     @Test fun missingReadingIsReportedInsteadOfInventedMetrics() {

@@ -40,6 +40,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.knoux.kxprivatevpn.R
 import com.knoux.kxprivatevpn.designsystem.Atmosphere
+import com.knoux.kxprivatevpn.designsystem.KxReferenceTheme
+import com.knoux.kxprivatevpn.designsystem.KxReferenceAtmosphere
+import com.knoux.kxprivatevpn.designsystem.KxReferenceHeader
+import com.knoux.kxprivatevpn.designsystem.KxTitleBlock
+import com.knoux.kxprivatevpn.designsystem.KxIconKind
 import com.knoux.kxprivatevpn.designsystem.GlassAction
 import com.knoux.kxprivatevpn.designsystem.GlassSurface
 import com.knoux.kxprivatevpn.designsystem.KxPageHeader
@@ -107,8 +112,9 @@ fun MediaSlimScreen(
     val confirmQuality = stringResource(R.string.media_quality_note)
     val confirmStart = stringResource(R.string.media_start)
     val confirmCancel = stringResource(R.string.media_cancel)
+    KxReferenceTheme(night) {
     Box(Modifier.fillMaxSize()) {
-        Atmosphere(night, 0f)
+        KxReferenceAtmosphere(night)
         Column(
             Modifier.fillMaxSize().safeDrawingPadding()
                 .verticalScroll(rememberScrollState())
@@ -116,21 +122,29 @@ fun MediaSlimScreen(
                 .testTag("route-media"),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            KxPageHeader(
-                title = stringResource(R.string.media_title),
+            KxReferenceHeader(
                 night = night,
-                backLabel = stringResource(R.string.back),
-                onBack = onBack,
+                actionLabel = stringResource(R.string.back),
+                tag = "media-ref-back",
+                icon = KxIconKind.BACK,
+                onClick = onBack,
             )
+            KxTitleBlock(
+                title = stringResource(R.string.media_ref_title),
+                subtitle = stringResource(R.string.media_subtitle),
+                night = night,
+            )
+            MediaReferenceHero(night, processing = state.scanning || state.compressing)
+            MediaReferenceMetrics(night, state)
+            MediaReferenceFolder(night, state, onChooseFolder)
+            MediaReferenceAction(night, state, onChooseFolder, onScan, onRequestCompression)
             Text(
-                stringResource(R.string.media_subtitle),
-                fontSize = 14.sp,
-                lineHeight = 20.sp,
-                color = foreground.copy(alpha = .84f),
+                stringResource(R.string.media_originals_note),
+                fontSize = 12.sp, lineHeight = 18.sp,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth(),
+                color = foreground.copy(alpha = .82f),
+                modifier = Modifier.fillMaxWidth().testTag("media-originals-note"),
             )
-            MediaHero()
             FolderCard(night, state, foreground, onChooseFolder, onScan, onCancelScan)
             if (scan != null) {
                 ScanSummary(night, scan, foreground)
@@ -179,12 +193,6 @@ fun MediaSlimScreen(
                 }
             }
             Text(
-                stringResource(R.string.media_originals_note),
-                fontSize = 11.sp, lineHeight = 16.sp,
-                color = foreground.copy(alpha = .72f),
-                modifier = Modifier.testTag("media-originals-note"),
-            )
-            Text(
                 stringResource(R.string.media_permission_note),
                 fontSize = 11.sp, lineHeight = 16.sp,
                 color = foreground.copy(alpha = .62f),
@@ -192,6 +200,7 @@ fun MediaSlimScreen(
             )
             Spacer(Modifier.height(24.dp))
         }
+    }
     }
     if (state.confirming) {
         AlertDialog(

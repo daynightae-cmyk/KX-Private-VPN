@@ -12,7 +12,9 @@ import com.knoux.kxprivatevpn.platform.repair.DownloadDocumentIdentity
 import com.knoux.kxprivatevpn.platform.repair.DownloadExportEngine
 import com.knoux.kxprivatevpn.platform.repair.DownloadFormat
 import com.knoux.kxprivatevpn.platform.repair.DownloadHealth
+import com.knoux.kxprivatevpn.platform.repair.DownloadRemovalVerdict
 import com.knoux.kxprivatevpn.platform.repair.DownloadValidator
+import com.knoux.kxprivatevpn.platform.repair.downloadRemovalVerdict
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
@@ -46,6 +48,10 @@ data class DownloadListing(
     /** The shared download collection does not exist on this Android version. */
     val unavailable: Boolean = false,
 )
+
+private enum class DocumentPresence { PRESENT, ABSENT, UNKNOWN }
+
+private data class DocumentProbe(val presence: DocumentPresence, val bytes: Long = 0L)
 
 /**
  * Reads and acts on files the user owns.
@@ -268,17 +274,65 @@ class DownloadCatalog(private val context: Context) {
             }
         }
 
-    /** Removes exactly the document the user approved. */
+    /**
+     * Proves whether the exact document exists right now. A provider cursor with a row is
+     * presence; an empty or null cursor is absence. A provider error is unknown, never absence.
+     */
+    private fun probeDocument(uri: Uri): DocumentProbe = try {
+        val projection = arrayOf(
+            DocumentsContract.Document.COLUMN_DISPLAY_NAME,
+            DocumentsContract.Document.COLUMN_SIZE,
+        )
+        context.contentResolver.query(uri, projection, null, null, null)?.use { cursor ->
+            if (!cursor.moveToFirst()) {
+                DocumentProbe(DocumentPresence.ABSENT)
+            } else {
+                val sizeIndex = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE)
+                val bytes = if (sizeIndex >= 0 && !cursor.isNull(sizeIndex)) {
+                    cursor.getLong(sizeIndex)
+                } else {
+                    -1L
+                }
+                DocumentProbe(DocumentPresence.PRESENT, bytes)
+            }
+        } ?: DocumentProbe(DocumentPresence.ABSENT)
+    } catch (_: Exception) {
+        DocumentProbe(DocumentPresence.UNKNOWN)
+    }
+
+    /**
+     * Removes exactly the document the user approved. The provider's boolean is not a receipt:
+     * the document must be measured present before the call and measurably absent after it.
+     * Bytes are only counted when the same present-then-absent measurement proves them gone.
+     */
     suspend fun remove(documentUri: Uri, displayName: String): DownloadActionResult =
         withContext(Dispatchers.IO) {
+            val before = probeDocument(documentUri)
+            val presentBefore = before.presence.asKnownPresence()
+            if (presentBefore != true) {
+                return@withContext DownloadActionResult(
+                    documentId = documentUri.toString(),
+                    displayName = displayName,
+                    action = DownloadAction.REMOVE,
+                    succeeded = false,
+                    message = downloadRemovalVerdict(presentBefore, false, null).code,
+                )
+            }
             try {
                 val deleted = DocumentsContract.deleteDocument(context.contentResolver, documentUri)
+                val after = probeDocument(documentUri).presence.asKnownPresence()
+                val verdict = downloadRemovalVerdict(true, deleted, after)
                 DownloadActionResult(
                     documentId = documentUri.toString(),
                     displayName = displayName,
                     action = DownloadAction.REMOVE,
-                    succeeded = deleted,
-                    message = if (deleted) "removed" else "delete_rejected",
+                    succeeded = verdict == DownloadRemovalVerdict.REMOVED,
+                    bytesRemoved = if (verdict == DownloadRemovalVerdict.REMOVED) {
+                        before.bytes.coerceAtLeast(0L)
+                    } else {
+                        0L
+                    },
+                    message = verdict.code,
                 )
             } catch (e: CancellationException) {
                 throw e
@@ -292,6 +346,12 @@ class DownloadCatalog(private val context: Context) {
                 )
             }
         }
+
+    private fun DocumentPresence.asKnownPresence(): Boolean? = when (this) {
+        DocumentPresence.PRESENT -> true
+        DocumentPresence.ABSENT -> false
+        DocumentPresence.UNKNOWN -> null
+    }
 
     companion object {
         const val MAX_ROWS = 500

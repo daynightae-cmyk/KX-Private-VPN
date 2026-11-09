@@ -91,10 +91,42 @@ data class DownloadActionResult(
     val succeeded: Boolean,
     val bytesCopied: Long = 0,
     val bytesExpected: Long = 0,
+    /** Measured immediately before a verified removal; zero for every other outcome. */
+    val bytesRemoved: Long = 0,
     val message: String = "",
 )
 
 enum class DownloadAction { EXPORT, RENAME, REMOVE }
+
+/**
+ * Removal is only reported as a removal when the document was measured present before the
+ * provider call and measurably absent afterwards. The provider's boolean alone is not proof.
+ */
+enum class DownloadRemovalVerdict(val code: String) {
+    REMOVED("removed"),
+    ALREADY_ABSENT("already_absent"),
+    STILL_PRESENT("still_present"),
+    DELETE_REJECTED("delete_rejected"),
+    UNVERIFIED("presence_unverified"),
+}
+
+fun downloadRemovalVerdict(
+    presentBefore: Boolean?,
+    deleteReturned: Boolean,
+    presentAfter: Boolean?,
+): DownloadRemovalVerdict = when {
+    presentBefore == false -> DownloadRemovalVerdict.ALREADY_ABSENT
+    presentBefore == null -> DownloadRemovalVerdict.UNVERIFIED
+    !deleteReturned -> DownloadRemovalVerdict.DELETE_REJECTED
+    presentAfter == false -> DownloadRemovalVerdict.REMOVED
+    presentAfter == true -> DownloadRemovalVerdict.STILL_PRESENT
+    else -> DownloadRemovalVerdict.UNVERIFIED
+}
+
+/** Only bytes measured for a document proven present before and absent after count as gone. */
+fun verifiedRemovalBytes(results: List<DownloadActionResult>): Long =
+    results.filter { it.action == DownloadAction.REMOVE && it.succeeded }
+        .sumOf { it.bytesRemoved.coerceAtLeast(0L) }
 
 /** Freeze both the inspected candidate and its URI before asking for approval or a destination. */
 data class DownloadTarget(val candidate: DownloadCandidate, val uri: String)

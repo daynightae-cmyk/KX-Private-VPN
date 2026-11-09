@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -39,17 +40,31 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.knoux.kxprivatevpn.R
-import com.knoux.kxprivatevpn.designsystem.Atmosphere
 import com.knoux.kxprivatevpn.designsystem.GlassAction
 import com.knoux.kxprivatevpn.designsystem.GlassSurface
+import com.knoux.kxprivatevpn.designsystem.KxGlassPanel
+import com.knoux.kxprivatevpn.designsystem.KxGradientAction
+import com.knoux.kxprivatevpn.designsystem.KxHeaderCircleButton
+import com.knoux.kxprivatevpn.designsystem.KxIconKind
+import com.knoux.kxprivatevpn.designsystem.KxLineIcon
+import com.knoux.kxprivatevpn.designsystem.KxMiniOrb
 import com.knoux.kxprivatevpn.designsystem.KxOrb
 import com.knoux.kxprivatevpn.designsystem.KxPageHeader
+import com.knoux.kxprivatevpn.designsystem.KxReferenceAtmosphere
+import com.knoux.kxprivatevpn.designsystem.KxReferenceTheme
+import com.knoux.kxprivatevpn.designsystem.KxTitleBlock
 import com.knoux.kxprivatevpn.designsystem.RepairGlyph
+import com.knoux.kxprivatevpn.designsystem.kxCyan
+import com.knoux.kxprivatevpn.designsystem.kxInk
+import com.knoux.kxprivatevpn.designsystem.kxMuted
+import com.knoux.kxprivatevpn.designsystem.kxRose
+import com.knoux.kxprivatevpn.designsystem.kxViolet
 import com.knoux.kxprivatevpn.designsystem.repairAccent
 import com.knoux.kxprivatevpn.designsystem.repairAccentPair
 import com.knoux.kxprivatevpn.launch.IntroTimeline
@@ -97,64 +112,255 @@ fun RepairLabScreen(
     onAnalyze: () -> Unit,
     onNavigate: (String) -> Unit,
 ) {
-    val foreground = if (night) Color(0xFFF7F3FF) else Color(0xFF171050)
-    val reducedMotion = rememberReducedMotion()
-    Box(Modifier.fillMaxSize()) {
-        Atmosphere(night, 0f)
-        Column(
-            Modifier.fillMaxSize().safeDrawingPadding()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp)
-                .testTag("repair-lab"),
-            verticalArrangement = Arrangement.spacedBy(18.dp),
-        ) {
-            KxPageHeader(
-                title = stringResource(R.string.repair_title),
-                night = night,
-                backLabel = stringResource(R.string.back),
-                onBack = onBack,
-            )
-            RepairHero(night, state.measuring, reducedMotion, foreground)
-            SnapshotCard(night, state, onAnalyze)
-            state.measurement?.let { measurement ->
-                if (!state.loading) CleanupReview(night, measurement, onNavigate)
+    val foreground = kxInk(night)
+    KxReferenceTheme(night) {
+        Box(Modifier.fillMaxSize()) {
+            KxReferenceAtmosphere(night)
+            Column(
+                Modifier.fillMaxSize().safeDrawingPadding()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 16.dp)
+                    .testTag("repair-lab"),
+                verticalArrangement = Arrangement.spacedBy(13.dp),
+            ) {
+                RepairReferenceHeader(night, onBack, onNavigate)
+                KxTitleBlock(
+                    title = stringResource(R.string.repair_title),
+                    subtitle = stringResource(R.string.repair_reference_subtitle),
+                    night = night,
+                )
+                RepairHero(night, state.measuring, onAnalyze)
+                ReferenceRepairGrid(night, onNavigate)
+                KxGradientAction(
+                    label = stringResource(R.string.repair_comprehensive),
+                    night = night,
+                    enabled = true,
+                    tag = "repair-comprehensive",
+                    icon = KxIconKind.WAND,
+                ) { onNavigate("autopilot") }
+                Spacer(Modifier.height(56.dp))
+                ServiceGrid(night, state.measurement, foreground, onNavigate)
+                SnapshotCard(night, state, onAnalyze)
+                state.measurement?.let { measurement ->
+                    if (!state.loading) CleanupReview(night, measurement, onNavigate)
+                }
+                JournalCard(night, state.journal, foreground)
+                Text(
+                    stringResource(R.string.repair_privacy),
+                    color = kxMuted(night),
+                    fontSize = 11.sp,
+                    lineHeight = 16.sp,
+                    modifier = Modifier.testTag("repair-privacy"),
+                )
+                Spacer(Modifier.height(18.dp))
             }
-            ServiceGrid(night, state.measurement, foreground, onNavigate)
-            JournalCard(night, state.journal, foreground)
-            Text(
-                stringResource(R.string.repair_privacy),
-                color = foreground.copy(alpha = .72f),
-                fontSize = 11.sp,
-                lineHeight = 16.sp,
-                modifier = Modifier.testTag("repair-privacy"),
-            )
-            Spacer(Modifier.height(24.dp))
         }
     }
 }
 
 @Composable
-private fun RepairHero(night: Boolean, measuring: Boolean, reducedMotion: Boolean, foreground: Color) {
-    Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Box(Modifier.fillMaxWidth().height(254.dp), contentAlignment = Alignment.Center) {
-            DiagnosticRing(measuring, reducedMotion, Modifier.size(244.dp))
-            KxOrb(1f, IntroTimeline.frame(1f), Modifier.size(172.dp))
-        }
+private fun RepairReferenceHeader(
+    night: Boolean,
+    onBack: () -> Unit,
+    onNavigate: (String) -> Unit,
+) {
+    // Reference 03 centres a plain wordmark between the back and settings discs instead of
+    // the Home/Tools lockup. Logical child order automatically mirrors for LTR.
+    val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    Row(
+        Modifier.fillMaxWidth().heightIn(min = 52.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        KxHeaderCircleButton(
+            night = night,
+            icon = if (rtl) KxIconKind.FORWARD else KxIconKind.BACK,
+            label = stringResource(R.string.back),
+            tag = "repair-back",
+            onClick = onBack,
+        )
         Text(
-            stringResource(R.string.repair_lab),
-            color = if (night) Color(0xFF9BEFFF) else Color(0xFF3B2AA8),
-            fontSize = 13.sp,
-            fontWeight = FontWeight.SemiBold,
+            "KX PRIVATE VPN",
+            color = kxInk(night),
+            fontSize = 16.sp,
+            lineHeight = 21.sp,
+            fontWeight = FontWeight.ExtraBold,
             letterSpacing = 2.4.sp,
-        )
-        Text(
-            stringResource(R.string.repair_tagline),
-            color = foreground.copy(alpha = .84f),
-            fontSize = 14.sp,
-            lineHeight = 20.sp,
             textAlign = TextAlign.Center,
+            modifier = Modifier.weight(1f).padding(horizontal = 6.dp),
         )
+        KxHeaderCircleButton(
+            night = night,
+            icon = KxIconKind.GEAR,
+            label = stringResource(R.string.settings),
+            tag = "repair-settings",
+            onClick = { onNavigate("settings") },
+        )
+    }
+}
+
+@Composable
+private fun RepairHero(
+    night: Boolean,
+    measuring: Boolean,
+    onAnalyze: () -> Unit,
+) {
+    val reducedMotion = rememberReducedMotion()
+    Column(
+        Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(7.dp),
+    ) {
+        Box(
+            Modifier.fillMaxWidth().heightIn(min = 206.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            DiagnosticRing(measuring, reducedMotion, Modifier.size(204.dp))
+            KxOrb(
+                progress = 1f,
+                frame = IntroTimeline.frame(1f),
+                modifier = Modifier.size(146.dp)
+                    .clickable(role = Role.Button,
+                        onClickLabel = stringResource(R.string.repair_analyze),
+                        onClick = onAnalyze)
+                    .testTag("repair-orb-action"),
+            )
+        }
+        Row(
+            Modifier.heightIn(min = 44.dp)
+                .clip(RoundedCornerShape(50))
+                .background(
+                    Color.White.copy(alpha = if (night) .10f else .48f),
+                )
+                .border(1.dp, Color.White.copy(alpha = if (night) .32f else .82f),
+                    RoundedCornerShape(50))
+                .clickable(role = Role.Button,
+                    onClickLabel = stringResource(R.string.repair_analyze),
+                    onClick = onAnalyze)
+                .padding(horizontal = 16.dp, vertical = 9.dp)
+                .testTag("repair-tap-hint"),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            KxLineIcon(KxIconKind.TAP, kxInk(night), Modifier.size(18.dp))
+            Spacer(Modifier.width(8.dp))
+            Text(
+                stringResource(R.string.repair_tap_hint),
+                color = kxInk(night),
+                fontSize = 12.sp,
+                lineHeight = 17.sp,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
+            )
+        }
+    }
+}
+
+private data class ReferenceRepairEntry(
+    val tag: String,
+    val route: String,
+    val title: Int,
+    val icon: KxIconKind,
+    val accent: Color,
+)
+
+private val referenceRepairEntries = listOf(
+    // RTL reading order: temp, duplicates / download, large / media, storage / network, apps.
+    ReferenceRepairEntry("cache", "cache", R.string.repair_ref_temp_title,
+        KxIconKind.SPARKLE, Color(0xFFAD71FF)),
+    ReferenceRepairEntry("duplicate", "duplicate", R.string.repair_service_duplicate,
+        KxIconKind.COPY, Color(0xFF64EEFF)),
+    ReferenceRepairEntry("download", "download", R.string.repair_ref_download_title,
+        KxIconKind.DOWNLOAD, Color(0xFFFF8AD8)),
+    ReferenceRepairEntry("heavyweight", "heavyweight", R.string.repair_service_heavyweight,
+        KxIconKind.LAYERS, Color(0xFFAD71FF)),
+    ReferenceRepairEntry("media", "media", R.string.repair_ref_media_title,
+        KxIconKind.CLAPPER, Color(0xFF64EEFF)),
+    ReferenceRepairEntry("storage", "storage", R.string.repair_ref_storage_title,
+        KxIconKind.DRIVE_HEART, Color(0xFF64EEFF)),
+    ReferenceRepairEntry("network", "network", R.string.repair_service_network,
+        KxIconKind.WIFI, Color(0xFFFF8AD8)),
+    ReferenceRepairEntry("apps", "apps", R.string.repair_ref_apps_title,
+        KxIconKind.ANDROID, Color(0xFF64EEFF)),
+)
+
+@Composable
+private fun ReferenceRepairGrid(night: Boolean, onNavigate: (String) -> Unit) {
+    Column(Modifier.fillMaxWidth().testTag("repair-reference-grid"),
+        verticalArrangement = Arrangement.spacedBy(9.dp)) {
+        referenceRepairEntries.chunked(2).forEach { row ->
+            Row(
+                Modifier.fillMaxWidth().height(IntrinsicSize.Min),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                row.forEach { entry ->
+                    ReferenceRepairCard(
+                        entry = entry,
+                        night = night,
+                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                        onClick = { onNavigate(entry.route) },
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ReferenceRepairCard(
+    entry: ReferenceRepairEntry,
+    night: Boolean,
+    modifier: Modifier,
+    onClick: () -> Unit,
+) {
+    val title = stringResource(entry.title)
+    val ready = stringResource(R.string.repair_status_ready)
+    val accent = if (night) entry.accent else entry.accent.copy(alpha = .82f)
+    val shape = RoundedCornerShape(15.dp)
+    Row(
+        modifier.clip(shape)
+            .background(
+                Brush.linearGradient(
+                    if (night) listOf(
+                        Color(0xFF2C2463).copy(alpha = .84f),
+                        accent.copy(alpha = .14f),
+                        Color(0xFF151B40).copy(alpha = .88f),
+                    ) else listOf(
+                        Color.White.copy(alpha = .52f),
+                        accent.copy(alpha = .16f),
+                        Color.Transparent,
+                    ),
+                ),
+            )
+            .border(1.dp, Brush.linearGradient(
+                if (night) listOf(
+                    Color.White.copy(alpha = .24f),
+                    accent.copy(alpha = .30f),
+                ) else listOf(
+                    Color.White.copy(alpha = .88f),
+                    accent.copy(alpha = .24f),
+                ),
+            ), shape)
+            .clickable(role = Role.Button,
+                onClickLabel = stringResource(R.string.repair_open_service, title, ready),
+                onClick = onClick)
+            .semantics(mergeDescendants = true) { contentDescription = "$title. $ready" }
+            .padding(horizontal = 8.dp, vertical = 8.dp)
+            .heightIn(min = 52.dp)
+            .testTag("repair-card-${entry.tag}"),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(7.dp),
+    ) {
+        KxLineIcon(entry.icon, accent, Modifier.size(24.dp))
+        Text(
+            title,
+            color = kxInk(night),
+            fontSize = 12.5.sp,
+            lineHeight = 16.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Start,
+            modifier = Modifier.weight(1f),
+        )
+        KxMiniOrb(night, 24.dp)
     }
 }
 
@@ -365,51 +571,36 @@ private fun ServiceGrid(
     onNavigate: (String) -> Unit,
 ) {
     val context = LocalContext.current
-    val columns = if (LocalConfiguration.current.screenWidthDp >= 600) 3 else 2
+    // The eight reference cards above already cover the primary services. These are the
+    // remaining signature tools kept below the fold with their full descriptions.
+    val extras = listOf(
+        RepairServiceId.GHOST, RepairServiceId.SESSION, RepairServiceId.AUTOPILOT,
+    ).map(RepairCatalog::service)
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Text(stringResource(R.string.repair_services), fontWeight = FontWeight.Bold,
-            fontSize = 21.sp, color = foreground)
+        Text(stringResource(R.string.repair_more_tools), fontWeight = FontWeight.Bold,
+            fontSize = 19.sp, color = foreground)
         Text(
             stringResource(R.string.repair_services_count,
                 RepairCatalog.available(), RepairCatalog.services.size),
             fontSize = 12.sp, color = foreground.copy(alpha = .74f),
             modifier = Modifier.testTag("repair-services-count"),
         )
-        Box(Modifier.fillMaxWidth().padding(top = 4.dp)) {
-            Canvas(Modifier.matchParentSize()) {
-                val spine = Path().apply {
-                    moveTo(size.width * .5f, 0f)
-                    cubicTo(size.width * .42f, size.height * .28f, size.width * .60f,
-                        size.height * .62f, size.width * .5f, size.height)
-                }
-                drawPath(spine, Brush.linearGradient(listOf(
-                    Color(0xFFAD71FF).copy(alpha = .38f),
-                    Color(0xFF64EEFF).copy(alpha = .55f),
-                    Color(0xFFF9ECFF).copy(alpha = .30f))),
-                    style = Stroke(1.2.dp.toPx()))
-                for (i in 1..6) {
-                    val y = size.height * i / 7f
-                    drawCircle(Color.White.copy(alpha = .30f), 2.dp.toPx(),
-                        Offset(size.width * .5f, y))
-                }
-            }
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                RepairCatalog.services.chunked(columns).forEach { row ->
-                    Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        row.forEach { service ->
-                            ServiceCard(
-                                service = service,
-                                measurement = measurement,
-                                night = night,
-                                foreground = foreground,
-                                modifier = Modifier.weight(1f).fillMaxHeight(),
-                                onClick = { onNavigate(service.id.route) },
-                                context = context,
-                            )
-                        }
-                        repeat(columns - row.size) { Spacer(Modifier.weight(1f)) }
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            extras.chunked(2).forEach { row ->
+                Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    row.forEach { service ->
+                        ServiceCard(
+                            service = service,
+                            measurement = measurement,
+                            night = night,
+                            foreground = foreground,
+                            modifier = Modifier.weight(1f).fillMaxHeight(),
+                            onClick = { onNavigate(service.id.route) },
+                            context = context,
+                        )
                     }
+                    repeat(2 - row.size) { Spacer(Modifier.weight(1f)) }
                 }
             }
         }
@@ -563,7 +754,7 @@ fun RepairServiceRoute(route: String, night: Boolean, onBack: () -> Unit) {
     val service = RepairCatalog.byRoute(route)
     val foreground = if (night) Color(0xFFF7F3FF) else Color(0xFF171050)
     Box(Modifier.fillMaxSize()) {
-        Atmosphere(night, 0f)
+        KxReferenceAtmosphere(night)
         Column(
             Modifier.fillMaxSize().safeDrawingPadding()
                 .verticalScroll(rememberScrollState())
