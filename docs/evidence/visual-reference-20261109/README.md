@@ -3,6 +3,9 @@
 Duplicate DNA evidence for references 06 and 11 lives in
 [`duplicate-dna/README.md`](duplicate-dna/README.md).
 
+Download Rescue evidence for references 08 and 19 lives in
+[`download-rescue/README.md`](download-rescue/README.md).
+
 Runtime screenshots captured from the native Compose `HeavyweightScreen`, not from a mock-up
 renderer. The screen reads real provider-reported sizes from Android `DocumentsContract`
 metadata and exposes only the actions present in the implementation.
