@@ -39,11 +39,11 @@ jobs:
             android/app/build/outputs/apk
   device:
     runs-on: ubuntu-latest
-    # Emulator boot (10m) + APK install (6m) + the current 320-test suite (18m).
-    # Preserve setup and evidence-upload headroom; timeouts remain failures.
-    # This includes the PR28 VPN/Pro matrix, PR29 Home tests and the 2026-11-08
-    # app-inventory/Network Doctor/Download Rescue coverage.
-    timeout-minutes: 40
+    # Emulator boot (10m) + APK install (6m) + the current 324-test suite
+    # (30m measured upper bound) + evidence upload. Timeouts remain failures.
+    # This includes the PR28 VPN/Pro matrix, PR29 Home tests, the 2026-11-08
+    # app-inventory/Network Doctor/Download Rescue coverage and the cache tests.
+    timeout-minutes: 55
     strategy:
       fail-fast: false
       matrix:

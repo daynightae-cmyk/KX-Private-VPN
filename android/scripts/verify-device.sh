@@ -125,9 +125,13 @@ if [ -n "${KX_TEST_CLASS:-}" ]; then
     instrumentation_args+=("-Pandroid.testInstrumentationRunnerArguments.class=$KX_TEST_CLASS")
     printf 'scope=FOCUSED\nselector=%s\n' "$KX_TEST_CLASS" > device-screenshots/test-scope.txt
 else
-    printf 'scope=FULL\nexpected_total=320\n' > device-screenshots/test-scope.txt
+    printf 'scope=FULL\nexpected_total=324\n' > device-screenshots/test-scope.txt
 fi
-timeout --kill-after=15s 18m bash ./gradlew "${gradle_flags[@]}" :app:connectedDebugAndroidTest "${instrumentation_args[@]}"
+# The full 324-test API 35 suite takes longer than the older 320-test budget.
+# CI run 42553240264 reached 267/324 with zero failures when the former 18m
+# bound killed Gradle (exit 124). Keep the entire suite mandatory and allow the
+# measured runtime plus headroom; this is a timeout extension, not a test reduction.
+timeout --kill-after=15s 30m bash ./gradlew "${gradle_flags[@]}" :app:connectedDebugAndroidTest "${instrumentation_args[@]}"
 test_result=$?
 kill "$heartbeat_pid" 2>/dev/null || true
 wait "$heartbeat_pid" 2>/dev/null || true
