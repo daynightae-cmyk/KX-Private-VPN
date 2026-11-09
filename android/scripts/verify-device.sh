@@ -91,13 +91,55 @@ if [ "$is_emulator" = true ]; then
 else
     printf 'ime_disable_applied=false\nreason=physical_device\n' > device-screenshots/ime-disabled.txt
 fi
-# Run the full growing instrumented suite without skipping tests or treating
-# timeouts as success. The suite is now 252 tests and includes screenshot-heavy
-# visual fixtures; API35 reached test 235/252 at the old 12m bound with zero
-# failures. 18m remains a hard limit and still fits the 40m device job budget
-# (600s boot + 6m install + 18m tests).
-timeout --kill-after=15s 18m bash ./gradlew "${gradle_flags[@]}" :app:connectedDebugAndroidTest -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true
+# Diagnostic evidence for API35 emulator disappearance at 30-36/320 tests.
+# This is a HOST-ONLY passive heartbeat; it does not touch the app or relax tests.
+# Capture actual emulator process lifetime, ADB device list and cgroup pressure.
+(
+    while true; do
+        printf '\n--- %s ---\n' "$(date -u +%FT%TZ)"
+        ps -eo pid,ppid,stat,rss,etimes,comm | grep -E '(^ *PID|qemu|emulator)' || true
+        # A zombie QEMU remains in /proc briefly: raw wait status can identify SIGSEGV/SIGABRT.
+        while read -r qemu_pid; do
+            [ -r "/proc/$qemu_pid/stat" ] || continue
+            awk '{print "qemu_pid=" $1 " qemu_state=" $3 " qemu_wait_status_raw=" $52}' "/proc/$qemu_pid/stat"
+        done < <(ps -eo pid=,comm= | awk '$2 == "qemu-system-x86" { print $1 }')
+        timeout 5s adb devices -l 2>&1 || true
+        if [ -r /sys/fs/cgroup/memory.events ]; then
+            cat /sys/fs/cgroup/memory.events
+        fi
+        sleep 10
+    done
+) > device-screenshots/emulator-host-heartbeat.txt 2>&1 &
+heartbeat_pid=$!
+
+# Ordinary API26 and API35 jobs execute the ENTIRE instrumentation suite.
+# A separate API35 diagnostic job may explicitly select two suspect classes.
+# This never skips or weakens the separate full-suite CI gate.
+instrumentation_args=(-Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true)
+if [ -n "${KX_TEST_CLASS:-}" ]; then
+    if [[ ! "$KX_TEST_CLASS" =~ ^com\.knoux\.kxprivatevpn\.[A-Za-z0-9_.#,-]+$ ]]; then
+        echo "Invalid focused instrumentation class selector" >&2
+        kill "$heartbeat_pid" 2>/dev/null || true
+        exit 4
+    fi
+    instrumentation_args+=("-Pandroid.testInstrumentationRunnerArguments.class=$KX_TEST_CLASS")
+    printf 'scope=FOCUSED\nselector=%s\n' "$KX_TEST_CLASS" > device-screenshots/test-scope.txt
+else
+    printf 'scope=FULL\nexpected_total=320\n' > device-screenshots/test-scope.txt
+fi
+timeout --kill-after=15s 18m bash ./gradlew "${gradle_flags[@]}" :app:connectedDebugAndroidTest "${instrumentation_args[@]}"
 test_result=$?
+kill "$heartbeat_pid" 2>/dev/null || true
+wait "$heartbeat_pid" 2>/dev/null || true
+{
+    date -u +%FT%TZ
+    ps -eo pid,ppid,stat,rss,etimes,comm | grep -E '(^ *PID|qemu|emulator)' || true
+    timeout 5s adb devices -l 2>&1 || true
+    if [ -r /sys/fs/cgroup/memory.events ]; then cat /sys/fs/cgroup/memory.events; fi
+    if [ -d /tmp/android-runner ]; then
+        find /tmp/android-runner -maxdepth 6 -type f -printf '%TY-%Tm-%Td %TH:%TM:%TS %s %p\n' 2>/dev/null | head -n 80
+    fi
+} > device-screenshots/emulator-host-after.txt 2>&1
 if [ "$test_result" -eq 124 ]; then
     printf 'instrumentation_timeout=true\ngradle_exit_code=124\nresult=NOT_PASSED\n' > device-screenshots/test-timeout.txt
 fi

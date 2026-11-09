@@ -39,7 +39,7 @@ jobs:
             android/app/build/outputs/apk
   device:
     runs-on: ubuntu-latest
-    # Emulator boot (10m) + APK install (6m) + the 252-test suite (18m).
+    # Emulator boot (10m) + APK install (6m) + the current 320-test suite (18m).
     # Preserve setup and evidence-upload headroom; timeouts remain failures.
     # This includes the PR28 VPN/Pro matrix, PR29 Home tests and the 2026-11-08
     # app-inventory/Network Doctor/Download Rescue coverage.
@@ -48,6 +48,13 @@ jobs:
       fail-fast: false
       matrix:
         api: [26, 35]
+        include:
+          - api: 26
+            emulator_gpu_mode: swiftshader_indirect
+          - api: 35
+            # This mode is supported on Emulator 36.4.10; swiftshader_indirect
+            # was deprecated in 36.4.9 and crashes in the CI host RenderThread.
+            emulator_gpu_mode: swangle
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -70,11 +77,11 @@ jobs:
           emulator-build: 15004761
           # API35 cold boots can exceed three minutes on hosted KVM runners.
           emulator-boot-timeout: 600
-          # `-gpu software` renders through guest SwiftShader, which repeatedly killed the
-          # emulator mid-suite on push runs (device vanished at test 53 of 138 with an empty
-          # failure element). Host-side SwiftShader is the emulator-runner default and keeps
-          # the same headless behaviour, so the API35 gate stays a real 138-test run.
-          emulator-options: -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader_indirect -skin 720x1280 -camera-back none -camera-front none
+          # Actual CI host kernel records RenderThread SIGSEGV and QEMU signal 11;
+          # disabling Vulkan did not repair it. Test the supported ANGLE/SwiftShader
+          # backend on API35 only; retain the passing API26 renderer unchanged.
+          # All 320 API35 instrumented tests remain mandatory.
+          emulator-options: -no-window -no-audio -no-boot-anim -no-snapshot -gpu ${{ matrix.emulator_gpu_mode }} -skin 720x1280 -camera-back none -camera-front none
           disable-animations: false
           working-directory: android
           script: bash scripts/verify-device.sh
@@ -86,4 +93,43 @@ jobs:
             android/app/build/reports/androidTests
             android/app/build/outputs/androidTest-results
             android/app/build/test-results
+            android/device-screenshots
+
+  # Temporary PR40 diagnostic: reproduce the two classes involved in
+  # repeated API35 emulator loss in a FRESH, isolated emulator process.
+  # The mandatory device(35) full 320-test gate above remains unchanged.
+  api35-focused-diagnostic:
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.number == 40 }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          profile: Nexus 5
+          emulator-build: 15004761
+          emulator-boot-timeout: 600
+          emulator-options: -no-window -no-audio -no-boot-anim -no-snapshot -gpu swangle -skin 720x1280 -camera-back none -camera-front none
+          disable-animations: false
+          working-directory: android
+          script: KX_TEST_CLASS="com.knoux.kxprivatevpn.CacheFlowTest,com.knoux.kxprivatevpn.ClientFlowTest" bash scripts/verify-device.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-device-api-35-focused-diagnostic
+          path: |
+            android/app/build/reports/androidTests
+            android/app/build/outputs/androidTest-results
             android/device-screenshots

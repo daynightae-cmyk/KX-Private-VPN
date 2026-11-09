@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="network_ref_subtitle">See Android network readiness, reported DNS and an optional consent-based HTTPS request. No invented safety results.</string>
+    <string name="network_ref_ready">Ready to check Android network</string>
+    <string name="network_ref_read_unavailable">Android network reading unavailable</string>
+    <string name="network_ref_android_validated">Internet validated by Android</string>
+    <string name="network_ref_needs_review">Network connection needs review</string>
+    <string name="network_ref_offline">Offline</string>
+    <string name="network_ref_start">Start network diagnosis</string>
+    <string name="network_ref_scan_scope">This button reads Android only. An HTTPS request runs only with your approval below.</string>
+    <string name="network_ref_summary">Network overview</string>
+    <string name="network_ref_summary_note">Live Android facts and measured HTTPS request — unknown means not tested</string>
+    <string name="network_ref_network">Network</string>
+    <string name="network_ref_dns">DNS</string>
+    <string name="network_ref_https">HTTPS request</string>
+    <string name="network_ref_latency">Request time</string>
+    <string name="network_ref_unknown">—</string>
+    <string name="network_ref_reported">Reported</string>
+    <string name="network_ref_dns_reported">Reported</string>
+    <string name="network_ref_not_reported">Not reported</string>
+    <string name="network_ref_running">Running…</string>
+    <string name="network_ref_request_failed">Failed</string>
+    <string name="network_ref_http_status">HTTP %1$d</string>
+    <string name="network_ref_not_tested">Not tested</string>
+    <string name="network_ref_latency_ms">%1$d ms</string>
+    <string name="network_ref_os_validated">Android validated Internet connectivity</string>
+    <string name="network_ref_os_not_validated">Internet validation not confirmed</string>
+    <string name="network_ref_dns_unconfirmed">No DNS servers reported by Android</string>
+    <string name="network_ref_https_response">HTTPS request returned an HTTP response</string>
+    <string name="network_ref_https_unverified">HTTPS request has not been tested</string>
+</resources>

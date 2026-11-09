@@ -27,6 +27,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.knoux.kxprivatevpn.R
 import com.knoux.kxprivatevpn.designsystem.Atmosphere
+import com.knoux.kxprivatevpn.designsystem.KxReferenceTheme
+import com.knoux.kxprivatevpn.designsystem.KxReferenceAtmosphere
+import com.knoux.kxprivatevpn.designsystem.KxReferenceHeader
+import com.knoux.kxprivatevpn.designsystem.KxTitleBlock
+import com.knoux.kxprivatevpn.designsystem.KxGlassPanel
+import com.knoux.kxprivatevpn.designsystem.KxIconKind
 import com.knoux.kxprivatevpn.designsystem.GlassAction
 import com.knoux.kxprivatevpn.designsystem.GlassSurface
 import com.knoux.kxprivatevpn.designsystem.KxPageHeader
@@ -152,22 +158,32 @@ fun NetworkDoctorScreen(
     val no = stringResource(R.string.answer_no)
     val invalidTarget = NetworkProbePolicy.targetProblem(state.probeUrl)
 
+    KxReferenceTheme(night) {
     Box(Modifier.fillMaxSize().testTag("route-network")) {
-        Atmosphere(night, 0f)
+        KxReferenceAtmosphere(night)
         Column(
             Modifier.fillMaxSize().safeDrawingPadding()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            KxPageHeader(
-                title = stringResource(R.string.network_doctor),
+            KxReferenceHeader(
                 night = night,
-                backLabel = stringResource(R.string.back),
-                onBack = onBack,
+                actionLabel = stringResource(R.string.back),
+                tag = "network-ref-back",
+                icon = KxIconKind.BACK,
+                onClick = onBack,
             )
+            KxTitleBlock(
+                title = stringResource(R.string.network_doctor),
+                subtitle = stringResource(R.string.network_ref_subtitle),
+                night = night,
+            )
+            NetworkReferenceHero(night, probing = state.probing)
+            NetworkReferenceControls(night, state, onReadAgain = onRefresh)
+            NetworkReferenceSummary(night, state)
 
-            GlassSurface(night) {
+            KxGlassPanel(night, radius = 24.dp) {
                 Text(stringResource(R.string.network_readonly_title), fontWeight = FontWeight.Bold,
                     fontSize = 18.sp)
                 Text(
@@ -184,7 +200,7 @@ fun NetworkDoctorScreen(
                 )
             }
 
-            GlassSurface(night) {
+            KxGlassPanel(night, radius = 24.dp) {
                 Text(stringResource(R.string.network_measured_title), fontWeight = FontWeight.Bold,
                     fontSize = 18.sp)
                 when {
@@ -229,7 +245,7 @@ fun NetworkDoctorScreen(
                 ) { Text(stringResource(R.string.network_refresh)) }
             }
 
-            GlassSurface(night) {
+            KxGlassPanel(night, radius = 24.dp) {
                 Text(stringResource(R.string.network_probe_title), fontWeight = FontWeight.Bold,
                     fontSize = 18.sp)
                 Text(
@@ -296,6 +312,7 @@ fun NetworkDoctorScreen(
             }
             Spacer(Modifier.height(24.dp))
         }
+    }
     }
 }
 

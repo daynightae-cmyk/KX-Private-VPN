@@ -284,6 +284,34 @@ class MediaSlimScreenTest {
         captureDialog("73-media-night-ar-large-confirm")
     }
 
+    @Test fun reference01HeroHasRealMetricsAndConfirmedPrimaryAction() {
+        render(initial = MediaSlimUiState(
+            treeName = "Camera", treeUri = "tree://camera", scan = scan,
+        ), arabic = true, night = true)
+        compose.onNodeWithTag("route-media").assertExists()
+        compose.onNodeWithTag("media-ref-hero").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("media-ref-metrics").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("media-ref-images").assertExists()
+        compose.onNodeWithTag("media-ref-videos").assertExists()
+        compose.onNodeWithTag("media-ref-folder").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("media-ref-primary-action").performScrollTo().assertIsNotEnabled()
+        capture("01-media-reference-ar-night-unselected")
+        compose.onNodeWithTag("media-file-img").performScrollTo().performClick()
+        compose.onNodeWithTag("media-ref-primary-action").performScrollTo().assertIsEnabled()
+            .performClick()
+        compose.onNodeWithTag("media-confirm").assertExists()
+    }
+
+    @Test fun reference01UnscannedShowsNoFakeInventoryOrSavings() {
+        render(initial = MediaSlimUiState(), night = true)
+        compose.onNodeWithTag("media-ref-hero").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("media-ref-metrics").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("media-scan-summary").assertDoesNotExist()
+        compose.onNodeWithTag("media-ref-primary-action").performScrollTo().assertIsEnabled()
+        compose.onNodeWithTag("media-compress").assertDoesNotExist()
+        capture("01-media-reference-en-night-empty")
+    }
+
     @Test fun qualityChoiceIsExplicitAndAccessible() {
         render(initial = MediaSlimUiState(
             treeName = "Camera", treeUri = "tree://camera", scan = scan,

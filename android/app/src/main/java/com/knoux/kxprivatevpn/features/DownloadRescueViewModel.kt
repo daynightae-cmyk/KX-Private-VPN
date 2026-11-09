@@ -13,6 +13,7 @@ import com.knoux.kxprivatevpn.platform.repair.DownloadExportCoordinator
 import com.knoux.kxprivatevpn.platform.repair.DownloadHealth
 import com.knoux.kxprivatevpn.platform.repair.DownloadTarget
 import com.knoux.kxprivatevpn.platform.repair.freezeDownloadSelection
+import com.knoux.kxprivatevpn.platform.repair.verifiedRemovalBytes
 import com.knoux.kxprivatevpn.platform.storage.DownloadCatalog
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
@@ -230,11 +231,9 @@ class DownloadRescueViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             try {
                 val results = mutableListOf<DownloadActionResult>()
-                var removedBytes = 0L
                 targets.forEach { target ->
                     val result = catalog.remove(Uri.parse(target.uri), target.candidate.displayName)
                     results += result
-                    if (result.succeeded) removedBytes += target.candidate.bytes
                 }
                 val receipt = DownloadReceipt(
                     action = DownloadAction.REMOVE,
@@ -242,7 +241,7 @@ class DownloadRescueViewModel(app: Application) : AndroidViewModel(app) {
                     succeeded = results.count { it.succeeded },
                     failed = results.count { !it.succeeded },
                     bytesCopied = 0L,
-                    bytesRemoved = removedBytes,
+                    bytesRemoved = verifiedRemovalBytes(results),
                     results = results,
                     atMillis = System.currentTimeMillis(),
                 )
