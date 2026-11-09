@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="guardian_passport_title">جواز الثقة</string>
+    <string name="guardian_passport_counts">%1$d إجراءات مهمة · %2$d مراجعات · %3$d معلومات</string>
+    <string name="guardian_passport_provenance">مصادر الأدلة: WireGuard الحقيقي وحالة الشبكة في Android والتخزين الداخلي وتطبيقات المشغل المرئية. غير المعروف لا يعني آمنًا.</string>
+    <string name="guardian_priority_action">راجع الإجراء الأهم</string>
+    <string name="guardian_copy_passport">انسخ تقرير التشخيص الآمن للخصوصية</string>
+    <string name="guardian_copied">تم نسخ التقرير دون حسابات أو عناوين سيرفرات أو DNS أو أسماء تطبيقات.</string>
+    <string name="guardian_copy_failed">تعذر نسخ تقرير التشخيص.</string>
+    <string name="guardian_stale">قياس قديم — أعد الفحص</string>
+    <string name="guardian_stale_scope">انتهت صلاحية هذا القياس. أعد الفحص قبل الاعتماد عليه.</string>
+    <string name="guardian_transport_title">حالة مرور VPN تحتاج تحققًا</string>
+    <string name="guardian_transport_body">WireGuard يبلغ عن نفق متصل لكن Android لا يصف الشبكة الافتراضية بأنها VPN. قد يكون هذا طبيعيًا مع توجيه التطبيقات، وليس دليل تسرب. راجع مركز الأمان.</string>
+    <string name="guardian_net_stale_title">انتهت صلاحية قراءة الشبكة</string>
+    <string name="guardian_net_stale_body">قياس الشبكة أقدم من دقيقتين أو تغيرت حالة الشبكة. أعد الفحص قبل اتخاذ قرار.</string>
+    <string name="guardian_critical_storage_title">مساحة التخزين الداخلية حرجة</string>
+    <string name="guardian_critical_storage_body">المتاح خمسة بالمئة أو أقل من وحدة التخزين المقاسة. راجع الملفات بأمان قبل أي حذف.</string>
+    <string name="guardian_storage_stale_title">انتهت صلاحية قراءة التخزين</string>
+    <string name="guardian_storage_stale_body">قياس التخزين أقدم من عشر دقائق. أعد الفحص قبل قرار التنظيف.</string>
+    <string name="guardian_apps_stale_title">انتهت صلاحية قائمة التطبيقات</string>
+    <string name="guardian_apps_stale_body">قائمة التطبيقات المرئية أقدم من خمس عشرة دقيقة. أعد الفحص قبل الاعتماد على العدد.</string>
+</resources>

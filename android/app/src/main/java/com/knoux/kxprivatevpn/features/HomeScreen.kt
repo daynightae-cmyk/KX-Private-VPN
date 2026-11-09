@@ -135,6 +135,7 @@ fun KxHomeScreen(
                     RecentActivity(night, activeSession, history, context, onNavigate)
                     SessionTelemetry(night, vpn)
                     KxCareCard(night, onNavigate)
+                    GuardianHomeAction(night, onNavigate)
                     ToolsGrid(night, onNavigate)
                     vpn.issue?.let { issue ->
                         KxGlassPanel(night, radius = 18.dp) {
@@ -165,6 +166,46 @@ fun KxHomeScreen(
                     onNavigate = onNavigate,
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun GuardianHomeAction(night: Boolean, onNavigate: (String) -> Unit) {
+    val actionLabel = stringResource(R.string.guardian_home_action)
+    KxGlassPanel(
+        night = night,
+        modifier = Modifier.fillMaxWidth()
+            .clickable(role = Role.Button, onClickLabel = actionLabel) { onNavigate("guardian") }
+            .testTag("open-guardian"),
+        radius = 18.dp,
+    ) {
+        Row(
+            Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            KxOrb(
+                progress = 1f,
+                frame = IntroTimeline.frame(1f),
+                modifier = Modifier.size(40.dp),
+            )
+            Column(Modifier.weight(1f)) {
+                Text(
+                    stringResource(R.string.guardian_home_description),
+                    color = kxInk(night),
+                    fontSize = 13.sp,
+                    lineHeight = 19.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Text(
+                    stringResource(R.string.guardian_home_scope),
+                    color = kxMuted(night),
+                    fontSize = 11.sp,
+                    lineHeight = 16.sp,
+                )
+            }
+            KxLineIcon(KxIconKind.SHIELD_CHECK, kxCyan(night), Modifier.size(24.dp))
         }
     }
 }

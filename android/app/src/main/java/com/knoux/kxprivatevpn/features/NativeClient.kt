@@ -79,6 +79,16 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
     MaterialTheme(colorScheme = if (night) darkColorScheme(primary = Color(0xFF99EBFF))
         else lightColorScheme(primary = Color(0xFF4420B3))) {
         CompositionLocalProvider(LocalContentColor provides foreground) {
+            if (route == "guardian") {
+                GuardianRoute(
+                    night = night,
+                    vpn = vpn,
+                    hasProfile = state.snapshot.profiles.isNotEmpty(),
+                    onBack = back,
+                    onNavigate = navigate,
+                )
+                return@CompositionLocalProvider
+            }
             if (route == "home") {
                 KxHomeScreen(
                     night = night,
