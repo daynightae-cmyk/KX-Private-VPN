@@ -2,18 +2,22 @@ package com.knoux.kxprivatevpn
 
 import android.content.Context
 import android.content.res.Configuration
-import android.graphics.Bitmap
 import android.net.Uri
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.platform.app.InstrumentationRegistry
 import com.knoux.kxprivatevpn.features.DownloadRescueScreen
@@ -30,7 +34,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
-import java.io.File
 import java.util.Locale
 
 /**
@@ -40,6 +43,7 @@ import java.util.Locale
  */
 class DownloadRescueScreenTest {
     @get:Rule val compose = createComposeRule()
+    private var hostView: View? = null
 
     private val base: Context
         get() = InstrumentationRegistry.getInstrumentation().targetContext
@@ -74,6 +78,8 @@ class DownloadRescueScreenTest {
     private fun screen(
         state: DownloadRescueUiState,
         language: String = "en",
+        night: Boolean = false,
+        fontScale: Float = 1f,
         onBack: () -> Unit = {},
         onChooseFolder: () -> Unit = {},
         onScan: () -> Unit = {},
@@ -89,15 +95,19 @@ class DownloadRescueScreenTest {
     ) {
         compose.setContent {
             val localizedContext = localized(base, language)
+            val density = LocalDensity.current
+            val view = LocalView.current
+            SideEffect { hostView = view }
             CompositionLocalProvider(
                 LocalContext provides localizedContext,
                 LocalConfiguration provides localizedContext.resources.configuration,
+                LocalDensity provides Density(density.density, fontScale),
                 LocalLayoutDirection provides
                     if (language == "ar") LayoutDirection.Rtl else LayoutDirection.Ltr,
             ) {
                 Box(Modifier.fillMaxSize()) {
                     DownloadRescueScreen(
-                        night = false,
+                        night = night,
                         state = state,
                         onBack = onBack,
                         onChooseFolder = onChooseFolder,
@@ -118,12 +128,54 @@ class DownloadRescueScreenTest {
     }
 
     private fun capture(name: String) {
-        val folder = File(context.getExternalFilesDir(null), "identity-evidence").apply { mkdirs() }
-        File(folder, "$name.png").outputStream().use { stream ->
-            check(compose.onRoot().captureToImage().asAndroidBitmap()
-                .compress(Bitmap.CompressFormat.PNG, 100, stream))
-        }
+        compose.waitForIdle()
+        captureEvidence(context, compose, name)
     }
+
+    /**
+     * Hides the platform IME through the host window token. A back key can finish the host
+     * activity on a headless emulator, so the window token is the only safe route.
+     */
+    private fun hideKeyboard() {
+        val view = hostView ?: return
+        val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            imm.hideSoftInputFromWindow(view.windowToken, 0)
+        }
+        compose.waitForIdle()
+    }
+
+    /** Seven measured rows with the mix shown by the owner results reference. */
+    private fun referenceCandidates() = listOf(
+        candidate(
+            "kx", "KX_Setup_v3.2.6.apk", 82_700_000L,
+            DownloadHealth.TRUNCATED, "missing_tail", DownloadFormat.ZIP,
+        ),
+        candidate(
+            "chrome", "Chrome_v120.0.6099.116.apk", 1_240_000_000L,
+            DownloadHealth.CORRUPTED, "bad_header", DownloadFormat.ZIP,
+        ),
+        candidate(
+            "wa", "WhatsApp_v2.24.25.71.apk", 218_900_000L,
+            DownloadHealth.TRUNCATED, "missing_tail", DownloadFormat.ZIP,
+        ),
+        candidate(
+            "telegram", "Telegram_v10.9.2.apk", 71_800_000L,
+            DownloadHealth.TRUNCATED, "missing_tail", DownloadFormat.ZIP,
+        ),
+        candidate(
+            "photo", "IMG_20261109_182233.png", 2_100_000L,
+            DownloadHealth.INTACT, "verified", DownloadFormat.PNG,
+        ),
+        candidate(
+            "empty", "resume-final.zip", 0L,
+            DownloadHealth.ZERO_BYTE, "no_bytes", DownloadFormat.ZIP,
+        ),
+        candidate(
+            "notes", "notes.txt", 12_000L,
+            DownloadHealth.UNSUPPORTED, "no_validator", null,
+        ),
+    )
 
     @Test fun theScopeAndEveryMeasuredStateAreShown() {
         screen(
@@ -348,5 +400,121 @@ class DownloadRescueScreenTest {
         compose.onNodeWithTag("download-select-1").performScrollTo().performClick()
         assertEquals("b", toggled)
         compose.onNodeWithTag("download-selected").assertTextContains("0", substring = true)
+    }
+
+    // ---------------------------------------------------------------------------
+    // Owner references 08 (hero) and 19 (measured results)
+    // ---------------------------------------------------------------------------
+
+    private fun referenceResultsState(selected: Set<String> = emptySet()) = DownloadRescueUiState(
+        loading = false,
+        treeName = "Download",
+        treeUri = "content://tree/download",
+        mediaStoreRows = 7,
+        candidates = referenceCandidates(),
+        selected = selected,
+    )
+
+    @Test fun referenceHeroShowsTheLocalStructuralCheckPromise() {
+        screen(DownloadRescueUiState(loading = false))
+        compose.onNodeWithTag("download-hero").assertExists()
+        compose.onNodeWithText(context.getString(R.string.download_ref_hero_hint)).assertExists()
+        compose.onNodeWithTag("download-choose-folder").assertExists()
+        // No result, no selected file and no invented progress before a real scan.
+        compose.onNodeWithTag("download-selection-bar").assertDoesNotExist()
+        compose.onNodeWithTag("download-health-0").assertDoesNotExist()
+        capture("80-download-rescue-hero")
+    }
+
+    @Test fun referenceResultsShowMeasuredSummaryFiltersAndSelectionBar() {
+        var requested = 0
+        screen(referenceResultsState(setOf("kx", "chrome", "wa")), onRequestRemove = { requested++ })
+        compose.onNodeWithTag("download-summary-total").performScrollTo().assertTextEquals("7")
+        compose.onNodeWithTag("download-summary-incomplete").assertTextEquals("3")
+        compose.onNodeWithTag("download-summary-failed").assertTextEquals("2")
+        compose.onNodeWithTag("download-visible-count").assertTextEquals("7 of 7 shown")
+        compose.onNodeWithText(context.getString(R.string.download_ref_selected_chip, 3)).assertExists()
+        compose.onNodeWithTag("download-selection-bar").assertExists()
+        compose.onNodeWithTag("download-process").assertIsEnabled()
+        capture("81-download-rescue-results-top")
+
+        // The action panel repeats the measured receipt contract, not a fake progress claim.
+        compose.onNodeWithTag("download-selected").performScrollTo()
+            .assertTextContains("3 selected", substring = true)
+        compose.onNodeWithTag("download-actions").assertExists()
+        compose.onNodeWithTag("download-name-4").assertExists()
+        capture("82-download-rescue-results-rows")
+
+        // The bottom bar asks for confirmation; it never removes by itself.
+        compose.onNodeWithTag("download-process").performClick()
+        assertEquals(1, requested)
+    }
+
+    @Test fun measuredFilterChipsAreTouchable() {
+        screen(referenceResultsState())
+        compose.onNodeWithTag("route-download")
+            .performScrollToNode(hasTestTag("download-filter-failed"))
+        compose.onNodeWithTag("download-filter-failed").performClick()
+        compose.onNodeWithTag("download-filter-failed").assertIsSelected()
+        compose.onNodeWithTag("download-visible-count").assertTextEquals("2 of 7 shown")
+    }
+
+    @Test fun searchAndMeasuredFiltersNarrowTheListWithoutAScan() {
+        var scans = 0
+        screen(referenceResultsState(), onScan = { scans++ })
+        compose.onNodeWithTag("download-search").performScrollTo().performTextInput("chrome")
+        compose.onNodeWithTag("download-visible-count").assertTextEquals("1 of 7 shown")
+        compose.onNodeWithTag("download-name-1").assertExists()
+        compose.onNodeWithTag("download-name-0").assertDoesNotExist()
+
+        // The IME is its own window: a tap on a chip behind it never reaches the app.
+        hideKeyboard()
+        compose.onNodeWithTag("download-search-clear").performClick()
+        compose.onNodeWithTag("download-visible-count").assertTextEquals("7 of 7 shown")
+
+        compose.onNodeWithTag("download-filter-failed").assertIsNotSelected()
+        compose.onNodeWithTag("route-download")
+            .performScrollToNode(hasTestTag("download-filter-failed"))
+        compose.onNodeWithTag("download-filter-failed").performClick()
+        compose.onNodeWithTag("download-filter-failed").assertIsSelected()
+        compose.onNodeWithTag("download-visible-count").assertTextEquals("2 of 7 shown")
+        compose.onNodeWithTag("download-name-1").assertExists()
+        compose.onNodeWithTag("download-name-5").assertExists()
+        compose.onNodeWithTag("download-name-0").assertDoesNotExist()
+        assertEquals("search and filters must never trigger a provider rescan", 0, scans)
+        capture("83-download-rescue-filtered")
+    }
+
+    @Test fun nightResultsKeepMeasuredContrast() {
+        screen(referenceResultsState(setOf("chrome")), night = true)
+        compose.onNodeWithTag("download-summary-total").performScrollTo().assertTextEquals("7")
+        compose.onNodeWithTag("download-health-2").assertTextContains("Incomplete", substring = true)
+        compose.onNodeWithTag("download-selection-bar").assertExists()
+        capture("84-download-rescue-results-night")
+    }
+
+    @Test fun arabicResultsAreLocalizedAndReadRtl() {
+        val arabic = localized(base, "ar")
+        screen(referenceResultsState(), language = "ar")
+        compose.onNodeWithTag("download-filter-all").performScrollTo()
+            .assertTextContains(arabic.getString(R.string.download_ref_filter_all), substring = true)
+        compose.onNodeWithTag("download-visible-count")
+            .assertTextContains(arabic.getString(R.string.download_ref_visible, 7, 7))
+        // In an RTL row the first metric is laid out on the right-hand side.
+        val totalX = compose.onNodeWithTag("download-summary-total")
+            .fetchSemanticsNode().boundsInRoot.center.x
+        val failedX = compose.onNodeWithTag("download-summary-failed")
+            .fetchSemanticsNode().boundsInRoot.center.x
+        assertTrue("RTL should place the total metric right of the failed metric", totalX > failedX)
+        capture("85-download-rescue-results-ar")
+    }
+
+    @Test fun largeFontKeepsMeasuredActionsReachable() {
+        screen(referenceResultsState(setOf("kx")), fontScale = 2f)
+        compose.onNodeWithTag("download-summary-total").performScrollTo().assertTextEquals("7")
+        compose.onNodeWithTag("download-remove").performScrollTo().assertIsEnabled()
+        compose.onNodeWithTag("download-process").assertIsEnabled()
+        compose.onNodeWithTag("download-selection-bar").assertExists()
+        capture("86-download-rescue-large-font")
     }
 }

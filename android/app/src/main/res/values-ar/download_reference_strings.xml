@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="download_ref_subtitle">افحص الملفات في مجلد تسمح به، وتحقق من بنيتها، واستعد نسخًا آمنة. لا يدّعي KX إصلاح البايتات أبدًا.</string>
+    <string name="download_ref_results_subtitle">حالات مقاسة من المجلد المفحوص. ابحث وصفِّ، ولا تعالج إلا الملفات التي تحددها.</string>
+    <string name="download_ref_hero_hint">فحص بنيوي محلي · دون رفع أي محتوى</string>
+    <string name="download_ref_scanning_hint">جاري فحص المجلد المسموح به…</string>
+    <string name="download_ref_scanning_progress">جاري الفحص… %1$d ملفات</string>
+    <string name="download_ref_scanning_action">جاري الفحص…</string>
+    <string name="download_ref_choose_action">اختر مجلد التنزيلات</string>
+    <string name="download_ref_folder">المجلد المسموح</string>
+    <string name="download_ref_no_folder">لم يتم اختيار مجلد</string>
+    <string name="download_ref_change_folder">تغيير المجلد</string>
+    <string name="download_ref_rescan">إعادة الفحص</string>
+    <string name="download_ref_media">التنزيلات المشتركة الظاهرة للنظام: %1$d</string>
+    <string name="download_ref_last_scan">نتائج آخر فحص مقاس</string>
+    <string name="download_ref_no_scan">لا يوجد فحص مقاس بعد. اختر مجلدًا ثم شغّل فحصًا بنيويًا حقيقيًا.</string>
+    <string name="download_ref_summary_title">ملخص التنزيلات المتعثرة</string>
+    <string name="download_ref_summary_note">الأعداد مقاسة من هذا الفحص. لا يقدّر KX نسبة تقدم التنزيل أبدًا.</string>
+    <string name="download_ref_total">الإجمالي</string>
+    <string name="download_ref_incomplete">غير مكتمل</string>
+    <string name="download_ref_failed">فاشل</string>
+    <string name="download_ref_search_hint">ابحث في التنزيلات…</string>
+    <string name="download_ref_search_clear">مسح البحث</string>
+    <string name="download_ref_filter_all">الكل</string>
+    <string name="download_ref_filter_intact">مكتمل</string>
+    <string name="download_ref_filter_incomplete">غير مكتمل</string>
+    <string name="download_ref_filter_failed">فاشل</string>
+    <string name="download_ref_filter_unverified">غير متحقق</string>
+    <string name="download_ref_filter_count">%1$s (%2$d)</string>
+    <string name="download_ref_visible">%1$d من %2$d معروض</string>
+    <string name="download_ref_selected_chip">المحدد: %1$d</string>
+    <string name="download_ref_no_match">لا يوجد ملف يطابق هذا البحث وهذا التصفية. مسحهما لا يعيد الفحص.</string>
+    <string name="download_ref_size">الحجم: %1$s</string>
+    <string name="download_ref_actions">إجراءات مقاسة</string>
+    <string name="download_ref_process_note">%1$d محدد · %2$s · يلزم التأكيد</string>
+    <string name="download_ref_process_none">حدد ملفات مقاسة لتمكين الحذف المؤكد</string>
+    <string name="download_ref_confirmed">الحذف المؤكد فقط</string>
+    <string name="download_ref_process">حذف المحدد</string>
+    <string name="download_ref_panel_title">ما يمكن لهذا الفحص التحقق منه</string>
+</resources>
