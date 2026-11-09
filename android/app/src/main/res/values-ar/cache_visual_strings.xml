@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cache_ref_title">الملفات المؤقتة</string>
+    <string name="cache_ref_subtitle">راجع ملفات KX المؤقتة والكاش فقط. لا تُمس ملفاتك الشخصية أو بيانات التطبيقات الأخرى.</string>
+    <string name="cache_ref_results_title">نتائج الفحص المقاسة</string>
+    <string name="cache_ref_metric_count">ملفات كاش KX</string>
+    <string name="cache_ref_metric_bytes">الحجم المقاس</string>
+    <string name="cache_ref_metric_scope">النطاق</string>
+    <string name="cache_ref_scope_value">KX فقط</string>
+    <string name="cache_ref_safety">يمكن اختيار الملفات المقاسة داخل كاش KX فقط، ولا يتم الحذف إلا بعد موافقتك الصريحة. لا نعرض المساحة المتوقعة باعتبارها مساحة تم تنظيفها.</string>
+</resources>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cache_ref_title">Temporary Files</string>
+    <string name="cache_ref_subtitle">Review KX temporary files and cache only. Personal files and other apps stay untouched.</string>
+    <string name="cache_ref_results_title">Measured scan results</string>
+    <string name="cache_ref_metric_count">KX cache files</string>
+    <string name="cache_ref_metric_bytes">Measured size</string>
+    <string name="cache_ref_metric_scope">Scope</string>
+    <string name="cache_ref_scope_value">KX only</string>
+    <string name="cache_ref_safety">Only files measured inside KX cache can be selected. Removal requires your explicit confirmation. No estimated savings are reported as cleaned.</string>
+</resources>
