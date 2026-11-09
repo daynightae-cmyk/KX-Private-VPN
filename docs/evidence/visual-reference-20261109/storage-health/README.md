@@ -15,7 +15,7 @@ authorized through the Storage Access Framework (SAF).
 
 - Emulator: `kx_preview`, Android API 26.
 - Test class: `com.knoux.kxprivatevpn.StorageXrayScreenTest` (13 tests).
-- Final local run: `OK (13 tests)` in 50.9 s.
+- Final local run: `OK (13 tests)`.
 - Pure model: `StorageHealthModelTest` (8 JVM tests) covers unavailable, measuring, partial,
   lower-bound, failed-query and measured-zero rules without an emulator.
 - Fixture volume: 64 GiB total with 20 GiB free (reported by the screen as 68.72 GB / 18.63 GB
@@ -45,8 +45,8 @@ SHA-256 of the committed PNG bytes:
 f416d0182a87fb52356a906754fc4d45c5f804db2d217f510fe387a577c2eb4e  67-storage-health-hero.png
 c2ae21e76de3d37c3dfba4e028ab3f140b90a9417feccd2f5787570623b654b8  68-storage-health-measured.png
 bd70a07f8030c3f8826577f4fa4ebbfaa1cef148c4d5a3f5bdb3a3d031aa06ac  69-storage-health-unavailable.png
-ad59af09e1271fbfa44d2f955df0a49a0fd126585d0d46aa2decf42c9d938cfd  70-storage-health-night-ar-large.png
-a736e00175fafca9fb698fab83751918224323b9b36ddc3bff28518aa08c64c8  70b-storage-health-night-ar-panel.png
+50f4d95055e524f0598d0858810d5ded4bcacee12c287f8f3224c64cb33a73b4  70-storage-health-night-ar-large.png
+3c959964429d236d3b2c07348ff8f294711b8eba0b7425d4078b02c6fc3dd797  70b-storage-health-night-ar-panel.png
 ```
 
 ## Intentional deviations from reference 07

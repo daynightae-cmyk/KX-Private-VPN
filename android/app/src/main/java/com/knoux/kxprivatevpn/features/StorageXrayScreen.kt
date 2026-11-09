@@ -35,12 +35,14 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -485,7 +487,7 @@ private fun HealthCategoryRow(
                 fontSize = 9.5.sp,
                 lineHeight = 12.sp,
                 color = if (measured) ink.copy(alpha = .84f) else kxMuted(night),
-                maxLines = 2,
+                maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.testTag("storage-health-value-${category.kind.name.lowercase()}"),
             )
@@ -561,14 +563,16 @@ private fun HealthPercentRing(
                 )
             }
         }
-        Text(
-            label ?: "—",
-            fontSize = 9.5.sp,
-            fontWeight = FontWeight.Bold,
-            color = if (fraction != null) kxInk(night) else kxMuted(night),
-            maxLines = 1,
-            modifier = Modifier.testTag(tag),
-        )
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+            Text(
+                label ?: "—",
+                fontSize = 9.5.sp,
+                fontWeight = FontWeight.Bold,
+                color = if (fraction != null) kxInk(night) else kxMuted(night),
+                maxLines = 1,
+                modifier = Modifier.testTag(tag),
+            )
+        }
     }
 }
 

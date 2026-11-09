@@ -342,6 +342,8 @@ class StorageXrayScreenTest {
         compose.onNodeWithTag("storage-health-panel").assertExists()
         compose.onNodeWithTag("storage-health-score")
             .assertTextEquals(ar.getString(R.string.storage_ref_score_unavailable))
+        compose.onNodeWithTag("storage-health-percent-kx")
+            .assertTextEquals(ar.getString(R.string.storage_ref_less_than_one))
         capture("70-storage-health-night-ar-large")
         compose.onNodeWithTag("storage-health-row-other").performScrollTo().assertIsDisplayed()
         capture("70b-storage-health-night-ar-panel")
