@@ -2,14 +2,18 @@ package com.knoux.kxprivatevpn
 
 import android.content.Context
 import android.content.res.Configuration
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.Density
@@ -35,6 +39,7 @@ import java.util.Locale
  */
 class DuplicateDnaScreenTest {
     @get:Rule val compose = createComposeRule()
+    private var hostView: View? = null
 
     private val context: Context
         get() = InstrumentationRegistry.getInstrumentation().targetContext
@@ -45,7 +50,8 @@ class DuplicateDnaScreenTest {
         documentId = id,
         relativePath = path,
         bytes = bytes,
-        lastModified = if (keep) 1_000L else 2_000L,
+        // Realistic timestamps keep evidence readable instead of printing 1/1/70.
+        lastModified = if (keep) now - 172_800_000L else now - 86_400_000L,
         sha256 = "abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234",
         keep = keep,
     )
@@ -98,6 +104,9 @@ class DuplicateDnaScreenTest {
 
     private fun text(id: Int, vararg args: Any): String = context.getString(id, *args)
 
+    private fun plural(id: Int, quantity: Int, vararg args: Any): String =
+        context.resources.getQuantityString(id, quantity, *args)
+
     private fun localized(base: Context, language: String): Context {
         val configuration = Configuration(base.resources.configuration)
         configuration.setLocale(Locale.forLanguageTag(language))
@@ -123,6 +132,8 @@ class DuplicateDnaScreenTest {
         onCancelCleanup: () -> Unit = {},
     ) {
         compose.setContent {
+            val view = LocalView.current
+            SideEffect { hostView = view }
             val base = InstrumentationRegistry.getInstrumentation().targetContext
             val localizedCtx = if (arabic) localized(base, "ar") else base
             val density = LocalDensity.current
@@ -149,6 +160,20 @@ class DuplicateDnaScreenTest {
 
     private fun capture(name: String) {
         captureEvidence(context, compose, name)
+    }
+
+    /**
+     * Hides the IME through the host window token instead of sending a back key. A headless
+     * emulator can report an accepting IME while no IME owns the back press, which would finish
+     * the test activity and leave no Compose hierarchy to capture.
+     */
+    private fun hideKeyboard() {
+        val token = hostView?.windowToken ?: return
+        val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            imm.hideSoftInputFromWindow(token, 0)
+        }
+        compose.waitForIdle()
     }
 
     // ---------------------------------------------------------------------------
@@ -233,9 +258,9 @@ class DuplicateDnaScreenTest {
         screen(state(writable = false, selected = setOf("dup1a")),
             onChooseFolder = { regrant++ })
         compose.onNodeWithTag("dna-read-only").performScrollTo().assertIsDisplayed()
-        compose.onNodeWithTag("dna-cleanup-read-only").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("dna-cleanup-read-only").assertIsDisplayed()
         compose.onNodeWithTag("dna-cleanup").assertDoesNotExist()
-        compose.onNodeWithTag("dna-regrant").performScrollTo().performClick()
+        compose.onNodeWithTag("dna-regrant").assertIsDisplayed().performClick()
         assertEquals(1, regrant)
         capture("61-dna-read-only")
     }
@@ -255,8 +280,8 @@ class DuplicateDnaScreenTest {
     @Test fun cleaningStateIsVisibleAndCancellable() {
         var cancelled = 0
         screen(state(cleaning = true), onCancelCleanup = { cancelled++ })
-        compose.onNodeWithTag("dna-cleaning").performScrollTo().assertIsDisplayed()
-        compose.onNodeWithTag("dna-cleanup-cancel").performScrollTo().performClick()
+        compose.onNodeWithTag("dna-cleaning").assertIsDisplayed()
+        compose.onNodeWithTag("dna-cleanup-cancel").assertIsDisplayed().performClick()
         assertEquals(1, cancelled)
     }
 
@@ -286,5 +311,64 @@ class DuplicateDnaScreenTest {
         screen(state())
         compose.onNodeWithTag("dna-reclaimable").performScrollTo().assertExists()
         compose.onNodeWithTag("dna-group-reclaimable-1").performScrollTo().assertExists()
+    }
+
+    @Test fun idleFolderReadyShowsHeroCategoriesAndStartScan() {
+        screen(state(scan = null, treeUri = "content://tree", treeName = "DCIM"))
+        compose.onNodeWithTag("dna-hero").assertIsDisplayed()
+        compose.onNodeWithTag("dna-category-image").assertIsDisplayed()
+        compose.onNodeWithTag("dna-scan").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("dna-no-scan").assertExists()
+        capture("64-dna-hero")
+    }
+
+    @Test fun searchFiltersMeasuredGroupsLocallyWithoutRescan() {
+        var scans = 0
+        screen(state(), onScan = { scans++ })
+        compose.onNodeWithTag("dna-search").performScrollTo().performTextInput("dup2")
+        compose.waitForIdle()
+        hideKeyboard()
+        compose.onNodeWithTag("dna-visible-groups")
+            .assertTextEquals(plural(R.plurals.dna_ref_group_count, 1, 1))
+        compose.onNodeWithTag("dna-group-2").performScrollTo().assertExists()
+        compose.onNodeWithTag("dna-group-1").assertDoesNotExist()
+        assertEquals(0, scans)
+        capture("65-dna-search")
+    }
+
+    @Test fun categoryFilterShowsOnlyMatchingGroups() {
+        screen(state())
+        // Scroll the whole filter card into view first: performScrollTo on a chip would target
+        // its horizontal row and never move the vertical list. Image is the first result chip,
+        // so this remains reliable on a narrow viewport.
+        compose.onNodeWithTag("dna-filters").performScrollTo()
+        compose.onNodeWithTag("dna-category-image").assertIsDisplayed().performClick()
+        compose.onNodeWithTag("dna-visible-groups")
+            .assertTextEquals(plural(R.plurals.dna_ref_group_count, 1, 1))
+        compose.onNodeWithTag("dna-group-1").performScrollTo().assertExists()
+        compose.onNodeWithTag("dna-group-2").assertDoesNotExist()
+    }
+
+    @Test fun searchWithoutMatchesShowsHonestNoMatchState() {
+        screen(state())
+        compose.onNodeWithTag("dna-search").performScrollTo().performTextInput("zzz")
+        compose.waitForIdle()
+        hideKeyboard()
+        compose.onNodeWithTag("dna-no-match").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("dna-group-1").assertDoesNotExist()
+    }
+
+    @Test fun selectionBarShowsMeasuredSelectionAndRequestsCleanup() {
+        var requested = 0
+        screen(
+            state(selected = setOf("dup1a", "dup2a")),
+            onRequestCleanup = { requested++ },
+        )
+        compose.onNodeWithTag("dna-bar-selected")
+            .assertTextEquals(text(R.string.dna_selected, 2))
+        compose.onNodeWithTag("dna-bar-bytes").assertExists()
+        compose.onNodeWithTag("dna-cleanup").assertIsDisplayed().performClick()
+        assertEquals(1, requested)
+        capture("66-dna-selection")
     }
 }

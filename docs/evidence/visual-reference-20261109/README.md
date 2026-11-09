@@ -1,5 +1,8 @@
 # Large Files reference evidence (references 05 and 13)
 
+Duplicate DNA evidence for references 06 and 11 lives in
+[`duplicate-dna/README.md`](duplicate-dna/README.md).
+
 Runtime screenshots captured from the native Compose `HeavyweightScreen`, not from a mock-up
 renderer. The screen reads real provider-reported sizes from Android `DocumentsContract`
 metadata and exposes only the actions present in the implementation.
