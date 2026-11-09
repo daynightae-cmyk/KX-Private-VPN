@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="heavy_ref_search_hint">Search large files…</string>
+    <string name="heavy_ref_search_clear">Clear search</string>
+    <string name="heavy_ref_search_scope">Searches the measured results already on this screen; it never rescans your folder.</string>
+    <string name="heavy_ref_sort">Sort</string>
+    <string name="heavy_ref_sort_size">Largest</string>
+    <string name="heavy_ref_sort_date">Newest</string>
+    <string name="heavy_ref_sort_name">Name</string>
+    <string name="heavy_ref_read_only">Read-only ranking</string>
+    <string name="heavy_ref_scan_hint">Tap to rank this folder</string>
+    <string name="heavy_ref_latest">Latest measured scan</string>
+    <string name="heavy_ref_minimum">Minimum size</string>
+    <string name="heavy_ref_folder">Allowed folder</string>
+    <string name="heavy_ref_top">Largest measured items</string>
+    <plurals name="heavy_ref_files_count">
+        <item quantity="one">%1$d file</item>
+        <item quantity="other">%1$d files</item>
+    </plurals>
+    <string name="heavy_ref_checked" tools:ignore="PluralsCandidate">%1$d checked</string>
+    <string name="heavy_ref_scan_scope">Local ranking from Android-reported bytes. No delete, move or rename.</string>
+    <string name="heavy_ref_open_only">Open is the only file action. Selection never changes a file.</string>
+</resources>

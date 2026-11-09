@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="heavy_ref_search_hint">ابحث في الملفات الكبيرة…</string>
+    <string name="heavy_ref_search_clear">مسح البحث</string>
+    <string name="heavy_ref_search_scope">يبحث في النتائج المقاسة المعروضة فقط، ولا يعيد فحص المجلد.</string>
+    <string name="heavy_ref_sort">الترتيب</string>
+    <string name="heavy_ref_sort_size">الأكبر</string>
+    <string name="heavy_ref_sort_date">الأحدث</string>
+    <string name="heavy_ref_sort_name">الاسم</string>
+    <string name="heavy_ref_read_only">ترتيب للقراءة فقط</string>
+    <string name="heavy_ref_scan_hint">اضغط لترتيب هذا المجلد</string>
+    <string name="heavy_ref_latest">نتائج آخر فحص مقاس</string>
+    <string name="heavy_ref_minimum">الحد الأدنى للحجم</string>
+    <string name="heavy_ref_folder">المجلد المسموح</string>
+    <string name="heavy_ref_top">أكبر العناصر المقاسة</string>
+    <plurals name="heavy_ref_files_count">
+        <item quantity="zero">لا ملفات</item>
+        <item quantity="one">ملف واحد</item>
+        <item quantity="two">ملفان</item>
+        <item quantity="few">%1$d ملفات</item>
+        <item quantity="many">%1$d ملفًا</item>
+        <item quantity="other">%1$d ملف</item>
+    </plurals>
+    <string name="heavy_ref_checked" tools:ignore="PluralsCandidate">تم فحص %1$d</string>
+    <string name="heavy_ref_scan_scope">ترتيب محلي حسب البايت المبلغ عنها من Android. لا حذف ولا نقل ولا إعادة تسمية.</string>
+    <string name="heavy_ref_open_only">فتح هو إجراء الملف الوحيد. الاختيار لا يغيّر أي ملف.</string>
+</resources>

@@ -695,6 +695,7 @@ enum class KxIconKind {
     HOME, SERVER, SHIELD, SHIELD_CHECK, BARS, GEAR, GRID, BACK, FORWARD, POWER, CLOCK,
     BOLT, LINK, LOCK, SPLIT, SEARCH, MIC, SPARKLE, COPY, DOWNLOAD, LAYERS, CLAPPER,
     WRENCH, WIFI, ANDROID, DRIVE_HEART, BROOM, CHECK, TAP, WAND, DATABASE, FILE,
+    FOLDER, TARGET,
 }
 
 @Composable
@@ -967,6 +968,24 @@ private fun DrawScope.drawKxIcon(kind: KxIconKind, tint: Color) {
             drawPath(page, tint, style = stroke)
             drawLine(tint, Offset(s * .60f, s * .10f), Offset(s * .60f, s * .28f), s * .055f)
             drawLine(tint, Offset(s * .60f, s * .28f), Offset(s * .78f, s * .28f), s * .055f)
+        }
+        KxIconKind.FOLDER -> {
+            val folder = Path().apply {
+                moveTo(s * .12f, s * .28f); lineTo(s * .40f, s * .28f); lineTo(s * .48f, s * .39f)
+                lineTo(s * .88f, s * .39f); lineTo(s * .88f, s * .82f); lineTo(s * .12f, s * .82f)
+                close()
+            }
+            drawPath(folder, tint, style = stroke)
+            drawLine(tint, Offset(s * .12f, s * .39f), Offset(s * .88f, s * .39f),
+                s * .055f, StrokeCap.Round)
+        }
+        KxIconKind.TARGET -> {
+            drawCircle(tint, s * .30f, c, style = stroke)
+            drawCircle(tint, s * .10f, c, style = Stroke(s * .060f))
+            drawLine(tint, Offset(c.x, s * .04f), Offset(c.x, s * .18f), s * .055f, StrokeCap.Round)
+            drawLine(tint, Offset(c.x, s * .82f), Offset(c.x, s * .96f), s * .055f, StrokeCap.Round)
+            drawLine(tint, Offset(s * .04f, c.y), Offset(s * .18f, c.y), s * .055f, StrokeCap.Round)
+            drawLine(tint, Offset(s * .82f, c.y), Offset(s * .96f, c.y), s * .055f, StrokeCap.Round)
         }
     }
 }
