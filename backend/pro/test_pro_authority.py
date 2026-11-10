@@ -546,6 +546,16 @@ class AuthorityHTTPTests(unittest.TestCase):
             started_threads.append(thread)
             original_start(thread)
 
+        def require_free_slot():
+            # A fast worker releases the only probe slot just after its response is
+            # written. Waiting for that release keeps the next probe from racing into
+            # a capacity 503; a leaked permit still fails because acquisition times out.
+            self.assertTrue(
+                self.server._slots.acquire(timeout=2),
+                "the previous request leaked its worker slot",
+            )
+            self.server._slots.release()
+
         output, errors = io.StringIO(), io.StringIO()
         with (patch.object(threading.Thread, "start", new=record_start),
               patch.object(self.authority, "redeem", wraps=self.authority.redeem) as redeem,
@@ -592,9 +602,11 @@ class AuthorityHTTPTests(unittest.TestCase):
                     thread.join(timeout=2)
                     self.assertFalse(thread.is_alive())
                 self.assertEqual((redeem.call_count, validate.call_count), (0, 0))
+                require_free_slot()
                 self.assertEqual(self.request()[:2], (429, {"error": "rate_limited"}))
                 self.assertEqual((redeem.call_count, validate.call_count), (0, 0))
                 self.rate_clock.advance(10)
+                require_free_slot()
                 self.assert_inactive(self.request())
             finally:
                 for thread in started_threads:
