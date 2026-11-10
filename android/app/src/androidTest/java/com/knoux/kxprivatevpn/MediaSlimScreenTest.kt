@@ -149,6 +149,16 @@ class MediaSlimScreenTest {
                 }
             }
         }
+        // The API 26 swiftshader compositor can attach the first frame long after setContent
+        // returns, so an early semantics query dies with "No compose hierarchies found"
+        // (CI run 42735583561, reference17SearchAndFiltersOnlyNarrowMeasuredRows). Anchor every
+        // test on the real screen root instead of assuming the tree is already attached.
+        compose.waitUntil(30_000) {
+            runCatching {
+                compose.onAllNodes(hasTestTag("route-media")).fetchSemanticsNodes().isNotEmpty()
+            }.getOrDefault(false)
+        }
+        compose.waitForIdle()
     }
 
     /** The compose rule hosts no activity handle, so the IME is dismissed with a real back key. */
