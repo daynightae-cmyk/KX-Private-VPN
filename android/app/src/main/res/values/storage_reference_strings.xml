@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="storage_ref_start_analysis">Start storage analysis</string>
+    <string name="storage_ref_analyzing">Analyzing storage…</string>
+    <string name="storage_ref_status">Storage status</string>
+    <string name="storage_ref_status_measuring">Measuring…</string>
+    <string name="storage_ref_status_measured">Measured</string>
+    <string name="storage_ref_status_partial">Partial</string>
+    <string name="storage_ref_status_unavailable">Unavailable</string>
+    <string name="storage_ref_health_score">Storage health score</string>
+    <string name="storage_ref_score_unavailable">Not available</string>
+    <string name="storage_ref_score_note">No approved health model has been defined, so KX does not invent a score.</string>
+    <string name="storage_ref_health_note">Rows show measured bytes only. Percentages are relative to the internal volume, and categories can overlap.</string>
+    <string name="storage_ref_panel_source_note">KX data comes from app-private storage. MediaStore and authorized-folder totals can overlap.</string>
+    <string name="storage_ref_of_total">%1$s of %2$s</string>
+    <string name="storage_ref_join">%1$s · %2$s</string>
+    <string name="storage_ref_partial_note">Partial measurement</string>
+    <string name="storage_ref_lower_bound">Lower bound</string>
+    <string name="storage_ref_folder_only">Authorized folder only</string>
+    <string name="storage_ref_less_than_one">&lt;1%</string>
+</resources>
