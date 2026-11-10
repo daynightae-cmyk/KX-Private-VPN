@@ -10,6 +10,9 @@ Download Rescue evidence for references 08 and 19 lives in
 Media Slim results evidence for reference 17 lives in
 [`media-slim/README.md`](media-slim/README.md).
 
+Smart Repair evidence for references 09 and 15 lives in
+[`smart-repair/README.md`](smart-repair/README.md).
+
 Runtime screenshots captured from the native Compose `HeavyweightScreen`, not from a mock-up
 renderer. The screen reads real provider-reported sizes from Android `DocumentsContract`
 metadata and exposes only the actions present in the implementation.

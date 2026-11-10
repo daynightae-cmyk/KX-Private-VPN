@@ -1,6 +1,8 @@
 package com.knoux.kxprivatevpn.features
 
 import android.app.Application
+import android.os.Build
+import android.os.PowerManager
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.knoux.kxprivatevpn.data.stats.UsageStatsStore
@@ -29,6 +31,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
+/**
+ * The device's own thermal report. Read from [PowerManager.getCurrentThermalStatus]; below API 29
+ * the platform exposes no such signal, so the UI states the gap instead of inventing a number.
+ */
+enum class KxThermal { UNKNOWN, NONE, LIGHT, MODERATE, SEVERE }
+
 data class AutopilotUiState(
     val loading: Boolean = true,
     val measuring: Boolean = false,
@@ -39,6 +47,7 @@ data class AutopilotUiState(
     val receipt: AutopilotReceipt? = null,
     val failure: Boolean = false,
     val message: String? = null,
+    val thermal: KxThermal = KxThermal.UNKNOWN,
 ) {
     val canEdit: Boolean get() = !loading && !measuring && !busy && !confirming
     val canConfirm: Boolean get() = confirming && !loading && !measuring && !busy &&
@@ -68,7 +77,24 @@ class AutopilotViewModel(app: Application) : AndroidViewModel(app) {
     private var runJob: Job? = null
 
     init {
+        mutable.update { it.copy(thermal = readThermal()) }
         measure()
+    }
+
+    /** The platform's own thermal report; never estimated, never faked below API 29. */
+    private fun readThermal(): KxThermal {
+        if (Build.VERSION.SDK_INT < 29) return KxThermal.UNKNOWN
+        val power = getApplication<Application>().getSystemService(PowerManager::class.java)
+        return when (power?.currentThermalStatus) {
+            PowerManager.THERMAL_STATUS_NONE -> KxThermal.NONE
+            PowerManager.THERMAL_STATUS_LIGHT -> KxThermal.LIGHT
+            PowerManager.THERMAL_STATUS_MODERATE -> KxThermal.MODERATE
+            PowerManager.THERMAL_STATUS_SEVERE,
+            PowerManager.THERMAL_STATUS_CRITICAL,
+            PowerManager.THERMAL_STATUS_EMERGENCY,
+            -> KxThermal.SEVERE
+            else -> KxThermal.UNKNOWN
+        }
     }
 
     /** Reads the real cache and history and builds the proposal. No value is invented on failure. */
@@ -97,6 +123,7 @@ class AutopilotViewModel(app: Application) : AndroidViewModel(app) {
                         measuring = false,
                         plan = plan,
                         selected = plan.targets.map { target -> target.id }.toSet(),
+                        thermal = readThermal(),
                     )
                 }
             } catch (e: CancellationException) {

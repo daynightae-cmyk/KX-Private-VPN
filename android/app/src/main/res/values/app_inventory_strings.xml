@@ -30,4 +30,11 @@
     <string name="apps_handoff_verify_failed">Returned from Android, but KX could not re-read the package state. Removal is unverified.</string>
     <string name="apps_handoff_unavailable">Android could not open this action, or the target is no longer eligible. No removal is confirmed. Scan again or use Android Settings.</string>
     <string name="apps_handoff_blocked">This approval is no longer valid. No action was launched. Scan again before choosing an app.</string>
+    <string name="apps_summary">Quick summary</string>
+    <string name="apps_summary_total">Total apps</string>
+    <string name="apps_summary_user">User apps</string>
+    <string name="apps_summary_system">System apps</string>
+    <string name="apps_summary_shown">Shown now</string>
+    <string name="apps_not_scanned">Not scanned yet</string>
+    <string name="apps_storage_note">Per-app cache and usage sizes need a system grant KX does not ask for, so KX shows only what the package manager reports and hands every change to Android.</string>
 </resources>
