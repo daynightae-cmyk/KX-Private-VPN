@@ -205,11 +205,13 @@ fun AutopilotScreen(
             }
 
             // ---- Reference 15: the plan board. ----
-            KxGlassPanel(night, modifier = Modifier.testTag("autopilot-plan")) {
+            KxGlassPanel(night) {
                 KxSectionHeaderRow(
                     title = stringResource(R.string.autopilot_plan_title),
                     icon = KxIconKind.TARGET,
                     night = night,
+                    // The hardening matrix measures the real plan title text, not the panel box.
+                    titleModifier = Modifier.testTag("autopilot-plan"),
                 )
                 if (state.measuring || state.loading) {
                     LinearProgressIndicator(Modifier.fillMaxWidth().testTag("autopilot-progress"))

@@ -30,11 +30,4 @@
     <string name="apps_handoff_verify_failed">عدت من Android، لكن تعذّرت إعادة قراءة حالة الحزمة. الإزالة غير متحققة.</string>
     <string name="apps_handoff_unavailable">تعذّر على Android فتح الإجراء، أو لم يعد التطبيق مؤهلًا له. لم تُؤكّد أي إزالة. افحص مجددًا أو استخدم إعدادات Android.</string>
     <string name="apps_handoff_blocked">لم تعد هذه الموافقة صالحة. لم يُفتح أي إجراء. افحص مجددًا قبل اختيار تطبيق.</string>
-    <string name="apps_summary">ملخص سريع</string>
-    <string name="apps_summary_total">إجمالي التطبيقات</string>
-    <string name="apps_summary_user">تطبيقات المستخدم</string>
-    <string name="apps_summary_system">تطبيقات النظام</string>
-    <string name="apps_summary_shown">المعروض الآن</string>
-    <string name="apps_not_scanned">لم يُفحص بعد</string>
-    <string name="apps_storage_note">أحجام الذاكرة المؤقتة والاستخدام لكل تطبيق تحتاج صلاحية نظام لا يطلبها KX، لذلك يعرض KX فقط ما يبلغه مدير الحزم ويسلّم كل تغيير إلى Android.</string>
 </resources>

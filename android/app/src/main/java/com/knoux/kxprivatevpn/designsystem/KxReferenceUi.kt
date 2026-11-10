@@ -546,6 +546,7 @@ fun KxSectionHeaderRow(
     icon: KxIconKind,
     night: Boolean,
     modifier: Modifier = Modifier,
+    titleModifier: Modifier = Modifier,
     actionLabel: String? = null,
     onAction: (() -> Unit)? = null,
 ) {
@@ -553,7 +554,7 @@ fun KxSectionHeaderRow(
         KxLineIcon(icon, kxInk(night), Modifier.size(19.dp))
         Spacer(Modifier.width(7.dp))
         Text(title, color = kxInk(night), fontSize = 16.sp, lineHeight = 21.sp,
-            fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+            fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f).then(titleModifier))
         if (actionLabel != null && onAction != null) {
             Row(
                 Modifier.clip(RoundedCornerShape(50)).clickable(role = Role.Button, onClickLabel = actionLabel, onClick = onAction)
