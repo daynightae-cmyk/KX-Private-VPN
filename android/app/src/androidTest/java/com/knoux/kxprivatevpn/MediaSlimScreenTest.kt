@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.text.format.Formatter
+import android.view.KeyEvent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.LocalContentColor
@@ -22,6 +23,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.Density
@@ -147,6 +149,12 @@ class MediaSlimScreenTest {
                 }
             }
         }
+    }
+
+    /** The compose rule hosts no activity handle, so the IME is dismissed with a real back key. */
+    private fun hideKeyboard() {
+        InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
+        compose.waitForIdle()
     }
 
     private fun capture(name: String) {
@@ -327,5 +335,158 @@ class MediaSlimScreenTest {
         compose.onNodeWithTag("media-selected-summary").assertTextEquals(
             localized(context, "en").getString(R.string.media_selected, 0,
                 Formatter.formatFileSize(localized(context, "en"), 0)))
+    }
+
+    // ---------------------------------------------------------------------------
+    // Owner reference 17: measured results only
+    // ---------------------------------------------------------------------------
+
+    @Test fun reference17UnmeasuredRowsDoNotInventAfterBytesOrSavings() {
+        val en = localized(context, "en")
+        render(initial = MediaSlimUiState(
+            treeName = "Camera", treeUri = "tree://camera", scan = scan,
+        ))
+
+        compose.onNodeWithTag("media-ref-hero").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("media-scope-images").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("media-scope-videos").assertIsDisplayed()
+        compose.onNodeWithTag("media-savings-after").performScrollTo().assertTextEquals(
+            en.getString(R.string.media_ref_not_measured))
+        compose.onNodeWithTag("media-savings-percent").assertTextEquals(
+            en.getString(R.string.media_ref_not_measured))
+        compose.onNodeWithTag("media-file-img").performScrollTo().assertIsEnabled()
+        compose.onNodeWithTag("media-row-after-img", useUnmergedTree = true).assertTextEquals(
+            en.getString(R.string.media_ref_not_measured))
+        compose.onNodeWithTag("media-row-saved-img", useUnmergedTree = true).assertDoesNotExist()
+        capture("90-media-ref17-unmeasured")
+    }
+
+    @Test fun reference17SearchAndFiltersOnlyNarrowMeasuredRows() {
+        val en = localized(context, "en")
+        render(initial = MediaSlimUiState(
+            treeName = "Camera", treeUri = "tree://camera", scan = scan,
+        ))
+
+        // The chip rows sit inside a vertical scroll and a nested horizontal scroll, so drive the
+        // real semantics click action instead of injecting coordinates that can land off-viewport.
+        compose.onNodeWithTag("media-search").performScrollTo()
+        compose.onNodeWithTag("media-filter-videos")
+            .performSemanticsAction(SemanticsActions.OnClick)
+        compose.onNodeWithTag("media-filter-videos").assertIsSelected()
+        compose.onNodeWithTag("media-file-vid").assertExists()
+        compose.onNodeWithTag("media-file-img").assertDoesNotExist()
+        compose.onNodeWithTag("media-filter-unsupported")
+            .performSemanticsAction(SemanticsActions.OnClick)
+        compose.onNodeWithTag("media-file-gif").assertExists()
+        compose.onNodeWithTag("media-file-vid").assertDoesNotExist()
+        compose.onNodeWithTag("media-filter-images")
+            .performSemanticsAction(SemanticsActions.OnClick)
+        compose.onNodeWithTag("media-file-img").assertExists()
+        compose.onNodeWithTag("media-file-gif").assertExists()
+        compose.onNodeWithTag("media-file-vid").assertDoesNotExist()
+        compose.onNodeWithTag("media-filter-all")
+            .performSemanticsAction(SemanticsActions.OnClick)
+        compose.onNodeWithTag("media-file-vid").assertExists()
+        compose.onNodeWithTag("media-sort-name")
+            .performSemanticsAction(SemanticsActions.OnClick)
+        compose.onNodeWithTag("media-sort-name").assertIsSelected()
+        compose.onNodeWithTag("media-sort-size").assertIsNotSelected()
+
+        compose.onNodeWithTag("media-search").performScrollTo().performTextInput("portrait")
+        compose.onNodeWithTag("media-visible-count").assertTextEquals(
+            en.getString(R.string.media_ref_visible, 1, 3))
+        compose.onNodeWithTag("media-file-img").assertExists()
+        compose.onNodeWithTag("media-file-vid").assertDoesNotExist()
+        compose.onNodeWithTag("media-file-gif").assertDoesNotExist()
+        hideKeyboard()
+        compose.onNodeWithTag("media-file-img").performScrollTo().assertIsDisplayed()
+        capture("92-media-ref17-search")
+
+        compose.onNodeWithTag("media-search-clear").performScrollTo().performClick()
+        compose.onNodeWithTag("media-visible-count").assertTextEquals(
+            en.getString(R.string.media_ref_visible, 3, 3))
+        compose.onNodeWithTag("media-filter-videos")
+            .performSemanticsAction(SemanticsActions.OnClick)
+        compose.onNodeWithTag("media-visible-count").assertTextEquals(
+            en.getString(R.string.media_ref_visible, 1, 3))
+        compose.onNodeWithTag("media-file-vid").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("media-file-img").assertDoesNotExist()
+        compose.onNodeWithTag("media-file-gif").assertDoesNotExist()
+        capture("92b-media-ref17-filtered")
+    }
+
+    @Test fun reference17MeasuredReceiptFeedsRowsAndSavingsWithoutEstimation() {
+        val en = localized(context, "en")
+        val verified = CompressionOutcome.Verified(VerifiedCompression(
+            candidate = image,
+            outputDocumentId = "copy",
+            outputName = "portrait-kx-q65.webp",
+            outputBytes = 600_000,
+            width = 1440,
+            height = 1920,
+        ))
+        render(initial = MediaSlimUiState(
+            treeName = "Camera", treeUri = "tree://camera", scan = scan,
+            selected = setOf(image.documentId), results = listOf(verified),
+            completed = true, total = 1, currentIndex = 1,
+        ))
+
+        compose.onNodeWithTag("media-savings-after").performScrollTo().assertTextEquals(
+            Formatter.formatFileSize(en, 600_000))
+        compose.onNodeWithTag("media-savings-percent").assertTextEquals(
+            en.getString(R.string.media_ref_saved_percent, 66))
+        compose.onNodeWithTag("media-file-img").performScrollTo().assertIsOn()
+        compose.onNodeWithTag("media-row-after-img", useUnmergedTree = true).assertTextEquals(
+            Formatter.formatFileSize(en, 600_000))
+        compose.onNodeWithTag("media-row-saved-img", useUnmergedTree = true).assertTextEquals(
+            en.getString(R.string.media_ref_saved_percent, 66))
+        compose.onNodeWithTag("media-result-summary").performScrollTo().assertIsDisplayed()
+        capture("91-media-ref17-measured")
+    }
+
+    @Test fun reference17ArabicNightLargeTextKeepsMeasuredResultsReachable() {
+        val ar = localized(context, "ar")
+        val verified = CompressionOutcome.Verified(VerifiedCompression(
+            candidate = image,
+            outputDocumentId = "copy",
+            outputName = "portrait-kx-q65.webp",
+            outputBytes = 600_000,
+            width = 1440,
+            height = 1920,
+        ))
+        render(
+            initial = MediaSlimUiState(
+                treeName = "Camera", treeUri = "tree://camera", scan = scan,
+                selected = setOf(image.documentId), results = listOf(verified),
+                completed = true, total = 1, currentIndex = 1,
+            ),
+            arabic = true, night = true, fontScale = 1.6f,
+        )
+
+        compose.onNodeWithTag("media-ref-hero").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("media-scope-images").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("media-savings-after").performScrollTo()
+            .assertTextEquals(Formatter.formatFileSize(ar, 600_000))
+        compose.onNodeWithTag("media-file-img").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("media-row-after-img", useUnmergedTree = true).assertTextEquals(
+            Formatter.formatFileSize(ar, 600_000))
+        compose.onNodeWithTag("media-compress").performScrollTo().assertIsEnabled()
+        capture("93-media-ref17-night-ar-large")
+    }
+
+    @Test fun reference17HasNoDeleteExportOrCompareAction() {
+        val en = localized(context, "en")
+        render(initial = MediaSlimUiState(
+            treeName = "Camera", treeUri = "tree://camera", scan = scan,
+            selected = setOf(image.documentId),
+        ))
+
+        compose.onNodeWithTag("media-delete").assertDoesNotExist()
+        compose.onNodeWithTag("media-export").assertDoesNotExist()
+        compose.onNodeWithTag("media-compare").assertDoesNotExist()
+        compose.onNodeWithTag("media-ref-results-note").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText(en.getString(R.string.media_ref_results_note)).assertExists()
+        compose.onNodeWithTag("media-ref-action-note").performScrollTo().assertIsDisplayed()
+        capture("94-media-ref17-actions")
     }
 }

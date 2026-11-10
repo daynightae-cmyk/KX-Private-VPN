@@ -6,6 +6,9 @@ Duplicate DNA evidence for references 06 and 11 lives in
 Download Rescue evidence for references 08 and 19 lives in
 [`download-rescue/README.md`](download-rescue/README.md).
 
+Media Slim results evidence for reference 17 lives in
+[`media-slim/README.md`](media-slim/README.md).
+
 Runtime screenshots captured from the native Compose `HeavyweightScreen`, not from a mock-up
 renderer. The screen reads real provider-reported sizes from Android `DocumentsContract`
 metadata and exposes only the actions present in the implementation.
@@ -16,6 +19,9 @@ metadata and exposes only the actions present in the implementation.
   minimum-size cards, gradient rank action, measured scan summary.
 - `13-large-files-results.png` — owner-approved results: filters, search, sort, size-spread
   heatmap, measured rows, selected-file detail and read-only privacy panel.
+- `17-media-slim-results.png` — owner-approved results: measured summary, quality presets,
+  measured savings, searchable media rows, selected-image action panel and honest pending
+  values.
 
 ## Capture setup
 

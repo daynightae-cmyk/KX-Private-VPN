@@ -147,44 +147,15 @@ fun MediaSlimScreen(
             )
             FolderCard(night, state, foreground, onChooseFolder, onScan, onCancelScan)
             if (scan != null) {
-                ScanSummary(night, scan, foreground)
-                if (scan.files.isNotEmpty()) {
-                    SelectionSummary(night, state, foreground, onSelectAll, onClear, onQuality)
-                    FileList(night, state, foreground, onToggle)
-                } else {
-                    GlassSurface(night) {
-                        Text(
-                            stringResource(R.string.media_empty),
-                            fontSize = 14.sp, lineHeight = 20.sp,
-                            color = foreground.copy(alpha = .84f),
-                            modifier = Modifier.testTag("media-empty"),
-                        )
-                    }
-                }
-                if (scan.videos.isNotEmpty()) {
-                    GlassSurface(night) {
-                        Text(
-                            stringResource(R.string.media_video_note),
-                            fontSize = 12.sp, lineHeight = 17.sp,
-                            color = foreground.copy(alpha = .78f),
-                            modifier = Modifier.testTag("media-video-note"),
-                        )
-                    }
-                }
-                if (state.selectedSupported.isNotEmpty()) {
-                    GlassAction(
-                        label = stringResource(R.string.media_compress),
-                        modifier = Modifier.testTag("media-compress"),
-                        enabled = !state.compressing,
-                    ) { onRequestCompression() }
-                }
-                if (state.selectionError) {
-                    Text(
-                        stringResource(R.string.media_selection_empty),
-                        color = danger(night), fontSize = 13.sp,
-                        modifier = Modifier.testTag("media-selection-error"),
-                    )
-                }
+                MediaReferenceResults(
+                    night = night,
+                    state = state,
+                    onToggle = onToggle,
+                    onSelectAll = onSelectAll,
+                    onClear = onClear,
+                    onQuality = onQuality,
+                    onRequestCompression = onRequestCompression,
+                )
                 if (state.compressing) {
                     CompressionProgress(night, state, foreground, onCancelCompression)
                 }
@@ -232,21 +203,6 @@ fun MediaSlimScreen(
                 }
             },
         )
-    }
-}
-
-@Composable
-private fun MediaHero() {
-    Box(Modifier.fillMaxWidth().height(186.dp), contentAlignment = Alignment.Center) {
-        Box(
-            Modifier.size(154.dp).clip(CircleShape)
-                .background(Brush.radialGradient(listOf(
-                    Color(0xFFFFC2F0).copy(alpha = .34f),
-                    Color(0xFF64EEFF).copy(alpha = .10f),
-                    Color.Transparent,
-                ))),
-        )
-        RepairGlyph(RepairServiceId.MEDIA, Modifier.size(138.dp))
     }
 }
 
@@ -331,173 +287,6 @@ private fun FolderCard(
             fontSize = 12.sp, color = danger(night),
             modifier = Modifier.testTag("media-failed"),
         )
-    }
-}
-
-@Composable
-private fun ScanSummary(night: Boolean, scan: MediaSlimScan, foreground: Color) {
-    val context = LocalContext.current
-    GlassSurface(night) {
-        Text(
-            stringResource(R.string.media_scan_summary,
-                scan.images.size, scan.videos.size,
-                Formatter.formatFileSize(context, scan.imageBytes + scan.videoBytes)),
-            fontSize = 16.sp, fontWeight = FontWeight.Bold, color = foreground,
-            modifier = Modifier.testTag("media-scan-summary"),
-        )
-        if (scan.skippedUnknownSize > 0) {
-            Text(
-                stringResource(R.string.media_files_limit, scan.files.size, scan.files.size),
-                fontSize = 11.sp, color = foreground.copy(alpha = .7f),
-            )
-        }
-    }
-}
-
-@Composable
-private fun SelectionSummary(
-    night: Boolean,
-    state: MediaSlimUiState,
-    foreground: Color,
-    onSelectAll: () -> Unit,
-    onClear: () -> Unit,
-    onQuality: (MediaQuality) -> Unit,
-) {
-    val context = LocalContext.current
-    val enabled = !state.compressing
-    val accent = mediaAccent(night)
-    GlassSurface(night) {
-        Text(
-            stringResource(R.string.media_selected, state.selectedSupported.size,
-                Formatter.formatFileSize(context, state.selectedBytes)),
-            fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = foreground,
-            modifier = Modifier.testTag("media-selected-summary"),
-        )
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedButton(onClick = onSelectAll, enabled = enabled,
-                modifier = Modifier.weight(1f).heightIn(min = 48.dp)
-                    .testTag("media-select-all")) {
-                Text(stringResource(R.string.media_select_all), fontSize = 11.sp,
-                    textAlign = TextAlign.Center)
-            }
-            OutlinedButton(onClick = onClear, enabled = enabled,
-                modifier = Modifier.weight(1f).heightIn(min = 48.dp)
-                    .testTag("media-clear")) {
-                Text(stringResource(R.string.media_clear), fontSize = 11.sp,
-                    textAlign = TextAlign.Center)
-            }
-        }
-        Text(
-            stringResource(R.string.media_quality),
-            fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = foreground,
-        )
-        MediaQuality.entries.forEach { quality ->
-            val label = stringResource(when (quality) {
-                MediaQuality.HIGH -> R.string.media_quality_high
-                MediaQuality.BALANCED -> R.string.media_quality_balanced
-                MediaQuality.SMALL -> R.string.media_quality_small
-            })
-            Row(
-                Modifier.fillMaxWidth().heightIn(min = 48.dp)
-                    .testTag("media-quality-${quality.name.lowercase()}")
-                    .selectable(
-                        selected = state.quality == quality,
-                        enabled = enabled,
-                        role = Role.RadioButton,
-                        onClick = { onQuality(quality) },
-                    ),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Box(
-                    Modifier.size(20.dp).clip(CircleShape)
-                        .border(2.dp,
-                            if (state.quality == quality) accent
-                            else foreground.copy(alpha = .45f), CircleShape),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    if (state.quality == quality) {
-                        Box(Modifier.size(10.dp).clip(CircleShape)
-                            .background(accent))
-                    }
-                }
-                Spacer(Modifier.width(10.dp))
-                Text(label, color = foreground, fontSize = 14.sp)
-            }
-        }
-        Text(
-            stringResource(R.string.media_quality_note),
-            fontSize = 11.sp, lineHeight = 16.sp,
-            color = foreground.copy(alpha = .68f),
-        )
-    }
-}
-
-@Composable
-private fun FileList(
-    night: Boolean,
-    state: MediaSlimUiState,
-    foreground: Color,
-    onToggle: (MediaCandidate) -> Unit,
-) {
-    val context = LocalContext.current
-    val scan = state.scan ?: return
-    val accent = mediaAccent(night)
-    GlassSurface(night) {
-        Text(
-            stringResource(R.string.media_files_title),
-            fontWeight = FontWeight.Bold, fontSize = 17.sp, color = foreground,
-        )
-        state.visibleFiles.forEach { file ->
-            val selected = file.documentId in state.selected
-            val selectable = file.compressible && !state.compressing
-            Row(
-                Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp))
-                    .background(if (selected) accent.copy(alpha = .13f)
-                    else Color.Transparent)
-                    .toggleable(
-                        value = selected,
-                        enabled = selectable,
-                        role = Role.Checkbox,
-                        onValueChange = { if (selectable) onToggle(file) },
-                    )
-                    .padding(vertical = 8.dp, horizontal = 4.dp)
-                    .testTag("media-file-${file.documentId}")
-                    .semantics(mergeDescendants = true) {
-                        contentDescription = file.name
-                    },
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Checkbox(checked = selected, onCheckedChange = null, enabled = selectable)
-                Spacer(Modifier.width(8.dp))
-                Column(Modifier.weight(1f)) {
-                    Text(file.name, fontSize = 13.sp, fontWeight = FontWeight.SemiBold,
-                        color = foreground, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                    Text(file.relativePath, fontSize = 10.sp,
-                        color = foreground.copy(alpha = .62f),
-                        maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    Text(
-                        stringResource(when {
-                            file.kind == com.knoux.kxprivatevpn.platform.media.MediaKind.VIDEO ->
-                                R.string.media_badge_video
-                            file.compressible -> R.string.media_badge_image
-                            else -> R.string.media_badge_unsupported
-                        }),
-                        fontSize = 10.sp,
-                        color = if (file.compressible) accent
-                        else foreground.copy(alpha = .58f),
-                    )
-                }
-                Text(Formatter.formatFileSize(context, file.bytes),
-                    fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = foreground)
-            }
-        }
-        if (scan.files.size > state.visibleFiles.size) {
-            Text(
-                stringResource(R.string.media_files_limit,
-                    state.visibleFiles.size, scan.files.size),
-                fontSize = 11.sp, color = foreground.copy(alpha = .7f),
-            )
-        }
     }
 }
 
