@@ -134,20 +134,28 @@ class AutopilotScreenTest {
             .assertTextEquals(context.getString(R.string.autopilot_history_title))
         compose.onNodeWithTag("autopilot-select-0").assertIsOn()
         compose.onNodeWithTag("autopilot-scope").assertExists()
+        // The fixture reports no thermal signal, exactly like API 26: the screen must state the
+        // gap rather than draw a green check it cannot back.
+        compose.onNodeWithTag("autopilot-thermal-gap").assertExists()
+        capture("87-smart-repair-hero-day")
         compose.onNodeWithTag("autopilot-run").performScrollTo().assertIsEnabled()
-        capture("48-autopilot-plan-day")
+        capture("87b-smart-repair-plan-rows-day")
     }
 
     @Test fun anEmptyPlanIsAnHonestEmptyStateAndCannotRun() {
         screen(AutopilotUiState(loading = false, plan = AutopilotPlan(measuredAtMillis = now, cacheMeasured = true)))
         compose.onNodeWithTag("autopilot-empty").assertExists()
         compose.onNodeWithTag("autopilot-run").performScrollTo().assertIsNotEnabled()
+        compose.onNodeWithTag("autopilot-empty").performScrollTo()
+        capture("87c-smart-repair-empty-day")
     }
 
     @Test fun aFailedMeasurementInventsNoPlan() {
         screen(AutopilotUiState(loading = false, failure = true))
         compose.onNodeWithTag("autopilot-failure").assertExists()
         compose.onNodeWithTag("autopilot-plan-summary").assertDoesNotExist()
+        compose.onNodeWithTag("autopilot-failure").performScrollTo()
+        capture("87d-smart-repair-failure-day")
     }
 
     @Test fun anUnmeasuredCacheStatesTheGapInsteadOfClaimingEmpty() {
@@ -211,7 +219,7 @@ class AutopilotScreenTest {
     }
 
     @Test fun aCompleteReceiptOnlyReportsWhatHappened() {
-        screen(AutopilotUiState(loading = false, receipt = AutopilotReceipt(
+        screen(AutopilotUiState(loading = false, plan = samplePlan(), receipt = AutopilotReceipt(
             deleted = 2, pruned = 1, bytesFreed = 3072, skipped = emptyList(), failed = emptyList(),
             complete = true, cancelled = false, atMillis = now, detail = "complete",
         )))
@@ -219,6 +227,8 @@ class AutopilotScreenTest {
         compose.onNodeWithTag("autopilot-receipt-detail")
             .assertTextEquals(context.getString(R.string.autopilot_receipt_complete))
         compose.onNodeWithTag("autopilot-receipt-counts").assertTextContains("2", substring = true)
+        compose.onNodeWithTag("autopilot-receipt").performScrollTo()
+        capture("87e-smart-repair-plan-receipt-day")
     }
 
     @Test fun aCancelledRunIsLabelledCancelledNotCompleted() {
@@ -253,15 +263,17 @@ class AutopilotScreenTest {
     }
 
     @Test fun nightArabicLargeTextKeepsThePlanVisible() {
-        val ar = localized(context, "ar")
+        val ar = localized(base, "ar")
         val plan = samplePlan()
         screen(AutopilotUiState(loading = false, plan = plan, selected = plan.targets.map { it.id }.toSet()),
             night = true, arabic = true, fontScale = 1.6f)
-        compose.onNodeWithText(ar.getString(R.string.autopilot_title)).assertExists()
+        // KxTitleBlock exposes the heading as a content description for TalkBack.
+        compose.onNodeWithContentDescription(ar.getString(R.string.autopilot_title)).assertExists()
+        capture("88-smart-repair-hero-night-ar-large")
         compose.onNodeWithTag("autopilot-target-0").performScrollTo().assertExists()
         compose.onNodeWithTag("autopilot-target-2").performScrollTo().assertExists()
         compose.onNodeWithTag("autopilot-scope").performScrollTo().assertExists()
-        capture("49-autopilot-plan-night-ar-large")
+        capture("88b-smart-repair-plan-night-ar-large")
     }
 
     /**

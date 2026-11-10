@@ -304,7 +304,14 @@ class VisualHardeningTest {
                         compose.onNodeWithTag(tag).assertExists()
                             .assertHeightIsAtLeast(48.dp).fetchSemanticsNode().boundsInRoot
                     }
-                    assertTrue("Large-font actions must stack", actions.zipWithNext().all { (a, b) -> a.bottom <= b.top })
+                    // The plan action row deliberately puts Select all and Clear side by side,
+                    // so require no overlap in either axis instead of strict vertical stacking.
+                    assertTrue(
+                        "Large-font actions must not overlap",
+                        actions.zipWithNext().all { (a, b) ->
+                            a.bottom <= b.top || a.right <= b.left || b.right <= a.left
+                        },
+                    )
                     actionTags.forEach { tag ->
                         compose.onNodeWithTag(tag).performScrollTo().assertIsDisplayed()
                     }
