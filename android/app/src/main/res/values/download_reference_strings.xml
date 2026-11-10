@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="download_ref_subtitle">Inspect the files in a folder you authorise, verify their structure, and recover safe copies. KX never pretends to repair bytes.</string>
+    <string name="download_ref_results_subtitle">Measured states from the scanned folder. Search, filter, and act only on the files you select.</string>
+    <string name="download_ref_hero_hint">Local structural check · nothing uploaded</string>
+    <string name="download_ref_scanning_hint">Inspecting the authorised folder…</string>
+    <string name="download_ref_scanning_progress">Inspecting… %1$d files</string>
+    <string name="download_ref_scanning_action">Inspecting…</string>
+    <string name="download_ref_choose_action">Choose the Downloads folder</string>
+    <string name="download_ref_folder">Allowed folder</string>
+    <string name="download_ref_no_folder">No folder chosen</string>
+    <string name="download_ref_change_folder">Change folder</string>
+    <string name="download_ref_rescan">Scan again</string>
+    <string name="download_ref_media">Shared downloads visible to the system: %1$d</string>
+    <string name="download_ref_last_scan">Last measured scan</string>
+    <string name="download_ref_no_scan">No measured scan yet. Choose a folder, then run a real structural scan.</string>
+    <string name="download_ref_last_scan_result">Files inspected in the last measured scan: %1$d</string>
+    <string name="download_ref_summary_title">Troubled downloads summary</string>
+    <string name="download_ref_summary_note">Counts are measured from this scan. KX never estimates download progress.</string>
+    <string name="download_ref_total">Total</string>
+    <string name="download_ref_incomplete">Incomplete</string>
+    <string name="download_ref_failed">Failed</string>
+    <string name="download_ref_search_hint">Search downloads…</string>
+    <string name="download_ref_search_clear">Clear search</string>
+    <string name="download_ref_filter_all">All</string>
+    <string name="download_ref_filter_intact">Intact</string>
+    <string name="download_ref_filter_incomplete">Incomplete</string>
+    <string name="download_ref_filter_failed">Failed</string>
+    <string name="download_ref_filter_unverified">Unverified</string>
+    <string name="download_ref_filter_count">%1$s (%2$d)</string>
+    <string name="download_ref_visible">%1$d of %2$d shown</string>
+    <string name="download_ref_selected_chip">Selected: %1$d</string>
+    <string name="download_ref_no_match">No file matches this search and filter. Clearing them never rescans.</string>
+    <string name="download_ref_size">Size: %1$s</string>
+    <string name="download_ref_actions">Measured actions</string>
+    <string name="download_ref_process_note">%1$d selected · %2$s · confirmation required</string>
+    <string name="download_ref_process_none">Select measured files to enable confirmed removal</string>
+    <string name="download_ref_confirmed">Confirmed deletion only</string>
+    <string name="download_ref_process">Remove selected</string>
+    <string name="download_ref_panel_title">What this scan can verify</string>
+</resources>
