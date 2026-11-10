@@ -180,6 +180,72 @@ class StorageXrayScreenTest {
         capture("48b-storage-xray-folder-empty")
     }
 
+    @Test fun referenceHeroShowsHonestScoreAndMeasuredStatus() {
+        screen(state())
+
+        compose.onNodeWithTag("storage-health-hero").assertExists()
+        compose.onNodeWithTag("storage-health-panel").assertExists()
+        compose.onNodeWithTag("storage-health-score")
+            .assertTextEquals(text(R.string.storage_ref_score_unavailable))
+        compose.onNodeWithTag("storage-health-status")
+            .assertTextEquals(text(R.string.storage_ref_status_partial))
+        compose.onNodeWithTag("storage-refresh").assertExists()
+        compose.onAllNodesWithText("A5").assertCountEquals(0)
+        capture("67-storage-health-hero")
+    }
+
+    @Test fun healthRowsShowMeasuredBytesAndVolumeShare() {
+        screen(state())
+
+        compose.onNodeWithTag("storage-health-value-kx").assertTextContains(
+            Formatter.formatFileSize(context, 5L * 1024 * 1024), substring = true)
+        compose.onNodeWithTag("storage-health-percent-kx").assertTextEquals(
+            context.getString(R.string.storage_ref_less_than_one))
+        compose.onNodeWithTag("storage-health-value-media").assertTextContains(
+            Formatter.formatFileSize(context, 3L * 1024 * 1024 * 1024 + 500L * 1024 * 1024),
+            substring = true)
+        compose.onNodeWithTag("storage-health-percent-media").assertTextEquals("5%")
+        compose.onNodeWithTag("storage-health-value-documents")
+            .assertTextEquals(text(R.string.storage_category_version_limited))
+        compose.onNodeWithTag("storage-health-percent-documents").assertTextEquals("—")
+        compose.onNodeWithTag("storage-health-value-other")
+            .assertTextEquals(text(R.string.storage_category_unavailable))
+        // The panel sits below the hero, so scroll the last row into view before capturing.
+        compose.onNodeWithTag("storage-health-row-other").performScrollTo().assertIsDisplayed()
+        capture("68-storage-health-measured")
+    }
+
+    @Test fun unavailableVolumeShowsDashedRingsNotInventedZeroes() {
+        screen(state(volume = null, kxBytes = null, media = null))
+
+        compose.onNodeWithTag("storage-health-status")
+            .assertTextEquals(text(R.string.storage_ref_status_unavailable))
+        compose.onNodeWithTag("storage-health-score")
+            .assertTextEquals(text(R.string.storage_ref_score_unavailable))
+        compose.onNodeWithTag("storage-health-percent-kx").assertTextEquals("—")
+        compose.onNodeWithTag("storage-health-percent-media").assertTextEquals("—")
+        compose.onAllNodesWithText("0%").assertCountEquals(0)
+        capture("69-storage-health-unavailable")
+    }
+
+    @Test fun startAnalysisRunsTheRealRefreshCallback() {
+        var refreshes = 0
+        screen(state(), onRefresh = { refreshes++ })
+
+        compose.onNodeWithTag("storage-refresh").performScrollTo().assertIsDisplayed().performClick()
+        assertEquals(1, refreshes)
+    }
+
+    @Test fun measuringStateShowsProgressAndDisablesTheAction() {
+        screen(state(volume = null, kxBytes = null, media = null).copy(measuring = true))
+
+        compose.onNodeWithTag("storage-health-measuring").assertExists()
+        compose.onNodeWithTag("storage-health-status")
+            .assertTextEquals(text(R.string.storage_ref_status_measuring))
+        compose.onNodeWithText(text(R.string.storage_ref_analyzing)).assertExists()
+        compose.onNodeWithTag("storage-refresh").assertIsNotEnabled()
+    }
+
     @Test fun missingMediaPermissionShowsEducationNotZeroBytes() {
         val denied = MediaInventory(listOf(
             MediaCategoryTotal(StorageCategory.IMAGES, null, 0, false),
@@ -273,6 +339,13 @@ class StorageXrayScreenTest {
         compose.onNodeWithText(ar.getString(R.string.storage_xray_title)).assertExists()
         compose.onNodeWithTag("storage-kx").assertExists()
         compose.onNodeWithTag("storage-category-images").assertExists()
-        capture("51-storage-xray-night-ar-large")
+        compose.onNodeWithTag("storage-health-panel").assertExists()
+        compose.onNodeWithTag("storage-health-score")
+            .assertTextEquals(ar.getString(R.string.storage_ref_score_unavailable))
+        compose.onNodeWithTag("storage-health-percent-kx")
+            .assertTextEquals(ar.getString(R.string.storage_ref_less_than_one))
+        capture("70-storage-health-night-ar-large")
+        compose.onNodeWithTag("storage-health-row-other").performScrollTo().assertIsDisplayed()
+        capture("70b-storage-health-night-ar-panel")
     }
 }
