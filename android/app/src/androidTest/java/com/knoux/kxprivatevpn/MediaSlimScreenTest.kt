@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.text.format.Formatter
-import android.view.KeyEvent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.LocalContentColor
@@ -158,12 +157,6 @@ class MediaSlimScreenTest {
                 compose.onAllNodes(hasTestTag("route-media")).fetchSemanticsNodes().isNotEmpty()
             }.getOrDefault(false)
         }
-        compose.waitForIdle()
-    }
-
-    /** The compose rule hosts no activity handle, so the IME is dismissed with a real back key. */
-    private fun hideKeyboard() {
-        InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
         compose.waitForIdle()
     }
 
@@ -408,7 +401,10 @@ class MediaSlimScreenTest {
         compose.onNodeWithTag("media-file-img").assertExists()
         compose.onNodeWithTag("media-file-vid").assertDoesNotExist()
         compose.onNodeWithTag("media-file-gif").assertDoesNotExist()
-        hideKeyboard()
+        // The Search IME action clears focus and hides the keyboard inside the app. A back key
+        // would close the host activity on API 26 and detach the compose hierarchy.
+        compose.onNodeWithTag("media-search").performImeAction()
+        compose.waitForIdle()
         compose.onNodeWithTag("media-file-img").performScrollTo().assertIsDisplayed()
         capture("92-media-ref17-search")
 
