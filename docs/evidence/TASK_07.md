@@ -2,10 +2,8 @@
 
 **baseline_sha:** `e775abb` (main after TASK_06 merge and docs)
 **branch:** `codex/task-07-advanced-network`
-**implementation_sha:** `b1c8828` (final head; `51f5663` feature, `0b53657` first test fixes,
-`881cedc` slider/DNS test fixes, `c8d6395` + `b1c8828` capture-review glyph/chevron fixes)
-**status:** IMPLEMENTED · LOCAL GATES PASS · API26 CI VERIFIED (61/61) · API35 BLOCKED (SAME
-RENDERER) · VISUAL STRUCTURE VERIFIED
+**implementation_sha:** `b1c8828` (`51f5663` feature, `0b53657` first test fixes, `881cedc` slider/DNS test fixes, `c8d6395` + `b1c8828` capture-review glyph/chevron fixes)
+**status:** IMPLEMENTED · LOCAL GATES PASS (compile/unit 68 ✓/lint 0 errors/assemble) · CI/visual verification in progress on `b1c8828`
 
 ## Scope implemented
 
@@ -67,49 +65,63 @@ RENDERER) · VISUAL STRUCTURE VERIFIED
   `android/app/src/androidTest/java/com/knoux/kxprivatevpn/AdvancedNetworkScreenTest.kt`,
   `android/app/src/androidTest/java/com/knoux/kxprivatevpn/AdvancedNetworkFlowTest.kt`
 
-## Local verification (Windows, 2026-11-04)
+## api_and_real_results
 
-| Gate | Result |
-|---|---|
-| `:app:compileDebugKotlin` | PASS |
-| `:app:testDebugUnitTest` | 68 tests, 0 failures (13 new) |
-| `:app:lintDebug` | 0 errors (25 baseline warnings) |
-| `:app:assembleDebug` | PASS |
-| `:app:compileDebugAndroidTestKotlin` | PASS |
+- Local gates on `b1c8828` (from `android/`): `:app:compileDebugKotlin` PASS;
+  `:app:testDebugUnitTest` 68 tests, 0 failures (13 new: MTU/DNS/keepalive/validator,
+  IPv6-correct DNS comparison, split→advanced composition);
+  `:app:compileDebugAndroidTestKotlin` PASS; `:app:lintDebug` 0 errors (baseline warnings);
+  `:app:assembleDebug` PASS.
+- CI `41906598533` on `881cedc`: build PASS; **API26 device PASS 61/61 (0 failures, 0 errors,
+  0 skipped)**; API35 stopped at the documented `IdentityTest.arabicRtlLargeText360dp` renderer
+  loss (no new assertion failures).
+- CI on `b1c8828`: pending — final visual pass after the capture-review fixes.
 
-### New JVM tests
+## unit_ui_instrumentation_results
 
-- `AdvancedNetworkConfigTest` (13): bounds (1280–1420 MTU, 0–65535 keepalive), numeric DNS hosts
-  only (hostnames/`0.0.0.0`/`::`/duplicates/>3 rejected), MTU override vs profile, custom/system/
-  profile DNS modes, custom-empty fallback, keepalive per-peer rewrite incl. zero=off and untouched
-  profiles, peer fields preserved verbatim in the textual rebuild, and `advanced.after(split)`
-  keeps `ExcludedApplications` while applying MTU+keepalive. IPv6 host comparison is
-  address-based, not string-based.
+- JVM `AdvancedNetworkConfigTest`: 13 tests — bounds (1280–1420 MTU, 0–65535 keepalive), numeric
+  DNS hosts only (hostnames/`0.0.0.0`/`::`/duplicates/>3 rejected), MTU override vs profile,
+  custom/system/profile DNS modes, custom-empty fallback, keepalive per-peer rewrite incl. zero=off
+  and untouched profiles, peer fields preserved verbatim in the textual rebuild, and
+  `advanced.after(split)` keeps `ExcludedApplications` while applying MTU+keepalive.
+- Instrumented `NetworkSettingsStoreTest`: 6 tests — round-trip, empty default, garbage mounts
+  sanitized (bad MTU/mode/hosts/keepalive), partial valid custom hosts survive, custom-without-
+  usable-hosts falls back to PROFILE, save rejects out-of-range input instead of clamping.
+- Instrumented `AdvancedNetworkScreenTest`: 14 tests — protocol row states (WireGuard selected;
+  others not selected + disabled semantics + "Unavailable" captions), DNS expansion incl.
+  invalid-host error + disabled save + valid hosts saved, obfuscation/port-hopping switch
+  disabled-ness, connected dirty→reconnect / clean→applied text, keepalive pill shows Profile/Off/N s
+  (no invented number), reset panel flow, MTU slider commit through the Material3 accessibility
+  `SetProgress` action snapping 1313 → 1310, night RTL and 1.6× Arabic captures.
+- Instrumented `AdvancedNetworkFlowTest`: real Activity path — stored settings load, honest
+  "apply on next start" note, no applied/reconnect claims without a tunnel, disabled rows on
+  device, runtime capture.
+- Compose interaction fixes verified against Material3 1.3.2 bytecode: the slider commit path is
+  `SetProgress` (calls `onValueChange` then `onValueChangeFinished`); a track tap only animates and
+  a track drag starts no gesture, so the old touch test could never commit.
 
-### New instrumentation tests
-
-- `NetworkSettingsStoreTest` (6): round-trip, empty default, garbage mounts sanitized (bad
-  MTU/mode/hosts/keepalive), partial valid custom hosts survive, custom-without-usable-hosts
-  falls back to PROFILE, save rejects out-of-range input instead of clamping.
-- `AdvancedNetworkScreenTest` (14): protocol row states (WireGuard selected; others not selected +
-  disabled semantics + "Unavailable" captions), DNS expansion incl. invalid-host error + disabled
-  save + valid hosts saved, obfuscation/port-hopping switch disabled-ness, connected
-  dirty→reconnect / clean→applied text, keepalive pill shows Profile/Off/N s (no invented number),
-  reset panel flow, MTU slider commit through the Material3 accessibility `SetProgress` action
-  snapping 1313 → 1310, night RTL and 1.6× Arabic captures.
-- `AdvancedNetworkFlowTest` (1): real Activity path — stored settings load, honest "apply on next
-  start" note, no applied/reconnect claims without a tunnel, disabled rows on device, runtime
-  capture.
-
-Compose-interaction facts verified against the Material3 1.3.2 bytecode: `SetProgress` invokes
-`onValueChange` then `onValueChangeFinished`; a track tap only animates and a track drag starts no
-gesture, so the earlier touch-based slider test could never commit. The DNS editor is below the
-fold after expansion, so its field/error/save nodes are scrolled into view first.
-
-## Visual evidence
+## visual_before_after
 
 Reference: `public/assets/aistudio/07-advanced-network_5b3214f4.png`.
-Captures from CI run `41908841314` (API26), artifact `native-device-api-26`,
+
+| Reference element | Device capture | Verdict |
+| --- | --- | --- |
+| KX back target + centered brand + three-dot overflow | 30/33 | Structure matches; capture review found the three-dot glyph and every card glyph rendered 0×0. `CardGlyph` now forwards `fillMaxSize`, so dots/glyphs draw. |
+| Glass stack hero | 30 | Gradient glass, rim, overlapping glass panes reproduced. |
+| Protocol cards (WireGuard / OpenVPN / Automatic) | 30 | Faithful layout; only WireGuard interactive, others honestly "Unavailable". |
+| Advanced Controls (MTU / DNS / Obfuscation / Port hopping / keepalive) | 30–32, 34 | Layout, labels, sliders, switches and pills match; unsupported rows disabled with honest copy instead of the reference's "On". |
+| Custom DNS editor | 31 | Reference has no editor state; the app adds numeric-host validation, inline error and a disabled Save. |
+| Night + RTL | 33 | Gradient/readability and mirrored layout hold; back chevron direction fixed in `c8d6395` (was inverted in both directions). |
+| Arabic 1.6× large text | 34 | Labels wrap without clipping; controls stay reachable. |
+| Connected dirty banner | 32 | Honest reconnect banner replaces any fake applied state. |
+
+`c8d6395` + `b1c8828` capture-review fixes (require the final CI artifact): `CardGlyph` size
+forwarding at all four call sites (three-dot, protocol cards, advanced-control panels) and
+`BackChevron` LTR/RTL swap.
+
+## screenshot_files
+
+From CI run `41906598533` (API26), artifact `native-device-api-26`,
 `device-screenshots/identity-evidence/`:
 
 - `30-advanced-defaults-light.png`
@@ -119,47 +131,28 @@ Captures from CI run `41908841314` (API26), artifact `native-device-api-26`,
 - `34-advanced-ar-large-text.png`
 - `35-advanced-device-light.png`
 
-### Visual comparison (final artifact)
+Final `b1c8828` captures are downloaded from the follow-up API26 artifact and reviewed before
+merge; evidence paths remain the same names.
 
-| Aspect | Reference | Native capture | Verdict |
-|---|---|---|---|
-| Header | Back `<`, KX lockup, clear vertical three-dot button | Same; chevron now `<` in LTR / `>` in RTL and the dots draw | Matches; both were broken and fixed in `c8d6395`/`b1c8828` |
-| Hero | Glass stack emblem + glass card | Stack emblem now visible, same glass/rim | Matches |
-| Protocol | Link/dome/infinity icons, gradient selected card | Same icons, WireGuard gradient selected; OpenVPN/Automatic honestly unavailable | Structure matches; honest state difference |
-| Advanced Controls | Icons on every row, vibrant sliders/switches | Icons on every row, MTU/keepalive sliders, disabled switches for unimplemented rows | Matches; honesty difference |
-| Custom DNS editor | Not present in reference | Numeric-host editor with inline validation and disabled Save | Added real behaviour |
-| Night + RTL | Not supplied | Capture 33: mirrored header/rows, readable night glass | Verified |
-| Arabic 1.6× | Not supplied | Capture 34: all rows reachable, glyphs visible, labels wrap | Verified |
-| Connected dirty state | Not supplied | Capture 32: "Settings changed. Reconnect the tunnel…" + Reconnect now | Honest real-state addition |
+## known_errors
 
-Capture review found the initial artifact's glyph canvases were 0×0 (`CardGlyph` sized only the
-outer Box) and the back chevron branches were inverted; both defects were fixed, re-tested, and
-verified in the final artifact above. All 61 device tests passed with the fixes.
-
-## Known limits (honest)
-
+- API35 headless emulator loses its renderer during `IdentityTest.arabicRtlLargeText360dp`
+  dialog teardown (documented blocker; API26 is the reliable device gate).
 - No owned WireGuard gateway/peer exists, so MTU/DNS/keepalive cannot be verified end-to-end
   against real egress traffic this cycle; what IS verified: the exact bytes the backend would
   receive (JVM config rebuild tests) and the real on-device UI/store behaviour.
 - OpenVPN/Automatic/obfuscation/port hopping have no backend in this build and stay honestly
   disabled.
-- API35 headless SwiftShader emulator loses its renderer during
-  `IdentityTest.arabicRtlLargeText360dp` dialog teardown (21/61 reached, then device lost). API26
-  is the reliable device gate; this run reproduced the same blocker with no new assertion failures.
-- No release signing / Play Console credentials.
 
-## Permission tests
+## permission_tests
 
 No new permission. No storage/media access. Store writes stay app-private.
 
 ## PR / CI / merge
 
 - PR: [#6](https://github.com/daynightae-cmyk/KX-Private-VPN/pull/6)
-- CI run: `41908841314` (head `b1c8828`) — build PASS; API26 device PASS (61 tests, 0 failures,
-  0 errors, 0 skipped); API35 FAIL only on the documented `IdentityTest.arabicRtlLargeText360dp`
-  dialog-teardown renderer loss.
-- Unit tests: 68/68 PASS (13 new)
-- Visual evidence: captures `30`–`35` downloaded from `native-device-api-26` and reviewed above
-- merged_sha: `9cf4b6433d4d399bf87e03365103d7de7f20f8d1` (PR #6 merge commit)
-- remote_main_sha: `9cf4b64` at merge; evidence/ledger docs commit follows on `main`
+- CI run: `41906598533` (`881cedc`: build PASS, API26 61/61 PASS, API35 documented renderer
+  blocker); follow-up run on `b1c8828`: pending
+- merged_sha: pending
+- remote_main_sha: pending
 - next_task: TASK_08 — real local metrics/trends, after merge.
