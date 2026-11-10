@@ -1073,25 +1073,43 @@ private fun DownloadFilterCard(
             }
         }
         Spacer(Modifier.height(9.dp))
-        Row(
-            Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            DownloadPillAction(
-                label = stringResource(R.string.download_select_attention),
-                night = night,
-                enabled = !state.actionsBlocked,
-                tag = "download-select-attention",
-                onClick = onSelectAttention,
-            )
-            DownloadPillAction(
-                label = stringResource(R.string.download_clear),
-                night = night,
-                enabled = !state.actionsBlocked && state.selected.isNotEmpty(),
-                tag = "download-clear",
-                onClick = onClearSelection,
-            )
-        }
+        SelectionShortcutRow(
+            night = night,
+            state = state,
+            tagSuffix = "",
+            onSelectAttention = onSelectAttention,
+            onClearSelection = onClearSelection,
+        )
+    }
+}
+
+/** The same two selection shortcuts are offered above and inside the measured action panel. */
+@Composable
+private fun SelectionShortcutRow(
+    night: Boolean,
+    state: DownloadRescueUiState,
+    tagSuffix: String,
+    onSelectAttention: () -> Unit,
+    onClearSelection: () -> Unit,
+) {
+    Row(
+        Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        DownloadPillAction(
+            label = stringResource(R.string.download_select_attention),
+            night = night,
+            enabled = !state.actionsBlocked,
+            tag = "download-select-attention$tagSuffix",
+            onClick = onSelectAttention,
+        )
+        DownloadPillAction(
+            label = stringResource(R.string.download_clear),
+            night = night,
+            enabled = !state.actionsBlocked && state.selected.isNotEmpty(),
+            tag = "download-clear$tagSuffix",
+            onClick = onClearSelection,
+        )
     }
 }
 
@@ -1326,25 +1344,13 @@ private fun DownloadActionPanel(
             modifier = Modifier.testTag("download-selected"),
         )
         Spacer(Modifier.height(9.dp))
-        Row(
-            Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            DownloadPillAction(
-                label = stringResource(R.string.download_select_attention),
-                night = night,
-                enabled = !state.actionsBlocked,
-                tag = "download-select-attention-actions",
-                onClick = onSelectAttention,
-            )
-            DownloadPillAction(
-                label = stringResource(R.string.download_clear),
-                night = night,
-                enabled = !state.actionsBlocked && state.selected.isNotEmpty(),
-                tag = "download-clear-actions",
-                onClick = onClearSelection,
-            )
-        }
+        SelectionShortcutRow(
+            night = night,
+            state = state,
+            tagSuffix = "-actions",
+            onSelectAttention = onSelectAttention,
+            onClearSelection = onClearSelection,
+        )
         Spacer(Modifier.height(9.dp))
         DownloadGlassButton(
             label = stringResource(R.string.download_remove),
