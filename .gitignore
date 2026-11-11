@@ -6,3 +6,10 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Local tooling and test-run residue that must never enter the repository.
+.idea/
+__pycache__/
+*.pyc
+backend/pro/pro-test-*/
+backend/pro/client-contract-*/
