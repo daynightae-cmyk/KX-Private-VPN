@@ -203,3 +203,28 @@
 ---
 
 **LEDGER SEALED — NO FURTHER ENTRIES THIS SESSION.**
+
+---
+
+## RESTORATION SESSION (2026-11-18) — AUDIT RECOVERED AFTER BRANCH CONSOLIDATION
+
+The 2026-11-15 audit deliverables were committed on `codex/task-02-vpn-transport`
+(`034fa98`, `01beaad`, `d92dc1c`). That branch was later removed during the single-`main`
+consolidation, which silently dropped `docs/forensic-audit/` from the working tree and from
+`origin/main`. Every object survived in the local object database, so the deliverables were
+recovered by cherry-pick instead of being rewritten. The audit itself is unchanged: only this
+restoration section was appended.
+
+| Timestamp | Action | Command | Result | Evidence |
+|-----------|--------|---------|--------|----------|
+| 2026-11-18 11:05 | Forensic audit recovery | `git cherry-pick 034fa98 d92dc1c` | ✅ 17 deliverables + ledger restored on `codex/recover-audit-fix-api26` | `docs/forensic-audit/` (17 files) |
+| 2026-11-18 11:10 | Unique-work reconciliation | patch-id comparison of the 33 dangling commits against `main` | ✅ 9 patch-id equal to merged PRs, 12 superseded by newer `main` code, 3 already applied, 3 restored by this session — **no feature code was lost** | `docs/STATUS_BLOCKERS.md` |
+| 2026-11-18 11:20 | PR #41 / PR #48 verification | `gh pr view 41`, `gh pr view 48` | ✅ #41's work is merged through PR #32 (`8cdb835`); #48 exists and is MERGED (the earlier "not found" note was wrong) | GitHub API |
+| 2026-11-18 11:35 | API 26 CI failure root cause | CI run `44244219616` device (26) log | ❌ `ToolsCatalogScreenTest` tapped the back circle after it had scrolled out of the viewport; the tap never reached the button | CI log line 455 |
+| 2026-11-18 11:50 | SonarCloud P0 root cause | SonarCloud quality-gate + issue API | 🔴 gate `ERROR`; the only failing condition is `new_security_rating=5` caused by BLOCKER `pythonsecurity:S5131` plus 3 new-code `githubactions:S7637` — both fixed in this branch | SonarCloud API |
+| 2026-11-18 12:05 | Local build proof | `:app:assembleDebug :app:testDebugUnitTest` | ✅ BUILD SUCCESSFUL in 9m42s | local Gradle output |
+| 2026-11-18 12:10 | Backend proof | `python -m unittest discover -s backend/pro` | ✅ 52 tests OK (1 new regression test for the escaped nonce) | local test output |
+
+**PROHIBITIONS RESPECTED IN THIS SESSION:** no `reset --hard`, no `git clean`, no force push,
+no branch or worktree deletion, no daemon kill, no device data deletion, no modification of
+`daynightae-cmyk/KX`.
