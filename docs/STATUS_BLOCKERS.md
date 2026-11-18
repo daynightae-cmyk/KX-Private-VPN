@@ -1,8 +1,8 @@
 # KX Private VPN — CURRENT BLOCKERS & COORDINATION LOG
 
-**Last updated:** 2026-11-18 12:15 UAE
-**Base main SHA:** `e59a010` (pushed, `origin/main`)
-**Working branch:** `codex/recover-audit-fix-api26`
+**Last updated:** 2026-11-18 12:50 UAE
+**Main SHA:** `377ffb3` (PR #50 merged — audit restored, API 26 repaired, SonarCloud gate OK)
+**Working branch:** `codex/release-artifact-and-supply-chain` (PR #51)
 **Branch policy:** exactly one integration branch (`main`); feature branches are merged and deleted after verification.
 
 Every status below is backed by an executed command, a CI run URL/SHA or a SonarCloud API
@@ -23,41 +23,38 @@ response. Nothing in this file is an estimate or an intention.
 
 ---
 
-## 🔴 P0 — SONARCLOUD QUALITY GATE — ROOT CAUSE FOUND, FIXED IN THIS BRANCH, RE-SCAN PENDING
+## 🟢 SONARCLOUD QUALITY GATE — **OK (VERIFIED)**
 
-**Gate state before this branch** (SonarCloud API, analysis of `e59a010` at `2026-11-18T05:26:18Z`):
+**Gate state on `main` after PR #50** (SonarCloud API, analysis of `377ffb3` at `2026-11-18T11:47:03Z`):
 
 | Condition | Status | Value |
 |-----------|--------|-------|
 | `new_reliability_rating` | OK | A (1) |
-| **`new_security_rating`** | **ERROR** | **E (5)** — threshold is A |
+| `new_security_rating` | **OK** | **A (1)** — was E (5) |
 | `new_maintainability_rating` | OK | A (1) |
 | `new_duplicated_lines_density` | OK | 0.8 % |
 | `new_security_hotspots_reviewed` | OK | 100 % |
+| **Quality gate** | **OK** | `projectStatus.status = OK` |
 
-New-code period = `previous_version` of `2026-11-04T17:56:30Z`.
+All four new-code vulnerabilities are **CLOSED** (`sinceLeakPeriod=true`): the BLOCKER
+`pythonsecurity:S5131` and the three `githubactions:S7637` findings. The gate is no longer a
+blocker for this repository.
 
-**Exactly four vulnerabilities sit on new code** (`sinceLeakPeriod=true`):
+**What the P0 actually was (previous notes were wrong):** the earlier ledger claimed that the
+three fixes from PR #40 were already in `main` and that only a re-scan was missing. The gate
+actually failed because of a **BLOCKER** in the Pro authority plus three unpinned actions. Both
+are fixed and the gate now reports `OK`.
 
-| Rule | Severity | Location | Fix in this branch |
-|------|----------|----------|--------------------|
-| `pythonsecurity:S5131` | **BLOCKER** | `backend/pro/pro_authority.py` — reflected request-body data written to the HTTP response | New `echo_token()` helper: the echoed nonce is re-validated as strict hex64 and HTML-escaped before it can enter a response body. A valid hex nonce is byte-identical, so the Android client contract (`fields["nonce"] == nonce`) is unchanged. New regression test `test_response_never_reflects_unescaped_client_input`. |
-| `githubactions:S7637` ×3 | MAJOR | `.github/workflows/android.yml` — actions referenced by mutable tag | Every action is now pinned to a full 40-character commit SHA with the version in a comment (checkout v4.4.0, setup-java v4.9.1, setup-python v5.6.0, setup-gradle v4.4.4, setup-android v3.2.2, upload-artifact v4.6.2, android-emulator-runner v2.38.0). |
-
-Because the E rating was caused by the single BLOCKER, closing it plus the MAJOR/MINOR new-code
-findings is what moves `new_security_rating` to A. The re-scan is automatic on push; the gate
-must be re-read after the new analysis lands.
-
-**Old-code findings (outside the current gate condition, real but not blocking):**
+**Remaining old-code findings** (outside the gate condition, tracked, not blocking):
 
 | Rule | Count | Note |
 |------|-------|------|
 | `githubactions:S7637` | 5 | Closed by the same SHA pinning. |
-| `kotlin:S7204` | 1 | "Obfuscation should be enabled for release builds" on `android/app/build.gradle.kts`, although `release { isMinifyEnabled = true; isShrinkResources = true }` is set and the `release-compile` job builds the minified APK successfully. Treated as a likely analyzer false positive; re-check after the next analysis. |
-| `text:S8569` | 1 | No Gradle dependency lock file / verification metadata. Supply-chain hardening deferred to its own slice (adding `gradle/verification-metadata.xml` changes dependency resolution and must not be mixed into the gate fix). |
+| `kotlin:S7204` | 1 | "Obfuscation should be enabled for release builds" on `android/app/build.gradle.kts`, although `release { isMinifyEnabled = true; isShrinkResources = true }` is set and the release build runs `minifyReleaseWithR8` successfully. Treated as a likely analyzer false positive. |
+| `text:S8569` | 1 | Closed in PR #51 with `android/gradle/verification-metadata.xml` (503 components, SHA-256). |
 | `xml:S5332` | 1 | `usesCleartextTraffic` + `networkSecurityConfig` interaction; cleartext is already denied globally by `network_security_config.xml` and `minSdk` is 26. |
-| `css:S4656` | 1 | Duplicate `margin` property in `docs/evidence/visual/TASK_00/review.html` — cosmetic evidence page. |
-| `kotlin:S3923` | 1 | Identical branches in `SecurityCenterTest.kt`. |
+| `css:S4656` | 1 | Closed in PR #51 (duplicate `margin` in the TASK_00 evidence page). |
+| `kotlin:S3923` | 1 | Closed in PR #51 (identical conditional branches in `SecurityCenterTest`). |
 | `typescript:S1082` | 18 | Legacy React prototype under `src/`, kept as historical material by the mission. Not the Android runtime. |
 
 ---
@@ -157,12 +154,10 @@ No third-party crypto library is used and none is needed: the platform Keystore 
 
 ## 📋 NEXT SEQUENCE
 
-1. CI on `codex/recover-audit-fix-api26` → API 26 + API 35 device jobs, build, release-compile.
-2. Merge to `main` only after those jobs are green, then delete the feature branch (single `main`).
-3. Re-read the SonarCloud gate after the new analysis: the requirement is `new_security_rating = A`.
-4. `codex/release-artifact-and-supply-chain`: Gradle dependency verification metadata, a real app-bundle release gate with checksums, and the remaining old-code Sonar findings.
-5. Agent_A coordination window → visual fidelity pass for Ref 14 / 18 / 03 with screenshot evidence.
-6. Real tunnel proof on the physical phone with an authorized gateway, then owner-signed AAB and release.
+1. CI on PR #51 (`codex/release-artifact-and-supply-chain`) → build, release-compile (now with the real AAB), API 26 + API 35 device jobs, with Gradle dependency verification enforced.
+2. Merge PR #51 into `main` only after those jobs are green, then delete the branch (single `main`).
+3. Visual fidelity pass for Ref 14 / 18 / 03 with screenshot evidence from the physical phone.
+4. Real tunnel proof on the physical phone with an authorized gateway, then owner-signed AAB and release.
 
 ---
 
@@ -175,7 +170,10 @@ No third-party crypto library is used and none is needed: the platform Keystore 
 | 2026-11-18 08:40 | Consolidation | Adaptive icon, release build config, CI release gate, README, changelog, editorconfig pushed to `main` | ✅ `build`/`release-compile` green, `device (26)` red |
 | 2026-11-18 11:05 | Forensic | Audit recovered by cherry-pick; API 26 root cause found; SonarCloud P0 root cause found | ✅ Fixes in `codex/recover-audit-fix-api26` |
 | 2026-11-18 12:10 | Forensic | Local proof: Gradle debug build + unit tests, 52 backend tests | ✅ All green |
-| — | Agent_A | Visual fidelity coordination | ⏳ Awaiting response |
+| 2026-11-18 11:46 | Forensic | PR #50 merged into `main` as `377ffb3` | ✅ CI run `44257528678` green on all four jobs (build, release-compile, API 26, API 35) |
+| 2026-11-18 11:47 | Forensic | SonarCloud re-analysis of `377ffb3` | ✅ **Quality gate OK**, `new_security_rating = A`, all four new-code vulnerabilities CLOSED |
+| 2026-11-18 12:30 | Forensic | Physical device proof on `R9ZR20HWHQY` (Android 12 / API 31, Arabic RTL) | ✅ 6 captures + report in `docs/evidence/device-20261118/` |
+| 2026-11-18 12:40 | Forensic | PR #51: dependency verification, real AAB release gate, checksums, two old-code Sonar findings | ⏳ CI pending |
 
 ---
 
