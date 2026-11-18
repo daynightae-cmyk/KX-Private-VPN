@@ -383,36 +383,37 @@ private fun ToolCard(
                     ),
                 ),
             )
-            .border(1.dp, Brush.linearGradient(
+            .border(1.2.dp, Brush.linearGradient(
                 if (night) listOf(
-                    Color.White.copy(alpha = .26f),
-                    accent.copy(alpha = .30f),
+                    Color.White.copy(alpha = .48f),
+                    accent.copy(alpha = .72f),
+                    Color(0xFF64EEFF).copy(alpha = .26f),
                 ) else listOf(
-                    Color.White.copy(alpha = .88f),
-                    accent.copy(alpha = .24f),
+                    Color.White.copy(alpha = .92f),
+                    accent.copy(alpha = .42f),
                 ),
             ), shape)
             .clickable(role = Role.Button, onClickLabel = stringResource(R.string.tools_open, title), onClick = onClick)
-            .padding(horizontal = 10.dp, vertical = 9.dp)
+            .padding(horizontal = 11.dp, vertical = 13.dp)
             .testTag("tool-card-${entry.key}"),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(9.dp),
     ) {
-        KxLineIcon(entry.icon, if (night) accent else accent.copy(alpha = .9f), Modifier.size(26.dp))
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+        KxLineIcon(entry.icon, if (night) accent else accent.copy(alpha = .9f), Modifier.size(30.dp))
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(
                 title,
                 color = kxInk(night),
-                fontSize = 13.sp,
-                lineHeight = 17.sp,
+                fontSize = 14.sp,
+                lineHeight = 19.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Start,
             )
             Text(
                 body,
                 color = kxMuted(night),
-                fontSize = 10.sp,
-                lineHeight = 14.sp,
+                fontSize = 10.5.sp,
+                lineHeight = 15.sp,
                 textAlign = TextAlign.Start,
             )
         }
@@ -420,11 +421,11 @@ private fun ToolCard(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
-            KxMiniOrb(night, 26.dp)
+            KxMiniOrb(night, 28.dp)
             KxLineIcon(
                 if (rtl) KxIconKind.BACK else KxIconKind.FORWARD,
                 kxMuted(night),
-                Modifier.size(10.dp),
+                Modifier.size(11.dp),
             )
         }
     }

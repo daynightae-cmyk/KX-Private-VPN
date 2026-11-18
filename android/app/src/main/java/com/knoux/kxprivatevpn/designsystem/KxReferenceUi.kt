@@ -29,6 +29,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -125,47 +126,146 @@ fun kxRose(night: Boolean): Color = if (night) Color(0xFFFF8AD8) else Color(0xFF
 
 fun kxGreen(night: Boolean): Color = if (night) Color(0xFF5BE8AE) else Color(0xFF087A56)
 
-/** Deep indigo glass-ribbon atmosphere measured from the owner's approved references. */
+/** Which approved reference backdrop a screen reproduces. */
+enum class KxAtmosphereStyle {
+    /** Ref 14 / Ref 18: magenta sweep in the upper left, cyan sweep on the right. */
+    STANDARD,
+
+    /** Ref 03: a violet diagonal wash and symmetric waves flanking the hero orb. */
+    REPAIR,
+}
+
+/**
+ * Deep indigo glass-ribbon atmosphere measured from the owner's approved references.
+ *
+ * Ref 14 (Home), Ref 18 (Tools) and Ref 03 (Repair) share one backdrop vocabulary: a deep
+ * ink base, a luminous violet/magenta sweep entering from the upper left, a cyan sweep on
+ * the right and a soft bloom behind the hero. Every sweep is painted in three passes - a
+ * wide translucent halo, a mid tone body and a thin bright core - which reproduces the
+ * reference bloom without a per-frame blur or a full-screen RenderEffect.
+ */
 @Composable
-fun KxReferenceAtmosphere(night: Boolean) {
+fun KxReferenceAtmosphere(night: Boolean, style: KxAtmosphereStyle = KxAtmosphereStyle.STANDARD) {
     Canvas(Modifier.fillMaxSize()) {
         val w = size.width
         val h = size.height
         if (night) {
             drawRect(
                 Brush.linearGradient(
-                    listOf(Color(0xFF2C195F), Color(0xFF1A1B4A), Color(0xFF12193F), Color(0xFF0D1436)),
+                    listOf(Color(0xFF241355), Color(0xFF191549), Color(0xFF101A42), Color(0xFF080D28)),
                     Offset(0f, 0f), Offset(w * .85f, h),
                 ),
             )
+            // Corner blooms: violet top left, cyan top right, magenta far left.
             drawCircle(
                 Brush.radialGradient(
-                    listOf(Color(0xFF8A47F2).copy(alpha = .48f), Color(0xFF4F2AA6).copy(alpha = .20f), Color.Transparent),
-                    Offset(w * .08f, h * .02f), w * .85f,
+                    listOf(Color(0xFF9A4BF5).copy(alpha = .50f), Color(0xFF4F2AA6).copy(alpha = .22f), Color.Transparent),
+                    Offset(w * .06f, h * .01f), w * .88f,
                 ),
-                w * .85f, Offset(w * .08f, h * .02f),
+                w * .88f, Offset(w * .06f, h * .01f),
             )
             drawCircle(
                 Brush.radialGradient(
-                    listOf(Color(0xFF1FB8EA).copy(alpha = .22f), Color.Transparent),
-                    Offset(w * .96f, h * .34f), w * .55f,
+                    listOf(Color(0xFF1FC6F2).copy(alpha = .26f), Color.Transparent),
+                    Offset(w * .97f, h * .22f), w * .58f,
                 ),
-                w * .55f, Offset(w * .96f, h * .34f),
+                w * .58f, Offset(w * .97f, h * .22f),
             )
-            ribbon(
-                w, h,
-                startY = .055f, endY = .20f, thickness = .15f,
-                colors = listOf(Color(0xFF6E36D8).copy(alpha = .46f), Color(0xFF2A74E8).copy(alpha = .20f), Color.Transparent),
+            drawCircle(
+                Brush.radialGradient(
+                    listOf(Color(0xFFFF6FD0).copy(alpha = .20f), Color.Transparent),
+                    Offset(w * .02f, h * .26f), w * .42f,
+                ),
+                w * .42f, Offset(w * .02f, h * .26f),
             )
-            ribbon(
-                w, h,
-                startY = .74f, endY = .90f, thickness = .19f,
-                colors = listOf(Color(0xFF36C9F3).copy(alpha = .30f), Color(0xFF7A36D8).copy(alpha = .42f), Color(0xFF1D2E7A).copy(alpha = .32f)),
+            if (style == KxAtmosphereStyle.REPAIR) {
+                // Ref 03 opens with a violet diagonal wash across the top left corner.
+                val wash = Path().apply {
+                    moveTo(0f, 0f); lineTo(w * .66f, 0f)
+                    cubicTo(w * .38f, h * .09f, w * .16f, h * .16f, 0f, h * .31f)
+                    close()
+                }
+                drawPath(wash, Brush.linearGradient(listOf(Color(0xFFB15CFF).copy(alpha = .52f), Color.Transparent)))
+                val washEdge = Path().apply {
+                    moveTo(0f, h * .31f)
+                    cubicTo(w * .16f, h * .16f, w * .38f, h * .09f, w * .66f, 0f)
+                }
+                drawPath(
+                    washEdge,
+                    Brush.linearGradient(listOf(Color.Transparent, Color(0xFFD9A8FF).copy(alpha = .70f), Color.Transparent),
+                        Offset(0f, h * .31f), Offset(w * .66f, 0f)),
+                    style = Stroke(1.6.dp.toPx(), cap = StrokeCap.Round),
+                )
+            }
+            // Neon sweep A: violet/magenta entering from the top and leaving through the left edge.
+            neonSweep(
+                Path().apply {
+                    moveTo(w * .48f, -h * .06f)
+                    cubicTo(w * .30f, h * .02f, w * .11f, h * .11f, -w * .06f, h * .31f)
+                },
+                listOf(Color(0xFFD46BFF), Color(0xFF8A44FF), Color(0xFF4C6BFF)),
+                coreWidth = 1.9.dp.toPx(),
+                start = Offset(w * .48f, 0f), end = Offset(0f, h * .31f),
             )
-            ribbon(
-                w, h,
-                startY = .86f, endY = .99f, thickness = .13f,
-                colors = listOf(Color(0xFFB73BEA).copy(alpha = .28f), Color(0xFF2BC8F5).copy(alpha = .26f), Color.Transparent),
+            // Neon sweep B: a second, dimmer magenta edge below the first one.
+            neonSweep(
+                Path().apply {
+                    moveTo(w * .40f, -h * .03f)
+                    cubicTo(w * .21f, h * .06f, w * .02f, h * .18f, -w * .06f, h * .42f)
+                },
+                listOf(Color(0xFFFF7BD8), Color(0xFFA64BFF), Color(0xFF3E5BE8)),
+                coreWidth = 1.1.dp.toPx(),
+                start = Offset(w * .40f, 0f), end = Offset(0f, h * .42f),
+            )
+            // Neon sweep C: cyan wave on the right shoulder of the screen.
+            neonSweep(
+                Path().apply {
+                    moveTo(w * 1.04f, h * .01f)
+                    cubicTo(w * .86f, h * .04f, w * .70f, h * .11f, w * .60f, h * .23f)
+                    cubicTo(w * .73f, h * .28f, w * .90f, h * .30f, w * 1.04f, h * .32f)
+                },
+                listOf(Color(0xFF8FF6FF), Color(0xFF29C8F0), Color(0xFF7C63FF)),
+                coreWidth = 1.6.dp.toPx(),
+                start = Offset(w, h * .02f), end = Offset(w * .60f, h * .27f),
+            )
+            // Neon sweep D: the lower violet-to-cyan wave that carries the eye to the content.
+            neonSweep(
+                Path().apply {
+                    moveTo(-w * .06f, h * .88f)
+                    cubicTo(w * .20f, h * .73f, w * .50f, h * .96f, w * .76f, h * .87f)
+                    cubicTo(w * .90f, h * .83f, w * .99f, h * .79f, w * 1.06f, h * .75f)
+                },
+                listOf(Color(0xFF7B5CFF), Color(0xFF36CBF5), Color(0xFFFF7BD8)),
+                coreWidth = 1.5.dp.toPx(),
+                start = Offset(0f, h * .88f), end = Offset(w, h * .80f),
+            )
+            if (style == KxAtmosphereStyle.REPAIR) {
+                // Ref 03 flanks the hero orb with two waves: cyan on the left, magenta on the right.
+                neonSweep(
+                    Path().apply {
+                        moveTo(-w * .06f, h * .63f)
+                        cubicTo(w * .06f, h * .55f, w * .16f, h * .64f, w * .25f, h * .74f)
+                    },
+                    listOf(Color(0xFF8FF6FF), Color(0xFF2AA8E8), Color.Transparent),
+                    coreWidth = 1.4.dp.toPx(),
+                    start = Offset(0f, h * .60f), end = Offset(w * .25f, h * .74f),
+                )
+                neonSweep(
+                    Path().apply {
+                        moveTo(w * 1.06f, h * .60f)
+                        cubicTo(w * .94f, h * .52f, w * .84f, h * .61f, w * .75f, h * .71f)
+                    },
+                    listOf(Color(0xFFFF9BE0), Color(0xFFC255F5), Color.Transparent),
+                    coreWidth = 1.4.dp.toPx(),
+                    start = Offset(w, h * .58f), end = Offset(w * .75f, h * .71f),
+                )
+            }
+            // Depth: a deep vignette keeps the lower content readable over the waves.
+            drawRect(
+                Brush.verticalGradient(
+                    listOf(Color.Transparent, Color.Transparent, Color(0xFF060A22).copy(alpha = .46f)),
+                    startY = h * .45f, endY = h,
+                ),
             )
         } else {
             drawRect(
@@ -176,63 +276,172 @@ fun KxReferenceAtmosphere(night: Boolean) {
             )
             drawCircle(
                 Brush.radialGradient(
-                    listOf(Color(0xFF9A77F5).copy(alpha = .35f), Color.Transparent),
-                    Offset(w * .05f, h * .03f), w * .8f,
+                    listOf(Color(0xFF9A77F5).copy(alpha = .38f), Color.Transparent),
+                    Offset(w * .05f, h * .03f), w * .82f,
                 ),
-                w * .8f, Offset(w * .05f, h * .03f),
+                w * .82f, Offset(w * .05f, h * .03f),
             )
             drawCircle(
                 Brush.radialGradient(
-                    listOf(Color(0xFF54C8F5).copy(alpha = .25f), Color.Transparent),
-                    Offset(w * .96f, h * .32f), w * .55f,
+                    listOf(Color(0xFF54C8F5).copy(alpha = .28f), Color.Transparent),
+                    Offset(w * .96f, h * .28f), w * .58f,
                 ),
-                w * .55f, Offset(w * .96f, h * .32f),
+                w * .58f, Offset(w * .96f, h * .28f),
             )
-            ribbon(
-                w, h,
-                startY = .05f, endY = .19f, thickness = .14f,
-                colors = listOf(Color(0xFF8B5CF6).copy(alpha = .18f), Color(0xFF38BDF8).copy(alpha = .16f), Color.Transparent),
+            neonSweep(
+                Path().apply {
+                    moveTo(w * .48f, -h * .06f)
+                    cubicTo(w * .30f, h * .02f, w * .11f, h * .11f, -w * .06f, h * .31f)
+                },
+                listOf(Color(0xFFB58BFF), Color(0xFF8B5CF6), Color(0xFF5B8CF6)),
+                coreWidth = 1.7.dp.toPx(),
+                start = Offset(w * .48f, 0f), end = Offset(0f, h * .31f),
             )
-            ribbon(
-                w, h,
-                startY = .76f, endY = .91f, thickness = .18f,
-                colors = listOf(Color(0xFF38BDF8).copy(alpha = .20f), Color(0xFF8B5CF6).copy(alpha = .20f), Color(0xFFC4B5FD).copy(alpha = .18f)),
+            neonSweep(
+                Path().apply {
+                    moveTo(w * 1.04f, h * .01f)
+                    cubicTo(w * .86f, h * .04f, w * .70f, h * .11f, w * .60f, h * .23f)
+                    cubicTo(w * .73f, h * .28f, w * .90f, h * .30f, w * 1.04f, h * .32f)
+                },
+                listOf(Color(0xFF7FDDF7), Color(0xFF38BDF8), Color(0xFF9C8BF0)),
+                coreWidth = 1.4.dp.toPx(),
+                start = Offset(w, h * .02f), end = Offset(w * .60f, h * .27f),
+            )
+            neonSweep(
+                Path().apply {
+                    moveTo(-w * .06f, h * .88f)
+                    cubicTo(w * .20f, h * .73f, w * .50f, h * .96f, w * .76f, h * .87f)
+                    cubicTo(w * .90f, h * .83f, w * .99f, h * .79f, w * 1.06f, h * .75f)
+                },
+                listOf(Color(0xFF8B5CF6), Color(0xFF38BDF8), Color(0xFFC4B5FD)),
+                coreWidth = 1.3.dp.toPx(),
+                start = Offset(0f, h * .88f), end = Offset(w, h * .80f),
             )
         }
     }
 }
 
-private fun DrawScope.ribbon(
-    w: Float,
-    h: Float,
-    startY: Float,
-    endY: Float,
-    thickness: Float,
+/**
+ * Paints one luminous sweep in three passes: a wide translucent halo, a mid tone body and a
+ * thin bright core. The overlap reproduces the reference bloom without an expensive blur.
+ */
+private fun DrawScope.neonSweep(
+    path: Path,
     colors: List<Color>,
+    coreWidth: Float,
+    start: Offset,
+    end: Offset,
 ) {
-    val band = Path().apply {
-        moveTo(-w * .12f, h * startY)
-        cubicTo(w * .24f, h * (startY - .08f), w * .58f, h * (startY + .10f), w * 1.12f, h * (endY - .04f))
-        lineTo(w * 1.12f, h * (endY + thickness * .55f))
-        cubicTo(w * .62f, h * (endY + thickness), w * .22f, h * (startY + thickness * .8f), -w * .12f, h * (startY + thickness))
-        close()
-    }
     drawPath(
-        band,
-        Brush.linearGradient(colors, Offset(0f, h * startY), Offset(w, h * endY)),
+        path,
+        Brush.linearGradient(colors.map { it.copy(alpha = it.alpha * .20f) }, start, end),
+        style = Stroke(coreWidth * 3.6f, cap = StrokeCap.Round),
     )
-    val edge = Path().apply {
-        moveTo(-w * .12f, h * startY)
-        cubicTo(w * .24f, h * (startY - .08f), w * .58f, h * (startY + .10f), w * 1.12f, h * (endY - .04f))
-    }
     drawPath(
-        edge,
-        Brush.linearGradient(
-            listOf(Color.Transparent, Color.White.copy(alpha = .34f), Color(0xFF64EEFF).copy(alpha = .24f), Color.Transparent),
-            Offset(0f, h * startY), Offset(w, h * endY),
-        ),
-        style = Stroke(.8.dp.toPx()),
+        path,
+        Brush.linearGradient(colors.map { it.copy(alpha = it.alpha * .50f) }, start, end),
+        style = Stroke(coreWidth * 1.8f, cap = StrokeCap.Round),
     )
+    drawPath(
+        path,
+        Brush.linearGradient(colors, start, end),
+        style = Stroke(coreWidth, cap = StrokeCap.Round),
+    )
+}
+
+/**
+ * The bloom that sits behind a hero orb. Ref 14 and Ref 03 both show a wide cyan/violet
+ * halo around the emblem, which the plain orb drawing alone does not produce.
+ */
+@Composable
+fun KxOrbAura(night: Boolean, modifier: Modifier = Modifier, strength: Float = 1f) {
+    Canvas(modifier) {
+        val radius = size.minDimension / 2f
+        val center = Offset(size.width / 2f, size.height / 2f)
+        if (night) {
+            drawCircle(
+                Brush.radialGradient(
+                    listOf(
+                        Color(0xFF8FF6FF).copy(alpha = .26f * strength),
+                        Color(0xFF9B6BFF).copy(alpha = .17f * strength),
+                        Color.Transparent,
+                    ),
+                    center, radius,
+                ),
+                radius, center,
+            )
+        } else {
+            drawCircle(
+                Brush.radialGradient(
+                    listOf(
+                        Color(0xFF8ADCF7).copy(alpha = .30f * strength),
+                        Color(0xFFB79CF8).copy(alpha = .18f * strength),
+                        Color.Transparent,
+                    ),
+                    center, radius,
+                ),
+                radius, center,
+            )
+        }
+    }
+}
+
+/**
+ * The glowing platform the Ref 03 hero orb rests on. The audit recorded this platform as the
+ * one CRITICAL missing element of the Repair Lab, so it is drawn as concentric luminous
+ * ellipses with a hot core rather than a flat decoration.
+ */
+@Composable
+fun KxGlowPlatform(night: Boolean, modifier: Modifier = Modifier) {
+    Canvas(modifier) {
+        val w = size.width
+        val h = size.height
+        val center = Offset(w / 2f, h / 2f)
+        // Ambient bloom around the platform.
+        drawOval(
+            Brush.radialGradient(
+                listOf(
+                    Color(0xFF8FF6FF).copy(alpha = if (night) .26f else .30f),
+                    Color(0xFFB06BFF).copy(alpha = .14f),
+                    Color.Transparent,
+                ),
+                center, w * .48f,
+            ),
+            topLeft = Offset(center.x - w * .48f, center.y - h * .78f),
+            size = Size(w * .96f, h * 1.56f),
+        )
+        // Three concentric luminous rings.
+        for (i in 0..2) {
+            val scale = 1f - i * .19f
+            drawOval(
+                Brush.linearGradient(
+                    listOf(
+                        Color(0xFF8FF6FF),
+                        Color(0xFFB98CFF),
+                        Color(0xFFFF8AD8),
+                    ),
+                    Offset(center.x - w * scale / 2f, center.y),
+                    Offset(center.x + w * scale / 2f, center.y),
+                ),
+                topLeft = Offset(center.x - w * scale / 2f, center.y - h * scale / 2f),
+                size = Size(w * scale, h * scale),
+                style = Stroke(
+                    if (i == 0) 2.1.dp.toPx() else 1.1.dp.toPx(),
+                    cap = StrokeCap.Round,
+                ),
+                alpha = .88f - i * .22f,
+            )
+        }
+        // Hot core where the orb meets the platform.
+        drawOval(
+            Brush.radialGradient(
+                listOf(Color.White.copy(alpha = .50f), Color(0xFF8FEFFF).copy(alpha = .30f), Color.Transparent),
+                center, w * .22f,
+            ),
+            topLeft = Offset(center.x - w * .22f, center.y - h * .30f),
+            size = Size(w * .44f, h * .60f),
+        )
+    }
 }
 
 /** Glass panel matching the reference cards: saturated indigo fill and a dual-tone rim. */
@@ -272,7 +481,27 @@ fun KxGlassPanel(
         ),
     )
     Column(
-        modifier.fillMaxWidth().clip(shape).background(fill).border(1.dp, rim, shape).padding(padding),
+        modifier.fillMaxWidth().clip(shape)
+            .drawBehind {
+                // The fill and the specular bevel are painted in one pass so the top edge
+                // catches the light the way the reference glass does.
+                drawRect(fill)
+                val bevel = 1.dp.toPx()
+                drawRoundRect(
+                    brush = Brush.verticalGradient(
+                        listOf(
+                            Color.White.copy(alpha = if (night) .30f else .70f),
+                            Color.Transparent,
+                        ),
+                        startY = 0f, endY = 30.dp.toPx(),
+                    ),
+                    topLeft = Offset(bevel, bevel),
+                    size = Size(size.width - bevel * 2, size.height - bevel * 2),
+                    cornerRadius = CornerRadius((radius.toPx() - bevel).coerceAtLeast(0f)),
+                    style = Stroke(bevel),
+                )
+            }
+            .border(1.dp, rim, shape).padding(padding),
         content = content,
     )
 }

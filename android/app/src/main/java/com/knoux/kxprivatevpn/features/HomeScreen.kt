@@ -51,6 +51,7 @@ import com.knoux.kxprivatevpn.designsystem.KxServiceGlyph
 import com.knoux.kxprivatevpn.designsystem.KxStatusPill
 import com.knoux.kxprivatevpn.designsystem.KxTitleBlock
 import com.knoux.kxprivatevpn.designsystem.KxOrb
+import com.knoux.kxprivatevpn.designsystem.KxOrbAura
 import com.knoux.kxprivatevpn.designsystem.RepairGlyph
 import com.knoux.kxprivatevpn.designsystem.kxCyan
 import com.knoux.kxprivatevpn.designsystem.kxInk
@@ -251,6 +252,12 @@ private fun HomeHero(
         verticalArrangement = Arrangement.spacedBy(9.dp),
     ) {
         Box(Modifier.fillMaxWidth().heightIn(min = 158.dp), contentAlignment = Alignment.TopCenter) {
+            // Ref 14 shows a wide cyan/violet bloom around the emblem; the orb drawing alone
+            // does not produce it, so the aura is painted underneath the artwork.
+            KxOrbAura(
+                night = night,
+                modifier = Modifier.size(178.dp).align(Alignment.TopCenter).offset(y = (-28).dp),
+            )
             KxOrb(
                 progress = 1f,
                 frame = IntroTimeline.frame(1f),
@@ -472,23 +479,24 @@ private fun QuickActionCard(
                     ),
                 ),
             )
-            .border(1.dp, Brush.linearGradient(listOf(
-                Color.White.copy(alpha = if (night) .35f else .86f),
-                accent.copy(alpha = if (night) .40f else .30f),
+            .border(1.2.dp, Brush.linearGradient(listOf(
+                Color.White.copy(alpha = if (night) .52f else .92f),
+                accent.copy(alpha = if (night) .74f else .46f),
+                Color(0xFF64EEFF).copy(alpha = if (night) .30f else .20f),
             )), shape)
             .clickable(role = Role.Button, onClickLabel = label, onClick = onClick)
-            .padding(horizontal = 4.dp, vertical = 6.dp)
-            .heightIn(min = 60.dp)
+            .padding(horizontal = 5.dp, vertical = 9.dp)
+            .heightIn(min = 68.dp)
             .testTag(tag),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(3.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        KxLineIcon(icon, if (night) accent else accent.copy(alpha = .92f), Modifier.size(18.dp))
+        KxLineIcon(icon, if (night) accent else accent.copy(alpha = .92f), Modifier.size(21.dp))
         Text(
             title,
             color = kxInk(night),
-            fontSize = 9.5.sp,
-            lineHeight = 12.sp,
+            fontSize = 10.5.sp,
+            lineHeight = 13.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
         )
@@ -496,8 +504,8 @@ private fun QuickActionCard(
             Text(
                 body,
                 color = kxMuted(night),
-                fontSize = 7.5.sp,
-                lineHeight = 10.sp,
+                fontSize = 8.sp,
+                lineHeight = 11.sp,
                 textAlign = TextAlign.Center,
             )
             KxForwardChevron(kxMuted(night), 8.dp)
