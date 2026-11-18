@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Production network policy: HTTPS only. Cleartext is disabled globally so no
+  connection metadata or configuration can leak over an unencrypted transport.
+  Certificate pinning is applied in code by HttpsProAuthority for the owner
+  configured PRO origin; the WireGuard tunnel uses its own pre-shared keys.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

@@ -3,3 +3,9 @@
 local.properties
 **/build/
 captures/
+
+# Release signing material must never enter the repository.
+key.properties
+*.jks
+*.keystore
+

@@ -13,3 +13,10 @@ __pycache__/
 *.pyc
 backend/pro/pro-test-*/
 backend/pro/client-contract-*/
+
+# Build artifacts and rollback binaries are reproducible; never commit them.
+*.apk
+*.aab
+*.apks
+*.idsig
+docs/evidence/**/phone-rollback/

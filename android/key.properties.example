@@ -1,0 +1,10 @@
+# Copy this file to android/key.properties and fill in the release keystore.
+# android/key.properties is gitignored and must never be committed.
+# Relative paths are resolved from the android/ directory.
+storeFile=../path/to/kx-private-vpn-release.jks
+storePassword=CHANGE_ME
+keyAlias=kx-private-vpn
+keyPassword=CHANGE_ME
+# Optional: disable legacy signing schemes if the store only supports modern ones.
+# v1SigningEnabled=true
+# v2SigningEnabled=true
