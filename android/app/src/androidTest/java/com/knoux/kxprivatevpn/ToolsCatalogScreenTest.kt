@@ -111,7 +111,10 @@ class ToolsCatalogScreenTest {
         compose.onNodeWithTag("tools-filter-all").performScrollTo().performClick()
         compose.onNodeWithTag("tool-card-temporary").performScrollTo().performClick()
         assertEquals("cache", route)
-        compose.onNodeWithTag("tools-back").performClick()
+        // The reference header scrolls with the page, so the back circle can sit above the
+        // viewport once the grid has been scrolled. Bring it back before clicking it,
+        // otherwise the tap lands outside the window and the callback never runs.
+        compose.onNodeWithTag("tools-back").performScrollTo().performClick()
         assertEquals(1, back)
         compose.onNodeWithTag("nav-home").performClick()
         assertEquals("home", route)
