@@ -239,6 +239,22 @@ class AuthorityHTTPTests(unittest.TestCase):
         self.assertEqual(int(headers["Content-Length"]), len(pro._json_bytes(grant)))
         self.assertEqual(self.request()[1], grant)
 
+    def test_response_never_reflects_unescaped_client_input(self):
+        # The nonce is the only client supplied value that is ever echoed back, so
+        # it must never carry markup. A hostile token is refused outright and the
+        # error body never repeats it.
+        hostile = "<script>alert(1)</script>"
+        status, payload, _ = self.request(payload={"nonce": hostile})
+        self.assertEqual(status, 400)
+        self.assertEqual(payload, {"error": "bad_request"})
+        self.assertNotIn(hostile, json.dumps(payload))
+        # A valid token stays byte identical: the Android client binds the grant
+        # to the nonce it generated, so escaping must not alter a hex token.
+        status, payload, _ = self.request()
+        self.assertEqual(status, 403)
+        self.assertEqual(payload, {"error": "inactive", "nonce": self.nonce})
+        self.assertEqual(payload["nonce"], pro.echo_token(self.nonce))
+
     def test_retry_after_lost_response_retains_activation_and_updates_nonce(self):
         issuance = self.authority.issue(60)
         # Send a complete redemption but discard the HTTP response. A subsequent
