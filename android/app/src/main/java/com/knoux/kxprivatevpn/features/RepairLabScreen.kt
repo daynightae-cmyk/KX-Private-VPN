@@ -55,8 +55,11 @@ import com.knoux.kxprivatevpn.designsystem.KxIconKind
 import com.knoux.kxprivatevpn.designsystem.KxLineIcon
 import com.knoux.kxprivatevpn.designsystem.KxMiniOrb
 import com.knoux.kxprivatevpn.designsystem.KxOrb
+import com.knoux.kxprivatevpn.designsystem.KxOrbAura
+import com.knoux.kxprivatevpn.designsystem.KxGlowPlatform
 import com.knoux.kxprivatevpn.designsystem.KxPageHeader
 import com.knoux.kxprivatevpn.designsystem.KxReferenceAtmosphere
+import com.knoux.kxprivatevpn.designsystem.KxAtmosphereStyle
 import com.knoux.kxprivatevpn.designsystem.KxReferenceTheme
 import com.knoux.kxprivatevpn.designsystem.KxTitleBlock
 import com.knoux.kxprivatevpn.designsystem.RepairGlyph
@@ -115,7 +118,7 @@ fun RepairLabScreen(
     val foreground = kxInk(night)
     KxReferenceTheme(night) {
         Box(Modifier.fillMaxSize()) {
-            KxReferenceAtmosphere(night)
+            KxReferenceAtmosphere(night, KxAtmosphereStyle.REPAIR)
             Column(
                 Modifier.fillMaxSize().safeDrawingPadding()
                     .verticalScroll(rememberScrollState())
@@ -211,10 +214,19 @@ private fun RepairHero(
         verticalArrangement = Arrangement.spacedBy(7.dp),
     ) {
         Box(
-            Modifier.fillMaxWidth().heightIn(min = 206.dp),
+            Modifier.fillMaxWidth().heightIn(min = 214.dp),
             contentAlignment = Alignment.Center,
         ) {
             DiagnosticRing(measuring, reducedMotion, Modifier.size(204.dp))
+            KxOrbAura(night = night, modifier = Modifier.size(196.dp).offset(y = (-8).dp))
+            // Ref 03 shows the hero orb resting on a luminous elliptical platform. The audit
+            // recorded that platform as the one CRITICAL missing element, so it is drawn as
+            // concentric glowing ellipses with a hot core directly under the artwork.
+            KxGlowPlatform(
+                night = night,
+                modifier = Modifier.align(Alignment.Center).width(198.dp).height(40.dp)
+                    .offset(y = 52.dp),
+            )
             KxOrb(
                 progress = 1f,
                 frame = IntroTimeline.frame(1f),
@@ -229,10 +241,17 @@ private fun RepairHero(
             Modifier.heightIn(min = 44.dp)
                 .clip(RoundedCornerShape(50))
                 .background(
-                    Color.White.copy(alpha = if (night) .10f else .48f),
+                    Brush.horizontalGradient(
+                        listOf(
+                            Color(0xFF7B4BF0).copy(alpha = if (night) .22f else .12f),
+                            Color(0xFF2AA8E8).copy(alpha = if (night) .18f else .10f),
+                        ),
+                    ),
                 )
-                .border(1.dp, Color.White.copy(alpha = if (night) .32f else .82f),
-                    RoundedCornerShape(50))
+                .border(1.2.dp, Brush.horizontalGradient(listOf(
+                    Color(0xFFC48CFF).copy(alpha = if (night) .82f else .62f),
+                    Color(0xFF64EEFF).copy(alpha = if (night) .70f else .52f),
+                )), RoundedCornerShape(50))
                 .clickable(role = Role.Button,
                     onClickLabel = stringResource(R.string.repair_analyze),
                     onClick = onAnalyze)
@@ -331,36 +350,37 @@ private fun ReferenceRepairCard(
                     ),
                 ),
             )
-            .border(1.dp, Brush.linearGradient(
+            .border(1.2.dp, Brush.linearGradient(
                 if (night) listOf(
-                    Color.White.copy(alpha = .24f),
-                    accent.copy(alpha = .30f),
+                    Color.White.copy(alpha = .58f),
+                    accent.copy(alpha = .82f),
+                    Color(0xFF64EEFF).copy(alpha = .40f),
                 ) else listOf(
-                    Color.White.copy(alpha = .88f),
-                    accent.copy(alpha = .24f),
+                    Color.White.copy(alpha = .92f),
+                    accent.copy(alpha = .54f),
                 ),
             ), shape)
             .clickable(role = Role.Button,
                 onClickLabel = stringResource(R.string.repair_open_service, title, ready),
                 onClick = onClick)
             .semantics(mergeDescendants = true) { contentDescription = "$title. $ready" }
-            .padding(horizontal = 8.dp, vertical = 8.dp)
-            .heightIn(min = 52.dp)
+            .padding(horizontal = 10.dp, vertical = 10.dp)
+            .heightIn(min = 56.dp)
             .testTag("repair-card-${entry.tag}"),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(7.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        KxLineIcon(entry.icon, accent, Modifier.size(24.dp))
+        KxLineIcon(entry.icon, accent, Modifier.size(27.dp))
         Text(
             title,
             color = kxInk(night),
-            fontSize = 12.5.sp,
-            lineHeight = 16.sp,
+            fontSize = 13.5.sp,
+            lineHeight = 18.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Start,
             modifier = Modifier.weight(1f),
         )
-        KxMiniOrb(night, 24.dp)
+        KxMiniOrb(night, 26.dp)
     }
 }
 
