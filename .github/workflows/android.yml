@@ -28,7 +28,7 @@ jobs:
           python-version: '3.12'
       - name: Verify local Pro authority
         run: python -B -W error::ResourceWarning -m unittest discover -s backend/pro -p 'test_*.py' -v
-      - run: bash ./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleDebug :app:assembleDebugAndroidTest
+      - run: bash ./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleDebug :app:assembleDebugAndroidTest :app:assembleRelease
         working-directory: android
       - uses: actions/upload-artifact@v4
         if: always()
@@ -95,11 +95,10 @@ jobs:
             android/app/build/test-results
             android/device-screenshots
 
-  # Temporary PR40 diagnostic: reproduce the two classes involved in
-  # repeated API35 emulator loss in a FRESH, isolated emulator process.
-  # The mandatory device(35) full 350-test gate above remains unchanged.
-  api35-focused-diagnostic:
-    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.number == 40 }}
+  # Release compile gate: the release build type must compile and shrink even
+  # without a configured keystore (it falls back to the debug key locally).
+  # A keystore-configured signed build is a separate owner-gated release step.
+  release-compile:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -108,28 +107,17 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-      - uses: gradle/actions/setup-gradle@v4
-      - name: Enable KVM
-        run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger --name-match=kvm
-      - uses: reactivecircus/android-emulator-runner@v2
+      - uses: android-actions/setup-android@v3
         with:
-          api-level: 35
-          arch: x86_64
-          profile: Nexus 5
-          emulator-build: 15004761
-          emulator-boot-timeout: 600
-          emulator-options: -no-window -no-audio -no-boot-anim -no-snapshot -gpu swangle -skin 720x1280 -camera-back none -camera-front none
-          disable-animations: false
-          working-directory: android
-          script: KX_TEST_CLASS="com.knoux.kxprivatevpn.CacheFlowTest,com.knoux.kxprivatevpn.ClientFlowTest" bash scripts/verify-device.sh
+          packages: 'platform-tools platforms;android-36 build-tools;35.0.0'
+          log-accepted-android-sdk-licenses: false
+      - uses: gradle/actions/setup-gradle@v4
+      - run: bash ./gradlew :app:assembleRelease
+        working-directory: android
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: native-device-api-35-focused-diagnostic
+          name: native-release-compile
           path: |
-            android/app/build/reports/androidTests
-            android/app/build/outputs/androidTest-results
-            android/device-screenshots
+            android/app/build/outputs/bundle/release
+            android/app/build/outputs/apk/release
