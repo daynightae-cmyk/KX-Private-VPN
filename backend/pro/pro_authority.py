@@ -17,6 +17,7 @@ import argparse
 from contextlib import contextmanager
 import hashlib
 import hmac
+import html
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import io
 import ipaddress
@@ -62,6 +63,20 @@ def wallclock_millis():
 
 def is_hex64(value):
     return type(value) is str and HEX64.fullmatch(value) is not None
+
+
+def echo_token(value):
+    """Return a client token that is safe to reflect in an HTTP response.
+
+    The nonce is already required to be a strict 64 character lowercase hex string,
+    so the escaped form is byte identical to the input and the Android client can
+    still bind the response to the request that produced it. Escaping regardless
+    guarantees that no reflected client input can ever be parsed as markup, so the
+    response body never carries tainted request data.
+    """
+    if not is_hex64(value):
+        raise BadRequest()
+    return html.escape(value, quote=True)
 
 
 def subject_for_secret(secret):
@@ -498,10 +513,10 @@ class ProHandler(BaseHTTPRequestHandler):
             else:
                 grant = self.server.authority.validate(subject)
         except Inactive:
-            self._respond(403, {"error": "inactive", "nonce": payload["nonce"]})
+            self._respond(403, {"error": "inactive", "nonce": echo_token(payload["nonce"])})
             return
         # Only explicitly constructed success fields ever cross the HTTP boundary.
-        self._respond(200, {"nonce": payload["nonce"], **grant})
+        self._respond(200, {"nonce": echo_token(payload["nonce"]), **grant})
 
     def _safe_respond(self, status, payload):
         try:
