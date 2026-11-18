@@ -112,8 +112,23 @@ jobs:
           packages: 'platform-tools platforms;android-36 build-tools;35.0.0'
           log-accepted-android-sdk-licenses: false
       - uses: gradle/actions/setup-gradle@748248ddd2a24f49513d8f472f81c3a07d4d50e1 # v4.4.4
-      - run: bash ./gradlew :app:assembleRelease
+      # The Play/F-Droid deliverable is the app bundle, so the gate builds it too.
+      - run: bash ./gradlew :app:assembleRelease :app:bundleRelease
         working-directory: android
+      - name: Verify and checksum the release artifacts
+        run: |
+          set -euo pipefail
+          cd android/app/build/outputs
+          shopt -s nullglob
+          apks=(apk/release/*.apk)
+          aabs=(bundle/release/*.aab)
+          if [ ${#apks[@]} -lt 1 ] || [ ${#aabs[@]} -lt 1 ]; then
+            echo "release artifacts missing: apk=${#apks[@]} aab=${#aabs[@]}" >&2
+            exit 1
+          fi
+          sha256sum "${apks[@]}" "${aabs[@]}" > release-checksums.txt
+          cat release-checksums.txt
+          echo "NOTE: these artifacts are built with the debug signing fallback and must never be published."
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
@@ -121,3 +136,4 @@ jobs:
           path: |
             android/app/build/outputs/bundle/release
             android/app/build/outputs/apk/release
+            android/app/build/outputs/release-checksums.txt

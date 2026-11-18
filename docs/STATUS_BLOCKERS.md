@@ -139,16 +139,19 @@ PR reconciliation corrections:
 
 ---
 
-## 🟡 PLANNED — ANDROID KEYSTORE ENCRYPTION FOR STORED SECRETS (owner option C)
+## 🟢 SECRETS ON DISK — ALREADY KEYSTORE-ENCRYPTED (correction of an earlier false gap)
 
-| Item | Current | Target |
-|------|---------|--------|
-| WireGuard configuration (contains the private key) | Stored in app-private storage as plain bytes | AES-GCM key held in the Android Keystore; only ciphertext leaves the Keystore-backed key holder |
-| Implementation plan | — | New `platform/security/SecretBox` (Keystore-backed AES-GCM) + injectable cipher for JVM tests, wrapped around `ProfileStore`; no new third-party dependency (platform API only) |
-| Migration | — | Read legacy plaintext once, re-encrypt on write, wipe the plaintext buffer; failure must surface as an honest error, never a silent downgrade |
+The earlier ledger claimed that WireGuard private keys sit in plain DataStore. That was wrong:
+both secret stores already use an Android Keystore held AES-256-GCM key and never write plaintext.
 
-This is the next code slice after the current branch merges. It is provider-independent and fully
-unit-testable, so it does not wait on any external dependency.
+| Store | Content | Protection (verified in source) |
+|-------|---------|--------------------------------|
+| `data/config/ProfileStore.kt` | Imported WireGuard configurations, including the private key | `AndroidKeyStore` AES-256-GCM (`KeyGenParameterSpec`, GCM, no padding, randomised IV required), ciphertext written to `noBackupFilesDir` through `AtomicFile`; the plaintext buffer is zeroed right after use; a missing key with an existing file is a hard error, never a silent re-key |
+| `platform/security/ProIdentityStore.kt` | The installation credential | Separate Keystore alias, own AES-256-GCM ciphertext file, no backup participation, the secret is redacted in `toString()` |
+| `data/stats/UsageStatsStore.kt`, `launch/LaunchPreferences.kt` | Usage history and UI preferences | Plain DataStore, but no secret material is stored there |
+
+No third-party crypto library is used and none is needed: the platform Keystore is the primitive.
+
 
 ---
 
@@ -157,7 +160,7 @@ unit-testable, so it does not wait on any external dependency.
 1. CI on `codex/recover-audit-fix-api26` → API 26 + API 35 device jobs, build, release-compile.
 2. Merge to `main` only after those jobs are green, then delete the feature branch (single `main`).
 3. Re-read the SonarCloud gate after the new analysis: the requirement is `new_security_rating = A`.
-4. Implement the Android Keystore secret box slice with unit tests.
+4. `codex/release-artifact-and-supply-chain`: Gradle dependency verification metadata, a real app-bundle release gate with checksums, and the remaining old-code Sonar findings.
 5. Agent_A coordination window → visual fidelity pass for Ref 14 / 18 / 03 with screenshot evidence.
 6. Real tunnel proof on the physical phone with an authorized gateway, then owner-signed AAB and release.
 
