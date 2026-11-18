@@ -47,8 +47,7 @@ class SecurityCenterTest {
         verified: Boolean = false,
         issue: Boolean = false,
     ): SecurityUiState {
-        val routes = if (verified) listOf("0.0.0.0/0", "::/0")
-        else listOf("0.0.0.0/0", "::/0")
+        val routes = listOf("0.0.0.0/0", "::/0")
         val facts = SecurityFacts(
             tunnelConnected = connected,
             androidLinkPresent = connected,
