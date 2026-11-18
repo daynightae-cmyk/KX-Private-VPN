@@ -205,3 +205,46 @@ python android/scripts/prepare_brand_asset.py --master C:\Windows\win.ini
 ---
 
 **FOR NOW: NO MERGE TO MAIN UNTIL API 35 TESTS PASS AND SONARCLOUD GATE GREEN. API 26 IS STABLE.**
+
+---
+
+## APPENDIX — STATUS CORRECTION (2026-11-18, verified)
+
+The statements above describe the situation of 2026-11-15. The following facts were verified
+afterwards and supersede the blocker summary and the recommended actions.
+
+| Blocker (as written above) | Verified state on 2026-11-18 | Evidence |
+|----------------------------|-------------------------------|----------|
+| "API 35 instrumented tests ❌ BLOCKED (emulator loss)" | ✅ **PASS** — the full API 35 suite runs to completion: 353 tests, 3 skipped, 0 failed, 27m19s | CI run `44257528678`, job `device (35)` |
+| "SonarCloud: ⚠️ FIXES IN MAIN — trigger re-scan on `d4fda7e`" | ✅ **Quality Gate OK** — `new_security_rating = A` (was E), all four new-code vulnerabilities CLOSED | SonarCloud analysis of `377ffb3` at `2026-11-18T11:47:03Z`; `projectStatus.status = OK` |
+| "API 26 ✅ PASS" | ✅ still PASS, but the suite had regressed once: run `44244219616` failed on `ToolsCatalogScreenTest` because the test tapped a header that had scrolled out of the viewport. Fixed in PR #50 and re-verified green in run `44257528678` (11m54s) | PR #50, CI run `44257528678` job `device (26)` |
+| "Job `api35-focused-diagnostic` (PR #40 only)" | Removed — the diagnostic job only existed for PR #40 and the release gate `release-compile` replaced it | `.github/workflows/android.yml` at `377ffb3` |
+
+### What the SonarCloud P0 actually was
+
+The earlier note assumed that the three PR #40 fixes were the only open findings and that a
+re-scan would turn the gate green. The gate in fact failed on **new code** with four findings:
+
+| Rule | Severity | Root cause | Resolution |
+|------|----------|-------------|------------|
+| `pythonsecurity:S5131` | **BLOCKER** | `backend/pro/pro_authority.py` wrote the client nonce, taken straight from the request body, into the HTTP response body | New `echo_token()` helper: the value is re-validated as strict hex64 and HTML-escaped before it can enter a response. A valid hex nonce is byte-identical, so the Android client contract is unchanged. Regression test added. |
+| `githubactions:S7637` ×3 | MAJOR | Actions referenced by mutable tag | Every action pinned to a full 40-character commit SHA. |
+
+The E rating was caused by the single BLOCKER; the MAJOR findings alone would have produced C.
+
+### Emulator forensics, updated
+
+The RenderThread SIGSEGV / QEMU signal 11 host failure was a property of the emulator build that
+the workflow used at the time. With Google Emulator build `15004761` and the `swangle` GPU
+backend on API 35, the suite now completes on the hosted runners. The mitigation is therefore
+**already in the workflow**, and no Firebase Test Lab project is required to close the gate.
+Firebase Test Lab remains optional extra coverage.
+
+### Remaining blockers after the correction
+
+| Blocker | Status |
+|---------|--------|
+| VPN tunnel E2E proof | ❌ `EXTERNAL_BLOCKED` — no authorized WireGuard gateway exists, so no handshake and no traffic can be proven |
+| Release signing | ❌ owner keystore absent; release builds fall back to the debug key and must never be published |
+| Visual regression baseline | ⚠️ PARTIAL — device captures exist for the identity, Home, Statistics and Settings screens, but there is no automated screenshot diff |
+| SonarCloud old-code findings | ⚠️ tracked, non-blocking; the quality gate itself is `OK` |
