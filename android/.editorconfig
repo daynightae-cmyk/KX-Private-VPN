@@ -1,0 +1,15 @@
+# Android/Kotlin EditorConfig
+# Extends root .editorconfig
+
+[*]
+indent_size = 4
+
+[*.kt]
+# Kotlin official style
+ktlint_disabled_rules = unused-imports,no-wildcard-imports
+
+[build.gradle.kts]
+indent_size = 4
+
+[*.xml]
+indent_size = 2

@@ -1,0 +1,30 @@
+# EditorConfig for KX Private VPN
+# https://editorconfig.org
+
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.{kt,kts}]
+indent_size = 4
+
+[*.{xml,xml,xsd,xsl}]
+indent_size = 2
+
+[*.{json,yml,yaml}]
+indent_size = 2
+
+[*.{md,mdx}]
+trim_trailing_whitespace = false
+
+[*.{png,jpg,jpeg,gif,webp,ico,svg}]
+insert_final_newline = false
+
+[*.{jks,keystore,p12,pfx}]
+insert_final_newline = false
