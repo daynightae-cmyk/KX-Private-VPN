@@ -60,7 +60,13 @@ cd android
 
 # Release (requires android/key.properties — see below)
 ./gradlew :app:assembleRelease
+
+# Play/F-Droid bundle (same build type, same rules)
+./gradlew :app:bundleRelease
 ```
+
+The release build type runs R8 (`isMinifyEnabled` + `isShrinkResources`) and is verified by the
+`release-compile` CI job, which uploads the APK and the AAB together with their SHA-256 sums.
 
 ### Release signing
 
@@ -92,22 +98,31 @@ invented contact. No server fleet, ping table, or fake endpoint is shipped.
 |------|---------|-------|
 | Unit | `:app:testDebugUnitTest` | JVM |
 | Lint | `:app:lintDebug` | 0 errors |
-| Instrumented | `:app:connectedDebugAndroidTest` | API 26 + API 35 |
-| CI | `.github/workflows/android.yml` | build + device(26, 35) |
-| SonarCloud | PR analysis | Quality Gate must be A |
+| Instrumented | `:app:connectedDebugAndroidTest` | API 26 + API 35 in CI |
+| Release compile | `:app:assembleRelease :app:bundleRelease` | minify + shrink + real app bundle, with SHA-256 checksums |
+| Dependency integrity | Gradle dependency verification | `android/gradle/verification-metadata.xml` pins every artifact checksum |
+| CI | `.github/workflows/android.yml` | build + release-compile + device(26, 35), every action pinned to a commit SHA |
+| SonarCloud | automatic analysis of `main` | Quality Gate **OK** (`new_security_rating = A`) on `377ffb3` |
 
-API 35 emulator runs are subject to a known host GPU/RenderThread instability;
-a lost emulator is **not** a product assertion failure. See
-`docs/forensic-audit/CI_SONAR_AND_EMULATOR_FAILURES.md`.
+The API 35 emulator is pinned to Google Emulator build `15004761` with the `swangle` GPU
+backend; with that combination the full API 35 suite runs to completion (353 tests, 0 failed on
+CI run `44257528678`). A lost emulator is still **not** a product assertion failure, but it is
+also no longer the normal outcome.
 
 ---
 
 ## Security posture
 
 - WireGuard private keys are zeroed from memory after parsing.
-- No Android Keystore integration yet (tracked as a production hardening task).
+- Stored secrets are encrypted with an **Android Keystore** AES-256-GCM key:
+  `ProfileStore` holds the imported WireGuard configurations (including the private key) and
+  `ProIdentityStore` holds the installation credential. Only ciphertext is written to the
+  app-private, backup-excluded directory; a missing key with an existing file is a hard error,
+  never a silent re-key.
 - `allowBackup=false`, full backup excluded, network security config blocks cleartext.
 - Release shrinking + ProGuard rules keep the tunnel and Compose intact.
+- Every Gradle dependency is checksum-verified, and every CI action is pinned to a full commit
+  SHA, so neither the build inputs nor the pipeline can be moved silently.
 
 Full threat model: `docs/forensic-audit/SECURITY_PRIVACY_LEAK_REGISTER.md`.
 
