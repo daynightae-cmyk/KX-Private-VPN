@@ -9,6 +9,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -56,6 +57,7 @@ import com.knoux.kxprivatevpn.designsystem.KxLineIcon
 import com.knoux.kxprivatevpn.designsystem.KxMiniOrb
 import com.knoux.kxprivatevpn.designsystem.KxOrb
 import com.knoux.kxprivatevpn.designsystem.KxOrbAura
+import com.knoux.kxprivatevpn.designsystem.KxOrbitalHalo
 import com.knoux.kxprivatevpn.designsystem.KxGlowPlatform
 import com.knoux.kxprivatevpn.designsystem.KxPageHeader
 import com.knoux.kxprivatevpn.designsystem.KxReferenceAtmosphere
@@ -66,8 +68,10 @@ import com.knoux.kxprivatevpn.designsystem.RepairGlyph
 import com.knoux.kxprivatevpn.designsystem.kxCyan
 import com.knoux.kxprivatevpn.designsystem.kxInk
 import com.knoux.kxprivatevpn.designsystem.kxMuted
+import com.knoux.kxprivatevpn.designsystem.kxPressScale
 import com.knoux.kxprivatevpn.designsystem.kxRose
 import com.knoux.kxprivatevpn.designsystem.kxViolet
+import com.knoux.kxprivatevpn.designsystem.rememberKxTapHaptic
 import com.knoux.kxprivatevpn.designsystem.repairAccent
 import com.knoux.kxprivatevpn.designsystem.repairAccentPair
 import com.knoux.kxprivatevpn.launch.IntroTimeline
@@ -208,16 +212,20 @@ private fun RepairHero(
     onAnalyze: () -> Unit,
 ) {
     val reducedMotion = rememberReducedMotion()
+    val orbInteraction = remember { MutableInteractionSource() }
+    val hintInteraction = remember { MutableInteractionSource() }
+    val tapHaptic = rememberKxTapHaptic()
     Column(
         Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(7.dp),
     ) {
         Box(
-            Modifier.fillMaxWidth().heightIn(min = 214.dp),
+            Modifier.fillMaxWidth().heightIn(min = 222.dp),
             contentAlignment = Alignment.Center,
         ) {
             DiagnosticRing(measuring, reducedMotion, Modifier.size(204.dp))
+            KxOrbitalHalo(night = night, modifier = Modifier.size(218.dp).offset(y = (-8).dp))
             KxOrbAura(night = night, modifier = Modifier.size(196.dp).offset(y = (-8).dp))
             // Ref 03 shows the hero orb resting on a luminous elliptical platform. The audit
             // recorded that platform as the one CRITICAL missing element, so it is drawn as
@@ -231,14 +239,22 @@ private fun RepairHero(
                 progress = 1f,
                 frame = IntroTimeline.frame(1f),
                 modifier = Modifier.size(146.dp)
-                    .clickable(role = Role.Button,
+                    .kxPressScale(orbInteraction)
+                    .clickable(
+                        interactionSource = orbInteraction,
+                        indication = null,
+                        role = Role.Button,
                         onClickLabel = stringResource(R.string.repair_analyze),
-                        onClick = onAnalyze)
+                    ) {
+                        tapHaptic()
+                        onAnalyze()
+                    }
                     .testTag("repair-orb-action"),
             )
         }
         Row(
             Modifier.heightIn(min = 44.dp)
+                .kxPressScale(hintInteraction)
                 .clip(RoundedCornerShape(50))
                 .background(
                     Brush.horizontalGradient(
@@ -252,9 +268,15 @@ private fun RepairHero(
                     Color(0xFFC48CFF).copy(alpha = if (night) .82f else .62f),
                     Color(0xFF64EEFF).copy(alpha = if (night) .70f else .52f),
                 )), RoundedCornerShape(50))
-                .clickable(role = Role.Button,
+                .clickable(
+                    interactionSource = hintInteraction,
+                    indication = null,
+                    role = Role.Button,
                     onClickLabel = stringResource(R.string.repair_analyze),
-                    onClick = onAnalyze)
+                ) {
+                    tapHaptic()
+                    onAnalyze()
+                }
                 .padding(horizontal = 16.dp, vertical = 9.dp)
                 .testTag("repair-tap-hint"),
             verticalAlignment = Alignment.CenterVertically,
@@ -335,8 +357,11 @@ private fun ReferenceRepairCard(
     val ready = stringResource(R.string.repair_status_ready)
     val accent = if (night) entry.accent else entry.accent.copy(alpha = .82f)
     val shape = RoundedCornerShape(15.dp)
+    val interaction = remember { MutableInteractionSource() }
+    val tapHaptic = rememberKxTapHaptic()
     Row(
-        modifier.clip(shape)
+        modifier.kxPressScale(interaction)
+            .clip(shape)
             .background(
                 Brush.linearGradient(
                     if (night) listOf(
@@ -360,9 +385,15 @@ private fun ReferenceRepairCard(
                     accent.copy(alpha = .54f),
                 ),
             ), shape)
-            .clickable(role = Role.Button,
+            .clickable(
+                interactionSource = interaction,
+                indication = null,
+                role = Role.Button,
                 onClickLabel = stringResource(R.string.repair_open_service, title, ready),
-                onClick = onClick)
+            ) {
+                tapHaptic()
+                onClick()
+            }
             .semantics(mergeDescendants = true) { contentDescription = "$title. $ready" }
             .padding(horizontal = 10.dp, vertical = 10.dp)
             .heightIn(min = 56.dp)

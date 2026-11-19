@@ -5,6 +5,7 @@ import android.text.format.Formatter
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -52,12 +53,15 @@ import com.knoux.kxprivatevpn.designsystem.KxStatusPill
 import com.knoux.kxprivatevpn.designsystem.KxTitleBlock
 import com.knoux.kxprivatevpn.designsystem.KxOrb
 import com.knoux.kxprivatevpn.designsystem.KxOrbAura
+import com.knoux.kxprivatevpn.designsystem.KxOrbitalHalo
 import com.knoux.kxprivatevpn.designsystem.RepairGlyph
 import com.knoux.kxprivatevpn.designsystem.kxCyan
 import com.knoux.kxprivatevpn.designsystem.kxInk
 import com.knoux.kxprivatevpn.designsystem.kxMuted
+import com.knoux.kxprivatevpn.designsystem.kxPressScale
 import com.knoux.kxprivatevpn.designsystem.kxRose
 import com.knoux.kxprivatevpn.designsystem.kxViolet
+import com.knoux.kxprivatevpn.designsystem.rememberKxTapHaptic
 import com.knoux.kxprivatevpn.designsystem.repairAccent
 import com.knoux.kxprivatevpn.launch.IntroTimeline
 import com.knoux.kxprivatevpn.platform.repair.RepairCatalog
@@ -246,14 +250,21 @@ private fun HomeHero(
         else -> false
     })
     val actionLabel = stringResource(if (connected || stopFailed) R.string.disconnect else R.string.connect)
+    val orbInteraction = remember { MutableInteractionSource() }
+    val tapHaptic = rememberKxTapHaptic()
     Column(
         Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(9.dp),
     ) {
-        Box(Modifier.fillMaxWidth().heightIn(min = 158.dp), contentAlignment = Alignment.TopCenter) {
-            // Ref 14 shows a wide cyan/violet bloom around the emblem; the orb drawing alone
-            // does not produce it, so the aura is painted underneath the artwork.
+        Box(Modifier.fillMaxWidth().heightIn(min = 170.dp), contentAlignment = Alignment.TopCenter) {
+            // Ref 14 shows a wide cyan/violet bloom plus a luminous orbit ring around the
+            // emblem; the orb drawing alone does not produce either, so both are painted
+            // underneath the artwork.
+            KxOrbitalHalo(
+                night = night,
+                modifier = Modifier.size(202.dp).align(Alignment.TopCenter).offset(y = (-34).dp),
+            )
             KxOrbAura(
                 night = night,
                 modifier = Modifier.size(178.dp).align(Alignment.TopCenter).offset(y = (-28).dp),
@@ -263,7 +274,15 @@ private fun HomeHero(
                 frame = IntroTimeline.frame(1f),
                 modifier = Modifier.size(122.dp)
                     .testTag("vpn-orb-action")
-                    .clickable(enabled = orbEnabled, role = Role.Button, onClickLabel = actionLabel) {
+                    .kxPressScale(orbInteraction, orbEnabled)
+                    .clickable(
+                        interactionSource = orbInteraction,
+                        indication = null,
+                        enabled = orbEnabled,
+                        role = Role.Button,
+                        onClickLabel = actionLabel,
+                    ) {
+                        tapHaptic()
                         if (connected || stopFailed) onDisconnect() else onConnect()
                     },
             )
@@ -469,8 +488,11 @@ private fun QuickActionCard(
 ) {
     val shape = RoundedCornerShape(15.dp)
     val label = stringResource(R.string.home_quick_open, title)
+    val interaction = remember { MutableInteractionSource() }
+    val tapHaptic = rememberKxTapHaptic()
     Column(
-        modifier.clip(shape)
+        modifier.kxPressScale(interaction)
+            .clip(shape)
             .background(
                 Brush.linearGradient(
                     listOf(
@@ -484,7 +506,15 @@ private fun QuickActionCard(
                 accent.copy(alpha = if (night) .74f else .46f),
                 Color(0xFF64EEFF).copy(alpha = if (night) .30f else .20f),
             )), shape)
-            .clickable(role = Role.Button, onClickLabel = label, onClick = onClick)
+            .clickable(
+                interactionSource = interaction,
+                indication = null,
+                role = Role.Button,
+                onClickLabel = label,
+            ) {
+                tapHaptic()
+                onClick()
+            }
             .padding(horizontal = 5.dp, vertical = 9.dp)
             .heightIn(min = 68.dp)
             .testTag(tag),

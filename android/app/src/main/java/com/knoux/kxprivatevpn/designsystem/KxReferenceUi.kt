@@ -1,9 +1,21 @@
 package com.knoux.kxprivatevpn.designsystem
 
+import android.view.HapticFeedbackConstants
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.InteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,6 +38,8 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,10 +50,12 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
@@ -59,6 +75,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.knoux.kxprivatevpn.R
 import com.knoux.kxprivatevpn.launch.IntroTimeline
+import com.knoux.kxprivatevpn.launch.rememberReducedMotion
 import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin
@@ -197,6 +214,19 @@ fun KxReferenceAtmosphere(night: Boolean, style: KxAtmosphereStyle = KxAtmospher
                     style = Stroke(1.6.dp.toPx(), cap = StrokeCap.Round),
                 )
             }
+            // Hero ribbon: the broad diagonal band that crosses the reference hero zone
+            // behind the orb. It is painted before the thinner sweeps so it reads as depth,
+            // not as a foreground stroke.
+            neonSweep(
+                Path().apply {
+                    moveTo(-w * .06f, h * .43f)
+                    cubicTo(w * .18f, h * .31f, w * .34f, h * .22f, w * .60f, h * .23f)
+                    cubicTo(w * .80f, h * .24f, w * .94f, h * .30f, w * 1.06f, h * .40f)
+                },
+                listOf(Color(0xFF9B63FF), Color(0xFF52C8FF), Color(0xFFF08BFF)),
+                coreWidth = 2.6.dp.toPx(),
+                start = Offset(0f, h * .40f), end = Offset(w, h * .28f),
+            )
             // Neon sweep A: violet/magenta entering from the top and leaving through the left edge.
             neonSweep(
                 Path().apply {
@@ -258,6 +288,18 @@ fun KxReferenceAtmosphere(night: Boolean, style: KxAtmosphereStyle = KxAtmospher
                     listOf(Color(0xFFFF9BE0), Color(0xFFC255F5), Color.Transparent),
                     coreWidth = 1.4.dp.toPx(),
                     start = Offset(w, h * .58f), end = Offset(w * .75f, h * .71f),
+                )
+            }
+            // Dust motes: a fixed constellation adds depth without a per-frame particle
+            // system. Positions are hand-placed so the result is deterministic in tests.
+            kxDustMotes.forEach { mote ->
+                val p = Offset(w * mote.x, h * mote.y)
+                drawCircle(
+                    Brush.radialGradient(
+                        listOf(Color.White.copy(alpha = mote.alpha), Color.Transparent),
+                        p, mote.radius * w,
+                    ),
+                    mote.radius * w, p,
                 )
             }
             // Depth: a deep vignette keeps the lower content readable over the waves.
@@ -383,6 +425,153 @@ fun KxOrbAura(night: Boolean, modifier: Modifier = Modifier, strength: Float = 1
                 radius, center,
             )
         }
+    }
+}
+
+private data class KxDustMote(val x: Float, val y: Float, val radius: Float, val alpha: Float)
+
+/** Deterministic dust field measured from the sparkle density of the owner references. */
+private val kxDustMotes = listOf(
+    KxDustMote(.12f, .17f, .0040f, .55f), KxDustMote(.22f, .09f, .0024f, .45f),
+    KxDustMote(.31f, .21f, .0032f, .38f), KxDustMote(.43f, .13f, .0020f, .50f),
+    KxDustMote(.57f, .08f, .0036f, .42f), KxDustMote(.68f, .18f, .0022f, .48f),
+    KxDustMote(.79f, .12f, .0042f, .36f), KxDustMote(.88f, .24f, .0026f, .52f),
+    KxDustMote(.08f, .40f, .0028f, .44f), KxDustMote(.93f, .45f, .0034f, .38f),
+    KxDustMote(.16f, .62f, .0022f, .34f), KxDustMote(.84f, .68f, .0030f, .40f),
+    KxDustMote(.49f, .36f, .0020f, .46f), KxDustMote(.72f, .52f, .0026f, .30f),
+)
+
+/**
+ * Orbital halo drawn around the hero emblem: a slow luminous ring, a dashed orbit and a
+ * breathing bloom. Ref 14 and Ref 03 both show this ring; the plain orb alone reads flat.
+ * Infinite motion is skipped for reduced-motion users, who still get the static halo.
+ */
+@Composable
+fun KxOrbitalHalo(
+    night: Boolean,
+    modifier: Modifier = Modifier,
+    animated: Boolean = true,
+) {
+    val reducedMotion = rememberReducedMotion()
+    val transition = rememberInfiniteTransition(label = "kx-halo")
+    val spin by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(tween(18000, easing = LinearEasing), RepeatMode.Restart),
+        label = "kx-halo-spin",
+    )
+    val breathe by transition.animateFloat(
+        initialValue = .78f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(3600, easing = FastOutSlowInEasing), RepeatMode.Reverse),
+        label = "kx-halo-breathe",
+    )
+    val rotation = if (animated && !reducedMotion) spin else 0f
+    val pulse = if (animated && !reducedMotion) breathe else .92f
+    Canvas(modifier) {
+        val c = Offset(size.width / 2f, size.height / 2f)
+        val r = size.minDimension / 2f
+        drawCircle(
+            Brush.radialGradient(
+                listOf(
+                    Color(0xFF8FF6FF).copy(alpha = .20f * pulse),
+                    Color(0xFF9B6BFF).copy(alpha = .13f * pulse),
+                    Color.Transparent,
+                ),
+                c, r,
+            ),
+            r, c,
+        )
+        // Bright outer rim: the reference halo is a thin, hot circle, not a soft blob.
+        drawCircle(
+            Brush.sweepGradient(
+                listOf(
+                    Color(0xFFF4F0FF).copy(alpha = .55f * pulse),
+                    Color(0xFF64EEFF).copy(alpha = .72f * pulse),
+                    Color(0xFFAD71FF).copy(alpha = .40f * pulse),
+                    Color(0xFF64EEFF).copy(alpha = .30f * pulse),
+                    Color(0xFFF4F0FF).copy(alpha = .55f * pulse),
+                ),
+                c,
+            ),
+            r * .80f, c, style = Stroke(1.5.dp.toPx()),
+        )
+        drawCircle(
+            Color.White.copy(alpha = .16f),
+            r * .68f, c, style = Stroke(.8.dp.toPx()),
+        )
+        // A dashed orbital arc glides slowly around the emblem.
+        rotate(rotation, c) {
+            drawArc(
+                brush = Brush.sweepGradient(
+                    listOf(
+                        Color.Transparent,
+                        Color(0xFF8FF6FF).copy(alpha = .85f),
+                        Color(0xFFFF8AD8).copy(alpha = .65f),
+                        Color.Transparent,
+                    ),
+                    c,
+                ),
+                startAngle = 0f,
+                sweepAngle = 220f,
+                useCenter = false,
+                topLeft = Offset(c.x - r * .72f, c.y - r * .72f),
+                size = Size(r * 1.44f, r * 1.44f),
+                style = Stroke(
+                    width = 1.7.dp.toPx(),
+                    cap = StrokeCap.Round,
+                    pathEffect = PathEffect.dashPathEffect(
+                        floatArrayOf(2.4.dp.toPx(), 6.4.dp.toPx()), 0f,
+                    ),
+                ),
+            )
+        }
+        // Two satellites catch the light at opposite sides of the orbit.
+        drawCircle(
+            Brush.radialGradient(
+                listOf(Color.White, Color(0xFF64EEFF), Color.Transparent),
+                Offset(c.x + r * .74f, c.y - r * .26f), 5.dp.toPx(),
+            ),
+            3.2.dp.toPx(), Offset(c.x + r * .74f, c.y - r * .26f),
+        )
+        drawCircle(
+            Brush.radialGradient(
+                listOf(Color.White, Color(0xFFFF8AD8), Color.Transparent),
+                Offset(c.x - r * .56f, c.y + r * .48f), 4.dp.toPx(),
+            ),
+            2.4.dp.toPx(), Offset(c.x - r * .56f, c.y + r * .48f),
+        )
+    }
+}
+
+/**
+ * Shared tactile press feedback. The interaction source is supplied by the caller so the
+ * same source drives the click, the scale and any ripple. Scale is small enough to keep
+ * layout stable and is disabled automatically in tests that do not advance animation.
+ */
+@Composable
+fun Modifier.kxPressScale(
+    source: InteractionSource,
+    enabled: Boolean = true,
+): Modifier {
+    val pressed by source.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (pressed && enabled) .965f else 1f,
+        animationSpec = spring(dampingRatio = .62f, stiffness = 720f),
+        label = "kx-press-scale",
+    )
+    return graphicsLayer {
+        scaleX = scale
+        scaleY = scale
+    }
+}
+
+/** Light system tick used by primary actions; respects the device's haptic settings. */
+@Composable
+fun rememberKxTapHaptic(): () -> Unit {
+    val view = androidx.compose.ui.platform.LocalView.current
+    return remember(view) {
+        { view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP) }
     }
 }
 
@@ -629,6 +818,8 @@ fun KxGradientAction(
     onClick: () -> Unit,
 ) {
     val shape = RoundedCornerShape(50)
+    val interaction = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+    val tapHaptic = rememberKxTapHaptic()
     val fill = if (enabled || night) {
         Brush.horizontalGradient(
             listOf(Color(0xFF8B3DFF), Color(0xFF5B45F5), Color(0xFF1E9BE8), Color(0xFF1AC8FF)),
@@ -639,7 +830,35 @@ fun KxGradientAction(
         )
     }
     Row(
-        modifier.fillMaxWidth().heightIn(min = 42.dp).clip(shape)
+        modifier.fillMaxWidth().drawBehind {
+            // Soft coloured bloom around the CTA. Two outward strokes approximate the
+            // reference glow without RenderEffect or a blur pass.
+            val glow = 8.dp.toPx()
+            val bloom = Brush.horizontalGradient(
+                listOf(
+                    Color(0xFF8B3DFF).copy(alpha = if (enabled) .40f else .16f),
+                    Color(0xFF1AC8FF).copy(alpha = if (enabled) .40f else .16f),
+                ),
+            )
+            drawRoundRect(
+                brush = bloom,
+                topLeft = Offset(-glow, -glow),
+                size = Size(size.width + glow * 2, size.height + glow * 2),
+                cornerRadius = CornerRadius(size.height / 2f + glow),
+                style = Stroke(glow),
+            )
+            drawRoundRect(
+                brush = bloom,
+                topLeft = Offset(-glow * .35f, -glow * .35f),
+                size = Size(size.width + glow * .7f, size.height + glow * .7f),
+                cornerRadius = CornerRadius(size.height / 2f + glow * .35f),
+                style = Stroke(glow * 1.4f),
+                alpha = .55f,
+            )
+        }
+            .heightIn(min = 44.dp)
+            .kxPressScale(interaction, enabled)
+            .clip(shape)
             .background(fill)
             .border(
                 1.2.dp,
@@ -652,8 +871,17 @@ fun KxGradientAction(
                 ),
                 shape,
             )
-            .clickable(enabled = enabled, role = Role.Button, onClickLabel = label, onClick = onClick)
-            .padding(horizontal = 18.dp, vertical = 9.dp)
+            .clickable(
+                interactionSource = interaction,
+                indication = null,
+                enabled = enabled,
+                role = Role.Button,
+                onClickLabel = label,
+            ) {
+                tapHaptic()
+                onClick()
+            }
+            .padding(horizontal = 18.dp, vertical = 10.dp)
             .testTagCompat(tag),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
@@ -925,7 +1153,7 @@ enum class KxIconKind {
     HOME, SERVER, SHIELD, SHIELD_CHECK, BARS, GEAR, GRID, BACK, FORWARD, POWER, CLOCK,
     BOLT, LINK, LOCK, SPLIT, SEARCH, MIC, SPARKLE, COPY, DOWNLOAD, LAYERS, CLAPPER,
     WRENCH, WIFI, ANDROID, DRIVE_HEART, BROOM, CHECK, TAP, WAND, DATABASE, FILE,
-    FOLDER, TARGET,
+    FOLDER, TARGET, CLOSE,
 }
 
 @Composable
@@ -1158,6 +1386,10 @@ private fun DrawScope.drawKxIcon(kind: KxIconKind, tint: Color) {
         KxIconKind.CHECK -> {
             drawLine(tint, Offset(s * .16f, s * .52f), Offset(s * .42f, s * .78f), s * .090f, StrokeCap.Round)
             drawLine(tint, Offset(s * .42f, s * .78f), Offset(s * .86f, s * .22f), s * .090f, StrokeCap.Round)
+        }
+        KxIconKind.CLOSE -> {
+            drawLine(tint, Offset(s * .22f, s * .22f), Offset(s * .78f, s * .78f), s * .085f, StrokeCap.Round)
+            drawLine(tint, Offset(s * .78f, s * .22f), Offset(s * .22f, s * .78f), s * .085f, StrokeCap.Round)
         }
         KxIconKind.TAP -> {
             drawCircle(tint, s * .15f, Offset(s * .40f, s * .40f), style = Stroke(s * .060f))

@@ -48,3 +48,28 @@
 - Agent_A coordination for any remaining subjective gap.
 - Real tunnel proof when gateway is available.
 - Owner-signed AAB when keystore is provided.
+
+---
+
+## CORRECTION — 2026-11-19 (post-merge audit)
+
+**The original report contains two false claims that must be voided:**
+
+1. **`01-home-night-ar.png` is NOT the Home screen.** SHA-256 `240728B674169739...` matches `03-settings-night-ar.png` byte-for-byte; visual inspection confirms it shows the **Statistics** screen (top bar reads "إحصائيات", tab bar highlights the 4th slot). The Home screen was not captured in the 2026-11-18 session.
+
+2. **`04-repair-night-ar.png` is NOT the Repair Lab.** It is **byte-identical** to `03-settings-night-ar.png` (same SHA-256 prefix `240728B674169739`). The Repair Lab was not captured in the 2026-11-18 session.
+
+3. **Device evidence duplicates:** `phone-01s.png` = `phone-03s.png` (1,064,807 bytes each), `phone-06s.png` = `phone-12s.png` (1,064,696 bytes each). The DEVICE_VERIFICATION report language implying 8 distinct captures is incorrect; there are only 6 unique images.
+
+**Verified replacement captures (2026-11-19, branch `main` `096b260` + visual/animation upgrades):**
+
+| File | Screen | SHA-256 (truncated) | Verified |
+|------|--------|---------------------|----------|
+| `../visual-fidelity-20261119/01-home-ar.png` | Home (disconnected) | `CC6E1752...` | ✅ Orb + halo + aura + CTA bloom |
+| `../visual-fidelity-20261119/02-tools-ar.png` | Tools Catalog | `FE6412F5...` | ✅ Orbital halo, clear-search, press scale |
+| `../visual-fidelity-20261119/03-repair-ar.png` | Repair Lab | `82673F81...` | ✅ Platform, halo, diagnostic ring, service grid |
+| `../visual-fidelity-20261119/04-settings-ar.png` | Settings | `E4D0C0D9...` | ✅ Pro, language, theme, native RTL |
+| `../visual-fidelity-20261119/05-security-ar.png` | Security | `B24E23CE...` | ✅ Guardian, split-tunnel, advanced |
+| `../visual-fidelity-20261119/06-statistics-ar.png` | Statistics | `5F7CF5BA...` | ✅ Telemetry, sessions, charts |
+
+The 2026-11-19 captures are **truthful, distinct, and screen-verified** via UIAutomator dump at capture time. The 2026-11-18 report's Home and Repair Lab claims are **retracted**.
