@@ -1,8 +1,8 @@
 # KX Private VPN — CURRENT BLOCKERS & COORDINATION LOG
 
 **Last updated:** 2026-11-22 UAE
-**Main SHA:** `096b260` (PR #52 merged — visual fidelity Ref 14/18/03, CI run `44280765817` green, SonarCloud gate OK)
-**Working branch:** `codex/visual-elevation-and-cleanup-20261119` (PR #53, CI green on `6640da4`, awaiting merge)
+**Main SHA:** `3f804c3` (PR #53 merged — visual UI/UX + animation elevation, evidence-integrity correction, CI `45009718221` green on `613a08a`, SonarCloud gate OK)
+**Working branch:** `codex/recovery-report-device-evidence-20261122` (PR for the consolidated report + 2026-11-22 device evidence)
 **Branch policy:** exactly one integration branch (`main`); feature branches are merged and deleted after verification.
 
 Every status below is backed by an executed command, a CI run URL/SHA or a SonarCloud API
@@ -178,6 +178,7 @@ No third-party crypto library is used and none is needed: the platform Keystore 
 | 2026-11-18 13:10 | Forensic | Main push CI `44280765817` green on `096b260`; SonarCloud gate OK (`new_security_rating = A`) | ✅ Verified |
 | 2026-11-19 15:30 | Forensic | PR #53: visual elevation + animation (KxOrbitalHalo, CTA bloom/press/haptic, Tools clear-search, Repair press scale), evidence correction (voided false 2026-11-18 claims), disk cleanup (648 MB freed), 6 new truthful captures | ✅ CI `44484793803` green on `6640da4` (build 7m50s, release-compile 4m27s, device(26) 13m53s, device(35) 30m53s, SonarCloud gate OK) |
 | 2026-11-22 | Recovery | Repo/deep recovery session: three mission conversation exports located in `Downloads`; PR #53 re-verified (MERGEABLE, CI green); device `R9ZR20HWHQY` re-checked | ✅ App was in `stopped`/disabled package state on the phone — `pm enable com.knoux.kxprivatevpn` restored launch; native entry gate confirmed (no auto-navigation after the intro; Home appears only after the emblem tap); disconnected Home renders honest measured-or-dash state |
+| 2026-11-22 10:19 | Recovery | PR #53 merged into `main` | ✅ Merge commit `3f804c3`; CI `45009718221` green on `613a08a` (build 5m29s, release-compile 5m5s, device(26) 14m42s, device(35) 24m45s, SonarCloud OK); merged branch deleted — single `main` |
 
 ---
 
