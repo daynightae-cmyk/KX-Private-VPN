@@ -128,3 +128,19 @@ Local `VpnSessionServiceTest` on the physical phone reached 4/6 before these
 fixes; the two remaining failures were the chevron mis-tap above. Re-verification
 on-device pending: the phone's USB link dropped mid-session (adb protocol fault,
 device absent from `adb devices`); CI emulators remain the authoritative gate.
+
+## Final gate — CI run 45053268703 on `8a8d489`: ALL GREEN
+
+| Job | Result | Duration |
+|---|---|---|
+| build | success | 8m02s |
+| release-compile | success | 4m45s |
+| device (26) | **success** (previously exit-124 wedge) | **12m24s** |
+| device (35) | success | 30m35s |
+| SonarCloud Code Analysis | pass (after `358b8ee` kotlin:S899 fix) | 1m13s |
+
+CircleCI reports "fail" because the external service has no configuration in this
+repo; ignored per standing policy. PR #55 merged into `main` as `e8dad11`;
+feature branch deleted local + remote. The frame-paced clock resolved the
+API26 looper-starvation wedge for real: the full 350-test suite now completes
+well inside the budget on the software-rendered emulator.

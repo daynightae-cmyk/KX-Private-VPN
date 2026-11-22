@@ -1,8 +1,10 @@
 # KX Private VPN — CURRENT BLOCKERS & COORDINATION LOG
 
-**Last updated:** 2026-11-22 UAE
-**Main SHA:** `3f804c3` (PR #53 merged — visual UI/UX + animation elevation, evidence-integrity correction, CI `45009718221` green on `613a08a`, SonarCloud gate OK)
-**Working branch:** `codex/recovery-report-device-evidence-20261122` (PR #54 — consolidated report + 2026-11-22 device evidence incl. correct Tools/Repair captures + reference comparisons)
+**Last updated:** 2026-11-22 UAE (late session)
+**Main SHA:** `e8dad11` (PR #55 merged — animated glass elevation: shared frame-paced ambient clock + staggered entrances, CI `45053268703` green on `8a8d489`: build, release-compile, device 26 12m24s, device 35 30m35s, SonarCloud pass)
+**Working branch:** none — `main` only; feature branch `codex/animated-glass-ui-20261122` merged and deleted (local + remote). PR #54 previously merged as `d228d77`.
+**CI looper-starvation wedge — RESOLVED:** run `45042088536` artifacts proved the per-vsync ambient stream saturated the main looper (API35: 115s idle-wait starvation; API26: exit-124 wedge at 346/350, zero assertion failures). Fixed by the frame-paced clock (`8cf1374`: one frame request per update + real delay, ~30fps cap, adaptive backoff, unchanged periods/waveforms), halo on the shared draw-phase clock, nearest-chevron shade picker + screenshot watchdog (`2f83d5f`). Device 26 now completes the full suite in 12m24s (previously never finished inside the 30m budget).
+**Physical phone:** `R9ZR20HWHQY` USB link dropped mid-session (`CM_PROB_PHANTOM`); local re-verification of the final two shade-capture tests awaits re-attachment — CI emulators remain the authoritative gate. `svc power stayon` may still be `true` on the phone from earlier probes; restore `false` on next attach.
 **Branch policy:** exactly one integration branch (`main`); feature branches are merged and deleted after verification.
 
 Every status below is backed by an executed command, a CI run URL/SHA or a SonarCloud API
@@ -154,9 +156,11 @@ No third-party crypto library is used and none is needed: the platform Keystore 
 
 ## 📋 NEXT SEQUENCE
 
-1. Merge PR #54 into `main` once its CI is green (currently green on `fac64e6`), then delete the branch (single `main`).
+1. ~~Merge PR #54 into `main` once its CI is green.~~ ✅ Done — merged as `d228d77`, branch deleted.
 2. ~~Visual fidelity pass for Ref 14 / 18 / 03 with screenshot evidence from the physical phone.~~ ✅ Done — Home (14), Tools (18) and Repair (03) captured on `R9ZR20HWHQY` with side-by-side comparison and honest deviation list.
-3. **Owner unblock required** — an authorized WireGuard gateway + test profile for real tunnel proof on `R9ZR20HWHQY` (handshake + RX/TX), then an owner keystore for the signed AAB and release.
+3. ~~Merge PR #55 (animated glass elevation).~~ ✅ Done — CI `45053268703` fully green on `8a8d489` (build, release-compile, device 26 12m24s, device 35 30m35s, SonarCloud); merged as `e8dad11`, branch deleted (single `main`).
+4. **Owner unblock required** — an authorized WireGuard gateway + test profile for real tunnel proof on `R9ZR20HWHQY` (handshake + RX/TX), then an owner keystore for the signed AAB and release.
+5. Re-attach the phone (USB dropped mid-session) and re-run `VpnSessionServiceTest` locally (6 tests) to confirm the nearest-chevron shade fix on real One UI; restore `svc power stayon false`.
 
 ---
 
@@ -181,6 +185,10 @@ No third-party crypto library is used and none is needed: the platform Keystore 
 | 2026-11-22 | Recovery | Independent visual audit of the 2026-11-19 evidence set (opened every file) | ⚠️ 5 of 6 captures mislabelled; no Tools/Repair capture present; files renamed to true content (bytes preserved), claim retracted in `docs/evidence/visual-fidelity-20261119/CORRECTION_20261122.md`. Not a product bug — route table verified correct |
 | 2026-11-22 | Recovery | PR #54 CI `45013446821` on `fac64e6` | ✅ Green (build, release-compile, device(26) 13m56s, device(35) ~27m, SonarCloud) |
 | 2026-11-22 | Recovery | Closes the Tools/Repair evidence gap: real `adb exec-out screencap` of `لوحة الأدوات` (ref 18) and `لوحة أدوات الإصلاح` (ref 03) on `R9ZR20HWHQY`, plus ref14/18/03-vs-runtime side-by-side composites and a documented deviation list | ✅ `docs/evidence/device-20261122/05-tools-catalog-ar.png`, `06-repair-lab-ar.png`, `compare/*` (SHA-256 in `DEVICE_VERIFICATION_20261122.md`). Layout/order parity confirmed; deviations (icon style, aspect density, tab conflict) documented, not claimed as 100 % parity |
+| 2026-11-22 16:07 | Motion | CI run `45042088536` (`1a0921d`) diagnosis from downloaded artifacts: **zero assertion failures** on both emulators; API35 logcat proves 115s of ~150ms continuous ambient frames starving `ActivityScenario` idle waits; API26 wedged in the un-watchdogged shade `takeScreenshot` (exit 124) | ✅ Root cause proven, not guessed — recorded in `docs/evidence/animated-glass-20261122/README.md` round 3 |
+| 2026-11-22 17:37 | Motion | Fixes pushed: frame-paced ambient clock `8cf1374` (one frame request per update + real delay, ~30fps cap, adaptive backoff, unchanged periods), halo on shared draw-phase clock, nearest-chevron shade picker + screenshot watchdog `2f83d5f`, Sonar `kotlin:S899` watchdog-await fix `358b8ee`, 20-test local log committed `8a8d489` | ✅ Local assembleDebug/assembleDebugAndroidTest/unit tests SUCCESSFUL; local `VpnSessionServiceTest` 4/6 before the chevron fix (2 failures = proven wrong-row tap); phone USB dropped before local re-run |
+| 2026-11-22 18:38 | Motion | CI run `45053268703` on `8a8d489` completed | ✅ **All green**: build 8m02s, release-compile 4m45s, **device 26 12m24s** (wedge resolved), device 35 30m35s, SonarCloud pass. CircleCI "fail" = external service with no config, ignored per policy |
+| 2026-11-22 18:45 | Motion | PR #55 merged into `main`; branch deleted local + remote; residue cleanup: `COMMIT_MSG.txt` removed (text verified preserved in merged `6640da4`), 13 ignored `ci-*/app` artifact trees removed (0 tracked files), ~429 MB stale CI scratch dirs removed after evidence committed | ✅ Merge commit `e8dad11`; working tree clean; single `main` |
 
 ---
 
