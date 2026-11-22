@@ -4,7 +4,7 @@
 **Main SHA:** `e8dad11` (PR #55 merged — animated glass elevation: shared frame-paced ambient clock + staggered entrances, CI `45053268703` green on `8a8d489`: build, release-compile, device 26 12m24s, device 35 30m35s, SonarCloud pass)
 **Working branch:** none — `main` only; feature branch `codex/animated-glass-ui-20261122` merged and deleted (local + remote). PR #54 previously merged as `d228d77`.
 **CI looper-starvation wedge — RESOLVED:** run `45042088536` artifacts proved the per-vsync ambient stream saturated the main looper (API35: 115s idle-wait starvation; API26: exit-124 wedge at 346/350, zero assertion failures). Fixed by the frame-paced clock (`8cf1374`: one frame request per update + real delay, ~30fps cap, adaptive backoff, unchanged periods/waveforms), halo on the shared draw-phase clock, nearest-chevron shade picker + screenshot watchdog (`2f83d5f`). Device 26 now completes the full suite in 12m24s (previously never finished inside the 30m budget).
-**Physical phone:** `R9ZR20HWHQY` USB link dropped mid-session (`CM_PROB_PHANTOM`); local re-verification of the final two shade-capture tests awaits re-attachment — CI emulators remain the authoritative gate. `svc power stayon` may still be `true` on the phone from earlier probes; restore `false` on next attach.
+**Physical phone:** re-attached 2026-11-22 ~22:45. Merged build `54f1e14` installed and verified: `VpnSessionServiceTest` **`OK (6 tests)` in 48.2s** on real One UI (`docs/evidence/animated-glass-20261122/device/local-vpn-service-6tests-54f1e14.txt`); tree-verified Home/Tools/Repair captures committed (`final-0*-54f1e14.png`). `svc power stayon` restored to `false`.
 **Branch policy:** exactly one integration branch (`main`); feature branches are merged and deleted after verification.
 
 Every status below is backed by an executed command, a CI run URL/SHA or a SonarCloud API
@@ -160,7 +160,7 @@ No third-party crypto library is used and none is needed: the platform Keystore 
 2. ~~Visual fidelity pass for Ref 14 / 18 / 03 with screenshot evidence from the physical phone.~~ ✅ Done — Home (14), Tools (18) and Repair (03) captured on `R9ZR20HWHQY` with side-by-side comparison and honest deviation list.
 3. ~~Merge PR #55 (animated glass elevation).~~ ✅ Done — CI `45053268703` fully green on `8a8d489` (build, release-compile, device 26 12m24s, device 35 30m35s, SonarCloud); merged as `e8dad11`, branch deleted (single `main`).
 4. **Owner unblock required** — an authorized WireGuard gateway + test profile for real tunnel proof on `R9ZR20HWHQY` (handshake + RX/TX), then an owner keystore for the signed AAB and release.
-5. Re-attach the phone (USB dropped mid-session) and re-run `VpnSessionServiceTest` locally (6 tests) to confirm the nearest-chevron shade fix on real One UI; restore `svc power stayon false`.
+5. ~~Re-attach the phone and re-run `VpnSessionServiceTest` locally.~~ ✅ Done — phone re-attached; **`OK (6 tests)` 48.2s** on the merged build; tree-verified Home/Tools/Repair captures committed; `svc power stayon false` restored.
 
 ---
 
