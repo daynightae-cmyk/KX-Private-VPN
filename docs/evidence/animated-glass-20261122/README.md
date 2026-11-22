@@ -92,3 +92,39 @@ emulator. Two fixes landed:
   the capture pass on SM-A025F R9ZR20HWHQY).
 - `04-connected-session` cannot be reproduced honestly without an authorized
   WireGuard endpoint (standing blocker); no connected-state fabrication.
+
+## Round 3 — CI run 45042088536 (`1a0921d`) diagnosis and fixes
+
+Both device jobs failed with exit 124, but the artifacts prove **zero assertion
+failures** (API35: 352/350 completed, 3 skipped, 0 failed; API26: 346/350, 0 failed):
+
+- **API35 logcat**: between `MainActivity RESUMED` (16:36:41.372) and the next test
+  statement (FGS start 16:38:36.601) there are **115 seconds** of continuous
+  ~150ms EGL frames (`app_time_stats avg=148ms`). The per-vsync ambient stream kept
+  the main looper permanently busy, starving `ActivityScenario.launch`'s idle wait.
+  The suite then ran out of the 30m budget mid-`ongoingNotification...`.
+- **API26 logcat**: last app activity 16:21:49 (shade gesture + SystemUI deopt),
+  then silence until the budget kill — the wedge is inside the shade-capture
+  transport (`takeScreenshot` was the one un-watchdogged binder call).
+
+Fixes (this round):
+
+- `8cf1374` — **frame-paced ambient clock**: one `withFrameNanos` request per
+  update followed by a real `delay`, so between updates there are zero pending
+  frame awaiters and the looper genuinely idles. ~30fps cap, adaptive backoff to
+  ~2x observed frame cost (33..500ms) on slow renderers, absolute-phase channels
+  preserving every original period/waveform. `KxOrbitalHalo` drops its private
+  per-vsync infinite transition (which also recomposed per frame) and rides the
+  shared clock in the draw phase. Real battery/responsiveness win on the owner's
+  SM-A025F, not a test hack.
+- `2f83d5f` — shade capture: the expand-affordance picker now selects the chevron
+  **nearest** the session title (field probe `shade-dump-scroll1.json`: the USB
+  row's chevron at y=1103 fell inside the old ±40dp window of the KX title at
+  y=1199 and came first in tree order, so the tap opened USB options).
+  `takeScreenshot` joins the daemon-watchdog pattern (10s bound, explicit honest
+  failure message instead of a suite-wide hang).
+
+Local `VpnSessionServiceTest` on the physical phone reached 4/6 before these
+fixes; the two remaining failures were the chevron mis-tap above. Re-verification
+on-device pending: the phone's USB link dropped mid-session (adb protocol fault,
+device absent from `adb devices`); CI emulators remain the authoritative gate.
