@@ -56,17 +56,22 @@ internal fun InstalledAppsScreen(
             ) {
                 item(key = "header") {
                     KxPageHeader(stringResource(R.string.app_inventory_title), night,
-                        stringResource(R.string.back), onBack)
+                        stringResource(R.string.back), onBack,
+                        modifier = Modifier.kxEntrance(index = 0))
                 }
                 item(key = "scope") {
-                    AppScanCard(night, state, onScan, onCancel, onAllSettings)
+                    AppScanCard(night, state, onScan, onCancel, onAllSettings,
+                        Modifier.kxEntrance(index = 1))
                 }
                 state.receipt?.let { receipt ->
-                    item(key = "receipt") { AppHandoffCard(night, receipt) }
+                    item(key = "receipt") {
+                        AppHandoffCard(night, receipt, Modifier.kxEntrance(index = 2))
+                    }
                 }
                 if (state.phase == AppScanPhase.RESULTS) {
                     item(key = "results") {
-                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Column(Modifier.kxEntrance(index = 3),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Text(stringResource(R.string.apps_results), fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold, modifier = Modifier.semantics { heading() })
                             Text(stringResource(R.string.apps_visible_count, state.apps.size),
@@ -79,11 +84,12 @@ internal fun InstalledAppsScreen(
                         }
                     }
                     item(key = "controls") {
-                        AppInventoryControls(state, shown.size, onQuery, onFilter, onSort)
+                        AppInventoryControls(state, shown.size, onQuery, onFilter, onSort,
+                            Modifier.kxEntrance(index = 4))
                     }
                     if (shown.isEmpty()) {
                         item(key = "empty") {
-                            GlassSurface(night, Modifier.testTag("apps-empty")) {
+                            GlassSurface(night, Modifier.testTag("apps-empty").kxEntrance(index = 5)) {
                                 Text(stringResource(if (state.apps.isEmpty()) R.string.apps_empty_inventory
                                     else R.string.apps_no_matches), fontSize = 15.sp, lineHeight = 22.sp)
                                 if (state.query.isNotEmpty() || state.filter != AppFilter.ALL) {
@@ -96,11 +102,13 @@ internal fun InstalledAppsScreen(
                         }
                     }
                     items(shown, key = { "app:${it.packageName}" }) { app ->
+                        val rowIndex = shown.indexOf(app)
                         AppInventoryCard(night, app, ownPackage, expanded == app.packageName,
                             state.canManage && state.approval == null,
                             onExpand = { expanded = if (expanded == app.packageName) null else app.packageName },
                             onInfo = { onAppSettings(app.packageName) },
-                            onUninstall = { onRequestUninstall(app.packageName) }, icon = icon)
+                            onUninstall = { onRequestUninstall(app.packageName) }, icon = icon,
+                            modifier = Modifier.kxEntrance(index = 5 + rowIndex))
                     }
                 }
             }
@@ -147,9 +155,10 @@ private fun AppScanCard(
     onScan: () -> Unit,
     onCancel: () -> Unit,
     onAllSettings: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val scanning = state.phase == AppScanPhase.SCANNING
-    GlassSurface(night) {
+    GlassSurface(night, modifier) {
         Row(verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             KxOrb(1f, IntroTimeline.frame(1f), Modifier.size(64.dp).clearAndSetSemantics {})
@@ -196,8 +205,9 @@ private fun AppInventoryControls(
     onQuery: (String) -> Unit,
     onFilter: (AppFilter) -> Unit,
     onSort: (AppSort) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
         OutlinedTextField(state.query, onQuery, singleLine = true,
             label = { Text(stringResource(R.string.apps_search_label)) },
             modifier = Modifier.fillMaxWidth().testTag("apps-search"))
@@ -237,9 +247,10 @@ private fun AppInventoryCard(
     onInfo: () -> Unit,
     onUninstall: () -> Unit,
     icon: @Composable (InstalledApp) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val detailsLabel = stringResource(if (expanded) R.string.apps_hide_details else R.string.apps_show_details)
-    GlassSurface(night, Modifier.testTag("apps-card-${app.packageName}")) {
+    GlassSurface(night, modifier.testTag("apps-card-${app.packageName}")) {
         Column(Modifier.fillMaxWidth().heightIn(min = 48.dp)
             .clickable(role = Role.Button, onClickLabel = detailsLabel, onClick = onExpand)
             .testTag("apps-details-${app.packageName}")) {
@@ -284,8 +295,8 @@ private fun AppInventoryCard(
 }
 
 @Composable
-private fun AppHandoffCard(night: Boolean, receipt: AppManagementReceipt) {
-    GlassSurface(night, Modifier.testTag("apps-handoff")) {
+private fun AppHandoffCard(night: Boolean, receipt: AppManagementReceipt, modifier: Modifier = Modifier) {
+    GlassSurface(night, modifier.testTag("apps-handoff")) {
         Text(stringResource(R.string.apps_handoff_title), fontSize = 17.sp, fontWeight = FontWeight.Bold)
         Text(stringResource(when (receipt.action) {
             AppManagementAction.DETAILS -> R.string.app_inventory_app_info

@@ -30,6 +30,7 @@ import com.knoux.kxprivatevpn.R
 import com.knoux.kxprivatevpn.designsystem.Atmosphere
 import com.knoux.kxprivatevpn.designsystem.GlassSurface
 import com.knoux.kxprivatevpn.designsystem.KxPageHeader
+import com.knoux.kxprivatevpn.designsystem.kxEntrance
 import com.knoux.kxprivatevpn.platform.security.ShieldAction
 import com.knoux.kxprivatevpn.platform.security.ShieldEntry
 import com.knoux.kxprivatevpn.platform.security.ShieldKind
@@ -106,9 +107,10 @@ fun SessionShieldScreen(
                 night = night,
                 backLabel = stringResource(R.string.back),
                 onBack = onBack,
+                modifier = Modifier.kxEntrance(index = 0),
             )
 
-            GlassSurface(night) {
+            GlassSurface(night, Modifier.kxEntrance(index = 1)) {
                 Text(stringResource(R.string.shield_owned_title), fontWeight = FontWeight.Bold,
                     fontSize = 18.sp)
                 Spacer(Modifier.height(4.dp))
@@ -214,7 +216,7 @@ fun SessionShieldScreen(
             if (state.inventory.profiles.isNotEmpty()) {
                 Text(stringResource(R.string.shield_profiles_title), fontWeight = FontWeight.Bold,
                     fontSize = 16.sp, color = foreground,
-                    modifier = Modifier.padding(horizontal = 2.dp))
+                    modifier = Modifier.padding(horizontal = 2.dp).kxEntrance(index = 2))
                 state.inventory.profiles.forEachIndexed { index, entry ->
                     ShieldCard(
                         night = night,
@@ -224,12 +226,13 @@ fun SessionShieldScreen(
                         busy = state.busy || state.loading,
                         onToggle = { onToggle(entry.id) },
                         onRevoke = { onRequestRevoke(entry.id.substringAfter(':')) },
+                        modifier = Modifier.kxEntrance(index = 3 + index),
                     )
                 }
             }
 
             if (state.inventory.history.isNotEmpty()) {
-                GlassSurface(night) {
+                GlassSurface(night, Modifier.kxEntrance(index = 6)) {
                     Text(stringResource(R.string.shield_history_title), fontWeight = FontWeight.Bold,
                         fontSize = 16.sp)
                     Spacer(Modifier.height(4.dp))
@@ -245,7 +248,7 @@ fun SessionShieldScreen(
                 }
             }
 
-            GlassSurface(night) {
+            GlassSurface(night, Modifier.kxEntrance(index = 7)) {
                 Text(stringResource(R.string.shield_actions_title), fontWeight = FontWeight.Bold,
                     fontSize = 16.sp)
                 Spacer(Modifier.height(6.dp))
@@ -289,7 +292,7 @@ fun SessionShieldScreen(
             }
 
             state.receipt?.let { receipt ->
-                GlassSurface(night) {
+                GlassSurface(night, Modifier.kxEntrance(index = 8)) {
                     Text(stringResource(R.string.shield_receipt_title), fontWeight = FontWeight.Bold,
                         fontSize = 16.sp, modifier = Modifier.testTag("shield-receipt"))
                     Spacer(Modifier.height(4.dp))
@@ -403,12 +406,13 @@ private fun ShieldCard(
     busy: Boolean,
     onToggle: () -> Unit,
     onRevoke: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val shape = RoundedCornerShape(22.dp)
     val rim = if (selected) Color(0xFF79E7FF).copy(alpha = .85f)
     else Color.White.copy(alpha = if (night) .28f else .8f)
     Column(
-        Modifier.fillMaxWidth()
+        modifier.fillMaxWidth()
             .background(
                 Brush.linearGradient(
                     if (night) listOf(Color.White.copy(alpha = .07f), Color(0xFF6D63E8).copy(alpha = .14f))

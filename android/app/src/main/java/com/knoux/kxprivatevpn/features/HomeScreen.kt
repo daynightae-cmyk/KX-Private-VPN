@@ -61,6 +61,7 @@ import com.knoux.kxprivatevpn.designsystem.kxMuted
 import com.knoux.kxprivatevpn.designsystem.kxPressScale
 import com.knoux.kxprivatevpn.designsystem.kxRose
 import com.knoux.kxprivatevpn.designsystem.kxViolet
+import com.knoux.kxprivatevpn.designsystem.kxEntrance
 import com.knoux.kxprivatevpn.designsystem.rememberKxTapHaptic
 import com.knoux.kxprivatevpn.designsystem.repairAccent
 import com.knoux.kxprivatevpn.launch.IntroTimeline
@@ -114,7 +115,7 @@ fun KxHomeScreen(
                         .testTag("route-home"),
                     verticalArrangement = Arrangement.spacedBy(13.dp),
                 ) {
-                    HomeHeader(night, onNavigate)
+                    HomeHeader(night, onNavigate, Modifier.kxEntrance(index = 0))
                     KxTitleBlock(
                         title = stringResource(R.string.home),
                         subtitle = stringResource(R.string.home_reference_subtitle),
@@ -123,9 +124,10 @@ fun KxHomeScreen(
                         // accessibility without creating a second identical Text node for the
                         // navigation contract.
                         announceTitleAsDescription = true,
+                        modifier = Modifier.kxEntrance(index = 1),
                     )
                     HomeHero(night, activeSession?.profileName ?: selected?.name, busy, vpn,
-                        onConnect, onDisconnect)
+                        onConnect, onDisconnect, Modifier.kxEntrance(index = 2))
                     SessionPanel(
                         night = night,
                         active = activeSession != null,
@@ -135,13 +137,15 @@ fun KxHomeScreen(
                         context = context,
                         onOpenServers = { onNavigate("servers") },
                         onOpenSession = onSession,
+                        modifier = Modifier.kxEntrance(index = 3),
                     )
-                    QuickActions(night, onNavigate)
-                    RecentActivity(night, activeSession, history, context, onNavigate)
-                    SessionTelemetry(night, vpn)
-                    KxCareCard(night, onNavigate)
-                    GuardianHomeAction(night, onNavigate)
-                    ToolsGrid(night, onNavigate)
+                    QuickActions(night, onNavigate, Modifier.kxEntrance(index = 4))
+                    RecentActivity(night, activeSession, history, context, onNavigate,
+                        Modifier.kxEntrance(index = 5))
+                    SessionTelemetry(night, vpn, Modifier.kxEntrance(index = 6))
+                    KxCareCard(night, onNavigate, Modifier.kxEntrance(index = 7))
+                    GuardianHomeAction(night, onNavigate, Modifier.kxEntrance(index = 8))
+                    ToolsGrid(night, onNavigate, Modifier.kxEntrance(index = 9))
                     vpn.issue?.let { issue ->
                         KxGlassPanel(night, radius = 18.dp) {
                             Text(
@@ -176,11 +180,11 @@ fun KxHomeScreen(
 }
 
 @Composable
-private fun GuardianHomeAction(night: Boolean, onNavigate: (String) -> Unit) {
+private fun GuardianHomeAction(night: Boolean, onNavigate: (String) -> Unit, modifier: Modifier = Modifier) {
     val actionLabel = stringResource(R.string.guardian_home_action)
     KxGlassPanel(
         night = night,
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth()
             .clickable(role = Role.Button, onClickLabel = actionLabel) { onNavigate("guardian") }
             .testTag("open-guardian"),
         radius = 18.dp,
@@ -216,13 +220,14 @@ private fun GuardianHomeAction(night: Boolean, onNavigate: (String) -> Unit) {
 }
 
 @Composable
-private fun HomeHeader(night: Boolean, onNavigate: (String) -> Unit) {
+private fun HomeHeader(night: Boolean, onNavigate: (String) -> Unit, modifier: Modifier = Modifier) {
     KxReferenceHeader(
         night = night,
         actionLabel = stringResource(R.string.settings),
         tag = "open-settings",
         icon = KxIconKind.GEAR,
         onClick = { onNavigate("settings") },
+        modifier = modifier,
     )
 }
 
@@ -234,6 +239,7 @@ private fun HomeHero(
     vpn: VpnState,
     onConnect: () -> Unit,
     onDisconnect: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val stopFailed = vpn.issue == VpnIssue.STOP_FAILED
     val connected = vpn.phase == VpnPhase.CONNECTED
@@ -253,7 +259,7 @@ private fun HomeHero(
     val orbInteraction = remember { MutableInteractionSource() }
     val tapHaptic = rememberKxTapHaptic()
     Column(
-        Modifier.fillMaxWidth(),
+        modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(9.dp),
     ) {
@@ -342,12 +348,13 @@ private fun SessionPanel(
     context: Context,
     onOpenServers: () -> Unit,
     onOpenSession: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val label = stringResource(if (active) R.string.active_server else R.string.selected_server).uppercase()
     val duration = remember(startedAtMillis) { durationLabel(context, startedAtMillis) }
     KxGlassPanel(
         night = night,
-        modifier = Modifier
+        modifier = modifier
             .clickable(role = Role.Button, onClickLabel = stringResource(R.string.servers), onClick = onOpenServers)
             .testTag("open-servers"),
         radius = 20.dp,
@@ -431,8 +438,8 @@ private fun SessionDivider(night: Boolean) {
 }
 
 @Composable
-private fun QuickActions(night: Boolean, onNavigate: (String) -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
+private fun QuickActions(night: Boolean, onNavigate: (String) -> Unit, modifier: Modifier = Modifier) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(7.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             KxLineIcon(KxIconKind.BOLT, kxInk(night), Modifier.size(19.dp))
             Spacer(Modifier.width(7.dp))
@@ -568,6 +575,7 @@ private fun RecentActivity(
     history: List<UsageRecord>,
     context: Context,
     onNavigate: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val rows = remember(live, history) {
         val result = mutableListOf<ActivityRow>()
@@ -596,7 +604,7 @@ private fun RecentActivity(
         }
         result
     }
-    KxGlassPanel(night, radius = 20.dp) {
+    KxGlassPanel(night, modifier = modifier, radius = 20.dp) {
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 KxLineIcon(KxIconKind.CLOCK, kxInk(night), Modifier.size(19.dp))
@@ -688,7 +696,7 @@ private fun RecentActivity(
 }
 
 @Composable
-private fun SessionTelemetry(night: Boolean, vpn: VpnState) {
+private fun SessionTelemetry(night: Boolean, vpn: VpnState, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val session = if (VpnSessionOwnership.ownsTunnel(vpn)) vpn.session else null
     val handshake = session?.latestHandshakeMillis?.let { clock(context, it) }
@@ -699,7 +707,7 @@ private fun SessionTelemetry(night: Boolean, vpn: VpnState) {
         ?: stringResource(R.string.unknown_value)
     val tunnelIp = session?.addresses?.firstOrNull()?.substringBefore('/')
         ?: stringResource(R.string.unknown_value)
-    Column(verticalArrangement = Arrangement.spacedBy(9.dp)) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(9.dp)) {
         KxGlassPanel(night, radius = 20.dp) {
             Text(
                 stringResource(R.string.home_session_telemetry),
@@ -824,8 +832,8 @@ private fun MetricGlyph(kind: MetricKind, color: Color, modifier: Modifier) {
 }
 
 @Composable
-private fun ToolsGrid(night: Boolean, onNavigate: (String) -> Unit) {
-    BoxWithConstraints(Modifier.fillMaxWidth()) {
+private fun ToolsGrid(night: Boolean, onNavigate: (String) -> Unit, modifier: Modifier = Modifier) {
+    BoxWithConstraints(modifier.fillMaxWidth()) {
         // Descriptions need a reading column, not a phone-sized dashboard grid. Tablets
         // can show two columns; large fonts always keep one continuous reading order.
         val perRow = if (maxWidth >= 600.dp && LocalDensity.current.fontScale <= 1.3f) 2 else 1
@@ -859,14 +867,14 @@ private fun ToolsGrid(night: Boolean, onNavigate: (String) -> Unit) {
 }
 
 @Composable
-private fun KxCareCard(night: Boolean, onNavigate: (String) -> Unit) {
+private fun KxCareCard(night: Boolean, onNavigate: (String) -> Unit, modifier: Modifier = Modifier) {
     KxServiceCard(
         title = stringResource(R.string.kx_care),
         description = stringResource(R.string.home_repair_description),
         capability = stringResource(R.string.home_repair_scope, RepairCatalog.available()),
         actionLabel = stringResource(R.string.home_action_repair),
         night = night,
-        modifier = Modifier.fillMaxWidth().testTag("open-repair"),
+        modifier = modifier.fillMaxWidth().testTag("open-repair"),
         glyph = { RepairGlyph(RepairServiceId.AUTOPILOT, Modifier.size(32.dp)) },
         onClick = { onNavigate("repair") },
     )

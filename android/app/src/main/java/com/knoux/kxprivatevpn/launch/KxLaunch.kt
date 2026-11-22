@@ -46,6 +46,8 @@ import com.knoux.kxprivatevpn.R
 import com.knoux.kxprivatevpn.designsystem.Atmosphere
 import com.knoux.kxprivatevpn.designsystem.GlassAction
 import com.knoux.kxprivatevpn.designsystem.KxOrb
+import com.knoux.kxprivatevpn.designsystem.LocalKxAmbient
+import com.knoux.kxprivatevpn.designsystem.rememberKxAmbient
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.withTimeoutOrNull
 
@@ -107,6 +109,7 @@ fun KxLaunch() {
     val night = when (state.settings.theme) { "day" -> false; "night" -> true; else -> isSystemInDarkTheme() }
     CompositionLocalProvider(LocalContext provides localized, LocalConfiguration provides configuration,
         LocalActivityResultRegistryOwner provides activityResults,
+        LocalKxAmbient provides rememberKxAmbient(),
         LocalLayoutDirection provides if (configuration.layoutDirection == 1) LayoutDirection.Rtl else LayoutDirection.Ltr) {
         BackHandler(enabled = stack.size > 1 || state.busy) {
             if (!state.busy && stack.size > 1) stack = stack.dropLast(1)
@@ -188,6 +191,7 @@ fun IdentityExperience(
     val disclosureClose = stringResource(R.string.close)
     val entryHint = stringResource(R.string.tap_kx_orb_to_enter)
     MaterialTheme(colorScheme = if (night) darkColorScheme() else lightColorScheme()) {
+        CompositionLocalProvider(LocalKxAmbient provides rememberKxAmbient()) {
         BoxWithConstraints(Modifier.fillMaxSize().background(Color(0xFF080B28)).testTag("identity")) {
             // Only the logo exists on the first Compose frame; the approved scene gradually appears.
             Box(Modifier.fillMaxSize().graphicsLayer { alpha = appearance }) {
@@ -281,6 +285,7 @@ fun IdentityExperience(
                     Text(disclosureClose)
                 } },
             )
+        }
         }
     }
 }

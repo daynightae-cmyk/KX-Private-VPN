@@ -64,6 +64,7 @@ import com.knoux.kxprivatevpn.designsystem.KxReferenceAtmosphere
 import com.knoux.kxprivatevpn.designsystem.KxReferenceHeader
 import com.knoux.kxprivatevpn.designsystem.KxReferenceTheme
 import com.knoux.kxprivatevpn.designsystem.KxTitleBlock
+import com.knoux.kxprivatevpn.designsystem.kxEntrance
 import com.knoux.kxprivatevpn.designsystem.RepairGlyph
 import com.knoux.kxprivatevpn.designsystem.kxCyan
 import com.knoux.kxprivatevpn.designsystem.kxGreen
@@ -203,14 +204,16 @@ fun DownloadRescueScreen(
                         tag = "download-ref-back",
                         icon = KxIconKind.BACK,
                         onClick = onBack,
+                        modifier = Modifier.kxEntrance(index = 0),
                     )
 
                     if (hasCandidates) {
-                        ResultsOrb(night)
+                        ResultsOrb(night, Modifier.kxEntrance(index = 1))
                         KxTitleBlock(
                             title = stringResource(R.string.download_title),
                             subtitle = stringResource(R.string.download_ref_results_subtitle),
                             night = night,
+                            modifier = Modifier.kxEntrance(index = 2),
                         )
                         DownloadSummaryCard(night, state)
                         FolderScopeCard(
@@ -277,8 +280,10 @@ fun DownloadRescueScreen(
                             title = stringResource(R.string.download_title),
                             subtitle = stringResource(R.string.download_ref_subtitle),
                             night = night,
+                            modifier = Modifier.kxEntrance(index = 1),
                         )
-                        DownloadHero(night, scanning = state.scanning, state = state)
+                        DownloadHero(night, scanning = state.scanning, state = state,
+                            modifier = Modifier.kxEntrance(index = 2))
                         if (state.treeUri == null) {
                             KxGradientAction(
                                 label = stringResource(R.string.download_ref_choose_action),
@@ -436,9 +441,9 @@ fun DownloadRescueScreen(
 // ---------------------------------------------------------------------------
 
 @Composable
-private fun ResultsOrb(night: Boolean) {
+private fun ResultsOrb(night: Boolean, modifier: Modifier = Modifier) {
     Box(
-        Modifier.fillMaxWidth().height(96.dp).testTag("download-results-orb"),
+        modifier.fillMaxWidth().height(96.dp).testTag("download-results-orb"),
         contentAlignment = Alignment.Center,
     ) {
         Box(Modifier.size(84.dp), contentAlignment = Alignment.Center) {
@@ -449,7 +454,12 @@ private fun ResultsOrb(night: Boolean) {
 }
 
 @Composable
-private fun DownloadHero(night: Boolean, scanning: Boolean, state: DownloadRescueUiState) {
+private fun DownloadHero(
+    night: Boolean,
+    scanning: Boolean,
+    state: DownloadRescueUiState,
+    modifier: Modifier = Modifier,
+) {
     val reduced = rememberReducedMotion()
     val sweep = remember { Animatable(0f) }
     LaunchedEffect(scanning, reduced) {
@@ -462,7 +472,7 @@ private fun DownloadHero(night: Boolean, scanning: Boolean, state: DownloadRescu
     }
     val fontScale = LocalDensity.current.fontScale
     Box(
-        Modifier.fillMaxWidth().height(if (fontScale > 1.3f) 232.dp else 244.dp)
+        modifier.fillMaxWidth().height(if (fontScale > 1.3f) 232.dp else 244.dp)
             .testTag("download-hero"),
         contentAlignment = Alignment.Center,
     ) {

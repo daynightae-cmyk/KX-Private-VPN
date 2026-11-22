@@ -34,17 +34,23 @@ private val Pearl = Color(0xFFF9ECFF)
 
 @Composable
 fun Atmosphere(night: Boolean, pulse: Float) {
+    val ambient = LocalKxAmbient.current
     Canvas(Modifier.fillMaxSize()) {
         val w = size.width
         val h = size.height
+        // Ambient drift keeps the ribbons breathing even when the intro pulse is 0.
+        // Values are read in the draw phase, so the backdrop redraws without recomposing.
+        val drift = if (ambient.enabled) ambient.drift.value else .5f
+        val breathe = if (ambient.enabled) ambient.breathe.value else .5f
+        val wave = sin(drift * 2f * PI.toFloat())
         drawRect(Brush.linearGradient(if (night) listOf(Color(0xFF06091F), Color(0xFF19134B),
             Color(0xFF112453)) else listOf(Color(0xFFC8C1FF), Color(0xFFA4C5FF), Color(0xFFE6D9FF)),
             Offset.Zero, Offset(w, h)))
-        drawCircle(Brush.radialGradient(listOf(Violet.copy(alpha = .22f), Color.Transparent),
-            Offset(w * .5f, h * .31f), w * .8f), w * .8f, Offset(w * .5f, h * .31f))
+        drawCircle(Brush.radialGradient(listOf(Violet.copy(alpha = .22f * (.85f + .15f * breathe)), Color.Transparent),
+            Offset(w * (.5f + .02f * wave), h * .31f), w * .8f), w * .8f, Offset(w * (.5f + .02f * wave), h * .31f))
         // Bounded native translucent ribbons; no full-screen per-frame blur or bitmap background.
         for (i in 0..3) {
-            val y = h * (.70f + i * .095f)
+            val y = h * (.70f + i * .095f) + h * .008f * wave * (if (i % 2 == 0) 1f else -1f)
             val path = Path().apply {
                 moveTo(-w * .1f, y)
                 cubicTo(w * .25f, y + h * .23f, w * .62f, y - h * .19f, w * 1.12f, y - h * .06f)
@@ -79,9 +85,16 @@ fun KxOrb(
 ) {
     val artwork = ImageBitmap.imageResource(R.drawable.kx_brand)
     val description = stringResource(R.string.brand_description)
+    val ambient = LocalKxAmbient.current
     val semantics = if (decorative) Modifier.clearAndSetSemantics {}
     else Modifier.semantics { contentDescription = description }
     Canvas(modifier.then(semantics)) {
+        // Idle life: once the intro choreography has finished (progress >= 1), the emblem
+        // keeps orbiting and glinting on the ambient clock. Read inside the draw phase so
+        // only this canvas redraws. Intro frames are untouched.
+        val idle = progress >= 1f && ambient.enabled
+        val orbitPhase = if (idle) ambient.orbit.value else 0f
+        val glint = if (idle) ambient.shimmer.value else progress
         val unit = size.minDimension / 1000f
         scale(unit, unit, Offset.Zero) {
             val center = Offset(500f, 500f)
@@ -103,7 +116,7 @@ fun KxOrb(
                 cubicTo(88f, 255f, 911f, 278f, 936f, 480f)
                 cubicTo(960f, 691f, 91f, 728f, 66f, 484f)
             }
-            rotate(-17f, center) {
+            rotate(-17f + orbitPhase * .06f, center) {
                 drawPath(orbit, Brush.linearGradient(listOf(Cyan.copy(alpha = .2f), Pearl,
                     Violet.copy(alpha = .6f))), style = Stroke(1.7f), alpha = frame.convergence)
             }
@@ -135,7 +148,7 @@ fun KxOrb(
             }
             // Native satellites, soft caustic sweep and one final halo pulse remain above the artwork.
             for (i in 0..2) {
-                val angle = i * 2.2f + progress * .55f
+                val angle = i * 2.2f + progress * .55f + Math.toRadians(orbitPhase.toDouble()).toFloat() * .8f
                 val p = center + Offset(cos(angle) * 445f, sin(angle) * 230f)
                 val c = if (i == 1) Violet else Cyan
                 drawCircle(Brush.radialGradient(listOf(Pearl, c, c.copy(alpha = .1f)),
@@ -147,6 +160,18 @@ fun KxOrb(
                 clipPath(mask) {
                     drawRect(Brush.linearGradient(listOf(Color.Transparent, Pearl.copy(alpha = .20f),
                         Cyan.copy(alpha = .12f), Color.Transparent), Offset(x - 95f, 120f), Offset(x + 95f, 800f)))
+                }
+            } else if (idle) {
+                // Idle caustic: a slow specular band crosses the emblem and fades out at
+                // both ends, so the settled orb never reads as a static sticker.
+                val envelope = sin(glint * PI.toFloat())
+                if (envelope > .03f) {
+                    val x = 100f + glint * 800f
+                    val mask = Path().apply { addOval(androidx.compose.ui.geometry.Rect(94f, 94f, 906f, 906f)) }
+                    clipPath(mask) {
+                        drawRect(Brush.linearGradient(listOf(Color.Transparent, Pearl.copy(alpha = .16f * envelope),
+                            Cyan.copy(alpha = .10f * envelope), Color.Transparent), Offset(x - 95f, 120f), Offset(x + 95f, 800f)))
+                    }
                 }
             }
             if (frame.pulse > 0f) drawCircle(Cyan, r + 5f + frame.pulse * 24f,

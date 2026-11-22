@@ -58,6 +58,7 @@ import com.knoux.kxprivatevpn.designsystem.KxReferenceAtmosphere
 import com.knoux.kxprivatevpn.designsystem.KxReferenceHeader
 import com.knoux.kxprivatevpn.designsystem.KxReferenceTheme
 import com.knoux.kxprivatevpn.designsystem.KxTitleBlock
+import com.knoux.kxprivatevpn.designsystem.kxEntrance
 import com.knoux.kxprivatevpn.designsystem.RepairGlyph
 import com.knoux.kxprivatevpn.designsystem.kxCyan
 import com.knoux.kxprivatevpn.designsystem.kxGreen
@@ -167,6 +168,7 @@ fun DuplicateDnaScreen(
                         tag = "dna-ref-back",
                         icon = KxIconKind.BACK,
                         onClick = onBack,
+                        modifier = Modifier.kxEntrance(index = 0),
                     )
                     KxTitleBlock(
                         title = stringResource(R.string.repair_service_duplicate),
@@ -174,10 +176,11 @@ fun DuplicateDnaScreen(
                             if (scan == null) R.string.dna_ref_subtitle else R.string.dna_ref_results_subtitle
                         ),
                         night = night,
+                        modifier = Modifier.kxEntrance(index = 1),
                     )
 
                     if (scan == null) {
-                        DnaHero(night, scanning = state.scanning)
+                        DnaHero(night, scanning = state.scanning, Modifier.kxEntrance(index = 2))
                         IdleCategoryRow(night, category) { category = it }
                         DnaFolderCard(
                             night, state, ink, onChooseFolder, onScan, onCancelScan,
@@ -297,7 +300,7 @@ fun DuplicateDnaScreen(
 // ---------------------------------------------------------------------------
 
 @Composable
-private fun DnaHero(night: Boolean, scanning: Boolean) {
+private fun DnaHero(night: Boolean, scanning: Boolean, modifier: Modifier = Modifier) {
     val reduced = rememberReducedMotion()
     val sweep = remember { Animatable(0f) }
     LaunchedEffect(scanning, reduced) {
@@ -309,7 +312,7 @@ private fun DnaHero(night: Boolean, scanning: Boolean) {
         }
     }
     Box(
-        Modifier.fillMaxWidth().height(218.dp).testTag("dna-hero"),
+        modifier.fillMaxWidth().height(218.dp).testTag("dna-hero"),
         contentAlignment = Alignment.Center,
     ) {
         Canvas(Modifier.fillMaxSize()) {

@@ -44,6 +44,7 @@ import com.knoux.kxprivatevpn.designsystem.Atmosphere
 import com.knoux.kxprivatevpn.designsystem.GlassSurface
 import com.knoux.kxprivatevpn.designsystem.GlassSwitch
 import com.knoux.kxprivatevpn.designsystem.KxPageHeader
+import com.knoux.kxprivatevpn.designsystem.kxEntrance
 import com.knoux.kxprivatevpn.platform.vpn.AdvancedNetworkSettings
 import com.knoux.kxprivatevpn.platform.vpn.AdvancedNetworkValidator
 import com.knoux.kxprivatevpn.platform.vpn.DnsMode
@@ -118,7 +119,7 @@ fun AdvancedNetworkScreen(
                 .testTag("adv-scroll"),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Box(Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
+            Box(Modifier.fillMaxWidth().padding(horizontal = 20.dp).kxEntrance(index = 0)) {
                 KxPageHeader(
                     title = stringResource(R.string.adv_title),
                     night = night,
@@ -160,11 +161,13 @@ fun AdvancedNetworkScreen(
                             fontSize = 12.sp, modifier = Modifier.padding(horizontal = 24.dp)
                                 .testTag("adv-save-failed"))
                     }
-                    HeroCard(night, muted, titleColor)
-                    SectionTitle(stringResource(R.string.adv_section_protocol), titleColor)
-                    ProtocolRow(night, muted)
-                    SectionTitle(stringResource(R.string.adv_section_controls), titleColor)
-                    MtuCard(night, muted, titleColor, state, onMtuChange)
+                    HeroCard(night, muted, titleColor, Modifier.kxEntrance(index = 1))
+                    SectionTitle(stringResource(R.string.adv_section_protocol), titleColor,
+                        Modifier.kxEntrance(index = 2))
+                    ProtocolRow(night, muted, Modifier.kxEntrance(index = 3))
+                    SectionTitle(stringResource(R.string.adv_section_controls), titleColor,
+                        Modifier.kxEntrance(index = 4))
+                    MtuCard(night, muted, titleColor, state, onMtuChange, Modifier.kxEntrance(index = 5))
                     DnsCard(night, muted, titleColor, state, dnsExpanded,
                         onToggle = { dnsExpanded = !dnsExpanded },
                         onModeChange = onDnsModeChange,
@@ -228,9 +231,9 @@ private fun LinearSaving(muted: Color) {
 }
 
 @Composable
-private fun HeroCard(night: Boolean, muted: Color, titleColor: Color) {
+private fun HeroCard(night: Boolean, muted: Color, titleColor: Color, modifier: Modifier = Modifier) {
     GlassSurface(
-        night, Modifier.testTag("adv-hero"), radius = 30.dp,
+        night, modifier.testTag("adv-hero"), radius = 30.dp,
         contentPadding = PaddingValues(horizontal = 14.dp, vertical = 14.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -247,14 +250,14 @@ private fun HeroCard(night: Boolean, muted: Color, titleColor: Color) {
 }
 
 @Composable
-private fun SectionTitle(text: String, titleColor: Color) {
+private fun SectionTitle(text: String, titleColor: Color, modifier: Modifier = Modifier) {
     Text(text, color = titleColor, fontSize = 17.sp, fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(horizontal = 24.dp))
+        modifier = modifier.padding(horizontal = 24.dp))
 }
 
 @Composable
-private fun ProtocolRow(night: Boolean, muted: Color) {
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+private fun ProtocolRow(night: Boolean, muted: Color, modifier: Modifier = Modifier) {
+    Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         ProtocolOption(
             night = night, muted = muted, selected = true, enabled = true,
             label = stringResource(R.string.adv_protocol_wireguard),
@@ -353,11 +356,12 @@ private fun MtuCard(
     titleColor: Color,
     state: AdvancedNetworkUiState,
     onMtuChange: (Int?) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val baseline = state.settings.mtuOverride
         ?: state.profileMtu ?: AdvancedNetworkValidator.MTU_MAX
     var draft by remember(baseline) { mutableFloatStateOf(baseline.toFloat()) }
-    GlassSurface(night, Modifier.testTag("adv-mtu"), radius = 22.dp,
+    GlassSurface(night, modifier.testTag("adv-mtu"), radius = 22.dp,
         contentPadding = PaddingValues(horizontal = 14.dp, vertical = 12.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             CardGlyphPanel(CardGlyphKind.EXPAND, titleColor)

@@ -69,6 +69,7 @@ import com.knoux.kxprivatevpn.designsystem.kxCyan
 import com.knoux.kxprivatevpn.designsystem.kxInk
 import com.knoux.kxprivatevpn.designsystem.kxMuted
 import com.knoux.kxprivatevpn.designsystem.kxPressScale
+import com.knoux.kxprivatevpn.designsystem.kxEntrance
 import com.knoux.kxprivatevpn.designsystem.kxRose
 import com.knoux.kxprivatevpn.designsystem.kxViolet
 import com.knoux.kxprivatevpn.designsystem.rememberKxTapHaptic
@@ -130,20 +131,22 @@ fun RepairLabScreen(
                     .testTag("repair-lab"),
                 verticalArrangement = Arrangement.spacedBy(13.dp),
             ) {
-                RepairReferenceHeader(night, onBack, onNavigate)
+                RepairReferenceHeader(night, onBack, onNavigate, Modifier.kxEntrance(index = 0))
                 KxTitleBlock(
                     title = stringResource(R.string.repair_title),
                     subtitle = stringResource(R.string.repair_reference_subtitle),
                     night = night,
+                    modifier = Modifier.kxEntrance(index = 1),
                 )
-                RepairHero(night, state.measuring, onAnalyze)
-                ReferenceRepairGrid(night, onNavigate)
+                RepairHero(night, state.measuring, onAnalyze, Modifier.kxEntrance(index = 2))
+                ReferenceRepairGrid(night, onNavigate, Modifier.kxEntrance(index = 3))
                 KxGradientAction(
                     label = stringResource(R.string.repair_comprehensive),
                     night = night,
                     enabled = true,
                     tag = "repair-comprehensive",
                     icon = KxIconKind.WAND,
+                    modifier = Modifier.kxEntrance(index = 4),
                 ) { onNavigate("autopilot") }
                 Spacer(Modifier.height(56.dp))
                 ServiceGrid(night, state.measurement, foreground, onNavigate)
@@ -170,12 +173,13 @@ private fun RepairReferenceHeader(
     night: Boolean,
     onBack: () -> Unit,
     onNavigate: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     // Reference 03 centres a plain wordmark between the back and settings discs instead of
     // the Home/Tools lockup. Logical child order automatically mirrors for LTR.
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     Row(
-        Modifier.fillMaxWidth().heightIn(min = 52.dp),
+        modifier.fillMaxWidth().heightIn(min = 52.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         KxHeaderCircleButton(
@@ -210,13 +214,14 @@ private fun RepairHero(
     night: Boolean,
     measuring: Boolean,
     onAnalyze: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val reducedMotion = rememberReducedMotion()
     val orbInteraction = remember { MutableInteractionSource() }
     val hintInteraction = remember { MutableInteractionSource() }
     val tapHaptic = rememberKxTapHaptic()
     Column(
-        Modifier.fillMaxWidth(),
+        modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(7.dp),
     ) {
@@ -325,8 +330,8 @@ private val referenceRepairEntries = listOf(
 )
 
 @Composable
-private fun ReferenceRepairGrid(night: Boolean, onNavigate: (String) -> Unit) {
-    Column(Modifier.fillMaxWidth().testTag("repair-reference-grid"),
+private fun ReferenceRepairGrid(night: Boolean, onNavigate: (String) -> Unit, modifier: Modifier = Modifier) {
+    Column(modifier.fillMaxWidth().testTag("repair-reference-grid"),
         verticalArrangement = Arrangement.spacedBy(9.dp)) {
         referenceRepairEntries.chunked(2).forEach { row ->
             Row(

@@ -53,6 +53,7 @@ import com.knoux.kxprivatevpn.R
 import com.knoux.kxprivatevpn.designsystem.Atmosphere
 import com.knoux.kxprivatevpn.designsystem.GlassSurface
 import com.knoux.kxprivatevpn.designsystem.KxPageHeader
+import com.knoux.kxprivatevpn.designsystem.kxEntrance
 import com.knoux.kxprivatevpn.platform.usage.DailyUsage
 import com.knoux.kxprivatevpn.platform.usage.ServerUsage
 import com.knoux.kxprivatevpn.platform.usage.StatsRange
@@ -130,7 +131,7 @@ fun StatisticsScreen(
                     .testTag("stats-scroll"),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                Box(Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
+                Box(Modifier.fillMaxWidth().padding(horizontal = 20.dp).kxEntrance(index = 0)) {
                     KxPageHeader(
                         title = stringResource(R.string.stats_title),
                         night = night,
@@ -159,10 +160,13 @@ fun StatisticsScreen(
                             stringResource(R.string.stats_clear_failed),
                             Modifier.testTag("stats-clear-error"),
                         )
-                        StatGrid(state, night, muted, titleColor)
-                        UsageChartCard(state, night, muted, titleColor, accent, onRangeChange)
-                        SpeedAndTimeRow(state, night, muted, titleColor, accent)
-                        ServerHistoryCard(state, night, muted, titleColor)
+                        StatGrid(state, night, muted, titleColor, Modifier.kxEntrance(index = 1))
+                        UsageChartCard(state, night, muted, titleColor, accent, onRangeChange,
+                            Modifier.kxEntrance(index = 2))
+                        SpeedAndTimeRow(state, night, muted, titleColor, accent,
+                            Modifier.kxEntrance(index = 3))
+                        ServerHistoryCard(state, night, muted, titleColor,
+                            Modifier.kxEntrance(index = 4))
                         Text(
                             stringResource(R.string.stats_note),
                             color = muted.copy(alpha = .8f),
@@ -189,6 +193,7 @@ private fun StatGrid(
     night: Boolean,
     muted: Color,
     titleColor: Color,
+    modifier: Modifier = Modifier,
 ) {
     val summary = state.summary
     val context = LocalContext.current
@@ -231,7 +236,7 @@ private fun StatGrid(
     // At large font scales a half-width card cannot fit a full value, so stack the cards.
     val columns = if (LocalDensity.current.fontScale >= 1.3f) 1 else 2
     Column(
-        Modifier.padding(horizontal = 20.dp),
+        modifier.padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         cards.chunked(columns).forEach { rowCards ->
@@ -304,9 +309,10 @@ private fun UsageChartCard(
     titleColor: Color,
     accent: Color,
     onRangeChange: (StatsRange) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     GlassSurface(
-        night, Modifier.padding(horizontal = 20.dp).testTag("stats-chart-card"),
+        night, modifier.padding(horizontal = 20.dp).testTag("stats-chart-card"),
         radius = 24.dp, contentPadding = PaddingValues(13.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -497,11 +503,12 @@ private fun SpeedAndTimeRow(
     muted: Color,
     titleColor: Color,
     accent: Color,
+    modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     val summary = state.summary
     Column(
-        Modifier.padding(horizontal = 20.dp),
+        modifier.padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         GlassSurface(night, Modifier.testTag("stats-speed-card"), radius = 24.dp,
@@ -631,9 +638,10 @@ private fun ServerHistoryCard(
     night: Boolean,
     muted: Color,
     titleColor: Color,
+    modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    GlassSurface(night, Modifier.padding(horizontal = 20.dp).testTag("stats-server-history"),
+    GlassSurface(night, modifier.padding(horizontal = 20.dp).testTag("stats-server-history"),
         radius = 24.dp, contentPadding = PaddingValues(13.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             StatsGlyph(GlyphKind.SERVER, titleColor, Modifier.size(19.dp))

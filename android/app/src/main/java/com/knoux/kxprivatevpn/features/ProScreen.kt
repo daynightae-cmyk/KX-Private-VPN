@@ -30,6 +30,7 @@ import com.knoux.kxprivatevpn.designsystem.Atmosphere
 import com.knoux.kxprivatevpn.designsystem.GlassSurface
 import com.knoux.kxprivatevpn.designsystem.KxGlassTheme
 import com.knoux.kxprivatevpn.designsystem.KxPageHeader
+import com.knoux.kxprivatevpn.designsystem.kxEntrance
 import com.knoux.kxprivatevpn.platform.security.ProConfiguration
 import com.knoux.kxprivatevpn.platform.security.ProIdentityStore
 import com.knoux.kxprivatevpn.platform.security.ProRepository
@@ -92,9 +93,11 @@ internal fun ProScreen(
             Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding()
                 .verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                KxPageHeader(stringResource(R.string.pro_title), night, stringResource(R.string.back), onBack)
-                Text(stringResource(R.string.pro_scope), modifier = Modifier.testTag("pro-scope"))
-                GlassSurface(night) {
+                KxPageHeader(stringResource(R.string.pro_title), night, stringResource(R.string.back), onBack,
+                    modifier = Modifier.kxEntrance(index = 0))
+                Text(stringResource(R.string.pro_scope),
+                    modifier = Modifier.testTag("pro-scope").kxEntrance(index = 1))
+                GlassSurface(night, Modifier.kxEntrance(index = 2)) {
                     Text(stringResource(statusText(state.status)),
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.testTag("pro-status").semantics { liveRegion = LiveRegionMode.Polite })
@@ -124,7 +127,8 @@ internal fun ProScreen(
                     keyboardOptions = KeyboardOptions(autoCorrectEnabled = false, keyboardType = KeyboardType.Password),
                     label = { Text(stringResource(R.string.pro_code)) },
                     supportingText = { Text(stringResource(R.string.pro_code_hint)) },
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("pro-code"))
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("pro-code")
+                        .kxEntrance(index = 3))
                 Button(onClick = {
                     if (state.configured && !state.busy && isProHex(code)) {
                         val submitted = code
@@ -132,7 +136,8 @@ internal fun ProScreen(
                         onRedeem(submitted)
                     }
                 }, enabled = state.configured && !state.busy && isProHex(code),
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("pro-redeem")) {
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("pro-redeem")
+                        .kxEntrance(index = 4)) {
                     Text(stringResource(R.string.pro_redeem))
                 }
                 Text(stringResource(R.string.pro_code_privacy))

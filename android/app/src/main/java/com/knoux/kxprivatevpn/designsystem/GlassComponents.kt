@@ -19,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -54,7 +55,11 @@ fun KxGlassTheme(night: Boolean, content: @Composable () -> Unit) {
         onSurface = foreground, onBackground = foreground,
     )
     MaterialTheme(colorScheme = scheme) {
-        CompositionLocalProvider(LocalContentColor provides foreground, content = content)
+        CompositionLocalProvider(
+            LocalKxAmbient provides rememberKxAmbient(),
+            LocalContentColor provides foreground,
+            content = content,
+        )
     }
 }
 
@@ -83,10 +88,14 @@ fun GlassSurface(
             Color(0xFFD8B9FF).copy(alpha = .72f))
     }
     // A standalone glass card must not inherit black text from an unrelated host theme.
+    val ambient = LocalKxAmbient.current
     CompositionLocalProvider(LocalContentColor provides glassForeground(night)) {
         Column(
             modifier.fillMaxWidth()
                 .background(Brush.linearGradient(fill), shape)
+                .drawBehind {
+                    if (ambient.enabled) kxSheen(ambient.shimmer.value, night, strength = .7f)
+                }
                 .border(1.dp, Brush.linearGradient(rim), shape)
                 .padding(contentPadding),
             content = content,

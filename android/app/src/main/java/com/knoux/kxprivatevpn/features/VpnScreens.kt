@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import com.knoux.kxprivatevpn.R
 import com.knoux.kxprivatevpn.data.config.ProfileSnapshot
 import com.knoux.kxprivatevpn.designsystem.GlassAction
+import com.knoux.kxprivatevpn.designsystem.kxEntrance
 import com.knoux.kxprivatevpn.platform.vpn.VpnIssue
 import com.knoux.kxprivatevpn.platform.vpn.VpnLinkInfo
 import com.knoux.kxprivatevpn.platform.vpn.VpnLinkReader
@@ -40,11 +41,12 @@ fun VpnHomePanel(
     onDisconnect: () -> Unit,
     onSession: () -> Unit,
     onDismissIssue: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     val selected = snapshot.profiles.firstOrNull { it.id == snapshot.selectedId }
     val session = vpn.session
-    CrystalPanel {
+    CrystalPanel(modifier) {
         Text(
             selected?.name ?: stringResource(R.string.no_profiles),
             fontWeight = FontWeight.Bold, fontSize = 20.sp,
@@ -99,7 +101,7 @@ fun VpnHomePanel(
         }
     }
     vpn.issue?.let { issue ->
-        CrystalPanel {
+        CrystalPanel(modifier) {
             Text(vpnIssueText(issue), modifier = Modifier.testTag("vpn-issue"))
             TextButton(
                 onClick = if (issue == VpnIssue.STOP_FAILED) onDisconnect else onDismissIssue,
@@ -125,10 +127,10 @@ fun VpnSessionScreen(
         }
     }
     if (session == null) {
-        CrystalPanel { Text(stringResource(R.string.no_active_session)) }
+        CrystalPanel(Modifier.kxEntrance(index = 3)) { Text(stringResource(R.string.no_active_session)) }
         return
     }
-    CrystalPanel {
+    CrystalPanel(Modifier.kxEntrance(index = 3)) {
         Text(session.profileName, fontWeight = FontWeight.Bold, fontSize = 20.sp,
             modifier = Modifier.testTag("session-profile"))
         Text(session.endpoint, fontSize = 14.sp)

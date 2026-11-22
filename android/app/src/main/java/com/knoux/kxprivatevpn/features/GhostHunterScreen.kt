@@ -46,7 +46,9 @@ import com.knoux.kxprivatevpn.designsystem.Atmosphere
 import com.knoux.kxprivatevpn.designsystem.GlassAction
 import com.knoux.kxprivatevpn.designsystem.GlassSurface
 import com.knoux.kxprivatevpn.designsystem.KxPageHeader
+import com.knoux.kxprivatevpn.designsystem.LocalKxAmbient
 import com.knoux.kxprivatevpn.designsystem.RepairGlyph
+import com.knoux.kxprivatevpn.designsystem.kxEntrance
 import com.knoux.kxprivatevpn.platform.repair.GhostCandidate
 import com.knoux.kxprivatevpn.platform.repair.GhostConfidence
 import com.knoux.kxprivatevpn.platform.repair.GhostKind
@@ -122,16 +124,18 @@ fun GhostHunterScreen(
                 night = night,
                 backLabel = stringResource(R.string.back),
                 onBack = onBack,
+                modifier = Modifier.kxEntrance(index = 0),
             )
             Text(stringResource(R.string.ghost_subtitle), fontSize = 14.sp, lineHeight = 20.sp,
                 color = foreground.copy(alpha = .82f), textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth())
-            GhostHero(night, state.scanning, foreground)
-            TreeCard(night, state, foreground, onChooseFolder, onScan, onCancelScan)
+                modifier = Modifier.fillMaxWidth().kxEntrance(index = 1))
+            GhostHero(night, state.scanning, foreground, Modifier.kxEntrance(index = 2))
+            TreeCard(night, state, foreground, onChooseFolder, onScan, onCancelScan,
+                Modifier.kxEntrance(index = 3))
             if (scan != null) {
-                ScanSummary(night, scan, state, foreground)
+                ScanSummary(night, scan, state, foreground, Modifier.kxEntrance(index = 4))
                 if (scan.candidates.isEmpty()) {
-                    GlassSurface(night) {
+                    GlassSurface(night, Modifier.kxEntrance(index = 5)) {
                         Text(stringResource(if (scan.cancelled) R.string.ghost_cancelled
                         else R.string.ghost_empty), fontSize = 14.sp,
                             color = foreground.copy(alpha = .84f),
@@ -139,14 +143,15 @@ fun GhostHunterScreen(
                     }
                 } else {
                     CandidateCard(night, scan, state, foreground, onToggle, onSelectAll,
-                        onClearSelection)
+                        onClearSelection, Modifier.kxEntrance(index = 5))
                     CleanupActions(night, state, selectedCount, foreground, onRequestCleanup,
-                        onChooseFolder, onCancelCleanup)
+                        onChooseFolder, onCancelCleanup, Modifier.kxEntrance(index = 6))
                 }
             }
-            ReceiptCard(night, state, foreground)
+            ReceiptCard(night, state, foreground, Modifier.kxEntrance(index = 7))
             Text(stringResource(R.string.ghost_privacy), fontSize = 11.sp, lineHeight = 16.sp,
-                color = foreground.copy(alpha = .72f), modifier = Modifier.testTag("ghost-privacy"))
+                color = foreground.copy(alpha = .72f),
+                modifier = Modifier.testTag("ghost-privacy").kxEntrance(index = 8))
             Spacer(Modifier.height(24.dp))
         }
     }
@@ -180,7 +185,13 @@ fun GhostHunterScreen(
 }
 
 @Composable
-private fun GhostHero(night: Boolean, scanning: Boolean, foreground: Color) {
+private fun GhostHero(
+    night: Boolean,
+    scanning: Boolean,
+    foreground: Color,
+    modifier: Modifier = Modifier,
+) {
+    val ambient = LocalKxAmbient.current
     val sweep = remember { Animatable(0f) }
     LaunchedEffect(scanning) {
         if (scanning) {
@@ -188,11 +199,15 @@ private fun GhostHero(night: Boolean, scanning: Boolean, foreground: Color) {
             sweep.animateTo(360f, tween(1800, easing = LinearEasing))
         } else sweep.snapTo(0f)
     }
-    Box(Modifier.fillMaxWidth().height(238.dp), contentAlignment = Alignment.Center) {
+    Box(modifier.fillMaxWidth().height(238.dp), contentAlignment = Alignment.Center) {
         Canvas(Modifier.size(216.dp)) {
             val c = Offset(size.width / 2f, size.height / 2f)
             val radius = min(size.width, size.height) / 2f - 4.dp.toPx()
-            drawCircle(Brush.radialGradient(listOf(Color(0xFFAD71FF).copy(alpha = .30f),
+            // Idle life: the hunter's radar keeps a slow ambient sweep and twinkling
+            // satellites even before a scan starts. Draw-phase reads only.
+            val angle = if (!scanning && ambient.enabled) ambient.orbit.value else sweep.value
+            val breathe = if (ambient.enabled) .8f + .2f * ambient.breathe.value else 1f
+            drawCircle(Brush.radialGradient(listOf(Color(0xFFAD71FF).copy(alpha = .30f * breathe),
                 Color(0xFF64EEFF).copy(alpha = .10f), Color.Transparent), c, radius), radius, c)
             repeat(3) { i ->
                 drawCircle(Color(0xFFAD71FF).copy(alpha = .20f - i * .04f),
@@ -200,15 +215,17 @@ private fun GhostHero(night: Boolean, scanning: Boolean, foreground: Color) {
             }
             drawArc(Brush.sweepGradient(listOf(Color.Transparent, Color(0xFF64EEFF),
                 Color(0xFFAD71FF), Color.Transparent), c),
-                startAngle = sweep.value, sweepAngle = 96f, useCenter = false,
+                startAngle = angle, sweepAngle = 96f, useCenter = false,
                 topLeft = Offset(c.x - radius, c.y - radius), size = Size(radius * 2, radius * 2),
                 style = Stroke(2.4.dp.toPx(), cap = StrokeCap.Round))
             repeat(6) { i ->
-                val angle = Math.toRadians(-90.0 + i * 60.0)
-                val point = Offset(c.x + kotlin.math.cos(angle).toFloat() * radius * .82f,
-                    c.y + kotlin.math.sin(angle).toFloat() * radius * .82f)
+                val angleRad = Math.toRadians(-90.0 + i * 60.0 + angle * .12)
+                val point = Offset(c.x + kotlin.math.cos(angleRad).toFloat() * radius * .82f,
+                    c.y + kotlin.math.sin(angleRad).toFloat() * radius * .82f)
+                val twinkle = if (ambient.enabled && !scanning)
+                    .35f + .35f * ((ambient.twinkle.value + i * .17f) % 1f) else if (scanning) .9f else .45f
                 drawCircle(if (i % 2 == 0) Color(0xFFAD71FF) else Color(0xFF64EEFF),
-                    3.dp.toPx(), point, alpha = if (scanning) .9f else .45f)
+                    3.dp.toPx(), point, alpha = twinkle)
             }
         }
         RepairGlyph(RepairServiceId.GHOST, Modifier.size(132.dp))
@@ -223,8 +240,9 @@ private fun TreeCard(
     onChooseFolder: () -> Unit,
     onScan: () -> Unit,
     onCancelScan: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    GlassSurface(night) {
+    GlassSurface(night, modifier) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text(stringResource(R.string.ghost_folder_title), fontWeight = FontWeight.Bold,
                 fontSize = 18.sp, color = foreground, modifier = Modifier.weight(1f))
@@ -293,9 +311,15 @@ private fun TreeCard(
 }
 
 @Composable
-private fun ScanSummary(night: Boolean, scan: GhostScan, state: GhostUiState, foreground: Color) {
+private fun ScanSummary(
+    night: Boolean,
+    scan: GhostScan,
+    state: GhostUiState,
+    foreground: Color,
+    modifier: Modifier = Modifier,
+) {
     val context = LocalContext.current
-    GlassSurface(night) {
+    GlassSurface(night, modifier) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text(stringResource(R.string.ghost_results_title), fontWeight = FontWeight.Bold,
                 fontSize = 18.sp, color = foreground, modifier = Modifier.weight(1f))
@@ -355,9 +379,10 @@ private fun CandidateCard(
     onToggle: (GhostCandidate) -> Unit,
     onSelectAll: () -> Unit,
     onClearSelection: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    GlassSurface(night) {
+    GlassSurface(night, modifier) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text(stringResource(R.string.ghost_review_title), fontWeight = FontWeight.Bold,
                 fontSize = 18.sp, color = foreground, modifier = Modifier.weight(1f))
@@ -451,8 +476,9 @@ private fun CleanupActions(
     onRequestCleanup: () -> Unit,
     onChooseFolder: () -> Unit,
     onCancelCleanup: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    GlassSurface(night) {
+    GlassSurface(night, modifier) {
         Text(stringResource(R.string.ghost_cleanup_title), fontWeight = FontWeight.Bold,
             fontSize = 18.sp, color = foreground)
         Text(stringResource(R.string.ghost_cleanup_body), fontSize = 12.sp, lineHeight = 17.sp,
@@ -487,9 +513,14 @@ private fun CleanupActions(
 }
 
 @Composable
-private fun ReceiptCard(night: Boolean, state: GhostUiState, foreground: Color) {
+private fun ReceiptCard(
+    night: Boolean,
+    state: GhostUiState,
+    foreground: Color,
+    modifier: Modifier = Modifier,
+) {
     val receipt = state.receipt ?: return
-    GlassSurface(night) {
+    GlassSurface(night, modifier) {
         Text(stringResource(R.string.ghost_receipt_title), fontWeight = FontWeight.Bold,
             fontSize = 18.sp, color = foreground)
         Text(

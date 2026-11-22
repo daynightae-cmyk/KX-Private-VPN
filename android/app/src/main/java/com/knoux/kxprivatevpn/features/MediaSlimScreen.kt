@@ -44,6 +44,7 @@ import com.knoux.kxprivatevpn.designsystem.KxReferenceTheme
 import com.knoux.kxprivatevpn.designsystem.KxReferenceAtmosphere
 import com.knoux.kxprivatevpn.designsystem.KxReferenceHeader
 import com.knoux.kxprivatevpn.designsystem.KxTitleBlock
+import com.knoux.kxprivatevpn.designsystem.kxEntrance
 import com.knoux.kxprivatevpn.designsystem.KxIconKind
 import com.knoux.kxprivatevpn.designsystem.GlassAction
 import com.knoux.kxprivatevpn.designsystem.GlassSurface
@@ -128,24 +129,30 @@ fun MediaSlimScreen(
                 tag = "media-ref-back",
                 icon = KxIconKind.BACK,
                 onClick = onBack,
+                modifier = Modifier.kxEntrance(index = 0),
             )
             KxTitleBlock(
                 title = stringResource(R.string.media_ref_title),
                 subtitle = stringResource(R.string.media_subtitle),
                 night = night,
+                modifier = Modifier.kxEntrance(index = 1),
             )
-            MediaReferenceHero(night, processing = state.scanning || state.compressing)
-            MediaReferenceMetrics(night, state)
-            MediaReferenceFolder(night, state, onChooseFolder)
-            MediaReferenceAction(night, state, onChooseFolder, onScan, onRequestCompression)
+            MediaReferenceHero(night, processing = state.scanning || state.compressing,
+                modifier = Modifier.kxEntrance(index = 2))
+            MediaReferenceMetrics(night, state, Modifier.kxEntrance(index = 3))
+            MediaReferenceFolder(night, state, onChooseFolder, Modifier.kxEntrance(index = 4))
+            MediaReferenceAction(night, state, onChooseFolder, onScan, onRequestCompression,
+                Modifier.kxEntrance(index = 5))
             Text(
                 stringResource(R.string.media_originals_note),
                 fontSize = 12.sp, lineHeight = 18.sp,
                 textAlign = TextAlign.Center,
                 color = foreground.copy(alpha = .82f),
-                modifier = Modifier.fillMaxWidth().testTag("media-originals-note"),
+                modifier = Modifier.fillMaxWidth().testTag("media-originals-note")
+                    .kxEntrance(index = 6),
             )
-            FolderCard(night, state, foreground, onChooseFolder, onScan, onCancelScan)
+            FolderCard(night, state, foreground, onChooseFolder, onScan, onCancelScan,
+                Modifier.kxEntrance(index = 7))
             if (scan != null) {
                 MediaReferenceResults(
                     night = night,
@@ -214,8 +221,9 @@ private fun FolderCard(
     onChooseFolder: () -> Unit,
     onScan: () -> Unit,
     onCancelScan: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    GlassSurface(night) {
+    GlassSurface(night, modifier) {
         Text(
             stringResource(R.string.media_scope),
             fontSize = 13.sp, lineHeight = 19.sp,

@@ -24,6 +24,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
@@ -32,14 +33,21 @@ import com.knoux.kxprivatevpn.R
 import com.knoux.kxprivatevpn.designsystem.Atmosphere
 import com.knoux.kxprivatevpn.designsystem.GlassAction
 import com.knoux.kxprivatevpn.designsystem.KxOrb
+import com.knoux.kxprivatevpn.designsystem.LocalKxAmbient
+import com.knoux.kxprivatevpn.designsystem.kxEntrance
+import com.knoux.kxprivatevpn.designsystem.kxSheen
 import com.knoux.kxprivatevpn.launch.IntroTimeline
 
 @Composable
-internal fun CrystalPanel(content: @Composable ColumnScope.() -> Unit) {
+internal fun CrystalPanel(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
     val shape = RoundedCornerShape(24.dp)
-    Column(Modifier.fillMaxWidth()
+    val ambient = LocalKxAmbient.current
+    Column(modifier.fillMaxWidth()
         .background(Brush.linearGradient(listOf(Color.White.copy(alpha = .23f),
             Color(0xFF7679E8).copy(alpha = .19f), Color(0xFFABF7FF).copy(alpha = .20f))), shape)
+        .drawBehind {
+            if (ambient.enabled) kxSheen(ambient.shimmer.value, night = true, strength = .6f)
+        }
         .border(1.dp, Brush.linearGradient(listOf(Color.White.copy(alpha = .8f),
             Color(0xFF9CDFFF).copy(alpha = .5f), Color(0xFFD9B3FF).copy(alpha = .8f))), shape)
         .padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp), content = content)
@@ -209,7 +217,8 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                 Column(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 20.dp)
                     .verticalScroll(rememberScrollState()).testTag("route-$route"),
                     verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Row(Modifier.fillMaxWidth().kxEntrance(index = 0),
+                        verticalAlignment = Alignment.CenterVertically) {
                         TextButton(onClick = back, enabled = !state.busy && !repairBusy,
                             modifier = Modifier.heightIn(min = 48.dp).testTag("back")) { Text(stringResource(R.string.back)) }
                         Spacer(Modifier.weight(1f))
@@ -224,9 +233,10 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                         "cache" -> R.string.cache_surgeon
                         "session" -> R.string.session_title
                         else -> R.string.home
-                    }), fontSize = 28.sp, fontWeight = FontWeight.Bold)
+                    }), fontSize = 28.sp, fontWeight = FontWeight.Bold,
+                        modifier = Modifier.kxEntrance(index = 1))
                     if (state.busy) LinearProgressIndicator(Modifier.fillMaxWidth())
-                    if (state.issue != null) CrystalPanel {
+                    if (state.issue != null) CrystalPanel(Modifier.kxEntrance(index = 2)) {
                         Text(stringResource(when (state.issue) {
                             ClientIssue.INVALID_CONFIG -> R.string.invalid_config
                             ClientIssue.INPUT -> R.string.input_error
@@ -237,7 +247,7 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                             enabled = !state.busy) { Text(stringResource(R.string.retry)) }
                     }
                     when (route) {
-                        "education" -> CrystalPanel {
+                        "education" -> CrystalPanel(Modifier.kxEntrance(index = 3)) {
                             Text(stringResource(R.string.setup_body), fontSize = 18.sp)
                             Button(onClick = model::onboard, enabled = state.loaded && !state.busy,
                                 modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp).testTag("onboard")) {
@@ -248,30 +258,36 @@ fun NativeClient(route: String, state: ClientState, model: ClientViewModel, nigh
                         "servers" -> ProfileList(state, model)
                         "session" -> VpnSessionScreen(vpn, verifyPath = model::verifyVpnPath) { model.disconnectVpn() }
                         else -> {
-                            KxOrb(1f, IntroTimeline.frame(1f), Modifier.size(210.dp).align(Alignment.CenterHorizontally))
+                            KxOrb(1f, IntroTimeline.frame(1f), Modifier.size(210.dp)
+                                .align(Alignment.CenterHorizontally).kxEntrance(index = 3))
                             Text(stringResource(when (vpn.phase) {
                                 com.knoux.kxprivatevpn.platform.vpn.VpnPhase.CONNECTED -> R.string.connected
                                 com.knoux.kxprivatevpn.platform.vpn.VpnPhase.CONNECTING -> R.string.connecting
                                 com.knoux.kxprivatevpn.platform.vpn.VpnPhase.DISCONNECTING -> R.string.disconnecting
                                 else -> R.string.disconnected
                             }), fontSize = 26.sp,
-                                fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.CenterHorizontally))
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.align(Alignment.CenterHorizontally).kxEntrance(index = 4))
                             VpnHomePanel(state.snapshot, state.busy, vpn,
                                 onConnect = { connectWithPermission() },
                                 onDisconnect = { model.disconnectVpn() },
                                 onSession = { navigate("session") },
-                                onDismissIssue = { model.dismissVpnIssue() })
-                            GlassAction(stringResource(R.string.import_config), Modifier.testTag("open-import")) { navigate("import") }
-                            GlassAction(stringResource(R.string.repair_lab), Modifier.testTag("open-repair")) { navigate("repair") }
+                                onDismissIssue = { model.dismissVpnIssue() },
+                                modifier = Modifier.kxEntrance(index = 5))
+                            GlassAction(stringResource(R.string.import_config),
+                                Modifier.testTag("open-import").kxEntrance(index = 6)) { navigate("import") }
+                            GlassAction(stringResource(R.string.repair_lab),
+                                Modifier.testTag("open-repair").kxEntrance(index = 7)) { navigate("repair") }
                             listOf("security" to R.string.security_center,
                                 "split" to R.string.split_title,
                                 "advanced" to R.string.adv_title,
                                 "stats" to R.string.stats_title,
                                 "servers" to R.string.servers, "storage" to R.string.storage,
                                 "cache" to R.string.cache_surgeon,
-                                "settings" to R.string.settings).forEach { (target, label) ->
+                                "settings" to R.string.settings).forEachIndexed { index, (target, label) ->
                                 OutlinedButton(onClick = { navigate(target) }, modifier = Modifier.fillMaxWidth()
-                                    .heightIn(min = 52.dp).testTag("open-$target")) { Text(stringResource(label)) }
+                                    .heightIn(min = 52.dp).testTag("open-$target")
+                                    .kxEntrance(index = 8 + index)) { Text(stringResource(label)) }
                             }
                         }
                     }
@@ -302,7 +318,7 @@ private fun ImportScreen(state: ClientState, model: ClientViewModel) {
     val qr = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) model.importFile(name, uri, true)
     }
-    CrystalPanel {
+    CrystalPanel(Modifier.kxEntrance(index = 3)) {
         OutlinedTextField(name, { if (it.length <= 48) name = it }, label = { Text(stringResource(R.string.profile_name)) },
             supportingText = { Text(stringResource(R.string.profile_name_hint)) }, singleLine = true,
             modifier = Modifier.fillMaxWidth().testTag("profile-name"), enabled = !state.busy)
@@ -341,11 +357,11 @@ private fun ProfileList(state: ClientState, model: ClientViewModel) {
     val body = stringResource(R.string.remove_body)
     val remove = stringResource(R.string.remove_profile)
     val cancel = stringResource(R.string.cancel)
-    if (state.snapshot.profiles.isEmpty()) CrystalPanel {
+    if (state.snapshot.profiles.isEmpty()) CrystalPanel(Modifier.kxEntrance(index = 3)) {
         Text(stringResource(R.string.no_profiles), fontWeight = FontWeight.Bold)
         Text(stringResource(R.string.no_profiles_body))
     }
-    state.snapshot.profiles.forEach { profile -> CrystalPanel {
+    state.snapshot.profiles.forEachIndexed { index, profile -> CrystalPanel(Modifier.kxEntrance(index = 3 + index)) {
         Text(profile.name, fontWeight = FontWeight.Bold, fontSize = 20.sp)
         Text(profile.endpoint, fontSize = 14.sp)
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {

@@ -46,6 +46,7 @@ import com.knoux.kxprivatevpn.designsystem.KxOrb
 import com.knoux.kxprivatevpn.designsystem.KxPageHeader
 import com.knoux.kxprivatevpn.designsystem.KxSectionHeader
 import com.knoux.kxprivatevpn.designsystem.glassForeground
+import com.knoux.kxprivatevpn.designsystem.kxEntrance
 import com.knoux.kxprivatevpn.launch.IntroTimeline
 import com.knoux.kxprivatevpn.launch.rememberReducedMotion
 import com.knoux.kxprivatevpn.platform.guardian.GuardianCode
@@ -150,12 +151,14 @@ fun GuardianScreen(
                     night = night,
                     backLabel = stringResource(R.string.back),
                     onBack = onBack,
+                    modifier = Modifier.kxEntrance(index = 0),
                 )
                 Text(
                     stringResource(R.string.guardian_subtitle), color = muted,
                     fontSize = 14.sp, lineHeight = 21.sp,
+                    modifier = Modifier.kxEntrance(index = 1),
                 )
-                GlassSurface(night, radius = 28.dp) {
+                GlassSurface(night, Modifier.kxEntrance(index = 2), radius = 28.dp) {
                     Column(
                         Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -286,7 +289,8 @@ fun GuardianScreen(
                         }
                     }
                 }
-                KxSectionHeader(stringResource(R.string.guardian_evidence), night)
+                KxSectionHeader(stringResource(R.string.guardian_evidence), night,
+                    Modifier.kxEntrance(index = 3))
                 val vpnStatus = when (vpn.phase) {
                     VpnPhase.CONNECTED -> if (vpn.session != null) R.string.guardian_vpn_tunnel
                         else R.string.guardian_unknown
@@ -301,6 +305,7 @@ fun GuardianScreen(
                     night, stringResource(R.string.guardian_vpn), stringResource(vpnStatus),
                     stringResource(R.string.guardian_handshake, handshake),
                     "guardian-evidence-vpn", { onNavigate("security") },
+                    modifier = Modifier.kxEntrance(index = 4),
                 )
                 val network = state.network
                 val networkFresh = GuardianPolicy.fresh(
@@ -330,6 +335,7 @@ fun GuardianScreen(
                     night, stringResource(R.string.guardian_network),
                     stringResource(networkStatus), networkDetail,
                     "guardian-evidence-network", { onNavigate("network") },
+                    modifier = Modifier.kxEntrance(index = 5),
                 )
                 val storageFresh = GuardianPolicy.fresh(
                     now, state.storageReadAtMillis, GuardianPolicy.STORAGE_MAX_AGE_MILLIS
@@ -351,6 +357,7 @@ fun GuardianScreen(
                 GuardianEvidenceCard(
                     night, stringResource(R.string.guardian_storage), storageStatus, storageDetail,
                     "guardian-evidence-storage", { onNavigate("storage") },
+                    modifier = Modifier.kxEntrance(index = 6),
                 )
                 GuardianEvidenceCard(
                     night, stringResource(R.string.guardian_apps),
@@ -362,6 +369,7 @@ fun GuardianScreen(
                     } ?: stringResource(R.string.guardian_unknown),
                     stringResource(R.string.guardian_apps_scope),
                     "guardian-evidence-apps", { onNavigate("apps") },
+                    modifier = Modifier.kxEntrance(index = 7),
                 )
                 if (state.scanned) {
                     state.measuredAtMillis?.let {
@@ -373,17 +381,20 @@ fun GuardianScreen(
                             color = muted, fontSize = 12.sp,
                         )
                     }
-                    KxSectionHeader(stringResource(R.string.guardian_recommendations), night)
-                    findings.forEach { recommendation ->
+                    KxSectionHeader(stringResource(R.string.guardian_recommendations), night,
+                        Modifier.kxEntrance(index = 8))
+                    findings.forEachIndexed { index, recommendation ->
                         GuardianRecommendationCard(
                             recommendation, night,
                             onNavigate = onNavigate,
+                            modifier = Modifier.kxEntrance(index = 9 + index),
                         )
                     }
                 }
                 Text(
                     stringResource(R.string.guardian_disclaimer), color = muted,
                     fontSize = 12.sp, lineHeight = 18.sp,
+                    modifier = Modifier.kxEntrance(index = 12),
                 )
                 Spacer(Modifier.height(18.dp))
             }
@@ -395,10 +406,11 @@ fun GuardianScreen(
 private fun GuardianEvidenceCard(
     night: Boolean, title: String, value: String, detail: String,
     tag: String, onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val color = glassForeground(night)
     GlassSurface(
-        night, modifier = Modifier.clickable(
+        night, modifier = modifier.clickable(
             role = Role.Button, onClickLabel = title, onClick = onClick
         ).testTag(tag), radius = 20.dp,
     ) {
@@ -413,6 +425,7 @@ private fun GuardianEvidenceCard(
 @Composable
 private fun GuardianRecommendationCard(
     finding: GuardianRecommendation, night: Boolean, onNavigate: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val (titleRes, detailRes) = guardianCopy(finding.code)
     val color = glassForeground(night)
@@ -421,7 +434,7 @@ private fun GuardianRecommendationCard(
         GuardianPriority.REVIEW -> if (night) Color(0xFFFFD18A) else Color(0xFF70411C)
         GuardianPriority.INFO -> if (night) Color(0xFF8DEBFF) else Color(0xFF3921A1)
     }
-    GlassSurface(night, modifier = Modifier.testTag("guardian-finding-${finding.code.name.lowercase()}"),
+    GlassSurface(night, modifier = modifier.testTag("guardian-finding-${finding.code.name.lowercase()}"),
         radius = 20.dp) {
         Text(stringResource(titleRes), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = accent)
         Spacer(Modifier.height(5.dp))

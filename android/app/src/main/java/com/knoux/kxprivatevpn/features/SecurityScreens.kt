@@ -47,6 +47,8 @@ import com.knoux.kxprivatevpn.designsystem.Atmosphere
 import com.knoux.kxprivatevpn.designsystem.GlassSurface
 import com.knoux.kxprivatevpn.designsystem.GlassSwitch
 import com.knoux.kxprivatevpn.designsystem.KxPageHeader
+import com.knoux.kxprivatevpn.designsystem.LocalKxAmbient
+import com.knoux.kxprivatevpn.designsystem.kxEntrance
 import com.knoux.kxprivatevpn.platform.security.CheckStatus
 import com.knoux.kxprivatevpn.platform.security.DeviceSecurityState
 import com.knoux.kxprivatevpn.platform.security.MissingCheck
@@ -173,8 +175,9 @@ fun SecurityCenterScreen(
                 night = night,
                 backLabel = stringResource(R.string.back),
                 onBack = onBack,
+                modifier = Modifier.kxEntrance(index = 0),
             )
-            SecurityHero(night, muted, state)
+            SecurityHero(night, muted, state, Modifier.kxEntrance(index = 1))
             SecurityRow(
                 night = night, glyph = SecurityGlyph.POWER,
                 title = stringResource(R.string.security_kill_switch),
@@ -186,6 +189,7 @@ fun SecurityCenterScreen(
                 switchAction = onOpenVpnSettings,
                 rowAction = onOpenVpnSettings,
                 testTag = "security-row-kill-switch",
+                modifier = Modifier.kxEntrance(index = 2),
             )
             SecurityRow(
                 night = night, glyph = SecurityGlyph.SERVER,
@@ -198,6 +202,7 @@ fun SecurityCenterScreen(
                 switchAction = null,
                 rowAction = if (state.facts.tunnelConnected) onOpenSession else null,
                 testTag = "security-row-dns",
+                modifier = Modifier.kxEntrance(index = 3),
             )
             SecurityRow(
                 night = night, glyph = SecurityGlyph.IPV6,
@@ -210,6 +215,7 @@ fun SecurityCenterScreen(
                 switchAction = null,
                 rowAction = if (state.facts.tunnelConnected) onOpenSession else null,
                 testTag = "security-row-ipv6",
+                modifier = Modifier.kxEntrance(index = 4),
             )
             SecurityRow(
                 night = night, glyph = SecurityGlyph.RECONNECT,
@@ -219,6 +225,7 @@ fun SecurityCenterScreen(
                 statusText = checkText(CheckStatus.UNAVAILABLE),
                 switchChecked = false, switchEnabled = false, switchAction = null,
                 rowAction = null, testTag = "security-row-auto-reconnect",
+                modifier = Modifier.kxEntrance(index = 5),
             )
             SecurityRow(
                 night = night, glyph = SecurityGlyph.TRACKER,
@@ -228,6 +235,7 @@ fun SecurityCenterScreen(
                 statusText = checkText(CheckStatus.UNAVAILABLE),
                 switchChecked = false, switchEnabled = false, switchAction = null,
                 rowAction = null, testTag = "security-row-tracker",
+                modifier = Modifier.kxEntrance(index = 6),
             )
             SecurityRow(
                 night = night, glyph = SecurityGlyph.INFINITY,
@@ -240,6 +248,7 @@ fun SecurityCenterScreen(
                 switchAction = onOpenVpnSettings,
                 rowAction = onOpenVpnSettings,
                 testTag = "security-row-always-on",
+                modifier = Modifier.kxEntrance(index = 7),
             )
             SecurityDiagnostics(night, muted, state, onOpenVpnSettings, onOpenSecuritySettings,
                 onOpenSession, onRefresh)
@@ -253,7 +262,7 @@ fun SecurityCenterScreen(
 }
 
 @Composable
-private fun SecurityHero(night: Boolean, muted: Color, state: SecurityUiState) {
+private fun SecurityHero(night: Boolean, muted: Color, state: SecurityUiState, modifier: Modifier = Modifier) {
     val hero = when {
         state.loading -> HeroTone.WORKING
         state.phase == VpnPhase.CONNECTING || state.phase == VpnPhase.DISCONNECTING -> HeroTone.WORKING
@@ -279,7 +288,7 @@ private fun SecurityHero(night: Boolean, muted: Color, state: SecurityUiState) {
         else -> R.string.security_hero_inactive_body
     }
     GlassSurface(
-        night, Modifier.testTag("security-hero"), radius = 32.dp,
+        night, modifier.testTag("security-hero"), radius = 32.dp,
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
     ) {
         Box(Modifier.fillMaxWidth().height(136.dp), contentAlignment = Alignment.Center) {
@@ -376,11 +385,15 @@ private fun HeroBadge(hero: HeroTone) {
 
 @Composable
 private fun HeroEmblem(night: Boolean) {
+    val ambient = LocalKxAmbient.current
     Canvas(Modifier.size(142.dp).semantics { contentDescription = "" }) {
         val c = center
         val r = size.minDimension / 2f
+        // Ambient orbit keeps the emblem's ring and satellites alive without recomposing.
+        val orbit = if (ambient.enabled) ambient.orbit.value else 0f
+        val breathe = if (ambient.enabled) .82f + .18f * ambient.breathe.value else 1f
         // Atmospheric halo and the pearl-glass sphere behind the shield.
-        drawCircle(Brush.radialGradient(listOf(Color(0xFFB99CFF).copy(alpha = .34f), Color.Transparent),
+        drawCircle(Brush.radialGradient(listOf(Color(0xFFB99CFF).copy(alpha = .34f * breathe), Color.Transparent),
             c, r * 1.35f), r, c)
         drawCircle(
             Brush.radialGradient(
@@ -398,7 +411,7 @@ private fun HeroEmblem(night: Boolean) {
             Color(0xFFE4C6FF), Color.Transparent), c), r * .76f, c,
             style = Stroke(1.2.dp.toPx()), alpha = .55f)
         // Orbit ring crosses behind the shield and returns in front of it.
-        rotate(-14f, c) {
+        rotate(-14f + orbit * .05f, c) {
             drawOval(Color.White.copy(alpha = if (night) .45f else .8f),
                 topLeft = Offset(c.x - r * .95f, c.y - r * .28f),
                 size = Size(r * 1.9f, r * .56f), style = Stroke(1.dp.toPx()))
@@ -475,13 +488,14 @@ private fun SecurityRow(
     switchAction: (() -> Unit)?,
     rowAction: (() -> Unit)?,
     testTag: String,
+    modifier: Modifier = Modifier,
 ) {
     val muted = if (night) Color(0xFFC8C5E9) else Color(0xFF4B477F)
     val titleColor = if (night) Color(0xFFF6F1FF) else Color(0xFF171050)
     val unavailable = status == CheckStatus.UNAVAILABLE
     GlassSurface(
         night,
-        modifier = Modifier.testTag(testTag).then(
+        modifier = modifier.testTag(testTag).then(
             if (rowAction != null) Modifier.clickable(role = Role.Button,
                 onClickLabel = title, onClick = rowAction) else Modifier,
         ),

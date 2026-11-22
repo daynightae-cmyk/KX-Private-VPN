@@ -50,6 +50,7 @@ import com.knoux.kxprivatevpn.designsystem.KxReferenceTheme
 import com.knoux.kxprivatevpn.designsystem.KxTitleBlock
 import com.knoux.kxprivatevpn.designsystem.glassForeground
 import com.knoux.kxprivatevpn.designsystem.kxCyan
+import com.knoux.kxprivatevpn.designsystem.kxEntrance
 import com.knoux.kxprivatevpn.designsystem.kxInk
 import com.knoux.kxprivatevpn.designsystem.kxMuted
 import com.knoux.kxprivatevpn.designsystem.kxPressScale
@@ -161,8 +162,9 @@ fun ToolsCatalogScreen(
                         tag = "tools-back",
                         icon = KxIconKind.BACK,
                         onClick = onBack,
+                        modifier = Modifier.kxEntrance(index = 0),
                     )
-                    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    Box(Modifier.fillMaxWidth().kxEntrance(index = 1), contentAlignment = Alignment.Center) {
                         KxOrbitalHalo(
                             night = night,
                             modifier = Modifier.size(92.dp),
@@ -178,34 +180,38 @@ fun ToolsCatalogScreen(
                         title = stringResource(R.string.tools_title),
                         subtitle = stringResource(R.string.tools_subtitle),
                         night = night,
+                        modifier = Modifier.kxEntrance(index = 2),
                     )
                     ToolSearchField(
                         value = query,
                         night = night,
                         onValueChange = { query = it },
+                        modifier = Modifier.kxEntrance(index = 3),
                     )
                     FilterChips(
                         selected = filter,
                         night = night,
                         total = ToolsCatalog.entries.size,
                         onSelected = { filterKey = it.key },
+                        modifier = Modifier.kxEntrance(index = 4),
                     )
                     val grid = filtered.filterNot { it.fullWidth }
                     // At accessibility font scales a two-column card cannot hold an Arabic
                     // title without breaking it mid-word, so the same cards stack in order.
                     if (LocalDensity.current.fontScale >= 1.3f) {
-                        grid.forEach { entry ->
+                        grid.forEachIndexed { index, entry ->
                             ToolCard(
                                 entry = entry,
                                 night = night,
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier.fillMaxWidth().kxEntrance(index = 5 + index),
                                 onClick = { onNavigate(entry.route) },
                             )
                         }
                     } else {
-                        grid.chunked(2).forEach { row ->
+                        grid.chunked(2).forEachIndexed { rowIndex, row ->
                             Row(
-                                Modifier.fillMaxWidth().height(IntrinsicSize.Min),
+                                Modifier.fillMaxWidth().height(IntrinsicSize.Min)
+                                    .kxEntrance(index = 5 + rowIndex),
                                 horizontalArrangement = Arrangement.spacedBy(10.dp),
                             ) {
                                 row.forEach { entry ->
@@ -220,8 +226,10 @@ fun ToolsCatalogScreen(
                             }
                         }
                     }
-                    filtered.filter { it.fullWidth }.forEach { entry ->
-                        StorageHealthCard(entry, night) { onNavigate(entry.route) }
+                    filtered.filter { it.fullWidth }.forEachIndexed { index, entry ->
+                        StorageHealthCard(entry, night, Modifier.kxEntrance(index = 9 + index)) {
+                            onNavigate(entry.route)
+                        }
                     }
                     if (filtered.isEmpty()) {
                         KxGlassPanel(night, radius = 18.dp) {
@@ -255,13 +263,14 @@ private fun ToolSearchField(
     value: String,
     night: Boolean,
     onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val shape = RoundedCornerShape(50)
     val label = stringResource(R.string.tools_search_label)
     val hint = stringResource(R.string.tools_search_hint)
     val foreground = kxInk(night)
     Row(
-        Modifier.fillMaxWidth().heightIn(min = 48.dp).clip(shape)
+        modifier.fillMaxWidth().heightIn(min = 48.dp).clip(shape)
             .background(if (night) Color(0xFF141A3C).copy(alpha = .72f) else Color.White.copy(alpha = .50f))
             .border(1.dp, Color.White.copy(alpha = if (night) .24f else .82f), shape)
             .semantics { contentDescription = label }
@@ -332,9 +341,10 @@ private fun FilterChips(
     night: Boolean,
     total: Int,
     onSelected: (ToolFilter) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Row(
-        Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+        modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
         horizontalArrangement = Arrangement.spacedBy(7.dp),
     ) {
         ToolFilter.entries.forEach { filter ->
@@ -501,6 +511,7 @@ private fun ToolCard(
 private fun StorageHealthCard(
     entry: ToolEntry,
     night: Boolean,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
     val accent = if (night) entry.accentNight else entry.accentDay
@@ -510,7 +521,7 @@ private fun StorageHealthCard(
     val interaction = remember { MutableInteractionSource() }
     val tapHaptic = rememberKxTapHaptic()
     Row(
-        Modifier.fillMaxWidth().kxPressScale(interaction).clip(shape)
+        modifier.fillMaxWidth().kxPressScale(interaction).clip(shape)
             .background(
                 Brush.linearGradient(
                     if (night) listOf(

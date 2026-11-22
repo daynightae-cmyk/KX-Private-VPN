@@ -48,12 +48,17 @@ import com.knoux.kxprivatevpn.designsystem.Atmosphere
 import com.knoux.kxprivatevpn.designsystem.GlassSurface
 import com.knoux.kxprivatevpn.designsystem.GlassSwitch
 import com.knoux.kxprivatevpn.designsystem.KxPageHeader
+import com.knoux.kxprivatevpn.designsystem.LocalKxAmbient
+import com.knoux.kxprivatevpn.designsystem.cubicPoint
+import com.knoux.kxprivatevpn.designsystem.kxEntrance
 import com.knoux.kxprivatevpn.platform.apps.InstalledApp
 import com.knoux.kxprivatevpn.platform.vpn.SplitTunnelMode
 import com.knoux.kxprivatevpn.platform.vpn.SplitTunnelPlan
 import com.knoux.kxprivatevpn.platform.vpn.SplitTunnelSelection
 import com.knoux.kxprivatevpn.platform.vpn.SplitTunnelWarning
 import com.knoux.kxprivatevpn.platform.vpn.SplitTunnelPolicy
+import kotlin.math.PI
+import kotlin.math.sin
 
 /**
  * Everything the screen renders. [plan] is the measured intersection of the saved selection
@@ -130,19 +135,23 @@ fun SplitTunnelScreen(
                         night = night,
                         backLabel = stringResource(R.string.back),
                         onBack = onBack,
+                        modifier = Modifier.kxEntrance(index = 0),
                     )
                 }
-                item { SplitHero(night, muted, titleColor) }
+                item { SplitHero(night, muted, titleColor, Modifier.kxEntrance(index = 1)) }
                 item {
                     ModeSelector(
                         night = night,
                         mode = state.selection.mode,
                         muted = muted,
                         onModeChange = onModeChange,
+                        modifier = Modifier.kxEntrance(index = 2),
                     )
                 }
                 item {
-                    SearchField(night, titleColor, muted, query) { if (it.length <= 64) query = it }
+                    SearchField(night, titleColor, muted, query, Modifier.kxEntrance(index = 3)) {
+                        if (it.length <= 64) query = it
+                    }
                 }
                 if (state.saveFailed) {
                     item {
@@ -226,9 +235,9 @@ private fun effectiveThroughVpn(state: SplitTunnelUiState, packageName: String):
 }
 
 @Composable
-private fun SplitHero(night: Boolean, muted: Color, titleColor: Color) {
+private fun SplitHero(night: Boolean, muted: Color, titleColor: Color, modifier: Modifier = Modifier) {
     GlassSurface(
-        night, Modifier.testTag("split-hero"), radius = 30.dp,
+        night, modifier.testTag("split-hero"), radius = 30.dp,
         contentPadding = PaddingValues(horizontal = 14.dp, vertical = 14.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -246,10 +255,12 @@ private fun SplitHero(night: Boolean, muted: Color, titleColor: Color) {
 
 @Composable
 private fun SplitRouteEmblem(modifier: Modifier = Modifier) {
+    val ambient = LocalKxAmbient.current
     Canvas(modifier.semantics { contentDescription = "" }) {
         val c = center
         val r = size.minDimension / 2f
-        drawCircle(Brush.radialGradient(listOf(Color(0xFFC39CFF).copy(alpha = .35f), Color.Transparent),
+        val breathe = if (ambient.enabled) .82f + .18f * ambient.breathe.value else 1f
+        drawCircle(Brush.radialGradient(listOf(Color(0xFFC39CFF).copy(alpha = .35f * breathe), Color.Transparent),
             c, r * 1.3f), r, c)
         drawCircle(Brush.radialGradient(
             listOf(Color.White.copy(alpha = .88f), Color(0xFFB9D4FF).copy(alpha = .52f),
@@ -275,6 +286,25 @@ private fun SplitRouteEmblem(modifier: Modifier = Modifier) {
             Color(0xFF8A6BFF)), Offset(c.x - r * .8f, c.y + r * .3f),
             Offset(c.x + r * .4f, c.y + r * .2f)),
             style = Stroke(r * .16f, cap = StrokeCap.Round))
+        // Traffic photons glide along both ribbons on the ambient clock: cyan stays in the
+        // tunnel, violet breaks away. Purely decorative motion; routing truth is the switch.
+        if (ambient.enabled) {
+            val t = ambient.shimmer.value
+            val envelope = sin(t * PI.toFloat())
+            if (envelope > .04f) {
+                val onTunnel = cubicPoint(
+                    c.x - r * .78f, c.y - r * .05f, c.x - r * .38f, c.y - r * .42f,
+                    c.x - r * .08f, c.y + r * .28f, c.x + r * .30f, c.y - r * .22f, t,
+                )
+                drawCircle(Color.White.copy(alpha = .9f * envelope), r * .055f, onTunnel)
+                val onBypass = cubicPoint(
+                    c.x - r * .80f, c.y + r * .30f, c.x - r * .42f, c.y + r * .02f,
+                    c.x - r * .10f, c.y + r * .56f, c.x + r * .34f, c.y + r * .18f,
+                    (t + .35f) % 1f,
+                )
+                drawCircle(Color(0xFFF2D9FF).copy(alpha = .8f * envelope), r * .045f, onBypass)
+            }
+        }
         // Badges: shield means through the tunnel; crossed eye means direct.
         val shieldCenter = Offset(c.x + r * .48f, c.y - r * .38f)
         drawCircle(Brush.radialGradient(listOf(Color(0xFF6FE9FF), Color(0xFF3E7BFF)),
@@ -331,10 +361,11 @@ private fun ModeSelector(
     mode: SplitTunnelMode,
     muted: Color,
     onModeChange: (SplitTunnelMode) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val rim = if (night) Color.White.copy(alpha = .34f) else Color.White.copy(alpha = .86f)
     Row(
-        Modifier.fillMaxWidth()
+        modifier.fillMaxWidth()
             .background(Brush.linearGradient(if (night) listOf(
                 Color.White.copy(alpha = .07f), Color(0xFF6D63E8).copy(alpha = .13f))
             else listOf(Color.White.copy(alpha = .48f), Color(0xFFB8B5FF).copy(alpha = .22f))),
@@ -395,12 +426,13 @@ private fun SearchField(
     titleColor: Color,
     muted: Color,
     value: String,
+    modifier: Modifier = Modifier,
     onValueChange: (String) -> Unit,
 ) {
     val label = stringResource(R.string.split_search)
     val rim = if (night) Color.White.copy(alpha = .30f) else Color.White.copy(alpha = .85f)
     Row(
-        Modifier.fillMaxWidth().heightIn(min = 48.dp)
+        modifier.fillMaxWidth().heightIn(min = 48.dp)
             .background(if (night) Color.White.copy(alpha = .07f) else Color.White.copy(alpha = .46f),
                 RoundedCornerShape(50))
             .border(1.dp, rim, RoundedCornerShape(50))
