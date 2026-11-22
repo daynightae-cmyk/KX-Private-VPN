@@ -455,7 +455,10 @@ class VpnSessionServiceTest {
         }
         worker.isDaemon = true
         worker.start()
-        done.await(timeoutMs, java.util.concurrent.TimeUnit.MILLISECONDS)
+        // The boolean is deliberately consumed as a log line, not a verdict: a timed-out
+        // probe degrades to a null observation (kotlin:S899 - never ignore the result).
+        val completed = done.await(timeoutMs, java.util.concurrent.TimeUnit.MILLISECONDS)
+        if (!completed) android.util.Log.w("KxWatchdog", "accessibility probe timed out after ${timeoutMs}ms")
         return result.get()
     }
 
@@ -570,7 +573,8 @@ class VpnSessionServiceTest {
         }
         worker.isDaemon = true
         worker.start()
-        done.await(15, java.util.concurrent.TimeUnit.SECONDS)
+        val completed = done.await(15, java.util.concurrent.TimeUnit.SECONDS)
+        if (!completed) android.util.Log.w("KxWatchdog", "shell probe timed out: $command")
         return result.get()
     }
 
