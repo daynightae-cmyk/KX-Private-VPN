@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,8 +23,12 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.currentStateAsState
 import com.knoux.kxprivatevpn.launch.rememberReducedMotion
 import kotlin.math.PI
 import kotlin.math.sin
@@ -81,6 +86,15 @@ fun rememberKxAmbient(enabled: Boolean = true): KxAmbient {
     val inherited = LocalKxAmbient.current
     if (inherited.enabled && enabled) return inherited
     val reduced = rememberReducedMotion()
+    // The clock only exists while the window is actually visible. When another activity
+    // (or the notification shade) takes the foreground the host pauses; disposing the
+    // infinite transition there means zero frame requests from a covered app — real
+    // battery savings on low-end hardware, and no ambient frames competing with test
+    // fixtures or shade captures for the Choreographer.
+    val focused = LocalWindowInfo.current.isWindowFocused
+    val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateAsState()
+    val foreground = focused && lifecycleState.isAtLeast(Lifecycle.State.RESUMED)
+    if (!enabled || reduced || !foreground) return KxAmbient.Still
     val transition = rememberInfiniteTransition(label = "kx-ambient")
     val drift = transition.animateFloat(
         initialValue = 0f,
@@ -113,7 +127,7 @@ fun rememberKxAmbient(enabled: Boolean = true): KxAmbient {
         label = "kx-ambient-orbit",
     )
     val live = remember { KxAmbient(true, drift, shimmer, breathe, twinkle, orbit) }
-    return if (enabled && !reduced) live else KxAmbient.Still
+    return live
 }
 
 /** True when the ambient scene is running; consumers may fall back to a still frame. */
