@@ -13,6 +13,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
@@ -170,6 +171,13 @@ internal fun cubicPoint(
  * Entrance choreography for glass sections. Sections rise and fade in once, staggered by
  * [index], so opening a screen feels designed rather than instant. Reduced-motion users get
  * the final layout with no transform at all.
+ *
+ * The animation lives entirely in the layer phase: the [Animatable] value is read inside the
+ * `graphicsLayer` lambda, never during composition, so a sixty-frame entrance does not
+ * recompose the screen sixty times. It is also capped: after [durationMillis] plus the
+ * stagger delay the layer stops invalidating, so off-screen sections queued in a scrollable
+ * list cannot keep an infinite stream of pending frames alive (which starves Compose test
+ * synchronization and low-end devices alike).
  */
 @Composable
 fun Modifier.kxEntrance(
@@ -180,6 +188,7 @@ fun Modifier.kxEntrance(
     val reduced = rememberReducedMotion()
     if (reduced) return this
     val progress = remember { Animatable(0f) }
+    val settled = remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         progress.animateTo(
             targetValue = 1f,
@@ -189,9 +198,11 @@ fun Modifier.kxEntrance(
                 easing = FastOutSlowInEasing,
             ),
         )
+        settled.value = true
     }
-    val value = progress.value
     return this.graphicsLayer {
+        if (settled.value) return@graphicsLayer
+        val value = progress.value
         alpha = value.coerceIn(0f, 1f)
         translationY = (1f - value) * rise.toPx()
     }
