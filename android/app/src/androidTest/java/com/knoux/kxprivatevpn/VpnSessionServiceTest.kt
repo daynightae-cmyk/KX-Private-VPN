@@ -41,6 +41,23 @@ import java.util.concurrent.atomic.AtomicInteger
 class VpnSessionServiceTest {
     private val context get() = InstrumentationRegistry.getInstrumentation().targetContext
 
+    /**
+     * Every test owns a clean surface: a previous test's shade capture can leave the
+     * SystemUI shade expanded (or mid-animation) on Samsung One UI, which makes the
+     * next test's MainActivity launch land behind the shade and its foreground-service
+     * start invisible. Collapse and verify the shade is closed before each test, and
+     * stop any leftover session service so notifications never leak across tests.
+     */
+    @org.junit.Before fun resetSurface() {
+        context.stopService(Intent(context, VpnSessionService::class.java))
+        setShade(open = false)
+    }
+
+    @org.junit.After fun closeSurface() {
+        context.stopService(Intent(context, VpnSessionService::class.java))
+        setShade(open = false)
+    }
+
     private fun waitUntil(timeoutMs: Long, condition: () -> Boolean): Boolean {
         val deadline = SystemClock.elapsedRealtime() + timeoutMs
         while (SystemClock.elapsedRealtime() < deadline) {
@@ -79,10 +96,14 @@ class VpnSessionServiceTest {
         val manager = context.getSystemService(NotificationManager::class.java)
         ActivityScenario.launch(MainActivity::class.java).use {
             try {
-                VpnSessionService.start(context, "KX device test", System.currentTimeMillis())
+                // Pin the language explicitly: "system" follows the device locale
+                // (ar-EG on the owner phone), so the expected title must be built from
+                // the same explicit selection the service was started with.
+                VpnSessionService.start(context, "KX device test", System.currentTimeMillis(), "en")
+                val english = localized("en")
                 val posted = awaitSessionNotification(
                     manager,
-                    context.getString(R.string.vpn_notification_title),
+                    english.getString(R.string.vpn_notification_title),
                 )
                 assertTrue(
                     "a live session notification must not be dismissible",
@@ -91,7 +112,7 @@ class VpnSessionServiceTest {
                 val disconnect = posted.actions?.singleOrNull()
                 assertNotNull("the session notification must offer one disconnect action", disconnect)
                 assertEquals(
-                    context.getString(R.string.vpn_notification_disconnect),
+                    english.getString(R.string.vpn_notification_disconnect),
                     disconnect!!.title.toString(),
                 )
                 // Leave a text artifact behind for the device evidence bundle.
@@ -113,8 +134,8 @@ class VpnSessionServiceTest {
                 )
                 captureShade(
                     "session-notification-en",
-                    context.getString(R.string.vpn_notification_title),
-                    context.getString(R.string.vpn_notification_disconnect),
+                    english.getString(R.string.vpn_notification_title),
+                    english.getString(R.string.vpn_notification_disconnect),
                 )
             } finally {
                 context.stopService(Intent(context, VpnSessionService::class.java))
@@ -203,6 +224,7 @@ class VpnSessionServiceTest {
     private fun assertDisconnectAction(accept: Boolean, removalFailure: String) {
         grantNotificationPermission()
         val manager = context.getSystemService(NotificationManager::class.java)
+        val english = localized("en")
         val requests = AtomicInteger()
         val handler: () -> Boolean = { requests.incrementAndGet(); accept }
         ActivityScenario.launch(MainActivity::class.java).use {
@@ -211,7 +233,7 @@ class VpnSessionServiceTest {
                 VpnSessionService.start(context, "KX device test", System.currentTimeMillis(), "en")
                 val posted = awaitSessionNotification(
                     manager,
-                    context.getString(R.string.vpn_notification_title),
+                    english.getString(R.string.vpn_notification_title),
                 )
                 val action = posted.actions?.singleOrNull()
                 assertNotNull("the session notification has no disconnect action", action)
@@ -237,11 +259,12 @@ class VpnSessionServiceTest {
         grantNotificationPermission()
         val manager = context.getSystemService(NotificationManager::class.java)
         val arabic = localized("ar")
+        val english = localized("en")
         val startedAt = System.currentTimeMillis()
         ActivityScenario.launch(MainActivity::class.java).use {
             try {
                 VpnSessionService.start(context, "KX device test", startedAt, "en")
-                awaitSessionNotification(manager, context.getString(R.string.vpn_notification_title))
+                awaitSessionNotification(manager, english.getString(R.string.vpn_notification_title))
                 VpnSessionService.start(context, "KX device test", startedAt, "ar")
                 assertTrue(
                     "reposting did not update the notification language",
@@ -301,6 +324,22 @@ class VpnSessionServiceTest {
                 expandSilentSection()
                 bounds = waitForText(title)
             }
+            if (bounds == null) {
+                // Samsung One UI keeps gentle (importance LOW) notifications below the
+                // alerting stack; on a busy owner device the shade is full of other apps'
+                // notifications and the session row starts off-screen. Scroll the real
+                // shade until the row is genuinely visible, then expand any silent group.
+                repeat(4) {
+                    if (bounds != null) return@repeat
+                    shell("input swipe 360 1200 360 420 350")
+                    SystemClock.sleep(700)
+                    bounds = textBounds(title)
+                    if (bounds == null) {
+                        expandSilentSection()
+                        bounds = textBounds(title)
+                    }
+                }
+            }
             check(bounds != null) { "the session notification was not visible in the shade" }
             // A swipe can animate before the shade finishes settling. Retry once from a
             // refreshed anchor instead of failing a real capture on a single missed gesture.
@@ -328,6 +367,20 @@ class VpnSessionServiceTest {
                     // A missed gesture can close the shade; reopen it and refresh the anchor.
                     setShade(open = true)
                     bounds = waitForText(title)
+                    if (bounds == null) {
+                        // The reopened shade resets scroll; the gentle session row may be
+                        // below the alerting stack again. Bring it back into view.
+                        repeat(4) {
+                            if (bounds != null) return@repeat
+                            shell("input swipe 360 1200 360 420 350")
+                            SystemClock.sleep(700)
+                            bounds = textBounds(title)
+                            if (bounds == null) {
+                                expandSilentSection()
+                                bounds = textBounds(title)
+                            }
+                        }
+                    }
                 }
             }
             check(false) {
