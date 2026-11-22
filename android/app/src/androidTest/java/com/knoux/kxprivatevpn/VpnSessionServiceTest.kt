@@ -311,7 +311,6 @@ class VpnSessionServiceTest {
      * is located through the accessibility tree and expanded so its action row is visible.
      */
     private fun captureShade(name: String, title: String, action: String) {
-        val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
         setShade(open = false)
         // The expand command is best effort; the notification title in the accessibility
         // tree is the real proof that the shade is showing content on every API level.
@@ -352,13 +351,22 @@ class VpnSessionServiceTest {
                 SystemClock.sleep(900)
                 if (!waitUntil(3_000) { textBounds(action) != null }) {
                     // Some API levels keep the expand affordance in the notification header.
-                    expandAffordance()?.let { (cx, cy) ->
+                    expandAffordanceNear(anchor)?.let { (cx, cy) ->
                         shell("input tap $cx $cy")
                         SystemClock.sleep(1_000)
                     }
                 }
+                if (!waitUntil(2_000) { textBounds(action) != null }) {
+                    // One UI gentle rows may need a second, longer two-finger-style pull
+                    // from the row's own header to reveal the action row.
+                    shell("input swipe $x $y $x ${y + 520} 450")
+                    SystemClock.sleep(1_000)
+                }
                 if (waitUntil(3_000) { textBounds(action) != null }) {
-                    val bitmap = automation.takeScreenshot()
+                    val bitmap = screenshotOrNull(10_000)
+                    check(bitmap != null) {
+                        "the shade screenshot transport did not respond within 10s"
+                    }
                     val file = File(context.getExternalFilesDir(null), "$name.png")
                     file.outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
                     return
@@ -451,6 +459,15 @@ class VpnSessionServiceTest {
         return result.get()
     }
 
+    /**
+     * Runs a blocking UiAutomation call (screenshot) on the same daemon-watchdog pattern.
+     * CI run 45042088536 (API26) wedged inside takeScreenshot after shade gestures until
+     * the 30m budget killed Gradle; a bounded wait turns that transport failure into a
+     * null observation the caller can retry or report, never a suite-wide hang.
+     */
+    private fun screenshotOrNull(timeoutMs: Long): Bitmap? =
+        accessibilityProbe(timeoutMs) { automation -> automation.takeScreenshot() }
+
     private fun waitForText(text: String, timeoutMs: Long = 8_000): Rect? {
         val deadline = SystemClock.elapsedRealtime() + timeoutMs
         while (SystemClock.elapsedRealtime() < deadline) {
@@ -474,13 +491,30 @@ class VpnSessionServiceTest {
         SystemClock.sleep(800)
     }
 
-    private fun expandAffordance(): Pair<Int, Int>? {
-        val bounds = nodeBounds { node ->
+    /**
+     * One UI shows an expand chevron on EVERY notification row, so a global "Expand"
+     * lookup can tap a different app's row. Field probe on the owner's SM-A025F
+     * (shade-dump-scroll1.json): the KX title sat at y=1199 while the USB row's
+     * chevron at y=1103 also fell inside a ±40dp overlap window and came FIRST in
+     * tree order - tapping it opened USB options instead of the session actions.
+     * Pick the chevron with the smallest vertical distance to the title row.
+     */
+    private fun expandAffordanceNear(titleBounds: Rect?): Pair<Int, Int>? {
+        val candidates = mutableListOf<Pair<Int, Int>>()
+        nodeBounds { node ->
             val description = node.contentDescription?.toString()
-            description.equals("Expand", ignoreCase = true) ||
+            if (description.equals("Expand", ignoreCase = true) ||
                 description.equals("توسيع", ignoreCase = true)
-        } ?: return null
-        return bounds.centerX() to bounds.centerY()
+            ) {
+                val b = Rect()
+                node.getBoundsInScreen(b)
+                candidates.add(b.centerX() to b.centerY())
+            }
+            false
+        }
+        if (candidates.isEmpty()) return null
+        if (titleBounds == null) return candidates.first()
+        return candidates.minByOrNull { (_, cy) -> kotlin.math.abs(cy - titleBounds.centerY()) }
     }
 
     private fun nodeBounds(predicate: (AccessibilityNodeInfo) -> Boolean): Rect? =
