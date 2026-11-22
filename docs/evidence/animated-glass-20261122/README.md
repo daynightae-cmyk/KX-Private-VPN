@@ -147,3 +147,22 @@ repo; ignored per standing policy. PR #55 merged into `main` as `e8dad11`;
 feature branch deleted local + remote. The frame-paced clock resolved the
 API26 looper-starvation wedge for real: the full 350-test suite now completes
 well inside the budget on the software-rendered emulator.
+
+## Post-merge physical-phone confirmation (build `54f1e14`, 2026-11-22 ~23:05)
+
+Phone re-attached; merged build installed (`dumpsys package` lastUpdateTime
+22:48:58 app / 22:53:26 test). Every capture below was taken only after the
+accessibility tree confirmed the actual screen (an earlier blind-tap attempt
+landed on the splash and was discarded, not committed):
+
+- `device/final-01-home-54f1e14.png` — Home: orbital halo + satellites around
+  the hero orb, luminous ribbons, honest `غير متصل` pill and measured-or-dash
+  counters (SHA-256 prefix `7db440f1878744a7`).
+- `device/final-02-tools-54f1e14.png` — `لوحة الأدوات` (ref 18): haloed emblem,
+  search field, filter chips `الكل (٩)`, glass tool cards (`732908201100d10a`).
+- `device/final-03-repair-54f1e14.png` — `الإصلاح الذكي` (ref 03): measured
+  plan (١٢٨ بايت cache, طبيعية temperature, سليم app state), no fabricated
+  progress (`557edd2121f2074b`).
+- `device/local-vpn-service-6tests-54f1e14.txt` — **`OK (6 tests)`** in 48.2s.
+
+`svc power stayon` restored to `false`; shade collapsed after the run.
