@@ -29,15 +29,18 @@ The two different repos `daynightae-cmyk/KX` and `D:\KNOUX-Workspace\KX` were **
 |---|---|---|
 | Branch HEAD (`codex/visual-elevation-and-cleanup-20261119`) | `6640da4` | `613a08a` (docs commit pushed) |
 | `origin/codex/...` | `6640da4` | `613a08a` |
-| `main` / `origin/main` | `096b260` | `096b260` (PR #53 merge pending CI) |
+| `main` / `origin/main` | `096b260` | `3f804c3` (PR #53 merged) |
 
 `git rev-list --left-right --count main...HEAD` = `0 2` (branch is 2 commits ahead of `main`).
+After PR #53 merged, the working branch is `codex/recovery-report-device-evidence-20261122` (PR #54)
+with `main` = `3f804c3`.
 
 ## 3. Branch / worktree / PR matrix
 
 | PR | Branch | State | Mergeable | CI on exact head |
 |---|---|---|---|---|
-| **#53** | `codex/visual-elevation-and-cleanup-20261119` | **OPEN** | MERGEABLE | ✅ `44484793803` green on `6640da4` (build 7m50s, release-compile 4m27s, device(26) 13m53s, device(35) 30m53s, SonarCloud gate OK); re-running as `45009718221` on `613a08a` |
+| **#54** | `codex/recovery-report-device-evidence-20261122` | **OPEN** | MERGEABLE | ✅ `45013446821` green on `fac64e6` (build, release-compile, device(26) 13m56s, device(35) ~27m, SonarCloud gate OK); re-running after the Tools/Repair evidence commit |
+| **#53** | `codex/visual-elevation-and-cleanup-20261119` | MERGED → `3f804c3` | — | ✅ `44484793803` / `45009718221` green on `6640da4` / `613a08a` |
 | #52 | `codex/visual-fidelity-ref14-18-03` | MERGED → `096b260` | — | `44274718413` green |
 | #51 | `codex/release-artifact-and-supply-chain` | MERGED → `e983498` | — | `44268994343` green |
 | #50 | `codex/recover-audit-fix-api26` | MERGED → `377ffb3` | — | `44257528678` green |
@@ -129,7 +132,7 @@ References inspected at `K:\KX_DYAD_VISUAL_HANDOFF_20261108\visual-lab\public\re
 |---|---|---|---|---|
 | 01 | Media Slim Hero | `MediaSlimScreen` / `MediaReferenceHero` | prior captures | IMPLEMENTED BUT UNVERIFIED (this session) |
 | 02 | Network Doctor Hero | `NetworkScreen` / `NetworkReferenceHero` | prior captures | IMPLEMENTED BUT UNVERIFIED |
-| 03 | Repair Lab Hub | `RepairLabScreen` | 2026-11-19 capture + PR #52 | IMPLEMENTED AND VERIFIED (visual) |
+| 03 | Repair Lab Hub | `RepairLabScreen` | **device 2026-11-22** `06-repair-lab-ar.png` + `compare/ref03-vs-runtime-repair.png` | **DEVICE VERIFIED (visual, layout/order parity)** |
 | 04 | Temporary Files Hero | `CacheScreen` | prior captures | IMPLEMENTED BUT UNVERIFIED |
 | 05 | Large Files Hero | `HeavyweightScreen` | prior captures | IMPLEMENTED BUT UNVERIFIED |
 | 06 | Duplicates Hero | `DuplicateDnaScreen` | prior captures | IMPLEMENTED BUT UNVERIFIED |
@@ -144,7 +147,7 @@ References inspected at `K:\KX_DYAD_VISUAL_HANDOFF_20261108\visual-lab\public\re
 | 15 | Smart Repair Plan | `AutopilotScreen` | prior captures | IMPLEMENTED BUT UNVERIFIED |
 | 16 | Network Doctor Results | `NetworkScreen` | prior captures | IMPLEMENTED BUT UNVERIFIED |
 | 17 | Media Slim Results | `MediaSlimScreen` | prior captures | IMPLEMENTED BUT UNVERIFIED |
-| 18 | Tools Catalog | `ToolsCatalogScreen` | 2026-11-19 + PR #53 | IMPLEMENTED AND VERIFIED (visual) |
+| 18 | Tools Catalog | `ToolsCatalogScreen` | **device 2026-11-22** `05-tools-catalog-ar.png` + `compare/ref18-vs-runtime-tools.png` | **DEVICE VERIFIED (visual, layout/order parity)** |
 | 19 | Download Rescue Results | `DownloadRescueScreen` | prior captures | IMPLEMENTED BUT UNVERIFIED |
 | 20 | Temporary Files Results | `CacheScreen` | prior captures | IMPLEMENTED BUT UNVERIFIED |
 
@@ -172,14 +175,33 @@ Corrective action: the five files were **renamed to their true content** (bytes 
 and the claim was retracted in
 `docs/evidence/visual-fidelity-20261119/CORRECTION_20261122.md`. It also means the earlier
 "6 distinct hashes" check validated bytes only — it never validated labels. Tools Catalog and Repair
-Lab are therefore `VISUAL_UNVERIFIED` on device this session (their code exists and was touched in
-PR #52/#53).
+Lab were therefore `VISUAL_UNVERIFIED` on device in the 2026-11-19 set (their code exists and was
+touched in PR #52/#53).
+
+### 9.2 Gap closed (2026-11-22) — correct Tools + Repair device captures
+
+The missing captures were taken for real on `R9ZR20HWHQY` this session (`adb exec-out screencap`) and
+committed with SHA-256:
+
+- `docs/evidence/device-20261122/05-tools-catalog-ar.png` — `لوحة الأدوات` (ref 18): emblemed hero,
+  search, five chips, the nine cards in the exact ref-18 RTL order, plus storage health. Bottom nav
+  highlights `الأدوات`.
+- `docs/evidence/device-20261122/06-repair-lab-ar.png` — `لوحة أدوات الإصلاح` (ref 03): orb + orbital
+  ring + tap hint, eight cards in ref-03 order, and `تشغيل إصلاح شامل`.
+
+Side-by-side composites (`docs/evidence/device-20261122/compare/`) compare refs 14 / 18 / 03 against
+the runtime frames at a common height. Layout and element order match. Three deviations are documented
+honestly and are **not** claimed as 100 % parity: (1) the reference frames are 1080×1920 (16:9) while
+the phone renders 411 dp × 914 dp (20:9), so density differs; (2) runtime uses line icons in circular
+wells vs the reference's solid rounded-square tiles; (3) the documented ref-14/ref-18 bottom-tab
+conflict, resolved per screen without collapsing a route.
 
 ## 10. Before / after device screenshots
 
 Before: `docs/evidence/device-20261118/` (6 captures) and the corrected set in
 `docs/evidence/visual-fidelity-20261119/` (Home, Tools, Repair, Settings, Security, Statistics).
-After (this session): `docs/evidence/device-20261122/` — intro, entry-gate-holds, Home, split tunnel.
+After (this session): `docs/evidence/device-20261122/` — intro, entry-gate-holds, Home, split tunnel,
+**Tools Catalog (ref 18)** and **Repair Lab (ref 03)**, plus `compare/` side-by-side composites.
 
 ## 11. Kotlin / Compose files changed in PR #53
 
@@ -211,14 +233,14 @@ owner keystore was provided this session. No AAB signed with debug credentials m
 | Real VPN E2E (handshake + traffic) | BLOCKED | Authorized WireGuard gateway + test profile |
 | Owner release keystore | BLOCKED | `key.properties` / keystore |
 | Automated visual-regression baseline | BLOCKED | Agreed diff thresholds / reference renders |
-| Correctly-labelled Tools Catalog + Repair Lab device captures | BLOCKED (tooling) | Reliable screen-scoped capture; the 2026-11-19 set was mislabelled (see §9.1) |
+| Correctly-labelled Tools Catalog + Repair Lab device captures | ✅ RESOLVED 2026-11-22 | `05-tools-catalog-ar.png` + `06-repair-lab-ar.png` on `R9ZR20HWHQY`; see §9.2 |
 | Full 20-screen re-verification this session | PARTIAL | Time; prior captures exist for most screens |
+| VPN E2E visual acceptance of the connected Home (ref 14 fixtures) | BLOCKED | Needs the same gateway as real VPN E2E |
 
 ## 17. Exact next safe execution action
 
-1. Let CI `45009718221` finish on `613a08a`; if green, merge **PR #53** into `main` (merge commit),
-   verify the resulting `origin/main` SHA, then delete the merged branch — one integration state.
-2. Open a small follow-up PR carrying this report + `docs/evidence/device-20261122/`, merge after CI.
-3. To unblock VPN E2E: import an owner-authorized WireGuard test profile on `R9ZR20HWHQY`, tap
+1. Let CI finish on the PR head; if green, merge **PR #54** into `main` (merge commit), verify the
+   resulting `origin/main` SHA, then delete the merged branch — one integration state.
+2. To unblock VPN E2E: import an owner-authorized WireGuard test profile on `R9ZR20HWHQY`, tap
    Connect, accept the Android consent, and record the real handshake timestamp + RX/TX counters.
-4. Provide the owner keystore to produce a release-signed AAB.
+3. Provide the owner keystore to produce a release-signed AAB.

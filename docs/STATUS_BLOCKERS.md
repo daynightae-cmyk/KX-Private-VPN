@@ -2,7 +2,7 @@
 
 **Last updated:** 2026-11-22 UAE
 **Main SHA:** `3f804c3` (PR #53 merged — visual UI/UX + animation elevation, evidence-integrity correction, CI `45009718221` green on `613a08a`, SonarCloud gate OK)
-**Working branch:** `codex/recovery-report-device-evidence-20261122` (PR for the consolidated report + 2026-11-22 device evidence)
+**Working branch:** `codex/recovery-report-device-evidence-20261122` (PR #54 — consolidated report + 2026-11-22 device evidence incl. correct Tools/Repair captures + reference comparisons)
 **Branch policy:** exactly one integration branch (`main`); feature branches are merged and deleted after verification.
 
 Every status below is backed by an executed command, a CI run URL/SHA or a SonarCloud API
@@ -154,10 +154,9 @@ No third-party crypto library is used and none is needed: the platform Keystore 
 
 ## 📋 NEXT SEQUENCE
 
-1. CI on PR #51 (`codex/release-artifact-and-supply-chain`) → build, release-compile (now with the real AAB), API 26 + API 35 device jobs, with Gradle dependency verification enforced.
-2. Merge PR #51 into `main` only after those jobs are green, then delete the branch (single `main`).
-3. Visual fidelity pass for Ref 14 / 18 / 03 with screenshot evidence from the physical phone.
-4. Real tunnel proof on the physical phone with an authorized gateway, then owner-signed AAB and release.
+1. Merge PR #54 into `main` once its CI is green (currently green on `fac64e6`), then delete the branch (single `main`).
+2. ~~Visual fidelity pass for Ref 14 / 18 / 03 with screenshot evidence from the physical phone.~~ ✅ Done — Home (14), Tools (18) and Repair (03) captured on `R9ZR20HWHQY` with side-by-side comparison and honest deviation list.
+3. **Owner unblock required** — an authorized WireGuard gateway + test profile for real tunnel proof on `R9ZR20HWHQY` (handshake + RX/TX), then an owner keystore for the signed AAB and release.
 
 ---
 
@@ -180,6 +179,8 @@ No third-party crypto library is used and none is needed: the platform Keystore 
 | 2026-11-22 | Recovery | Repo/deep recovery session: three mission conversation exports located in `Downloads`; PR #53 re-verified (MERGEABLE, CI green); device `R9ZR20HWHQY` re-checked | ✅ App was in `stopped`/disabled package state on the phone — `pm enable com.knoux.kxprivatevpn` restored launch; native entry gate confirmed (no auto-navigation after the intro; Home appears only after the emblem tap); disconnected Home renders honest measured-or-dash state |
 | 2026-11-22 10:19 | Recovery | PR #53 merged into `main` | ✅ Merge commit `3f804c3`; CI `45009718221` green on `613a08a` (build 5m29s, release-compile 5m5s, device(26) 14m42s, device(35) 24m45s, SonarCloud OK); merged branch deleted — single `main` |
 | 2026-11-22 | Recovery | Independent visual audit of the 2026-11-19 evidence set (opened every file) | ⚠️ 5 of 6 captures mislabelled; no Tools/Repair capture present; files renamed to true content (bytes preserved), claim retracted in `docs/evidence/visual-fidelity-20261119/CORRECTION_20261122.md`. Not a product bug — route table verified correct |
+| 2026-11-22 | Recovery | PR #54 CI `45013446821` on `fac64e6` | ✅ Green (build, release-compile, device(26) 13m56s, device(35) ~27m, SonarCloud) |
+| 2026-11-22 | Recovery | Closes the Tools/Repair evidence gap: real `adb exec-out screencap` of `لوحة الأدوات` (ref 18) and `لوحة أدوات الإصلاح` (ref 03) on `R9ZR20HWHQY`, plus ref14/18/03-vs-runtime side-by-side composites and a documented deviation list | ✅ `docs/evidence/device-20261122/05-tools-catalog-ar.png`, `06-repair-lab-ar.png`, `compare/*` (SHA-256 in `DEVICE_VERIFICATION_20261122.md`). Layout/order parity confirmed; deviations (icon style, aspect density, tab conflict) documented, not claimed as 100 % parity |
 
 ---
 
