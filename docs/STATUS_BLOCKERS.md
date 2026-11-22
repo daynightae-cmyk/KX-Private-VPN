@@ -1,8 +1,8 @@
 # KX Private VPN — CURRENT BLOCKERS & COORDINATION LOG
 
-**Last updated:** 2026-11-18 12:50 UAE
-**Main SHA:** `377ffb3` (PR #50 merged — audit restored, API 26 repaired, SonarCloud gate OK)
-**Working branch:** `codex/release-artifact-and-supply-chain` (PR #51)
+**Last updated:** 2026-11-22 UAE
+**Main SHA:** `096b260` (PR #52 merged — visual fidelity Ref 14/18/03, CI run `44280765817` green, SonarCloud gate OK)
+**Working branch:** `codex/visual-elevation-and-cleanup-20261119` (PR #53, CI green on `6640da4`, awaiting merge)
 **Branch policy:** exactly one integration branch (`main`); feature branches are merged and deleted after verification.
 
 Every status below is backed by an executed command, a CI run URL/SHA or a SonarCloud API
@@ -173,7 +173,11 @@ No third-party crypto library is used and none is needed: the platform Keystore 
 | 2026-11-18 11:46 | Forensic | PR #50 merged into `main` as `377ffb3` | ✅ CI run `44257528678` green on all four jobs (build, release-compile, API 26, API 35) |
 | 2026-11-18 11:47 | Forensic | SonarCloud re-analysis of `377ffb3` | ✅ **Quality gate OK**, `new_security_rating = A`, all four new-code vulnerabilities CLOSED |
 | 2026-11-18 12:30 | Forensic | Physical device proof on `R9ZR20HWHQY` (Android 12 / API 31, Arabic RTL) | ✅ 6 captures + report in `docs/evidence/device-20261118/` |
-| 2026-11-18 12:40 | Forensic | PR #51: dependency verification, real AAB release gate, checksums, two old-code Sonar findings | ⏳ CI pending |
+| 2026-11-18 12:40 | Forensic | PR #51: dependency verification, real AAB release gate, checksums, two old-code Sonar findings | ✅ Merged PR #51 → `e983498`, CI `44268994343` green |
+| 2026-11-18 12:50 | Forensic | PR #52: visual fidelity Ref 14/18/03 (atmosphere sweeps, glass bevel, orb aura, Repair platform) | ✅ Merged PR #52 → `096b260`, CI `44274718413` green |
+| 2026-11-18 13:10 | Forensic | Main push CI `44280765817` green on `096b260`; SonarCloud gate OK (`new_security_rating = A`) | ✅ Verified |
+| 2026-11-19 15:30 | Forensic | PR #53: visual elevation + animation (KxOrbitalHalo, CTA bloom/press/haptic, Tools clear-search, Repair press scale), evidence correction (voided false 2026-11-18 claims), disk cleanup (648 MB freed), 6 new truthful captures | ✅ CI `44484793803` green on `6640da4` (build 7m50s, release-compile 4m27s, device(26) 13m53s, device(35) 30m53s, SonarCloud gate OK) |
+| 2026-11-22 | Recovery | Repo/deep recovery session: three mission conversation exports located in `Downloads`; PR #53 re-verified (MERGEABLE, CI green); device `R9ZR20HWHQY` re-checked | ✅ App was in `stopped`/disabled package state on the phone — `pm enable com.knoux.kxprivatevpn` restored launch; native entry gate confirmed (no auto-navigation after the intro; Home appears only after the emblem tap); disconnected Home renders honest measured-or-dash state |
 
 ---
 
