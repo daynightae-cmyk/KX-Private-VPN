@@ -1,0 +1,8 @@
+
+com.knoux.kxprivatevpn.VpnSessionServiceTest:......
+
+Time: ٤٨٫١٧٢
+
+OK (6 tests)
+
+

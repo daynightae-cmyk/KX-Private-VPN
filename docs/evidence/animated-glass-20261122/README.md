@@ -125,9 +125,12 @@ Fixes (this round):
   failure message instead of a suite-wide hang).
 
 Local `VpnSessionServiceTest` on the physical phone reached 4/6 before these
-fixes; the two remaining failures were the chevron mis-tap above. Re-verification
-on-device pending: the phone's USB link dropped mid-session (adb protocol fault,
-device absent from `adb devices`); CI emulators remain the authoritative gate.
+fixes; the two remaining failures were the chevron mis-tap above. After the
+phone was re-attached, the full class was re-run on the merged build
+(`54f1e14`, installed 22:48/22:53 per `dumpsys package`): **`OK (6 tests)` in
+48.2s** — `device/local-vpn-service-6tests-54f1e14.txt`. The nearest-chevron
+picker and screenshot watchdog are confirmed on real One UI, not just the
+emulators.
 
 ## Final gate — CI run 45053268703 on `8a8d489`: ALL GREEN
 
