@@ -37,6 +37,7 @@ import com.knoux.kxprivatevpn.designsystem.KxIconKind
 import com.knoux.kxprivatevpn.designsystem.KxLineIcon
 import com.knoux.kxprivatevpn.designsystem.KxOrbBadge
 import com.knoux.kxprivatevpn.designsystem.kxCyan
+import com.knoux.kxprivatevpn.designsystem.kxFloat
 import com.knoux.kxprivatevpn.designsystem.kxInk
 import com.knoux.kxprivatevpn.designsystem.kxMuted
 import com.knoux.kxprivatevpn.designsystem.kxRose
@@ -49,7 +50,7 @@ import com.knoux.kxprivatevpn.platform.media.MediaQuality
  * No screenshot bitmap, fictional inventory, invented quality percentage or unverified savings.
  */
 @Composable
-internal fun MediaReferenceHero(night: Boolean, processing: Boolean) {
+internal fun MediaReferenceHero(night: Boolean, processing: Boolean, modifier: Modifier = Modifier) {
     val reducedMotion = rememberReducedMotion()
     val rotation = if (processing && !reducedMotion) {
         val spin = rememberInfiniteTransition(label = "media-orbit")
@@ -60,7 +61,7 @@ internal fun MediaReferenceHero(night: Boolean, processing: Boolean) {
         )
         value
     } else 0f
-    Box(Modifier.fillMaxWidth().height(244.dp).testTag("media-ref-hero"),
+    Box(modifier.fillMaxWidth().height(244.dp).testTag("media-ref-hero"),
         contentAlignment = Alignment.Center) {
         Canvas(Modifier.size(244.dp)) {
             val c = Offset(size.width / 2f, size.height / 2f)
@@ -97,15 +98,15 @@ internal fun MediaReferenceHero(night: Boolean, processing: Boolean) {
         KxOrbBadge(184.dp, night = night,
             modifier = Modifier.graphicsLayer { rotationZ = if (processing) rotation else 0f })
         KxGlassIconTile(night, KxIconKind.LAYERS, kxRose(night),
-            Modifier.align(Alignment.CenterStart).offset(y = (-42).dp), size = 54.dp)
+            Modifier.align(Alignment.CenterStart).offset(y = (-42).dp).kxFloat(phase = .2f), size = 54.dp)
         KxGlassIconTile(night, KxIconKind.CLAPPER, kxCyan(night),
-            Modifier.align(Alignment.CenterEnd).offset(y = 66.dp), size = 54.dp)
+            Modifier.align(Alignment.CenterEnd).offset(y = 66.dp).kxFloat(phase = .7f), size = 54.dp)
     }
 }
 
 /** Summary is scoped to the chosen SAF folder and the most recent completed scan. */
 @Composable
-internal fun MediaReferenceMetrics(night: Boolean, state: MediaSlimUiState) {
+internal fun MediaReferenceMetrics(night: Boolean, state: MediaSlimUiState, modifier: Modifier = Modifier) {
     val scan = state.scan
     val images = scan?.images?.size?.toString() ?: "—"
     val videos = scan?.videos?.size?.toString() ?: "—"
@@ -114,7 +115,7 @@ internal fun MediaReferenceMetrics(night: Boolean, state: MediaSlimUiState) {
         MediaQuality.BALANCED -> R.string.media_quality_balanced
         MediaQuality.SMALL -> R.string.media_quality_small
     })
-    KxGlassPanel(night, modifier = Modifier.testTag("media-ref-metrics"),
+    KxGlassPanel(night, modifier = modifier.testTag("media-ref-metrics"),
         radius = 24.dp, padding = PaddingValues(vertical = 14.dp, horizontal = 10.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             MediaReferenceMetric(night, R.string.media_ref_images, images,
@@ -155,9 +156,10 @@ private fun MediaReferenceMetric(
 @Composable
 internal fun MediaReferenceFolder(night: Boolean, state: MediaSlimUiState,
     onChooseFolder: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     KxGlassPanel(night,
-        modifier = Modifier.fillMaxWidth().heightIn(min = 54.dp)
+        modifier = modifier.fillMaxWidth().heightIn(min = 54.dp)
             .clip(RoundedCornerShape(27.dp))
             .clickable(
                 role = Role.Button,
@@ -186,6 +188,7 @@ internal fun MediaReferenceFolder(night: Boolean, state: MediaSlimUiState,
 internal fun MediaReferenceAction(
     night: Boolean, state: MediaSlimUiState,
     onChooseFolder: () -> Unit, onScan: () -> Unit, onRequestCompression: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val (label, enabled, action) = when {
         state.scanning -> Triple(stringResource(R.string.media_scanning), false, onScan)
@@ -197,5 +200,5 @@ internal fun MediaReferenceAction(
         else -> Triple(stringResource(R.string.media_compress), true, onRequestCompression)
     }
     KxGradientAction(label, night, enabled, "media-ref-primary-action",
-        modifier = Modifier.heightIn(min = 52.dp), icon = KxIconKind.WAND, onClick = action)
+        modifier = modifier.heightIn(min = 52.dp), icon = KxIconKind.WAND, onClick = action)
 }

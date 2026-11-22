@@ -43,6 +43,7 @@ import com.knoux.kxprivatevpn.designsystem.KxReferenceHeader
 import com.knoux.kxprivatevpn.designsystem.KxReferenceTheme
 import com.knoux.kxprivatevpn.designsystem.KxSectionHeaderRow
 import com.knoux.kxprivatevpn.designsystem.KxTitleBlock
+import com.knoux.kxprivatevpn.designsystem.kxEntrance
 import com.knoux.kxprivatevpn.designsystem.kxCyan
 import com.knoux.kxprivatevpn.designsystem.kxGreen
 import com.knoux.kxprivatevpn.designsystem.kxInk
@@ -120,6 +121,7 @@ fun AutopilotScreen(
                 tag = "autopilot-ref-back",
                 icon = KxIconKind.BACK,
                 onClick = onBack,
+                modifier = Modifier.kxEntrance(index = 0),
             )
 
             // ---- Reference 09: emblem hero, tap-to-measure hint and the measured stat trio. ----
@@ -128,10 +130,11 @@ fun AutopilotScreen(
                 subtitle = stringResource(R.string.autopilot_body),
                 night = night,
                 announceTitleAsDescription = true,
+                modifier = Modifier.kxEntrance(index = 1),
             )
             val measureLabel = stringResource(R.string.autopilot_hero_hint)
             Box(
-                Modifier.fillMaxWidth().padding(vertical = 6.dp),
+                Modifier.fillMaxWidth().padding(vertical = 6.dp).kxEntrance(index = 2),
                 contentAlignment = Alignment.Center,
             ) {
                 KxOrbBadge(
@@ -148,6 +151,7 @@ fun AutopilotScreen(
             }
             Row(
                 Modifier.wrapContentWidth(Alignment.CenterHorizontally)
+                    .kxEntrance(index = 3)
                     .border(1.dp, kxCyan(night).copy(alpha = .45f), RoundedCornerShape(50))
                     .background(kxCyan(night).copy(alpha = if (night) .12f else .08f), RoundedCornerShape(50))
                     .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -165,9 +169,11 @@ fun AutopilotScreen(
                 enabled = state.canEdit,
                 tag = "autopilot-measure",
                 icon = KxIconKind.WRENCH,
+                modifier = Modifier.kxEntrance(index = 4),
                 onClick = onMeasure,
             )
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(Modifier.fillMaxWidth().kxEntrance(index = 5),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 KxStatCard(
                     night = night,
                     icon = KxIconKind.DATABASE,
@@ -205,7 +211,7 @@ fun AutopilotScreen(
             }
 
             // ---- Reference 15: the plan board. ----
-            KxGlassPanel(night) {
+            KxGlassPanel(night, Modifier.kxEntrance(index = 6)) {
                 KxSectionHeaderRow(
                     title = stringResource(R.string.autopilot_plan_title),
                     icon = KxIconKind.TARGET,

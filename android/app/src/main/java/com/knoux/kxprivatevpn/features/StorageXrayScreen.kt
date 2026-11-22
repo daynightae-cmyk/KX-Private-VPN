@@ -59,6 +59,8 @@ import com.knoux.kxprivatevpn.designsystem.KxReferenceAtmosphere
 import com.knoux.kxprivatevpn.designsystem.KxReferenceHeader
 import com.knoux.kxprivatevpn.designsystem.KxReferenceTheme
 import com.knoux.kxprivatevpn.designsystem.KxTitleBlock
+import com.knoux.kxprivatevpn.designsystem.LocalKxAmbient
+import com.knoux.kxprivatevpn.designsystem.kxEntrance
 import com.knoux.kxprivatevpn.designsystem.kxCyan
 import com.knoux.kxprivatevpn.designsystem.kxGreen
 import com.knoux.kxprivatevpn.designsystem.kxInk
@@ -162,13 +164,15 @@ fun StorageXrayScreen(
                     tag = "storage-ref-back",
                     icon = KxIconKind.BACK,
                     onClick = onBack,
+                    modifier = Modifier.kxEntrance(index = 0),
                 )
                 KxTitleBlock(
                     title = stringResource(R.string.storage_xray_title),
                     subtitle = stringResource(R.string.storage_xray_subtitle),
                     night = night,
+                    modifier = Modifier.kxEntrance(index = 1),
                 )
-                StorageHealthHero(night)
+                StorageHealthHero(night, Modifier.kxEntrance(index = 2))
                 KxGradientAction(
                     label = stringResource(
                         if (busy) R.string.storage_ref_analyzing
@@ -178,6 +182,7 @@ fun StorageXrayScreen(
                     enabled = !busy && !state.scanning,
                     tag = "storage-refresh",
                     icon = KxIconKind.SEARCH,
+                    modifier = Modifier.kxEntrance(index = 3),
                     onClick = onRefresh,
                 )
                 if (busy) {
@@ -185,10 +190,11 @@ fun StorageXrayScreen(
                         Modifier.fillMaxWidth().testTag("storage-health-measuring"),
                     )
                 }
-                StorageHealthPanel(night, health)
-                VolumeSummary(night, state)
-                ReconciliationCard(night, state)
-                MediaAccessCard(night, state, onRequestMedia, onOpenSettings)
+                StorageHealthPanel(night, health, Modifier.kxEntrance(index = 4))
+                VolumeSummary(night, state, Modifier.kxEntrance(index = 5))
+                ReconciliationCard(night, state, Modifier.kxEntrance(index = 6))
+                MediaAccessCard(night, state, onRequestMedia, onOpenSettings,
+                    Modifier.kxEntrance(index = 7))
                 FolderCard(
                     night = night,
                     state = state,
@@ -199,8 +205,9 @@ fun StorageXrayScreen(
                     onForget = onForget,
                     onEnter = onEnter,
                     onUp = onUp,
+                    modifier = Modifier.kxEntrance(index = 8),
                 )
-                StoragePrivacyPanel(night, ink)
+                StoragePrivacyPanel(night, ink, Modifier.kxEntrance(index = 9))
                 Spacer(Modifier.height(4.dp))
             }
         }
@@ -212,19 +219,24 @@ fun StorageXrayScreen(
 // ---------------------------------------------------------------------------
 
 @Composable
-private fun StorageHealthHero(night: Boolean) {
+private fun StorageHealthHero(night: Boolean, modifier: Modifier = Modifier) {
+    val ambient = LocalKxAmbient.current
     Box(
-        Modifier.fillMaxWidth().height(226.dp).testTag("storage-health-hero"),
+        modifier.fillMaxWidth().height(226.dp).testTag("storage-health-hero"),
         contentAlignment = Alignment.Center,
     ) {
         Canvas(Modifier.fillMaxSize()) {
             val center = Offset(size.width / 2f, size.height * .50f)
             val radius = min(size.width, size.height) * .355f
+            // Idle life: the orbit ring turns slowly and the halo breathes on the shared
+            // ambient clock; read inside the draw phase, never recomposing the screen.
+            val spin = if (ambient.enabled) ambient.orbit.value else 0f
+            val breathe = if (ambient.enabled) .82f + .18f * ambient.breathe.value else 1f
             drawCircle(
                 Brush.radialGradient(
                     listOf(
-                        Color(0xFF64EEFF).copy(alpha = .26f),
-                        Color(0xFFAD71FF).copy(alpha = .18f),
+                        Color(0xFF64EEFF).copy(alpha = .26f * breathe),
+                        Color(0xFFAD71FF).copy(alpha = .18f * breathe),
                         Color.Transparent,
                     ),
                     center,
@@ -233,7 +245,7 @@ private fun StorageHealthHero(night: Boolean) {
                 radius * 1.62f,
                 center,
             )
-            rotate(-14f, center) {
+            rotate(-14f + spin * .06f, center) {
                 // Dashed orbits around the owner's preserved KX orb.
                 repeat(3) { index ->
                     val scale = 1.00f + index * .16f
@@ -277,11 +289,13 @@ private fun StorageHealthHero(night: Boolean) {
                 orbitArrowHead(center, radius * 1.22f, 78f, kxCyan(night))
             }
             repeat(14) { index ->
-                val angle = Math.toRadians((index * 27.3 + 8).toDouble())
+                val angle = Math.toRadians((index * 27.3 + 8 + spin * .10).toDouble())
                 val orbit = radius * (1.34f + (index % 3) * .05f)
+                val twinkle = if (ambient.enabled)
+                    .5f + .5f * ((ambient.twinkle.value + index * .13f) % 1f) else 1f
                 drawCircle(
-                    if (index % 3 == 0) kxRose(night).copy(alpha = .62f)
-                    else kxCyan(night).copy(alpha = .48f),
+                    if (index % 3 == 0) kxRose(night).copy(alpha = .62f * twinkle)
+                    else kxCyan(night).copy(alpha = .48f * twinkle),
                     (1.2 + (index % 2) * .7).dp.toPx(),
                     Offset(
                         center.x + cos(angle).toFloat() * orbit,
@@ -318,11 +332,11 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.orbitArrowHead(
 }
 
 @Composable
-private fun StorageHealthPanel(night: Boolean, health: StorageHealthSnapshot) {
+private fun StorageHealthPanel(night: Boolean, health: StorageHealthSnapshot, modifier: Modifier = Modifier) {
     val ink = kxInk(night)
     KxGlassPanel(
         night,
-        modifier = Modifier.testTag("storage-health-panel"),
+        modifier = modifier.testTag("storage-health-panel"),
         radius = 23.dp,
         padding = PaddingValues(14.dp),
     ) {
@@ -622,11 +636,11 @@ private fun healthCategoryNote(category: StorageHealthCategory): String? {
 // ---------------------------------------------------------------------------
 
 @Composable
-private fun VolumeSummary(night: Boolean, state: StorageXrayUiState) {
+private fun VolumeSummary(night: Boolean, state: StorageXrayUiState, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val ink = kxInk(night)
     val volume = state.volume
-    KxGlassPanel(night, radius = 22.dp, padding = PaddingValues(14.dp)) {
+    KxGlassPanel(night, modifier, radius = 22.dp, padding = PaddingValues(14.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             KxGlassIconTile(night, KxIconKind.DRIVE_HEART, kxViolet(night), size = 34.dp)
             Spacer(Modifier.width(9.dp))
@@ -709,14 +723,14 @@ private fun VolumeSummary(night: Boolean, state: StorageXrayUiState) {
 }
 
 @Composable
-private fun ReconciliationCard(night: Boolean, state: StorageXrayUiState) {
+private fun ReconciliationCard(night: Boolean, state: StorageXrayUiState, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val ink = kxInk(night)
     val mediaMeasured = state.media?.categories?.mapNotNull { it.bytes }
     val mediaTotal = if (mediaMeasured != null && mediaMeasured.isNotEmpty()) mediaMeasured.sum() else null
     val accessible = listOfNotNull(mediaTotal, state.kxBytes, state.scan?.totalBytes).sum()
     val reconciled = reconcileStorage(state.volume?.totalBytes, state.volume?.availableBytes, accessible)
-    KxGlassPanel(night, radius = 22.dp, padding = PaddingValues(14.dp)) {
+    KxGlassPanel(night, modifier, radius = 22.dp, padding = PaddingValues(14.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             KxGlassIconTile(night, KxIconKind.BARS, kxCyan(night), size = 34.dp)
             Spacer(Modifier.width(9.dp))
@@ -790,9 +804,10 @@ private fun MediaAccessCard(
     state: StorageXrayUiState,
     onRequestMedia: () -> Unit,
     onOpenSettings: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val ink = kxInk(night)
-    KxGlassPanel(night, radius = 22.dp, padding = PaddingValues(14.dp)) {
+    KxGlassPanel(night, modifier, radius = 22.dp, padding = PaddingValues(14.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             KxGlassIconTile(night, KxIconKind.CLAPPER, kxRose(night), size = 34.dp)
             Spacer(Modifier.width(9.dp))
@@ -940,9 +955,10 @@ private fun FolderCard(
     onForget: () -> Unit,
     onEnter: (String) -> Unit,
     onUp: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val ink = kxInk(night)
-    KxGlassPanel(night, radius = 22.dp, padding = PaddingValues(14.dp)) {
+    KxGlassPanel(night, modifier, radius = 22.dp, padding = PaddingValues(14.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             KxGlassIconTile(night, KxIconKind.FOLDER, kxGreen(night), size = 34.dp)
             Spacer(Modifier.width(9.dp))
@@ -1239,8 +1255,8 @@ private fun FolderRow(folder: FolderSlice, ink: Color, onEnter: (String) -> Unit
 }
 
 @Composable
-private fun StoragePrivacyPanel(night: Boolean, ink: Color) {
-    KxGlassPanel(night, radius = 22.dp, padding = PaddingValues(14.dp)) {
+private fun StoragePrivacyPanel(night: Boolean, ink: Color, modifier: Modifier = Modifier) {
+    KxGlassPanel(night, modifier, radius = 22.dp, padding = PaddingValues(14.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             KxLineIcon(KxIconKind.SHIELD_CHECK, kxGreen(night), Modifier.size(18.dp))
             Spacer(Modifier.width(7.dp))

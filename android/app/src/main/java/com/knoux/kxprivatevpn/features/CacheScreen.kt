@@ -48,6 +48,9 @@ import com.knoux.kxprivatevpn.designsystem.KxReferenceAtmosphere
 import com.knoux.kxprivatevpn.designsystem.KxReferenceHeader
 import com.knoux.kxprivatevpn.designsystem.KxReferenceTheme
 import com.knoux.kxprivatevpn.designsystem.KxTitleBlock
+import com.knoux.kxprivatevpn.designsystem.LocalKxAmbient
+import com.knoux.kxprivatevpn.designsystem.kxEntrance
+import com.knoux.kxprivatevpn.designsystem.kxFloat
 import com.knoux.kxprivatevpn.designsystem.kxCyan
 import com.knoux.kxprivatevpn.designsystem.kxInk
 import com.knoux.kxprivatevpn.designsystem.kxMuted
@@ -168,11 +171,13 @@ fun CacheScreen(night: Boolean = false, onBack: () -> Unit = {}, onBusy: (Boolea
                     tag = "cache-back",
                     icon = KxIconKind.BACK,
                     onClick = { if (!state.busy) onBack() },
+                    modifier = Modifier.kxEntrance(index = 0),
                 )
                 KxTitleBlock(
                     title = stringResource(R.string.cache_ref_title),
                     subtitle = stringResource(R.string.cache_ref_subtitle),
                     night = night,
+                    modifier = Modifier.kxEntrance(index = 1),
                 )
                 CacheScreenContent(
                     state = state,
@@ -185,6 +190,7 @@ fun CacheScreen(night: Boolean = false, onBack: () -> Unit = {}, onBusy: (Boolea
                     },
                     settingsFailed = settingsFailed,
                     night = night,
+                    modifier = Modifier.kxEntrance(index = 2),
                 )
                 Spacer(Modifier.height(24.dp))
             }
@@ -205,6 +211,7 @@ internal fun CacheScreenContent(
     onOpenSettings: () -> Unit,
     settingsFailed: Boolean = false,
     night: Boolean = false,
+    modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     var selected by remember { mutableStateOf(emptySet<String>()) }
@@ -221,7 +228,7 @@ internal fun CacheScreenContent(
     val summary = stringResource(R.string.cache_selected_summary, selected.size,
         android.text.format.Formatter.formatFileSize(context, selectedBytes))
     Column(
-        Modifier.fillMaxWidth(),
+        modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
         CacheReferenceHero(night)
@@ -294,17 +301,20 @@ internal fun CacheScreenContent(
  */
 @Composable
 private fun CacheReferenceHero(night: Boolean) {
+    val ambient = LocalKxAmbient.current
     Box(Modifier.fillMaxWidth().height(242.dp).testTag("cache-ref-hero"), contentAlignment = Alignment.Center) {
         Canvas(Modifier.fillMaxSize().clearAndSetSemantics {}) {
             val center = Offset(size.width / 2f, size.height / 2f)
             val r = size.height * .42f
+            // Idle life: the surgeon's ring keeps a slow ambient sweep. Draw-phase read.
+            val spin = if (ambient.enabled) ambient.orbit.value else 0f
             drawCircle(kxViolet(night).copy(alpha = .32f), radius = r, center = center,
                 style = Stroke(1.dp.toPx()))
             drawCircle(kxCyan(night).copy(alpha = .22f), radius = r * .82f, center = center,
                 style = Stroke(2.dp.toPx()))
             drawArc(
                 Brush.sweepGradient(listOf(Color.Transparent, kxCyan(night), kxViolet(night), Color.Transparent)),
-                startAngle = -65f, sweepAngle = 145f, useCenter = false,
+                startAngle = -65f + spin, sweepAngle = 145f, useCenter = false,
                 topLeft = Offset(center.x - r, center.y - r),
                 size = androidx.compose.ui.geometry.Size(r * 2f, r * 2f),
                 style = Stroke(4.dp.toPx(), cap = StrokeCap.Round),
@@ -314,10 +324,14 @@ private fun CacheReferenceHero(night: Boolean) {
             1f, IntroTimeline.frame(1f),
             Modifier.size(156.dp).clearAndSetSemantics {},
         )
-        CacheSatellite(night, KxIconKind.BROOM, Modifier.align(Alignment.TopStart).padding(start = 18.dp, top = 16.dp))
-        CacheSatellite(night, KxIconKind.LAYERS, Modifier.align(Alignment.TopEnd).padding(end = 18.dp, top = 16.dp))
-        CacheSatellite(night, KxIconKind.CLOCK, Modifier.align(Alignment.BottomStart).padding(start = 12.dp, bottom = 18.dp))
-        CacheSatellite(night, KxIconKind.FILE, Modifier.align(Alignment.BottomEnd).padding(end = 12.dp, bottom = 18.dp))
+        CacheSatellite(night, KxIconKind.BROOM, Modifier.align(Alignment.TopStart).padding(start = 18.dp, top = 16.dp)
+            .kxFloat(phase = 0f))
+        CacheSatellite(night, KxIconKind.LAYERS, Modifier.align(Alignment.TopEnd).padding(end = 18.dp, top = 16.dp)
+            .kxFloat(phase = .25f))
+        CacheSatellite(night, KxIconKind.CLOCK, Modifier.align(Alignment.BottomStart).padding(start = 12.dp, bottom = 18.dp)
+            .kxFloat(phase = .5f))
+        CacheSatellite(night, KxIconKind.FILE, Modifier.align(Alignment.BottomEnd).padding(end = 12.dp, bottom = 18.dp)
+            .kxFloat(phase = .75f))
     }
 }
 

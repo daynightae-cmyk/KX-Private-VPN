@@ -43,6 +43,7 @@ import com.knoux.kxprivatevpn.R
 import com.knoux.kxprivatevpn.designsystem.Atmosphere
 import com.knoux.kxprivatevpn.designsystem.GlassSurface
 import com.knoux.kxprivatevpn.designsystem.KxPageHeader
+import com.knoux.kxprivatevpn.designsystem.kxEntrance
 import com.knoux.kxprivatevpn.launch.UiPreferences
 import com.knoux.kxprivatevpn.platform.vpn.VpnSessionService
 
@@ -151,9 +152,10 @@ fun SettingsScreen(
                 night = night,
                 backLabel = stringResource(R.string.back),
                 onBack = onBack,
+                modifier = Modifier.kxEntrance(index = 0),
             )
 
-            GlassSurface(night) {
+            GlassSurface(night, Modifier.kxEntrance(index = 1)) {
                 Text(stringResource(R.string.settings_device_title), fontSize = 19.sp,
                     fontWeight = FontWeight.Bold, color = foreground)
                 Spacer(Modifier.height(6.dp))
@@ -177,7 +179,7 @@ fun SettingsScreen(
                 ) { Text(stringResource(R.string.pro_title)) }
             }
 
-            GlassSurface(night) {
+            GlassSurface(night, Modifier.kxEntrance(index = 2)) {
                 SectionHeading(stringResource(R.string.language), foreground)
                 Text(stringResource(R.string.settings_language_body), fontSize = 12.5.sp,
                     lineHeight = 18.sp, color = muted)
@@ -208,7 +210,7 @@ fun SettingsScreen(
                 )
             }
 
-            GlassSurface(night) {
+            GlassSurface(night, Modifier.kxEntrance(index = 3)) {
                 SectionHeading(stringResource(R.string.appearance), foreground)
                 Text(stringResource(R.string.settings_appearance_body), fontSize = 12.5.sp,
                     lineHeight = 18.sp, color = muted)
@@ -239,7 +241,7 @@ fun SettingsScreen(
                 )
             }
 
-            GlassSurface(night, Modifier.testTag("settings-notifications-card")) {
+            GlassSurface(night, Modifier.testTag("settings-notifications-card").kxEntrance(index = 4)) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     SectionHeading(stringResource(R.string.settings_notifications_title),
                         foreground, Modifier.weight(1f))

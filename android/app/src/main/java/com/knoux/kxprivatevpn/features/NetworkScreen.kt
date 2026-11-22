@@ -31,6 +31,7 @@ import com.knoux.kxprivatevpn.designsystem.KxReferenceTheme
 import com.knoux.kxprivatevpn.designsystem.KxReferenceAtmosphere
 import com.knoux.kxprivatevpn.designsystem.KxReferenceHeader
 import com.knoux.kxprivatevpn.designsystem.KxTitleBlock
+import com.knoux.kxprivatevpn.designsystem.kxEntrance
 import com.knoux.kxprivatevpn.designsystem.KxGlassPanel
 import com.knoux.kxprivatevpn.designsystem.KxIconKind
 import com.knoux.kxprivatevpn.designsystem.GlassAction
@@ -173,17 +174,20 @@ fun NetworkDoctorScreen(
                 tag = "network-ref-back",
                 icon = KxIconKind.BACK,
                 onClick = onBack,
+                modifier = Modifier.kxEntrance(index = 0),
             )
             KxTitleBlock(
                 title = stringResource(R.string.network_doctor),
                 subtitle = stringResource(R.string.network_ref_subtitle),
                 night = night,
+                modifier = Modifier.kxEntrance(index = 1),
             )
-            NetworkReferenceHero(night, probing = state.probing)
-            NetworkReferenceControls(night, state, onReadAgain = onRefresh)
-            NetworkReferenceSummary(night, state)
+            NetworkReferenceHero(night, probing = state.probing, Modifier.kxEntrance(index = 2))
+            NetworkReferenceControls(night, state, onReadAgain = onRefresh,
+                modifier = Modifier.kxEntrance(index = 3))
+            NetworkReferenceSummary(night, state, Modifier.kxEntrance(index = 4))
 
-            KxGlassPanel(night, radius = 24.dp) {
+            KxGlassPanel(night, Modifier.kxEntrance(index = 5), radius = 24.dp) {
                 Text(stringResource(R.string.network_readonly_title), fontWeight = FontWeight.Bold,
                     fontSize = 18.sp)
                 Text(
@@ -200,7 +204,7 @@ fun NetworkDoctorScreen(
                 )
             }
 
-            KxGlassPanel(night, radius = 24.dp) {
+            KxGlassPanel(night, Modifier.kxEntrance(index = 6), radius = 24.dp) {
                 Text(stringResource(R.string.network_measured_title), fontWeight = FontWeight.Bold,
                     fontSize = 18.sp)
                 when {

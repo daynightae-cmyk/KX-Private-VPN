@@ -41,6 +41,23 @@ import java.util.concurrent.atomic.AtomicInteger
 class VpnSessionServiceTest {
     private val context get() = InstrumentationRegistry.getInstrumentation().targetContext
 
+    /**
+     * Every test owns a clean surface: a previous test's shade capture can leave the
+     * SystemUI shade expanded (or mid-animation) on Samsung One UI, which makes the
+     * next test's MainActivity launch land behind the shade and its foreground-service
+     * start invisible. Collapse and verify the shade is closed before each test, and
+     * stop any leftover session service so notifications never leak across tests.
+     */
+    @org.junit.Before fun resetSurface() {
+        context.stopService(Intent(context, VpnSessionService::class.java))
+        setShade(open = false)
+    }
+
+    @org.junit.After fun closeSurface() {
+        context.stopService(Intent(context, VpnSessionService::class.java))
+        setShade(open = false)
+    }
+
     private fun waitUntil(timeoutMs: Long, condition: () -> Boolean): Boolean {
         val deadline = SystemClock.elapsedRealtime() + timeoutMs
         while (SystemClock.elapsedRealtime() < deadline) {
@@ -79,10 +96,14 @@ class VpnSessionServiceTest {
         val manager = context.getSystemService(NotificationManager::class.java)
         ActivityScenario.launch(MainActivity::class.java).use {
             try {
-                VpnSessionService.start(context, "KX device test", System.currentTimeMillis())
+                // Pin the language explicitly: "system" follows the device locale
+                // (ar-EG on the owner phone), so the expected title must be built from
+                // the same explicit selection the service was started with.
+                VpnSessionService.start(context, "KX device test", System.currentTimeMillis(), "en")
+                val english = localized("en")
                 val posted = awaitSessionNotification(
                     manager,
-                    context.getString(R.string.vpn_notification_title),
+                    english.getString(R.string.vpn_notification_title),
                 )
                 assertTrue(
                     "a live session notification must not be dismissible",
@@ -91,7 +112,7 @@ class VpnSessionServiceTest {
                 val disconnect = posted.actions?.singleOrNull()
                 assertNotNull("the session notification must offer one disconnect action", disconnect)
                 assertEquals(
-                    context.getString(R.string.vpn_notification_disconnect),
+                    english.getString(R.string.vpn_notification_disconnect),
                     disconnect!!.title.toString(),
                 )
                 // Leave a text artifact behind for the device evidence bundle.
@@ -113,8 +134,8 @@ class VpnSessionServiceTest {
                 )
                 captureShade(
                     "session-notification-en",
-                    context.getString(R.string.vpn_notification_title),
-                    context.getString(R.string.vpn_notification_disconnect),
+                    english.getString(R.string.vpn_notification_title),
+                    english.getString(R.string.vpn_notification_disconnect),
                 )
             } finally {
                 context.stopService(Intent(context, VpnSessionService::class.java))
@@ -203,6 +224,7 @@ class VpnSessionServiceTest {
     private fun assertDisconnectAction(accept: Boolean, removalFailure: String) {
         grantNotificationPermission()
         val manager = context.getSystemService(NotificationManager::class.java)
+        val english = localized("en")
         val requests = AtomicInteger()
         val handler: () -> Boolean = { requests.incrementAndGet(); accept }
         ActivityScenario.launch(MainActivity::class.java).use {
@@ -211,7 +233,7 @@ class VpnSessionServiceTest {
                 VpnSessionService.start(context, "KX device test", System.currentTimeMillis(), "en")
                 val posted = awaitSessionNotification(
                     manager,
-                    context.getString(R.string.vpn_notification_title),
+                    english.getString(R.string.vpn_notification_title),
                 )
                 val action = posted.actions?.singleOrNull()
                 assertNotNull("the session notification has no disconnect action", action)
@@ -237,11 +259,12 @@ class VpnSessionServiceTest {
         grantNotificationPermission()
         val manager = context.getSystemService(NotificationManager::class.java)
         val arabic = localized("ar")
+        val english = localized("en")
         val startedAt = System.currentTimeMillis()
         ActivityScenario.launch(MainActivity::class.java).use {
             try {
                 VpnSessionService.start(context, "KX device test", startedAt, "en")
-                awaitSessionNotification(manager, context.getString(R.string.vpn_notification_title))
+                awaitSessionNotification(manager, english.getString(R.string.vpn_notification_title))
                 VpnSessionService.start(context, "KX device test", startedAt, "ar")
                 assertTrue(
                     "reposting did not update the notification language",
@@ -288,7 +311,6 @@ class VpnSessionServiceTest {
      * is located through the accessibility tree and expanded so its action row is visible.
      */
     private fun captureShade(name: String, title: String, action: String) {
-        val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
         setShade(open = false)
         // The expand command is best effort; the notification title in the accessibility
         // tree is the real proof that the shade is showing content on every API level.
@@ -300,6 +322,22 @@ class VpnSessionServiceTest {
                 // "Silent notifications" section. Expand it before declaring the test failed.
                 expandSilentSection()
                 bounds = waitForText(title)
+            }
+            if (bounds == null) {
+                // Samsung One UI keeps gentle (importance LOW) notifications below the
+                // alerting stack; on a busy owner device the shade is full of other apps'
+                // notifications and the session row starts off-screen. Scroll the real
+                // shade until the row is genuinely visible, then expand any silent group.
+                repeat(4) {
+                    if (bounds != null) return@repeat
+                    shell("input swipe 360 1200 360 420 350")
+                    SystemClock.sleep(700)
+                    bounds = textBounds(title)
+                    if (bounds == null) {
+                        expandSilentSection()
+                        bounds = textBounds(title)
+                    }
+                }
             }
             check(bounds != null) { "the session notification was not visible in the shade" }
             // A swipe can animate before the shade finishes settling. Retry once from a
@@ -313,13 +351,22 @@ class VpnSessionServiceTest {
                 SystemClock.sleep(900)
                 if (!waitUntil(3_000) { textBounds(action) != null }) {
                     // Some API levels keep the expand affordance in the notification header.
-                    expandAffordance()?.let { (cx, cy) ->
+                    expandAffordanceNear(anchor)?.let { (cx, cy) ->
                         shell("input tap $cx $cy")
                         SystemClock.sleep(1_000)
                     }
                 }
+                if (!waitUntil(2_000) { textBounds(action) != null }) {
+                    // One UI gentle rows may need a second, longer two-finger-style pull
+                    // from the row's own header to reveal the action row.
+                    shell("input swipe $x $y $x ${y + 520} 450")
+                    SystemClock.sleep(1_000)
+                }
                 if (waitUntil(3_000) { textBounds(action) != null }) {
-                    val bitmap = automation.takeScreenshot()
+                    val bitmap = screenshotOrNull(10_000)
+                    check(bitmap != null) {
+                        "the shade screenshot transport did not respond within 10s"
+                    }
                     val file = File(context.getExternalFilesDir(null), "$name.png")
                     file.outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
                     return
@@ -328,6 +375,20 @@ class VpnSessionServiceTest {
                     // A missed gesture can close the shade; reopen it and refresh the anchor.
                     setShade(open = true)
                     bounds = waitForText(title)
+                    if (bounds == null) {
+                        // The reopened shade resets scroll; the gentle session row may be
+                        // below the alerting stack again. Bring it back into view.
+                        repeat(4) {
+                            if (bounds != null) return@repeat
+                            shell("input swipe 360 1200 360 420 350")
+                            SystemClock.sleep(700)
+                            bounds = textBounds(title)
+                            if (bounds == null) {
+                                expandSilentSection()
+                                bounds = textBounds(title)
+                            }
+                        }
+                    }
                 }
             }
             check(false) {
@@ -351,16 +412,64 @@ class VpnSessionServiceTest {
     private fun shadeIsOpen(): Boolean {
         // API35 can report no mCurrentFocus while the shade is genuinely open, but the
         // accessibility root belongs to SystemUI whenever the shade is accepting input.
-        val root = InstrumentationRegistry.getInstrumentation().uiAutomation.rootInActiveWindow
-        val shadePackage = root?.packageName?.toString()
-        @Suppress("DEPRECATION")
-        root?.recycle()
+        // The root fetch is best-effort: on the API26 hosted emulator the accessibility
+        // bridge can wedge after a shade transition + injected swipe (CI runs
+        // 45029892114 / 45035675592 hung here until the 30m budget killed Gradle), so
+        // it runs on a watchdog and falls back to the window-manager dump instead of
+        // blocking the whole suite on one binder call.
+        val shadePackage = accessibilityProbe(2_000) { automation ->
+            val root = automation.rootInActiveWindow ?: return@accessibilityProbe null
+            try {
+                root.packageName?.toString()
+            } finally {
+                @Suppress("DEPRECATION")
+                root.recycle()
+            }
+        }
         if (shadePackage == "com.android.systemui") return true
         return shell("dumpsys window windows")
             .lineSequence()
             .firstOrNull { it.contains("mCurrentFocus=") }
             ?.let { it.contains("StatusBar") || it.contains("NotificationShade") } == true
     }
+
+    /**
+     * Runs an accessibility-tree probe on a daemon watchdog thread. A wedged
+     * UiAutomation binder call must never hold the instrumentation hostage: after
+     * [timeoutMs] the probe is abandoned (the daemon dies with the process) and the
+     * caller falls back to shell-based observation. Results are still real observations;
+     * only a hung transport is bypassed.
+     */
+    private fun <T> accessibilityProbe(timeoutMs: Long, probe: (android.app.UiAutomation) -> T?): T? {
+        val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
+        val result = java.util.concurrent.atomic.AtomicReference<T?>(null)
+        val done = java.util.concurrent.CountDownLatch(1)
+        val worker = Thread {
+            try {
+                result.set(probe(automation))
+            } catch (_: Exception) {
+                // A dead/wedged bridge is an observation failure, not a test verdict.
+            } finally {
+                done.countDown()
+            }
+        }
+        worker.isDaemon = true
+        worker.start()
+        // The boolean is deliberately consumed as a log line, not a verdict: a timed-out
+        // probe degrades to a null observation (kotlin:S899 - never ignore the result).
+        val completed = done.await(timeoutMs, java.util.concurrent.TimeUnit.MILLISECONDS)
+        if (!completed) android.util.Log.w("KxWatchdog", "accessibility probe timed out after ${timeoutMs}ms")
+        return result.get()
+    }
+
+    /**
+     * Runs a blocking UiAutomation call (screenshot) on the same daemon-watchdog pattern.
+     * CI run 45042088536 (API26) wedged inside takeScreenshot after shade gestures until
+     * the 30m budget killed Gradle; a bounded wait turns that transport failure into a
+     * null observation the caller can retry or report, never a suite-wide hang.
+     */
+    private fun screenshotOrNull(timeoutMs: Long): Bitmap? =
+        accessibilityProbe(timeoutMs) { automation -> automation.takeScreenshot() }
 
     private fun waitForText(text: String, timeoutMs: Long = 8_000): Rect? {
         val deadline = SystemClock.elapsedRealtime() + timeoutMs
@@ -385,25 +494,42 @@ class VpnSessionServiceTest {
         SystemClock.sleep(800)
     }
 
-    private fun expandAffordance(): Pair<Int, Int>? {
-        val bounds = nodeBounds { node ->
+    /**
+     * One UI shows an expand chevron on EVERY notification row, so a global "Expand"
+     * lookup can tap a different app's row. Field probe on the owner's SM-A025F
+     * (shade-dump-scroll1.json): the KX title sat at y=1199 while the USB row's
+     * chevron at y=1103 also fell inside a ±40dp overlap window and came FIRST in
+     * tree order - tapping it opened USB options instead of the session actions.
+     * Pick the chevron with the smallest vertical distance to the title row.
+     */
+    private fun expandAffordanceNear(titleBounds: Rect?): Pair<Int, Int>? {
+        val candidates = mutableListOf<Pair<Int, Int>>()
+        nodeBounds { node ->
             val description = node.contentDescription?.toString()
-            description.equals("Expand", ignoreCase = true) ||
+            if (description.equals("Expand", ignoreCase = true) ||
                 description.equals("توسيع", ignoreCase = true)
-        } ?: return null
-        return bounds.centerX() to bounds.centerY()
+            ) {
+                val b = Rect()
+                node.getBoundsInScreen(b)
+                candidates.add(b.centerX() to b.centerY())
+            }
+            false
+        }
+        if (candidates.isEmpty()) return null
+        if (titleBounds == null) return candidates.first()
+        return candidates.minByOrNull { (_, cy) -> kotlin.math.abs(cy - titleBounds.centerY()) }
     }
 
-    private fun nodeBounds(predicate: (AccessibilityNodeInfo) -> Boolean): Rect? {
-        val root = InstrumentationRegistry.getInstrumentation().uiAutomation
-            .rootInActiveWindow ?: return null
-        return try {
-            findNode(root, predicate)
-        } finally {
-            @Suppress("DEPRECATION")
-            root.recycle()
+    private fun nodeBounds(predicate: (AccessibilityNodeInfo) -> Boolean): Rect? =
+        accessibilityProbe(3_000) { automation ->
+            val root = automation.rootInActiveWindow ?: return@accessibilityProbe null
+            try {
+                findNode(root, predicate)
+            } finally {
+                @Suppress("DEPRECATION")
+                root.recycle()
+            }
         }
-    }
 
     private fun findNode(
         node: AccessibilityNodeInfo,
@@ -428,9 +554,28 @@ class VpnSessionServiceTest {
 
     private fun shell(command: String): String {
         val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
-        return ParcelFileDescriptor.AutoCloseInputStream(automation.executeShellCommand(command))
-            .bufferedReader()
-            .use { it.readText() }
+        // Same watchdog rationale as the accessibility probes: a shell command whose
+        // pipe never closes (wedged API26 SystemUI) must degrade to an empty observation
+        // after a bounded wait, not hang the suite until the CI budget kills Gradle.
+        val result = java.util.concurrent.atomic.AtomicReference("")
+        val done = java.util.concurrent.CountDownLatch(1)
+        val worker = Thread {
+            try {
+                result.set(
+                    ParcelFileDescriptor.AutoCloseInputStream(automation.executeShellCommand(command))
+                        .bufferedReader()
+                        .use { it.readText() },
+                )
+            } catch (_: Exception) {
+            } finally {
+                done.countDown()
+            }
+        }
+        worker.isDaemon = true
+        worker.start()
+        val completed = done.await(15, java.util.concurrent.TimeUnit.SECONDS)
+        if (!completed) android.util.Log.w("KxWatchdog", "shell probe timed out: $command")
+        return result.get()
     }
 
     @RequiresApi(34)

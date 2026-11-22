@@ -67,6 +67,7 @@ import com.knoux.kxprivatevpn.designsystem.KxReferenceAtmosphere
 import com.knoux.kxprivatevpn.designsystem.KxReferenceHeader
 import com.knoux.kxprivatevpn.designsystem.KxReferenceTheme
 import com.knoux.kxprivatevpn.designsystem.KxTitleBlock
+import com.knoux.kxprivatevpn.designsystem.kxEntrance
 import com.knoux.kxprivatevpn.designsystem.RepairGlyph
 import com.knoux.kxprivatevpn.designsystem.kxCyan
 import com.knoux.kxprivatevpn.designsystem.kxGreen
@@ -176,29 +177,34 @@ fun HeavyweightScreen(
                     tag = "heavy-ref-back",
                     icon = KxIconKind.BACK,
                     onClick = onBack,
+                    modifier = Modifier.kxEntrance(index = 0),
                 )
                 KxTitleBlock(
                     title = stringResource(R.string.repair_service_heavyweight),
                     subtitle = stringResource(R.string.heavy_subtitle),
                     night = night,
+                    modifier = Modifier.kxEntrance(index = 1),
                 )
                 HeavyHero(
                     night = night,
                     scanning = state.scanning,
                     progress = state.progress,
                     compact = scan != null,
+                    modifier = Modifier.kxEntrance(index = 2),
                 )
                 SetupRow(
                     night = night,
                     state = state,
                     onChooseFolder = onChooseFolder,
                     onMinimumBytes = onMinimumBytes,
+                    modifier = Modifier.kxEntrance(index = 3),
                 )
                 ScanActionCard(
                     night = night,
                     state = state,
                     onScan = onScan,
                     onCancelScan = onCancelScan,
+                    modifier = Modifier.kxEntrance(index = 4),
                 )
                 if (scan != null) {
                     SummaryCard(night, scan, ink)
@@ -275,6 +281,7 @@ private fun HeavyHero(
     scanning: Boolean,
     progress: Int,
     compact: Boolean,
+    modifier: Modifier = Modifier,
 ) {
     val reduced = rememberReducedMotion()
     val sweep = remember { Animatable(0f) }
@@ -290,7 +297,7 @@ private fun HeavyHero(
     val orbSize = if (compact) 116.dp else 150.dp
     val glyphSize = if (compact) 58.dp else 76.dp
     Box(
-        Modifier.fillMaxWidth().height(sceneHeight).testTag("heavy-hero"),
+        modifier.fillMaxWidth().height(sceneHeight).testTag("heavy-hero"),
         contentAlignment = Alignment.Center,
     ) {
         Canvas(Modifier.fillMaxSize()) {
@@ -398,9 +405,10 @@ private fun SetupRow(
     state: HeavyweightUiState,
     onChooseFolder: () -> Unit,
     onMinimumBytes: (Long) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val fontScale = LocalDensity.current.fontScale
-    BoxWithConstraints(Modifier.fillMaxWidth()) {
+    BoxWithConstraints(modifier.fillMaxWidth()) {
         val stack = maxWidth < 330.dp || fontScale > 1.2f
         if (stack) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -617,9 +625,10 @@ private fun ScanActionCard(
     state: HeavyweightUiState,
     onScan: () -> Unit,
     onCancelScan: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val ink = kxInk(night)
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         if (state.scanning) {
             OutlinedButton(
                 onClick = onCancelScan,

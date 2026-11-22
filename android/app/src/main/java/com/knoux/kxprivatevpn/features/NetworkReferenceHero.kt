@@ -46,6 +46,7 @@ import com.knoux.kxprivatevpn.designsystem.KxIconKind
 import com.knoux.kxprivatevpn.designsystem.KxLineIcon
 import com.knoux.kxprivatevpn.designsystem.KxOrbBadge
 import com.knoux.kxprivatevpn.designsystem.KxStatusPill
+import com.knoux.kxprivatevpn.designsystem.LocalKxAmbient
 import com.knoux.kxprivatevpn.designsystem.kxCyan
 import com.knoux.kxprivatevpn.designsystem.kxGreen
 import com.knoux.kxprivatevpn.designsystem.kxInk
@@ -93,8 +94,9 @@ object NetworkReferencePolicy {
 }
 
 @Composable
-internal fun NetworkReferenceHero(night: Boolean, probing: Boolean) {
+internal fun NetworkReferenceHero(night: Boolean, probing: Boolean, modifier: Modifier = Modifier) {
     val reducedMotion = rememberReducedMotion()
+    val ambient = LocalKxAmbient.current
     val angle: Float = if (probing && !reducedMotion) {
         val spin = rememberInfiniteTransition(label = "network-doctor-orbit")
         val frame by spin.animateFloat(
@@ -108,12 +110,15 @@ internal fun NetworkReferenceHero(night: Boolean, probing: Boolean) {
     val cyan = kxCyan(night)
     val violet = kxViolet(night)
     Box(
-        Modifier.fillMaxWidth().height(275.dp).testTag("network-ref-hero"),
+        modifier.fillMaxWidth().height(275.dp).testTag("network-ref-hero"),
         contentAlignment = Alignment.Center,
     ) {
         Canvas(Modifier.size(270.dp).testTag("network-ref-orbit")) {
             val center = Offset(size.width / 2f, size.height / 2f)
             val radius = size.minDimension * .48f
+            // Idle life: the diagnostic rings keep a slow ambient orbit even when no probe
+            // is running. Read inside the draw phase so only redraw happens, never recompose.
+            val spin = angle + if (!probing && ambient.enabled) ambient.orbit.value else 0f
             drawCircle(
                 Brush.radialGradient(
                     listOf(violet.copy(alpha = .35f),
@@ -137,7 +142,7 @@ internal fun NetworkReferenceHero(night: Boolean, probing: Boolean) {
             drawArc(
                 brush = Brush.sweepGradient(
                     listOf(violet, cyan, Color.Transparent, violet), center),
-                startAngle = -90f + angle, sweepAngle = 115f, useCenter = false,
+                startAngle = -90f + spin, sweepAngle = 115f, useCenter = false,
                 topLeft = Offset(size.width * .063f, size.height * .063f),
                 size = Size(size.width * .874f, size.height * .874f),
                 style = Stroke(4.dp.toPx(), cap = StrokeCap.Round),
@@ -145,14 +150,14 @@ internal fun NetworkReferenceHero(night: Boolean, probing: Boolean) {
             drawArc(
                 brush = Brush.sweepGradient(
                     listOf(cyan, Color.Transparent, violet, cyan), center),
-                startAngle = 113f - angle * .4f,
+                startAngle = 113f - spin * .4f,
                 sweepAngle = 75f, useCenter = false,
                 topLeft = Offset(size.width * .052f, size.height * .052f),
                 size = Size(size.width * .896f, size.height * .896f),
                 style = Stroke(2.dp.toPx(), cap = StrokeCap.Round),
             )
             repeat(22) { i ->
-                val a = Math.toRadians(i * (360.0 / 22) + angle * .15)
+                val a = Math.toRadians(i * (360.0 / 22) + spin * .15)
                 val r = size.minDimension * .467f
                 drawCircle(
                     if (i % 3 == 0) violet else cyan,
@@ -185,11 +190,13 @@ internal fun NetworkReferenceHero(night: Boolean, probing: Boolean) {
 
 @Composable
 private fun NetworkOrbitParticle(night: Boolean, glow: Color, sizeDp: Int) {
+    val ambient = LocalKxAmbient.current
     Canvas(Modifier.size(sizeDp.dp)) {
+        val breathe = if (ambient.enabled) .72f + .28f * ambient.breathe.value else 1f
         drawCircle(Brush.radialGradient(
             listOf(Color.White, glow, glow.copy(alpha = .25f), Color.Transparent),
             center = center, radius = size.minDimension * .53f,
-        ), radius = size.minDimension * .50f)
+        ), radius = size.minDimension * .50f, alpha = breathe)
     }
 }
 
@@ -198,6 +205,7 @@ internal fun NetworkReferenceControls(
     night: Boolean,
     state: NetworkUiState,
     onReadAgain: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val label = when {
         state.readFailed -> R.string.network_ref_read_unavailable
@@ -207,7 +215,7 @@ internal fun NetworkReferenceControls(
         else -> R.string.network_ref_offline
     }
     Column(
-        Modifier.fillMaxWidth().testTag("network-ref-controls"),
+        modifier.fillMaxWidth().testTag("network-ref-controls"),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(11.dp),
     ) {
@@ -234,7 +242,7 @@ internal fun NetworkReferenceControls(
 }
 
 @Composable
-internal fun NetworkReferenceSummary(night: Boolean, state: NetworkUiState) {
+internal fun NetworkReferenceSummary(night: Boolean, state: NetworkUiState, modifier: Modifier = Modifier) {
     val facts = NetworkReferencePolicy.facts(state)
     val items = listOf(
         NetworkMetric(
@@ -272,7 +280,7 @@ internal fun NetworkReferenceSummary(night: Boolean, state: NetworkUiState) {
             },
         ),
     )
-    KxGlassPanel(night, modifier = Modifier.testTag("network-ref-summary"),
+    KxGlassPanel(night, modifier = modifier.testTag("network-ref-summary"),
         radius = 28.dp, padding = PaddingValues(14.dp)) {
         Row(Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,

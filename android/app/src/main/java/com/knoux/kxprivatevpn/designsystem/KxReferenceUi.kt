@@ -1,15 +1,8 @@
 package com.knoux.kxprivatevpn.designsystem
 
 import android.view.HapticFeedbackConstants
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -76,6 +69,7 @@ import androidx.compose.ui.unit.sp
 import com.knoux.kxprivatevpn.R
 import com.knoux.kxprivatevpn.launch.IntroTimeline
 import com.knoux.kxprivatevpn.launch.rememberReducedMotion
+import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin
@@ -122,6 +116,7 @@ fun KxReferenceTheme(night: Boolean, content: @Composable () -> Unit) {
     )
     MaterialTheme(colorScheme = scheme, typography = KxTypography) {
         CompositionLocalProvider(
+            LocalKxAmbient provides rememberKxAmbient(),
             androidx.compose.material3.LocalContentColor provides kxInk(night),
             androidx.compose.material3.LocalTextStyle provides androidx.compose.material3.LocalTextStyle.current.copy(
                 fontFamily = KxCairo,
@@ -163,9 +158,17 @@ enum class KxAtmosphereStyle {
  */
 @Composable
 fun KxReferenceAtmosphere(night: Boolean, style: KxAtmosphereStyle = KxAtmosphereStyle.STANDARD) {
+    val ambient = LocalKxAmbient.current
     Canvas(Modifier.fillMaxSize()) {
         val w = size.width
         val h = size.height
+        // Ambient channels are read here, inside the draw phase: the scene animates with a
+        // redraw only, never a recomposition. Reduced motion freezes them at a midpoint.
+        val drift = if (ambient.enabled) ambient.drift.value else .5f
+        val breathe = if (ambient.enabled) ambient.breathe.value else .5f
+        val twinkle = if (ambient.enabled) ambient.twinkle.value else 1f
+        val wave = sin(drift * 2f * PI.toFloat())
+        val bloomPulse = .86f + .14f * breathe
         if (night) {
             drawRect(
                 Brush.linearGradient(
@@ -173,27 +176,28 @@ fun KxReferenceAtmosphere(night: Boolean, style: KxAtmosphereStyle = KxAtmospher
                     Offset(0f, 0f), Offset(w * .85f, h),
                 ),
             )
-            // Corner blooms: violet top left, cyan top right, magenta far left.
+            // Corner blooms: violet top left, cyan top right, magenta far left. Each drifts
+            // a few pixels with the ambient clock so the backdrop is alive, not a still.
             drawCircle(
                 Brush.radialGradient(
-                    listOf(Color(0xFF9A4BF5).copy(alpha = .50f), Color(0xFF4F2AA6).copy(alpha = .22f), Color.Transparent),
-                    Offset(w * .06f, h * .01f), w * .88f,
+                    listOf(Color(0xFF9A4BF5).copy(alpha = .50f * bloomPulse), Color(0xFF4F2AA6).copy(alpha = .22f), Color.Transparent),
+                    Offset(w * (.06f + .02f * wave), h * (.01f + .012f * wave)), w * .88f,
                 ),
-                w * .88f, Offset(w * .06f, h * .01f),
+                w * .88f, Offset(w * (.06f + .02f * wave), h * (.01f + .012f * wave)),
             )
             drawCircle(
                 Brush.radialGradient(
-                    listOf(Color(0xFF1FC6F2).copy(alpha = .26f), Color.Transparent),
-                    Offset(w * .97f, h * .22f), w * .58f,
+                    listOf(Color(0xFF1FC6F2).copy(alpha = .26f * bloomPulse), Color.Transparent),
+                    Offset(w * (.97f - .02f * wave), h * (.22f + .015f * wave)), w * .58f,
                 ),
-                w * .58f, Offset(w * .97f, h * .22f),
+                w * .58f, Offset(w * (.97f - .02f * wave), h * (.22f + .015f * wave)),
             )
             drawCircle(
                 Brush.radialGradient(
-                    listOf(Color(0xFFFF6FD0).copy(alpha = .20f), Color.Transparent),
-                    Offset(w * .02f, h * .26f), w * .42f,
+                    listOf(Color(0xFFFF6FD0).copy(alpha = .20f * (1f - .25f * breathe)), Color.Transparent),
+                    Offset(w * .02f, h * (.26f - .02f * wave)), w * .42f,
                 ),
-                w * .42f, Offset(w * .02f, h * .26f),
+                w * .42f, Offset(w * .02f, h * (.26f - .02f * wave)),
             )
             if (style == KxAtmosphereStyle.REPAIR) {
                 // Ref 03 opens with a violet diagonal wash across the top left corner.
@@ -290,13 +294,37 @@ fun KxReferenceAtmosphere(night: Boolean, style: KxAtmosphereStyle = KxAtmospher
                     start = Offset(w, h * .58f), end = Offset(w * .75f, h * .71f),
                 )
             }
+            // Comet: one bright photon glides along the hero ribbon on the ambient clock,
+            // fading at both ends of its journey so it never snaps across the screen.
+            if (ambient.enabled) {
+                val t = ambient.shimmer.value
+                val envelope = sin(t * PI.toFloat())
+                if (envelope > .02f) {
+                    val p = cubicPoint(
+                        -w * .06f, h * .43f, w * .18f, h * .31f,
+                        w * .34f, h * .22f, w * .60f, h * .23f, t.coerceIn(0f, 1f),
+                    )
+                    drawCircle(
+                        Brush.radialGradient(
+                            listOf(Color.White.copy(alpha = .85f * envelope),
+                                Color(0xFF8FF6FF).copy(alpha = .50f * envelope), Color.Transparent),
+                            p, 14.dp.toPx(),
+                        ),
+                        14.dp.toPx(), p,
+                    )
+                    drawCircle(Color.White.copy(alpha = .9f * envelope), 1.6.dp.toPx(), p)
+                }
+            }
             // Dust motes: a fixed constellation adds depth without a per-frame particle
-            // system. Positions are hand-placed so the result is deterministic in tests.
-            kxDustMotes.forEach { mote ->
+            // system. Positions are hand-placed so the result is deterministic in tests;
+            // the ambient twinkle only modulates their light, never their position.
+            kxDustMotes.forEachIndexed { index, mote ->
                 val p = Offset(w * mote.x, h * mote.y)
+                val phase = .5f + .5f * sin((twinkle + index * .19f) * 2f * PI.toFloat())
+                val alpha = mote.alpha * (.45f + .55f * phase)
                 drawCircle(
                     Brush.radialGradient(
-                        listOf(Color.White.copy(alpha = mote.alpha), Color.Transparent),
+                        listOf(Color.White.copy(alpha = alpha), Color.Transparent),
                         p, mote.radius * w,
                     ),
                     mote.radius * w, p,
@@ -318,17 +346,17 @@ fun KxReferenceAtmosphere(night: Boolean, style: KxAtmosphereStyle = KxAtmospher
             )
             drawCircle(
                 Brush.radialGradient(
-                    listOf(Color(0xFF9A77F5).copy(alpha = .38f), Color.Transparent),
-                    Offset(w * .05f, h * .03f), w * .82f,
+                    listOf(Color(0xFF9A77F5).copy(alpha = .38f * bloomPulse), Color.Transparent),
+                    Offset(w * (.05f + .015f * wave), h * .03f), w * .82f,
                 ),
-                w * .82f, Offset(w * .05f, h * .03f),
+                w * .82f, Offset(w * (.05f + .015f * wave), h * .03f),
             )
             drawCircle(
                 Brush.radialGradient(
-                    listOf(Color(0xFF54C8F5).copy(alpha = .28f), Color.Transparent),
-                    Offset(w * .96f, h * .28f), w * .58f,
+                    listOf(Color(0xFF54C8F5).copy(alpha = .28f * bloomPulse), Color.Transparent),
+                    Offset(w * (.96f - .015f * wave), h * (.28f + .012f * wave)), w * .58f,
                 ),
-                w * .58f, Offset(w * .96f, h * .28f),
+                w * .58f, Offset(w * (.96f - .015f * wave), h * (.28f + .012f * wave)),
             )
             neonSweep(
                 Path().apply {
@@ -444,7 +472,10 @@ private val kxDustMotes = listOf(
 /**
  * Orbital halo drawn around the hero emblem: a slow luminous ring, a dashed orbit and a
  * breathing bloom. Ref 14 and Ref 03 both show this ring; the plain orb alone reads flat.
- * Infinite motion is skipped for reduced-motion users, who still get the static halo.
+ * Motion rides the shared frame-paced [KxAmbient] clock and is read INSIDE the draw
+ * phase, so the halo never recomposes per frame and never runs its own per-vsync
+ * transition (which starved idle waits on slow renderers, CI run 45042088536).
+ * Reduced-motion users and covered windows get the same static halo.
  */
 @Composable
 fun KxOrbitalHalo(
@@ -453,22 +484,15 @@ fun KxOrbitalHalo(
     animated: Boolean = true,
 ) {
     val reducedMotion = rememberReducedMotion()
-    val transition = rememberInfiniteTransition(label = "kx-halo")
-    val spin by transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(tween(18000, easing = LinearEasing), RepeatMode.Restart),
-        label = "kx-halo-spin",
-    )
-    val breathe by transition.animateFloat(
-        initialValue = .78f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(3600, easing = FastOutSlowInEasing), RepeatMode.Reverse),
-        label = "kx-halo-breathe",
-    )
-    val rotation = if (animated && !reducedMotion) spin else 0f
-    val pulse = if (animated && !reducedMotion) breathe else .92f
+    val ambient = LocalKxAmbient.current
+    val live = animated && !reducedMotion && ambient.enabled
     Canvas(modifier) {
+        // The halo rides the shared clock's orbit channel directly (22s revolution;
+        // the original private transition used 18s — visually equivalent for a slow
+        // dashed ring, and continuous with zero extra frame machinery). Breathe maps
+        // the shared 3.9s channel onto the original .78..1 pulse range.
+        val rotation = if (live) ambient.orbit.value else 0f
+        val pulse = if (live) .78f + .22f * ambient.breathe.value else .92f
         val c = Offset(size.width / 2f, size.height / 2f)
         val r = size.minDimension / 2f
         drawCircle(
@@ -669,6 +693,7 @@ fun KxGlassPanel(
             Color(0xFF6BC8EB).copy(alpha = .34f),
         ),
     )
+    val ambient = LocalKxAmbient.current
     Column(
         modifier.fillMaxWidth().clip(shape)
             .drawBehind {
@@ -689,6 +714,9 @@ fun KxGlassPanel(
                     cornerRadius = CornerRadius((radius.toPx() - bevel).coerceAtLeast(0f)),
                     style = Stroke(bevel),
                 )
+                // Living glass: a soft specular band glides across the panel beneath the
+                // content. Reading the ambient clock here redraws without recomposing.
+                if (ambient.enabled) kxSheen(ambient.shimmer.value, night, strength = .8f)
             }
             .border(1.dp, rim, shape).padding(padding),
         content = content,
@@ -801,7 +829,8 @@ fun KxTitleBlock(
                     Brush.horizontalGradient(
                         listOf(Color.Transparent, kxCyan(night), kxViolet(night), Color.Transparent),
                     ),
-                ),
+                )
+                .kxLivePulse(active = true, minimumScale = .88f),
         )
     }
 }
@@ -820,6 +849,7 @@ fun KxGradientAction(
     val shape = RoundedCornerShape(50)
     val interaction = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
     val tapHaptic = rememberKxTapHaptic()
+    val ambient = LocalKxAmbient.current
     val fill = if (enabled || night) {
         Brush.horizontalGradient(
             listOf(Color(0xFF8B3DFF), Color(0xFF5B45F5), Color(0xFF1E9BE8), Color(0xFF1AC8FF)),
@@ -832,12 +862,14 @@ fun KxGradientAction(
     Row(
         modifier.fillMaxWidth().drawBehind {
             // Soft coloured bloom around the CTA. Two outward strokes approximate the
-            // reference glow without RenderEffect or a blur pass.
+            // reference glow without RenderEffect or a blur pass. The bloom breathes with
+            // the ambient clock while the action is enabled, so the CTA feels alive.
+            val breathe = if (ambient.enabled && enabled) .82f + .18f * ambient.breathe.value else 1f
             val glow = 8.dp.toPx()
             val bloom = Brush.horizontalGradient(
                 listOf(
-                    Color(0xFF8B3DFF).copy(alpha = if (enabled) .40f else .16f),
-                    Color(0xFF1AC8FF).copy(alpha = if (enabled) .40f else .16f),
+                    Color(0xFF8B3DFF).copy(alpha = (if (enabled) .40f else .16f) * breathe),
+                    Color(0xFF1AC8FF).copy(alpha = (if (enabled) .40f else .16f) * breathe),
                 ),
             )
             drawRoundRect(
@@ -1106,7 +1138,7 @@ fun KxStatusPill(
         if (icon != null) KxLineIcon(icon, if (night) Color.White else Color(0xFF0A5540), Modifier.size(15.dp))
         Text(label, color = if (connected) (if (night) Color(0xFFE9FFF7) else Color(0xFF064C39))
         else kxInk(night), fontSize = 11.5.sp, lineHeight = 16.sp, fontWeight = FontWeight.SemiBold)
-        if (connected) Box(Modifier.size(6.dp).clip(CircleShape).background(kxGreen(night)))
+        if (connected) Box(Modifier.size(6.dp).clip(CircleShape).background(kxGreen(night)).kxLivePulse(active = true))
     }
 }
 

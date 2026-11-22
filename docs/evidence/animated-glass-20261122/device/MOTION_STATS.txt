@@ -1,0 +1,18 @@
+Frame pairs captured ~2.5s apart on SM-A025F R9ZR20HWHQY (720x1600, ar-EG).
+Changed-pixel fraction (delta > 8/255) between frames proves ambient motion.
+
+01-home: motion-changed-pixels=0.414%
+02-tools: motion-changed-pixels=0.268%
+03-repair-lab: motion-changed-pixels=0.041%
+04-split-tunnel: motion-changed-pixels=39.108%
+05-servers: motion-changed-pixels=6.912%
+06-security: motion-changed-pixels=6.868%
+07-settings: motion-changed-pixels=18.917%
+08-statistics: motion-changed-pixels=6.091%
+
+Note: fractions above 1% include real content loading between the two frames
+(split-tunnel/settings app inventory lists populate from the real PackageManager;
+servers/security/settings/stats include ambient sheen, orbit and breathe motion).
+Small fractions (home/tools/repair ~0.04-0.4%) are the ambient-only surfaces:
+sheen sweeps, orb glints, breathing blooms and drifting ribbons.
+Build: 8e0c5a3 (foreground-gated ambient clock). Captured with animation scales = 1.

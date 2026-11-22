@@ -38,6 +38,8 @@ import com.knoux.kxprivatevpn.data.config.Profile
 import com.knoux.kxprivatevpn.designsystem.Atmosphere
 import com.knoux.kxprivatevpn.designsystem.GlassSurface
 import com.knoux.kxprivatevpn.designsystem.KxPageHeader
+import com.knoux.kxprivatevpn.designsystem.kxEntrance
+import com.knoux.kxprivatevpn.designsystem.kxPressScale
 import com.knoux.kxprivatevpn.platform.vpn.VpnIssue
 import com.knoux.kxprivatevpn.platform.vpn.VpnPhase
 import com.knoux.kxprivatevpn.platform.vpn.VpnSessionOwnership
@@ -114,6 +116,7 @@ fun ServerSelectionScreen(
                 night = night,
                 backLabel = stringResource(R.string.back),
                 onBack = onBack,
+                modifier = Modifier.kxEntrance(index = 0),
             )
             Text(
                 stringResource(R.string.servers_body),
@@ -131,7 +134,8 @@ fun ServerSelectionScreen(
                 shape = RoundedCornerShape(50),
                 placeholder = { Text(stringResource(R.string.search_servers), fontSize = 13.sp) },
                 leadingIcon = { SearchGlyph(foreground) },
-                modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp).testTag("server-search"),
+                modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp).testTag("server-search")
+                    .kxEntrance(index = 1),
             )
             if (profiles.isEmpty()) {
                 GlassSurface(night) {
@@ -151,7 +155,7 @@ fun ServerSelectionScreen(
                     modifier = Modifier.fillMaxWidth().selectableGroup(),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    filtered.forEach { profile ->
+                    filtered.forEachIndexed { index, profile ->
                         ServerCard(
                             profile = profile,
                             selected = activeId == null && profile.id == selectedId,
@@ -159,6 +163,7 @@ fun ServerSelectionScreen(
                             night = night,
                             foreground = foreground,
                             busy = state.busy || locked,
+                            modifier = Modifier.kxEntrance(index = 2 + index),
                             onSelect = {
                                 when {
                                     // The live server is already in use; tapping its card is a no-op.
@@ -301,12 +306,15 @@ private fun ServerCard(
     busy: Boolean,
     onSelect: () -> Unit,
     onRemove: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val shape = RoundedCornerShape(22.dp)
     val inUse = selected || active
     val accent = if (inUse) Color(0xFF64EEFF) else Color(0xFFAD71FF)
+    val interaction = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
     Column(
-        Modifier.fillMaxWidth()
+        modifier.fillMaxWidth()
+            .kxPressScale(interaction, !busy)
             .clip(shape)
             .background(Brush.linearGradient(listOf(
                 Color.White.copy(alpha = if (night) .10f else .52f),
@@ -315,7 +323,8 @@ private fun ServerCard(
                 if (inUse) Color(0xFF64EEFF).copy(alpha = .9f)
                 else Color.White.copy(alpha = if (night) .26f else .78f),
                 shape)
-            .selectable(selected = inUse, enabled = !busy, role = Role.RadioButton, onClick = onSelect)
+            .selectable(selected = inUse, enabled = !busy, role = Role.RadioButton,
+                interactionSource = interaction, indication = null, onClick = onSelect)
             .padding(14.dp)
             .testTag("server-card-${profile.id}"),
         verticalArrangement = Arrangement.spacedBy(3.dp),
