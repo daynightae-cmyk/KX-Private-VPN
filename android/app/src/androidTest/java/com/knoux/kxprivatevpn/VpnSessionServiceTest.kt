@@ -351,15 +351,51 @@ class VpnSessionServiceTest {
     private fun shadeIsOpen(): Boolean {
         // API35 can report no mCurrentFocus while the shade is genuinely open, but the
         // accessibility root belongs to SystemUI whenever the shade is accepting input.
-        val root = InstrumentationRegistry.getInstrumentation().uiAutomation.rootInActiveWindow
-        val shadePackage = root?.packageName?.toString()
-        @Suppress("DEPRECATION")
-        root?.recycle()
+        // The root fetch is best-effort: on the API26 hosted emulator the accessibility
+        // bridge can wedge after a shade transition + injected swipe (CI runs
+        // 45029892114 / 45035675592 hung here until the 30m budget killed Gradle), so
+        // it runs on a watchdog and falls back to the window-manager dump instead of
+        // blocking the whole suite on one binder call.
+        val shadePackage = accessibilityProbe(2_000) { automation ->
+            val root = automation.rootInActiveWindow ?: return@accessibilityProbe null
+            try {
+                root.packageName?.toString()
+            } finally {
+                @Suppress("DEPRECATION")
+                root.recycle()
+            }
+        }
         if (shadePackage == "com.android.systemui") return true
         return shell("dumpsys window windows")
             .lineSequence()
             .firstOrNull { it.contains("mCurrentFocus=") }
             ?.let { it.contains("StatusBar") || it.contains("NotificationShade") } == true
+    }
+
+    /**
+     * Runs an accessibility-tree probe on a daemon watchdog thread. A wedged
+     * UiAutomation binder call must never hold the instrumentation hostage: after
+     * [timeoutMs] the probe is abandoned (the daemon dies with the process) and the
+     * caller falls back to shell-based observation. Results are still real observations;
+     * only a hung transport is bypassed.
+     */
+    private fun <T> accessibilityProbe(timeoutMs: Long, probe: (android.app.UiAutomation) -> T?): T? {
+        val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
+        val result = java.util.concurrent.atomic.AtomicReference<T?>(null)
+        val done = java.util.concurrent.CountDownLatch(1)
+        val worker = Thread {
+            try {
+                result.set(probe(automation))
+            } catch (_: Exception) {
+                // A dead/wedged bridge is an observation failure, not a test verdict.
+            } finally {
+                done.countDown()
+            }
+        }
+        worker.isDaemon = true
+        worker.start()
+        done.await(timeoutMs, java.util.concurrent.TimeUnit.MILLISECONDS)
+        return result.get()
     }
 
     private fun waitForText(text: String, timeoutMs: Long = 8_000): Rect? {
@@ -394,16 +430,16 @@ class VpnSessionServiceTest {
         return bounds.centerX() to bounds.centerY()
     }
 
-    private fun nodeBounds(predicate: (AccessibilityNodeInfo) -> Boolean): Rect? {
-        val root = InstrumentationRegistry.getInstrumentation().uiAutomation
-            .rootInActiveWindow ?: return null
-        return try {
-            findNode(root, predicate)
-        } finally {
-            @Suppress("DEPRECATION")
-            root.recycle()
+    private fun nodeBounds(predicate: (AccessibilityNodeInfo) -> Boolean): Rect? =
+        accessibilityProbe(3_000) { automation ->
+            val root = automation.rootInActiveWindow ?: return@accessibilityProbe null
+            try {
+                findNode(root, predicate)
+            } finally {
+                @Suppress("DEPRECATION")
+                root.recycle()
+            }
         }
-    }
 
     private fun findNode(
         node: AccessibilityNodeInfo,
@@ -428,9 +464,27 @@ class VpnSessionServiceTest {
 
     private fun shell(command: String): String {
         val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
-        return ParcelFileDescriptor.AutoCloseInputStream(automation.executeShellCommand(command))
-            .bufferedReader()
-            .use { it.readText() }
+        // Same watchdog rationale as the accessibility probes: a shell command whose
+        // pipe never closes (wedged API26 SystemUI) must degrade to an empty observation
+        // after a bounded wait, not hang the suite until the CI budget kills Gradle.
+        val result = java.util.concurrent.atomic.AtomicReference("")
+        val done = java.util.concurrent.CountDownLatch(1)
+        val worker = Thread {
+            try {
+                result.set(
+                    ParcelFileDescriptor.AutoCloseInputStream(automation.executeShellCommand(command))
+                        .bufferedReader()
+                        .use { it.readText() },
+                )
+            } catch (_: Exception) {
+            } finally {
+                done.countDown()
+            }
+        }
+        worker.isDaemon = true
+        worker.start()
+        done.await(15, java.util.concurrent.TimeUnit.SECONDS)
+        return result.get()
     }
 
     @RequiresApi(34)
