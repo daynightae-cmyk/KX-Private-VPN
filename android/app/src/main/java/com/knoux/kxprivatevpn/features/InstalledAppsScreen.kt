@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -101,8 +102,7 @@ internal fun InstalledAppsScreen(
                             }
                         }
                     }
-                    items(shown, key = { "app:${it.packageName}" }) { app ->
-                        val rowIndex = shown.indexOf(app)
+                    itemsIndexed(shown, key = { _, app -> "app:${app.packageName}" }) { rowIndex, app ->
                         AppInventoryCard(night, app, ownPackage, expanded == app.packageName,
                             state.canManage && state.approval == null,
                             onExpand = { expanded = if (expanded == app.packageName) null else app.packageName },
