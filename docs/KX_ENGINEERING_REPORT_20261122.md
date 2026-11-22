@@ -152,6 +152,29 @@ Known deviation: reference 14 shows a `الخوادم` bottom tab while 18 shows
 keeps 14's tab set (`الرئيسية/الخوادم/الأمان/الإحصاءات/الإعدادات`) and reaches Tools via "view all".
 This is documented, not silently reconciled.
 
+### 9.1 NEW evidence-integrity finding (2026-11-22) — the 2026-11-19 capture set was mislabelled
+
+Independently opening every file in `docs/evidence/visual-fidelity-20261119/` showed that **5 of the 6
+labels do not match the content**, and the set contains **no Tools Catalog and no Repair Lab capture**:
+
+| File (as committed) | Actual content |
+|---|---|
+| `01-home-ar.png` | ✅ Home (disconnected) |
+| `02-tools-ar.png` | Security Center |
+| `03-repair-ar.png` | Statistics |
+| `04-settings-ar.png` | Session Privacy |
+| `05-security-ar.png` | Session Privacy |
+| `06-statistics-ar.png` | Security Center |
+
+This is **not** a product navigation bug — `NativeClient.kt` maps `tools → ToolsCatalogScreen`,
+`security → SecurityRoute`, `stats → StatisticsRoute` correctly. It is a capture/labelling error.
+Corrective action: the five files were **renamed to their true content** (bytes and SHA-256 preserved)
+and the claim was retracted in
+`docs/evidence/visual-fidelity-20261119/CORRECTION_20261122.md`. It also means the earlier
+"6 distinct hashes" check validated bytes only — it never validated labels. Tools Catalog and Repair
+Lab are therefore `VISUAL_UNVERIFIED` on device this session (their code exists and was touched in
+PR #52/#53).
+
 ## 10. Before / after device screenshots
 
 Before: `docs/evidence/device-20261118/` (6 captures) and the corrected set in
@@ -188,6 +211,7 @@ owner keystore was provided this session. No AAB signed with debug credentials m
 | Real VPN E2E (handshake + traffic) | BLOCKED | Authorized WireGuard gateway + test profile |
 | Owner release keystore | BLOCKED | `key.properties` / keystore |
 | Automated visual-regression baseline | BLOCKED | Agreed diff thresholds / reference renders |
+| Correctly-labelled Tools Catalog + Repair Lab device captures | BLOCKED (tooling) | Reliable screen-scoped capture; the 2026-11-19 set was mislabelled (see §9.1) |
 | Full 20-screen re-verification this session | PARTIAL | Time; prior captures exist for most screens |
 
 ## 17. Exact next safe execution action

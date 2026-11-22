@@ -73,3 +73,18 @@
 | `../visual-fidelity-20261119/06-statistics-ar.png` | Statistics | `5F7CF5BA...` | ✅ Telemetry, sessions, charts |
 
 The 2026-11-19 captures are **truthful, distinct, and screen-verified** via UIAutomator dump at capture time. The 2026-11-18 report's Home and Repair Lab claims are **retracted**.
+
+---
+
+## CORRECTION — 2026-11-22 (independent visual audit)
+
+The claim above that the 2026-11-19 set is "screen-verified" is **itself retracted**. An independent
+2026-11-22 audit opened every file and found that **five of the six were mislabelled**; the set
+contains **no Tools Catalog and no Repair Lab capture**. Details, the true content of each file and
+the corrective renames are in
+[`../visual-fidelity-20261119/CORRECTION_20261122.md`](../visual-fidelity-20261119/CORRECTION_20261122.md).
+
+Renamed files (bytes preserved): `02-security-center-ar.png`, `03-statistics-ar.png`,
+`04-session-privacy-ar.png`, `05-session-privacy-b-ar.png`, `06-security-center-b-ar.png`.
+`01-home-ar.png` is correctly labelled. Only the Home screen is device-verified for this set; Tools
+Catalog and Repair Lab are `VISUAL_UNVERIFIED` until correctly-labelled captures exist.

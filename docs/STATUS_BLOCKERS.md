@@ -179,6 +179,7 @@ No third-party crypto library is used and none is needed: the platform Keystore 
 | 2026-11-19 15:30 | Forensic | PR #53: visual elevation + animation (KxOrbitalHalo, CTA bloom/press/haptic, Tools clear-search, Repair press scale), evidence correction (voided false 2026-11-18 claims), disk cleanup (648 MB freed), 6 new truthful captures | ✅ CI `44484793803` green on `6640da4` (build 7m50s, release-compile 4m27s, device(26) 13m53s, device(35) 30m53s, SonarCloud gate OK) |
 | 2026-11-22 | Recovery | Repo/deep recovery session: three mission conversation exports located in `Downloads`; PR #53 re-verified (MERGEABLE, CI green); device `R9ZR20HWHQY` re-checked | ✅ App was in `stopped`/disabled package state on the phone — `pm enable com.knoux.kxprivatevpn` restored launch; native entry gate confirmed (no auto-navigation after the intro; Home appears only after the emblem tap); disconnected Home renders honest measured-or-dash state |
 | 2026-11-22 10:19 | Recovery | PR #53 merged into `main` | ✅ Merge commit `3f804c3`; CI `45009718221` green on `613a08a` (build 5m29s, release-compile 5m5s, device(26) 14m42s, device(35) 24m45s, SonarCloud OK); merged branch deleted — single `main` |
+| 2026-11-22 | Recovery | Independent visual audit of the 2026-11-19 evidence set (opened every file) | ⚠️ 5 of 6 captures mislabelled; no Tools/Repair capture present; files renamed to true content (bytes preserved), claim retracted in `docs/evidence/visual-fidelity-20261119/CORRECTION_20261122.md`. Not a product bug — route table verified correct |
 
 ---
 
