@@ -2,11 +2,6 @@ package com.knoux.kxprivatevpn.designsystem
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -17,6 +12,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -30,6 +26,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.currentStateAsState
 import com.knoux.kxprivatevpn.launch.rememberReducedMotion
+import kotlinx.coroutines.delay
 import kotlin.math.PI
 import kotlin.math.sin
 
@@ -76,57 +73,83 @@ class KxAmbient internal constructor(
 val LocalKxAmbient = staticCompositionLocalOf { KxAmbient.Still }
 
 /**
- * Builds the single ambient transition for a screen. All five channels share one
- * [rememberInfiniteTransition] so a screen pays for exactly one frame-driven clock.
+ * Builds the single ambient clock for a screen. All five channels share one frame-paced
+ * loop so a screen pays for exactly one bounded frame stream.
+ *
+ * Why not [androidx.compose.animation.core.rememberInfiniteTransition]: an infinite
+ * transition requests a frame on EVERY vsync. CI run 45042088536 proved that on a slow
+ * (software) renderer each ambient frame costs ~150ms, so a per-vsync stream keeps the
+ * main looper permanently busy and starves every idle wait in the process for minutes
+ * (API35: 115s between activity RESUMED and the next test statement; API26: suite wedge
+ * at 346/350). It also burns battery on the owner's low-end hardware for motion that is
+ * deliberately slow (2.4s..26s periods). This clock therefore:
+ *  - caps updates at ~30fps (half-vsync on 60Hz panels),
+ *  - backs off adaptively when frames themselves are slow, always leaving idle gaps,
+ *  - advances channels by real elapsed time, so periods/waveforms are unchanged,
+ *  - stops entirely when the window loses focus or the lifecycle pauses.
  */
 @Composable
 fun rememberKxAmbient(enabled: Boolean = true): KxAmbient {
     // Reuse the app-level clock when one is already live so nested themes never pay for
-    // a second frame-driven transition.
+    // a second frame-driven loop.
     val inherited = LocalKxAmbient.current
     if (inherited.enabled && enabled) return inherited
     val reduced = rememberReducedMotion()
     // The clock only exists while the window is actually visible. When another activity
-    // (or the notification shade) takes the foreground the host pauses; disposing the
-    // infinite transition there means zero frame requests from a covered app — real
-    // battery savings on low-end hardware, and no ambient frames competing with test
-    // fixtures or shade captures for the Choreographer.
+    // (or the notification shade) takes the foreground the host pauses; stopping the
+    // loop there means zero frame requests from a covered app — real battery savings on
+    // low-end hardware, and no ambient frames competing with shade captures.
     val focused = LocalWindowInfo.current.isWindowFocused
     val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateAsState()
     val foreground = focused && lifecycleState.isAtLeast(Lifecycle.State.RESUMED)
     if (!enabled || reduced || !foreground) return KxAmbient.Still
-    val transition = rememberInfiniteTransition(label = "kx-ambient")
-    val drift = transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(26_000, easing = LinearEasing), RepeatMode.Restart),
-        label = "kx-ambient-drift",
-    )
-    val shimmer = transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(6_800, easing = FastOutSlowInEasing), RepeatMode.Restart),
-        label = "kx-ambient-shimmer",
-    )
-    val breathe = transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(3_900, easing = FastOutSlowInEasing), RepeatMode.Reverse),
-        label = "kx-ambient-breathe",
-    )
-    val twinkle = transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(2_400, easing = LinearEasing), RepeatMode.Reverse),
-        label = "kx-ambient-twinkle",
-    )
-    val orbit = transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(tween(22_000, easing = LinearEasing), RepeatMode.Restart),
-        label = "kx-ambient-orbit",
-    )
+    val drift = remember { mutableFloatStateOf(0f) }
+    val shimmer = remember { mutableFloatStateOf(0f) }
+    val breathe = remember { mutableFloatStateOf(0f) }
+    val twinkle = remember { mutableFloatStateOf(0f) }
+    val orbit = remember { mutableFloatStateOf(0f) }
     val live = remember { KxAmbient(true, drift, shimmer, breathe, twinkle, orbit) }
+    LaunchedEffect(Unit) {
+        var startNanos = 0L
+        var lastNanos = 0L
+        // Minimum spacing between clock updates; grows when the device cannot keep up.
+        var intervalMs = 33L
+        while (true) {
+            // One frame request per update, then a real delay: between updates the
+            // recomposer has NO pending frame awaiters, so idle-based tooling (and the
+            // OS scheduler) genuinely regains the main thread. A bare withFrameNanos
+            // loop would keep a per-vsync awaiter alive and starve idle waits exactly
+            // like the infinite transition it replaces.
+            val frameNanos = withFrameNanos { it }
+            if (startNanos == 0L) startNanos = frameNanos
+            if (lastNanos != 0L) {
+                val deltaMs = ((frameNanos - lastNanos) / 1_000_000f).coerceAtMost(1_000f)
+                // Adaptive pacing: when producing frames is slower than our interval,
+                // back off to ~2x the observed frame cost (ceiling 500ms) so the app
+                // never monopolises a slow renderer.
+                intervalMs = when {
+                    deltaMs > intervalMs * 1.5f -> (deltaMs * 2f).toLong().coerceIn(33L, 500L)
+                    deltaMs < intervalMs * .75f -> (intervalMs * 9L) / 10L
+                    else -> intervalMs
+                }.coerceAtLeast(33L)
+                // Phase relative to clock start keeps float precision high even after
+                // days of device uptime; periods/waveforms match the original specs.
+                val t = (frameNanos - startNanos) / 1_000_000f
+                drift.floatValue = (t % 26_000f) / 26_000f
+                shimmer.floatValue = FastOutSlowInEasing.transform((t % 6_800f) / 6_800f)
+                // Reverse-mode channels: triangle wave over double the period.
+                val breathePhase = (t % 7_800f) / 3_900f
+                breathe.floatValue = FastOutSlowInEasing.transform(
+                    if (breathePhase <= 1f) breathePhase else 2f - breathePhase,
+                )
+                val twinklePhase = (t % 4_800f) / 2_400f
+                twinkle.floatValue = if (twinklePhase <= 1f) twinklePhase else 2f - twinklePhase
+                orbit.floatValue = (t % 22_000f) / 22_000f * 360f
+            }
+            lastNanos = frameNanos
+            delay(intervalMs)
+        }
+    }
     return live
 }
 

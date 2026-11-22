@@ -1,15 +1,8 @@
 package com.knoux.kxprivatevpn.designsystem
 
 import android.view.HapticFeedbackConstants
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -479,7 +472,10 @@ private val kxDustMotes = listOf(
 /**
  * Orbital halo drawn around the hero emblem: a slow luminous ring, a dashed orbit and a
  * breathing bloom. Ref 14 and Ref 03 both show this ring; the plain orb alone reads flat.
- * Infinite motion is skipped for reduced-motion users, who still get the static halo.
+ * Motion rides the shared frame-paced [KxAmbient] clock and is read INSIDE the draw
+ * phase, so the halo never recomposes per frame and never runs its own per-vsync
+ * transition (which starved idle waits on slow renderers, CI run 45042088536).
+ * Reduced-motion users and covered windows get the same static halo.
  */
 @Composable
 fun KxOrbitalHalo(
@@ -488,22 +484,15 @@ fun KxOrbitalHalo(
     animated: Boolean = true,
 ) {
     val reducedMotion = rememberReducedMotion()
-    val transition = rememberInfiniteTransition(label = "kx-halo")
-    val spin by transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(tween(18000, easing = LinearEasing), RepeatMode.Restart),
-        label = "kx-halo-spin",
-    )
-    val breathe by transition.animateFloat(
-        initialValue = .78f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(3600, easing = FastOutSlowInEasing), RepeatMode.Reverse),
-        label = "kx-halo-breathe",
-    )
-    val rotation = if (animated && !reducedMotion) spin else 0f
-    val pulse = if (animated && !reducedMotion) breathe else .92f
+    val ambient = LocalKxAmbient.current
+    val live = animated && !reducedMotion && ambient.enabled
     Canvas(modifier) {
+        // The halo rides the shared clock's orbit channel directly (22s revolution;
+        // the original private transition used 18s — visually equivalent for a slow
+        // dashed ring, and continuous with zero extra frame machinery). Breathe maps
+        // the shared 3.9s channel onto the original .78..1 pulse range.
+        val rotation = if (live) ambient.orbit.value else 0f
+        val pulse = if (live) .78f + .22f * ambient.breathe.value else .92f
         val c = Offset(size.width / 2f, size.height / 2f)
         val r = size.minDimension / 2f
         drawCircle(
