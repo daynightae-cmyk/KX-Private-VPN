@@ -444,6 +444,7 @@
     <string name="tools_subtitle">A complete set of tools to manage storage, files, apps and connectivity.</string>
     <string name="tools_search_hint">Search tools and features…</string>
     <string name="tools_search_label">Search tools</string>
+    <string name="tools_search_clear">Clear search</string>
     <string name="tools_filter_all">All (%1$d)</string>
     <string name="tools_filter_storage">Storage</string>
     <string name="tools_filter_files">Files</string>

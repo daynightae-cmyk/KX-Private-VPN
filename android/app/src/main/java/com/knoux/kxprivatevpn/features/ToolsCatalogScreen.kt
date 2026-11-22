@@ -5,8 +5,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
@@ -41,6 +43,7 @@ import com.knoux.kxprivatevpn.designsystem.KxIconKind
 import com.knoux.kxprivatevpn.designsystem.KxLineIcon
 import com.knoux.kxprivatevpn.designsystem.KxMiniOrb
 import com.knoux.kxprivatevpn.designsystem.KxOrb
+import com.knoux.kxprivatevpn.designsystem.KxOrbitalHalo
 import com.knoux.kxprivatevpn.designsystem.KxReferenceAtmosphere
 import com.knoux.kxprivatevpn.designsystem.KxReferenceHeader
 import com.knoux.kxprivatevpn.designsystem.KxReferenceTheme
@@ -49,8 +52,10 @@ import com.knoux.kxprivatevpn.designsystem.glassForeground
 import com.knoux.kxprivatevpn.designsystem.kxCyan
 import com.knoux.kxprivatevpn.designsystem.kxInk
 import com.knoux.kxprivatevpn.designsystem.kxMuted
+import com.knoux.kxprivatevpn.designsystem.kxPressScale
 import com.knoux.kxprivatevpn.designsystem.kxRose
 import com.knoux.kxprivatevpn.designsystem.kxViolet
+import com.knoux.kxprivatevpn.designsystem.rememberKxTapHaptic
 import com.knoux.kxprivatevpn.launch.IntroTimeline
 
 enum class ToolFilter(val key: String, @StringRes val label: Int) {
@@ -158,6 +163,10 @@ fun ToolsCatalogScreen(
                         onClick = onBack,
                     )
                     Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        KxOrbitalHalo(
+                            night = night,
+                            modifier = Modifier.size(92.dp),
+                        )
                         KxOrb(
                             progress = 1f,
                             frame = IntroTimeline.frame(1f),
@@ -287,7 +296,33 @@ private fun ToolSearchField(
                 }
             },
         )
-        KxLineIcon(KxIconKind.MIC, kxMuted(night), Modifier.size(18.dp))
+        // The reference shows a microphone here, but voice search is not implemented.
+        // A real clear action is the honest replacement: it only appears while there is
+        // text to clear and it never implies a capability the build does not have. The
+        // slot keeps its 44dp width so the field never jumps when the button appears.
+        val clearLabel = stringResource(R.string.tools_search_clear)
+        val clearHaptic = rememberKxTapHaptic()
+        Box(Modifier.size(44.dp), contentAlignment = Alignment.Center) {
+            if (value.isNotEmpty()) {
+                Box(
+                    Modifier.size(44.dp).clip(CircleShape)
+                        .clickable(role = Role.Button, onClickLabel = clearLabel) {
+                            clearHaptic()
+                            onValueChange("")
+                        }
+                        .testTag("tools-search-clear"),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Box(
+                        Modifier.size(26.dp).clip(CircleShape)
+                            .background(Color.White.copy(alpha = if (night) .10f else .55f)),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        KxLineIcon(KxIconKind.CLOSE, kxMuted(night), Modifier.size(13.dp))
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -309,8 +344,9 @@ private fun FilterChips(
             } else {
                 stringResource(filter.label)
             }
+            val chipInteraction = remember { MutableInteractionSource() }
             Row(
-                Modifier.heightIn(min = 44.dp).clip(RoundedCornerShape(50))
+                Modifier.heightIn(min = 44.dp).kxPressScale(chipInteraction).clip(RoundedCornerShape(50))
                     .background(
                         if (active) Brush.horizontalGradient(
                             listOf(Color(0xFF8A52FF), Color(0xFF5B45F5), Color(0xFF1E9BE8)),
@@ -323,7 +359,14 @@ private fun FilterChips(
                     )
                     .border(1.dp, Color.White.copy(alpha = if (active) .55f else if (night) .20f else .76f),
                         RoundedCornerShape(50))
-                    .clickable(role = Role.Button, onClickLabel = label) { onSelected(filter) }
+                    .clickable(
+                        interactionSource = chipInteraction,
+                        indication = null,
+                        role = Role.Button,
+                        onClickLabel = label,
+                    ) {
+                        onSelected(filter)
+                    }
                     .padding(horizontal = 13.dp, vertical = 9.dp)
                     .testTag("tools-filter-${filter.key}"),
                 verticalAlignment = Alignment.CenterVertically,
@@ -366,10 +409,14 @@ private fun ToolCard(
     val accent = if (night) entry.accentNight else entry.accentDay
     val title = stringResource(entry.title)
     val body = stringResource(entry.body)
-    val shape = RoundedCornerShape(14.dp)
+    val shape = RoundedCornerShape(15.dp)
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    val interaction = remember { MutableInteractionSource() }
+    val tapHaptic = rememberKxTapHaptic()
     Row(
-        modifier.clip(shape)
+        modifier.kxPressScale(interaction)
+            .heightIn(min = 96.dp)
+            .clip(shape)
             .background(
                 Brush.linearGradient(
                     if (night) listOf(
@@ -393,13 +440,32 @@ private fun ToolCard(
                     accent.copy(alpha = .42f),
                 ),
             ), shape)
-            .clickable(role = Role.Button, onClickLabel = stringResource(R.string.tools_open, title), onClick = onClick)
-            .padding(horizontal = 11.dp, vertical = 13.dp)
+            .clickable(
+                interactionSource = interaction,
+                indication = null,
+                role = Role.Button,
+                onClickLabel = stringResource(R.string.tools_open, title),
+            ) {
+                tapHaptic()
+                onClick()
+            }
+            .padding(horizontal = 11.dp, vertical = 14.dp)
             .testTag("tool-card-${entry.key}"),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(9.dp),
     ) {
-        KxLineIcon(entry.icon, if (night) accent else accent.copy(alpha = .9f), Modifier.size(30.dp))
+        Box(
+            Modifier.size(40.dp)
+                .background(
+                    Brush.radialGradient(
+                        listOf(accent.copy(alpha = if (night) .30f else .18f), Color.Transparent),
+                    ),
+                    CircleShape,
+                ),
+            contentAlignment = Alignment.Center,
+        ) {
+            KxLineIcon(entry.icon, if (night) accent else accent.copy(alpha = .9f), Modifier.size(30.dp))
+        }
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(
                 title,
@@ -441,8 +507,10 @@ private fun StorageHealthCard(
     val title = stringResource(entry.title)
     val body = stringResource(entry.body)
     val shape = RoundedCornerShape(16.dp)
+    val interaction = remember { MutableInteractionSource() }
+    val tapHaptic = rememberKxTapHaptic()
     Row(
-        Modifier.fillMaxWidth().clip(shape)
+        Modifier.fillMaxWidth().kxPressScale(interaction).clip(shape)
             .background(
                 Brush.linearGradient(
                     if (night) listOf(
@@ -465,8 +533,16 @@ private fun StorageHealthCard(
                     accent.copy(alpha = .26f),
                 ),
             ), shape)
-            .clickable(role = Role.Button, onClickLabel = stringResource(R.string.tools_open, title), onClick = onClick)
-            .padding(horizontal = 12.dp, vertical = 11.dp)
+            .clickable(
+                interactionSource = interaction,
+                indication = null,
+                role = Role.Button,
+                onClickLabel = stringResource(R.string.tools_open, title),
+            ) {
+                tapHaptic()
+                onClick()
+            }
+            .padding(horizontal = 12.dp, vertical = 12.dp)
             .testTag("tools-storage-health"),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp),

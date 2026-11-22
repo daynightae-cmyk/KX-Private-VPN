@@ -444,6 +444,7 @@
     <string name="tools_subtitle">مجموعة متكاملة من الأدوات لإدارة التخزين والملفات والتطبيقات والاتصال.</string>
     <string name="tools_search_hint">البحث في الأدوات والميزات…</string>
     <string name="tools_search_label">البحث في الأدوات</string>
+    <string name="tools_search_clear">مسح البحث</string>
     <string name="tools_filter_all">الكل (%1$d)</string>
     <string name="tools_filter_storage">التخزين</string>
     <string name="tools_filter_files">الملفات</string>
