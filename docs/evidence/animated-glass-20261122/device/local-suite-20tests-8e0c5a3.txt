@@ -1,0 +1,10 @@
+
+com.knoux.kxprivatevpn.VisualHardeningTest:.........
+com.knoux.kxprivatevpn.HomeScreenTest:.......
+com.knoux.kxprivatevpn.ToolsCatalogScreenTest:....
+
+Time: ┘ú┘Ñ┘Ñ┘½┘á┘ñ┘¿
+
+OK (20 tests)
+
+

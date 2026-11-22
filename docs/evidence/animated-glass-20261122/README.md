@@ -85,7 +85,7 @@ emulator. Two fixes landed:
 - **Clean local run (after the concurrent agent finished): `OK (20 tests)`** —
   VisualHardeningTest 9/9, HomeScreenTest 7/7, ToolsCatalogScreenTest 4/4 on
   `8e0c5a3`, SM-A025F Android 12, animation scales 1, screen awake
-  (`D:\Temp\opencode\kx-recover\device-tests7.txt`, 355s).
+  (`device/local-suite-20tests-8e0c5a3.txt`, 355s).
   CI emulators are isolated and remain the authoritative device gate.
 - CI: run on `8e0c5a3` recorded in the PR and ledger when complete.
 - Physical-device captures and side-by-side comparisons: see `device/` (added after
