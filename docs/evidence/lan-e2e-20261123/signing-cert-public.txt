@@ -1,0 +1,7 @@
+﻿Alias name: kx-private-vpn
+Creation date: 23 Nov 2026
+Owner: CN=KX Private VPN, OU=KNOUX, O=KNOUX, L=Cairo, C=EG
+Valid from: Mon Nov 23 22:55:34 GMT+04:00 2026 until: Wed Nov 15 22:55:34 GMT+04:00 2056
+SHA1: B2:95:1D:B9:81:91:0C:58:63:EE:8A:D4:DB:05:B5:92:72:14:7E:37
+SHA256: 2D:AF:CE:3D:FE:4A:54:DA:2F:93:0E:87:D6:F8:92:51:D1:6F:34:89:05:3D:3A:22:87:B0:9D:5B:1C:39:29:92
+Signature algorithm name: SHA384withRSA
