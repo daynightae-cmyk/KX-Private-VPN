@@ -1,0 +1,801 @@
+--------- beginning of main
+11-23 22:27:12.480 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@da204d7 fN = 196 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:27:12.480 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:27:12.502 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@bfc1c4 fN = 197 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:27:12.502 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:27:12.528 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@4768ad fN = 198 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:27:12.528 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:27:12.577 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@31a77e2 fN = 199 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:27:12.577 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:27:12.601 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@d981773 fN = 200 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:27:12.601 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:27:12.621 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@6d93630 fN = 201 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:27:12.622 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:27:12.645 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@21ee2a9 fN = 202 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:27:12.645 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:27:12.667 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@7ec302e fN = 203 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:27:12.667 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:27:12.689 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@7d2b7cf fN = 204 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:27:12.691 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:27:12.713 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@1d3855c fN = 205 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:27:12.713 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:27:13.477 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:27:13.484 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: setInTouchMode(false), android.view.ViewRootImpl.checkForLeavingTouchModeAndConsume:9045 android.view.ViewRootImpl.access$3500:302 android.view.ViewRootImpl$EarlyPostImeInputStage.processKeyEvent:7394 android.view.ViewRootImpl$EarlyPostImeInputStage.onProcess:7378 android.view.ViewRootImpl$InputStage.deliver:6922 android.view.ViewRootImpl$InputStage.onDeliverToNext:6979 android.view.ViewRootImpl$InputStage.forward:6945 android.view.ViewRootImpl$AsyncInputStage.forward:7176 android.view.ViewRootImpl$ImeInputStage.onFinishedInputEvent:7363 android.view.inputmethod.InputMethodManager$PendingEvent.run:3411 
+11-23 22:27:13.485 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:27:13.581 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:27:13.607 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:27:13.615 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:27:13.671 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:27:13.748 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:27:13.773 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:27:13.780 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:27:13.874 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:27:13.894 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:27:13.898 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:27:13.904 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:27:13.996 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:27:14.005 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:27:14.054 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:27:14.146 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:27:14.152 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:27:14.159 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:27:14.216 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:27:14.291 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:27:14.313 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:27:14.323 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:27:14.397 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:27:14.436 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:27:14.448 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:27:14.454 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:27:14.522 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:27:14.547 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:27:14.554 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:27:14.649 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:27:14.656 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:27:16.058 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:27:16.064 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: The input has been finished in ImeInputStage.
+11-23 22:27:16.066 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:27:16.075 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: The input has been finished in ImeInputStage.
+11-23 22:27:16.084 32288 32288 D InsetsSourceConsumer: setRequestedVisible: visible=false, type=19, host=com.knoux.kxprivatevpn/com.knoux.kxprivatevpn.MainActivity, from=android.view.InsetsSourceConsumer.hide:253 android.view.ImeInsetsSourceConsumer.hide:68 android.view.ImeInsetsSourceConsumer.hide:74 android.view.InsetsController.hideDirectly:1473 android.view.InsetsController.controlAnimationUnchecked:1139 android.view.InsetsController.applyAnimation:1456 android.view.InsetsController.applyAnimation:1437 android.view.InsetsController.hide:1006 android.view.ViewRootImpl$ViewRootHandler.handleMessageImpl:6482 android.view.ViewRootImpl$ViewRootHandler.handleMessage:6403 
+11-23 22:27:16.146 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@67b8f42 fN = 241 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:27:16.146 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:27:16.147 32288 32288 D InsetsSourceConsumer: ensureControlAlpha: for ITYPE_NAVIGATION_BAR on com.knoux.kxprivatevpn/com.knoux.kxprivatevpn.MainActivity
+11-23 22:27:16.165 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@c7b8c90 fN = 242 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:27:16.165 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:27:16.186 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@ccee989 fN = 243 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:27:16.186 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:27:16.202 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@8375d8e fN = 244 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:27:16.202 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:27:16.224 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@7e849af fN = 245 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:27:16.224 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:27:16.241 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@b4e1bc fN = 246 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:27:16.241 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:27:16.259 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@d339545 fN = 247 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:27:16.260 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:27:16.278 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@ecfc49a fN = 248 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:27:16.278 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:27:16.298 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@579d1cb fN = 249 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:27:16.298 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:27:16.317 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@cc5da8 fN = 250 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:27:16.317 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:27:16.335 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@37d40c1 fN = 251 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:27:16.335 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:27:16.353 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@c559066 fN = 252 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:27:16.353 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:27:16.372 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@751bfa7 fN = 253 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:27:16.372 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:27:16.391 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@85dac54 fN = 254 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:27:16.391 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:27:16.410 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@75c27fd fN = 255 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:27:16.410 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:27:16.427 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@11a4cf2 fN = 256 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:27:16.427 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:27:16.447 32288 32288 I IMM_LC  : notifyImeHidden
+11-23 22:27:16.449 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@d0af43 fN = 257 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:27:16.449 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:27:16.467 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@f1339c0 fN = 258 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:27:16.467 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:27:20.186 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme pointer 0
+11-23 22:27:20.202 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme pointer 1
+11-23 22:27:20.492 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: MSG_WINDOW_FOCUS_CHANGED 0 1
+11-23 22:27:20.908 32288 32288 D InputTransport: Input channel destroyed: 'ClientS', fd=99
+11-23 22:27:21.008 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: handleAppVisibility mAppVisible=true visible=false
+11-23 22:27:21.024 32288  1529 D OpenGLRenderer: setSurface called with nullptr
+11-23 22:27:21.024 32288  1529 D OpenGLRenderer: setSurface() destroyed EGLSurface
+11-23 22:27:21.025 32288  1529 D OpenGLRenderer: destroyEglSurface
+11-23 22:27:21.034 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: Relayout returned: old=(0,0,720,1600) new=(0,0,720,1600) req=(720,1600)8 dur=5 res=0x5 s={false 0} ch=true fn=297
+11-23 22:27:21.039 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: stopped(true) old=false
+11-23 22:27:21.106 32288 32294 D InputTransport: Input channel destroyed: 'ClientS', fd=107
+11-23 22:29:11.875 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: handleAppVisibility mAppVisible=false visible=true
+11-23 22:29:11.882 32288  1529 D OpenGLRenderer: setSurface called with nullptr
+11-23 22:29:11.896 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: Relayout returned: old=(0,0,720,1600) new=(0,0,720,1600) req=(720,1600)4 dur=13 res=0x1 s={false 0} ch=false fn=-1
+11-23 22:29:11.896 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: stopped(false) old=true
+11-23 22:29:11.903 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: stopped(false) old=false
+11-23 22:29:11.917 32288  1529 D OpenGLRenderer: setSurface called with nullptr
+11-23 22:29:11.932 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: Relayout returned: old=(0,0,720,1600) new=(0,0,720,1600) req=(720,1600)0 dur=14 res=0x7 s={true 4123841536} ch=true fn=-1
+11-23 22:29:11.933 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: [DP] dp(1) 1 android.view.ViewRootImpl.reportNextDraw:11420 android.view.ViewRootImpl.performTraversals:4193 android.view.ViewRootImpl.doTraversal:2919 
+11-23 22:29:11.933 32288 32288 D ViewRootImpl@9bc6b19[MainActivity]: Creating frameDrawingCallback nextDrawUseBlastSync=false reportNextDraw=true hasBlurUpdates=false
+11-23 22:29:11.933 32288 32288 D ViewRootImpl@9bc6b19[MainActivity]: Creating frameCompleteCallback
+11-23 22:29:11.935 32288  1529 D OpenGLRenderer: eglCreateWindowSurface
+11-23 22:29:11.953 32288  1571 D ViewRootImpl@9bc6b19[MainActivity]: Received frameDrawingCallback frameNum=1. Creating transactionCompleteCallback=false
+11-23 22:29:11.963 32288  1529 D ViewRootImpl@9bc6b19[MainActivity]: Received frameCompleteCallback  lastAcquiredFrameNum=1 lastAttemptedDrawFrameNum=1
+11-23 22:29:11.964 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: [DP] pdf(0) 1 android.view.ViewRootImpl.lambda$addFrameCompleteCallbackIfNeeded$3$ViewRootImpl:4995 android.view.ViewRootImpl$$ExternalSyntheticLambda16.run:6 android.os.Handler.handleCallback:938 
+11-23 22:29:11.964 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: [DP] rdf()
+11-23 22:29:11.964 32288 32288 D ViewRootImpl@9bc6b19[MainActivity]: reportDrawFinished (fn: -1) 
+11-23 22:29:11.964 32288 32288 D InsetsSourceConsumer: ensureControlAlpha: for ITYPE_NAVIGATION_BAR on com.knoux.kxprivatevpn/com.knoux.kxprivatevpn.MainActivity
+11-23 22:29:11.965 32288 32288 D InsetsSourceConsumer: ensureControlAlpha: for ITYPE_STATUS_BAR on com.knoux.kxprivatevpn/com.knoux.kxprivatevpn.MainActivity
+11-23 22:29:11.988 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: MSG_WINDOW_FOCUS_CHANGED 1 1
+11-23 22:29:11.991 32288 32288 D InputMethodManager: startInputInner - Id : 0
+11-23 22:29:11.991 32288 32288 I InputMethodManager: startInputInner - mService.startInputOrWindowGainedFocus
+11-23 22:29:42.883 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme pointer 0
+11-23 22:29:42.903 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme pointer 1
+11-23 22:29:42.953 32288 32288 D InsetsController: show(ime(), fromIme=false)
+11-23 22:29:42.954 32288 32288 I IMM_LC  : requestImeShow
+11-23 22:29:42.954 32288 32288 I IMM_LC  : ssi() - flag : 0 view : com.knoux.kxprivatevpn reason = SHOW_SOFT_INPUT_BY_INSETS_API
+11-23 22:29:42.954 32288 32288 I IMM_LC  : ssi() view is not EditText
+11-23 22:29:42.978 32288 32288 I IMM_LC  : showSoftInput(View,I)
+11-23 22:29:42.979 32288 32288 I IMM_LC  : ssi() - flag : 0 view : com.knoux.kxprivatevpn reason = SHOW_SOFT_INPUT
+11-23 22:29:42.979 32288 32288 I IMM_LC  : ssi() view is not EditText
+11-23 22:29:43.030 32288 32288 I ViewRootImpl@7bbc18b[نافذة منبثقة]: setView = androidx.compose.ui.window.PopupLayout@1c51326 TM=true
+11-23 22:29:43.103 32288  1608 I ViewRootImpl@7bbc18b[نافذة منبثقة]: Resizing android.view.ViewRootImpl@d612e3: frame=[456,367][492,411] reportDraw=true forceLayout=false backDropFrame=Rect(0, 0 - 36, 44)
+11-23 22:29:43.109 32288 32288 I ViewRootImpl@7bbc18b[نافذة منبثقة]: Relayout returned: old=(0,45,720,1600) new=(456,367,492,411) req=(36,44)0 dur=14 res=0x7 s={true 3621346304} ch=true fn=-1
+11-23 22:29:43.110 32288  1529 D OpenGLRenderer: eglCreateWindowSurface
+11-23 22:29:43.118 32288 32288 I ViewRootImpl@7bbc18b[نافذة منبثقة]: [DP] dp(1) 0 android.view.ViewRootImpl.reportNextDraw:11420 android.view.ViewRootImpl.performTraversals:4193 android.view.ViewRootImpl.doTraversal:2919 
+11-23 22:29:43.119 32288 32288 D ViewRootImpl@7bbc18b[نافذة منبثقة]: Creating frameDrawingCallback nextDrawUseBlastSync=false reportNextDraw=true hasBlurUpdates=false
+11-23 22:29:43.119 32288 32288 D ViewRootImpl@7bbc18b[نافذة منبثقة]: Creating frameCompleteCallback
+11-23 22:29:43.128 32288  1571 D ViewRootImpl@7bbc18b[نافذة منبثقة]: Received frameDrawingCallback frameNum=1. Creating transactionCompleteCallback=false
+11-23 22:29:43.131 32288  1529 D ViewRootImpl@7bbc18b[نافذة منبثقة]: Received frameCompleteCallback  lastAcquiredFrameNum=1 lastAttemptedDrawFrameNum=1
+11-23 22:29:43.133 32288 32288 I ViewRootImpl@7bbc18b[نافذة منبثقة]: [DP] pdf(0) 0 android.view.ViewRootImpl.lambda$addFrameCompleteCallbackIfNeeded$3$ViewRootImpl:4995 android.view.ViewRootImpl$$ExternalSyntheticLambda16.run:6 android.os.Handler.handleCallback:938 
+11-23 22:29:43.133 32288 32288 I ViewRootImpl@7bbc18b[نافذة منبثقة]: [DP] rdf()
+11-23 22:29:43.133 32288 32288 D ViewRootImpl@7bbc18b[نافذة منبثقة]: reportDrawFinished (fn: -1) 
+11-23 22:29:43.159 32288 32288 I ViewRootImpl@7bbc18b[نافذة منبثقة]: Relayout returned: old=(456,367,492,411) new=(456,367,492,411) req=(36,44)0 dur=8 res=0x1 s={true 3621346304} ch=false fn=2
+11-23 22:29:43.215 32288 32288 I ViewRootImpl@7bbc18b[نافذة منبثقة]: handleResized, msg = 5 frames=ClientWindowFrames{frame=[456,367][492,411] display=[-10000,-10000][10000,10000] backdrop=[0,0][36,44]} forceNextWindowRelayout=false displayId=0 frameChanged=false backdropFrameChanged=true configChanged=false displayChanged=false mNextDrawUseBlastSync=false mergedConfiguration={mGlobalConfig={1.0 ?mcc?mnc [ar_EG,en_GB] ldrtl sw411dp w411dp h888dp 280dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 720, 1600) mAppBounds=Rect(0, 45 - 720, 1600) mMaxBounds=Rect(0, 0 - 720, 1600) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0 mPopOver=off mFreeformTaskPinningState=unpinned} s.638 fontWeightAdjustment=0 ff=0 bf=0 bts=0 enb/d themeSeq=0} mOverrideConfig={1.0 ?mcc?mnc [ar_EG,en_GB] ldrtl sw411dp w411dp h888dp 280dpi nrml long port night finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 720, 1600) mAppBounds=Rect(0, 45 - 720, 1600) mMaxBounds=Rect(0, 0 - 720, 1600) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=standard mAlwaysOnTop=undefined mRotation=ROTATION_0 mPopOver=off mFreeformTaskPinningState=unpinned} s.1 fontWeightAdjustment=0 ff=0 bf=0 bts=0 enb/d themeSeq=0}}
+11-23 22:29:43.216 32288 32288 I ViewRootImpl@7bbc18b[نافذة منبثقة]: [DP] dp(1) 0 android.view.ViewRootImpl.reportNextDraw:11420 android.view.ViewRootImpl.handleResized:2230 android.view.ViewRootImpl.access$1200:302 
+11-23 22:29:43.242 32288 32288 I ViewRootImpl@7bbc18b[نافذة منبثقة]: Relayout returned: old=(456,367,492,411) new=(456,367,492,411) req=(36,44)0 dur=20 res=0x1 s={true 3621346304} ch=false fn=3
+11-23 22:29:43.243 32288 32288 D ViewRootImpl@7bbc18b[نافذة منبثقة]: Creating frameDrawingCallback nextDrawUseBlastSync=false reportNextDraw=true hasBlurUpdates=false
+11-23 22:29:43.243 32288 32288 D ViewRootImpl@7bbc18b[نافذة منبثقة]: Creating frameCompleteCallback
+11-23 22:29:43.245 32288  1582 D ViewRootImpl@7bbc18b[نافذة منبثقة]: Received frameDrawingCallback frameNum=3. Creating transactionCompleteCallback=false
+11-23 22:29:43.247 32288  1529 D ViewRootImpl@7bbc18b[نافذة منبثقة]: Received frameCompleteCallback  lastAcquiredFrameNum=3 lastAttemptedDrawFrameNum=3
+11-23 22:29:43.249 32288 32288 I ViewRootImpl@7bbc18b[نافذة منبثقة]: [DP] pdf(0) 0 android.view.ViewRootImpl.lambda$addFrameCompleteCallbackIfNeeded$3$ViewRootImpl:4995 android.view.ViewRootImpl$$ExternalSyntheticLambda16.run:6 android.os.Handler.handleCallback:938 
+11-23 22:29:43.249 32288 32288 I ViewRootImpl@7bbc18b[نافذة منبثقة]: [DP] rdf()
+11-23 22:29:43.249 32288 32288 D ViewRootImpl@7bbc18b[نافذة منبثقة]: reportDrawFinished (fn: 3) 
+11-23 22:29:43.318 32288 32288 D InsetsController: show(ime(), fromIme=true)
+11-23 22:29:43.319 32288 32288 D InsetsSourceConsumer: setRequestedVisible: visible=true, type=19, host=com.knoux.kxprivatevpn/com.knoux.kxprivatevpn.MainActivity, from=android.view.InsetsSourceConsumer.show:246 android.view.InsetsController.showDirectly:1489 android.view.InsetsController.controlAnimationUnchecked:1137 android.view.InsetsController.show:942 android.view.ViewRootImpl$ViewRootHandler.handleMessageImpl:6478 android.view.ViewRootImpl$ViewRootHandler.handleMessage:6403 android.os.Handler.dispatchMessage:106 android.os.Looper.loopOnce:226 android.os.Looper.loop:313 android.app.ActivityThread.main:8751 
+11-23 22:29:43.335 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@c2decd1 fN = 262 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:29:43.335 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:29:43.336 32288 32288 D InsetsController: show(ime(), fromIme=true)
+11-23 22:29:43.349 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@169f237 fN = 263 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:29:43.349 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:29:43.435 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@f7313a4 fN = 264 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:29:43.435 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:29:43.479 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@8d3850d fN = 265 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:29:43.479 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:29:43.513 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@9a7ccc2 fN = 266 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:29:43.513 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:29:43.538 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@ce17ad3 fN = 267 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:29:43.538 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:29:43.560 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@19fc610 fN = 268 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:29:43.560 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:29:43.585 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@fc06509 fN = 269 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:29:43.586 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:29:43.612 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@1a9f30e fN = 270 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:29:43.612 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:29:43.673 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@83ef12f fN = 271 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:29:43.673 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:29:43.702 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@9a3333c fN = 272 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:29:43.702 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:29:44.527 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:29:44.535 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: setInTouchMode(false), android.view.ViewRootImpl.checkForLeavingTouchModeAndConsume:9045 android.view.ViewRootImpl.access$3500:302 android.view.ViewRootImpl$EarlyPostImeInputStage.processKeyEvent:7394 android.view.ViewRootImpl$EarlyPostImeInputStage.onProcess:7378 android.view.ViewRootImpl$InputStage.deliver:6922 android.view.ViewRootImpl$InputStage.onDeliverToNext:6979 android.view.ViewRootImpl$InputStage.forward:6945 android.view.ViewRootImpl$AsyncInputStage.forward:7176 android.view.ViewRootImpl$ImeInputStage.onFinishedInputEvent:7363 android.view.inputmethod.InputMethodManager$PendingEvent.run:3411 
+11-23 22:29:44.536 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:29:44.541 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:29:44.546 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:29:44.611 32288  1529 D OpenGLRenderer: setSurface called with nullptr
+11-23 22:29:44.611 32288  1529 D OpenGLRenderer: setSurface() destroyed EGLSurface
+11-23 22:29:44.611 32288  1529 D OpenGLRenderer: destroyEglSurface
+11-23 22:29:44.613 32288 32288 I ViewRootImpl@7bbc18b[نافذة منبثقة]: dispatchDetachedFromWindow
+11-23 22:29:44.622 32288 32288 D InputTransport: Input channel destroyed: '6bbcfae', fd=104
+11-23 22:29:44.677 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:29:44.688 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:29:44.696 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:29:44.784 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:29:44.794 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:29:44.900 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:29:44.923 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:29:44.928 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:29:44.997 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:29:45.020 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:29:45.029 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:29:45.080 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:29:45.149 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:29:45.172 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:29:45.181 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:29:45.234 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:29:45.323 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:29:45.332 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:29:45.391 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:29:45.398 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:29:45.485 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:29:45.492 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:29:45.497 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:29:45.563 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:29:45.585 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:29:45.594 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:29:45.599 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:29:45.679 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:29:46.777 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:29:46.783 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: The input has been finished in ImeInputStage.
+11-23 22:29:46.786 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:29:46.798 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: The input has been finished in ImeInputStage.
+11-23 22:29:46.806 32288 32288 D InsetsSourceConsumer: setRequestedVisible: visible=false, type=19, host=com.knoux.kxprivatevpn/com.knoux.kxprivatevpn.MainActivity, from=android.view.InsetsSourceConsumer.hide:253 android.view.ImeInsetsSourceConsumer.hide:68 android.view.ImeInsetsSourceConsumer.hide:74 android.view.InsetsController.hideDirectly:1473 android.view.InsetsController.controlAnimationUnchecked:1139 android.view.InsetsController.applyAnimation:1456 android.view.InsetsController.applyAnimation:1437 android.view.InsetsController.hide:1006 android.view.ViewRootImpl$ViewRootHandler.handleMessageImpl:6482 android.view.ViewRootImpl$ViewRootHandler.handleMessage:6403 
+11-23 22:29:46.871 32288 32288 D InsetsSourceConsumer: ensureControlAlpha: for ITYPE_NAVIGATION_BAR on com.knoux.kxprivatevpn/com.knoux.kxprivatevpn.MainActivity
+11-23 22:29:46.872 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@65e27b1 fN = 307 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:29:46.872 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:29:46.884 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@45cd817 fN = 308 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:29:46.884 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:29:46.906 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@e293404 fN = 309 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:29:46.906 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:29:46.923 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@47c8ded fN = 310 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:29:46.923 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:29:46.941 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@e94d422 fN = 311 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:29:46.941 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:29:46.958 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@24cdeb3 fN = 312 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:29:46.959 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:29:46.976 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@8078c70 fN = 313 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:29:46.976 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:29:46.993 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@6a11be9 fN = 314 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:29:46.993 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:29:47.012 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@850106e fN = 315 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:29:47.012 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:29:47.034 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@22cb30f fN = 316 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:29:47.034 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:29:47.053 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@830ff9c fN = 317 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:29:47.053 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:29:47.071 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@9668da5 fN = 318 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:29:47.071 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:29:47.088 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@270c57a fN = 319 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:29:47.088 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:29:47.106 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@c8b712b fN = 320 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:29:47.106 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:29:47.125 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@61c7988 fN = 321 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:29:47.125 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:29:47.143 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@e575f21 fN = 322 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:29:47.143 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:29:47.160 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@eb5bf46 fN = 323 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:29:47.160 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:29:47.179 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@9cdf507 fN = 324 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:29:47.179 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:29:47.181 32288 32288 I IMM_LC  : notifyImeHidden
+11-23 22:29:47.188 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@7c3a634 fN = 325 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:29:47.188 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:29:50.762 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme pointer 0
+11-23 22:29:50.774 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme pointer 1
+11-23 22:29:51.057 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: MSG_WINDOW_FOCUS_CHANGED 0 1
+11-23 22:29:51.475 32288 32288 D InputTransport: Input channel destroyed: 'ClientS', fd=99
+11-23 22:29:51.583 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: handleAppVisibility mAppVisible=true visible=false
+11-23 22:29:51.600 32288  1529 D OpenGLRenderer: setSurface called with nullptr
+11-23 22:29:51.600 32288  1529 D OpenGLRenderer: setSurface() destroyed EGLSurface
+11-23 22:29:51.600 32288  1529 D OpenGLRenderer: destroyEglSurface
+11-23 22:29:51.610 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: Relayout returned: old=(0,0,720,1600) new=(0,0,720,1600) req=(720,1600)8 dur=6 res=0x5 s={false 0} ch=true fn=360
+11-23 22:29:51.617 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: stopped(true) old=false
+11-23 22:29:51.679 32288 32293 W ux.kxprivatevp: Cleared Reference was only reachable from finalizer (only reported once)
+11-23 22:29:51.697 32288  1529 D OpenGLRenderer: setSurface called with nullptr
+11-23 22:30:37.371 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: handleAppVisibility mAppVisible=false visible=true
+11-23 22:30:37.385 32288  1529 D OpenGLRenderer: setSurface called with nullptr
+11-23 22:30:37.397 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: Relayout returned: old=(0,0,720,1600) new=(0,0,720,1600) req=(720,1600)4 dur=11 res=0x1 s={false 0} ch=false fn=-1
+11-23 22:30:37.398 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: stopped(false) old=true
+11-23 22:30:37.403 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: stopped(false) old=false
+11-23 22:30:37.414 32288  1529 D OpenGLRenderer: setSurface called with nullptr
+11-23 22:30:37.438 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: Relayout returned: old=(0,0,720,1600) new=(0,0,720,1600) req=(720,1600)0 dur=22 res=0x7 s={true 4123841536} ch=true fn=-1
+11-23 22:30:37.438 32288  1529 D OpenGLRenderer: eglCreateWindowSurface
+11-23 22:30:37.438 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: [DP] dp(1) 1 android.view.ViewRootImpl.reportNextDraw:11420 android.view.ViewRootImpl.performTraversals:4193 android.view.ViewRootImpl.doTraversal:2919 
+11-23 22:30:37.438 32288 32288 D ViewRootImpl@9bc6b19[MainActivity]: Creating frameDrawingCallback nextDrawUseBlastSync=false reportNextDraw=true hasBlurUpdates=false
+11-23 22:30:37.438 32288 32288 D ViewRootImpl@9bc6b19[MainActivity]: Creating frameCompleteCallback
+11-23 22:30:37.454 32288  1582 D ViewRootImpl@9bc6b19[MainActivity]: Received frameDrawingCallback frameNum=1. Creating transactionCompleteCallback=false
+11-23 22:30:37.463 32288  1529 D ViewRootImpl@9bc6b19[MainActivity]: Received frameCompleteCallback  lastAcquiredFrameNum=1 lastAttemptedDrawFrameNum=1
+11-23 22:30:37.464 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: [DP] pdf(0) 1 android.view.ViewRootImpl.lambda$addFrameCompleteCallbackIfNeeded$3$ViewRootImpl:4995 android.view.ViewRootImpl$$ExternalSyntheticLambda16.run:6 android.os.Handler.handleCallback:938 
+11-23 22:30:37.464 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: [DP] rdf()
+11-23 22:30:37.464 32288 32288 D ViewRootImpl@9bc6b19[MainActivity]: reportDrawFinished (fn: -1) 
+11-23 22:30:37.465 32288 32288 D InsetsSourceConsumer: ensureControlAlpha: for ITYPE_NAVIGATION_BAR on com.knoux.kxprivatevpn/com.knoux.kxprivatevpn.MainActivity
+11-23 22:30:37.466 32288 32288 D InsetsSourceConsumer: ensureControlAlpha: for ITYPE_STATUS_BAR on com.knoux.kxprivatevpn/com.knoux.kxprivatevpn.MainActivity
+11-23 22:30:37.499 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: MSG_WINDOW_FOCUS_CHANGED 1 1
+11-23 22:30:37.501 32288 32288 D InputMethodManager: startInputInner - Id : 0
+11-23 22:30:37.501 32288 32288 I InputMethodManager: startInputInner - mService.startInputOrWindowGainedFocus
+11-23 22:31:25.589 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme pointer 0
+11-23 22:31:25.609 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme pointer 1
+11-23 22:31:25.906 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: MSG_WINDOW_FOCUS_CHANGED 0 1
+11-23 22:31:26.298 32288 32288 D InputTransport: Input channel destroyed: 'ClientS', fd=99
+11-23 22:31:26.387 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: handleAppVisibility mAppVisible=true visible=false
+11-23 22:31:26.402 32288  1529 D OpenGLRenderer: setSurface called with nullptr
+11-23 22:31:26.403 32288  1529 D OpenGLRenderer: setSurface() destroyed EGLSurface
+11-23 22:31:26.403 32288  1529 D OpenGLRenderer: destroyEglSurface
+11-23 22:31:26.413 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: Relayout returned: old=(0,0,720,1600) new=(0,0,720,1600) req=(720,1600)8 dur=7 res=0x5 s={false 0} ch=true fn=423
+11-23 22:31:26.416 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: stopped(true) old=false
+11-23 22:35:03.670 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: handleAppVisibility mAppVisible=false visible=true
+11-23 22:35:03.677 32288  1529 D OpenGLRenderer: setSurface called with nullptr
+11-23 22:35:03.697 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: Relayout returned: old=(0,0,720,1600) new=(0,0,720,1600) req=(720,1600)4 dur=19 res=0x1 s={false 0} ch=false fn=-1
+11-23 22:35:03.697 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: stopped(false) old=true
+11-23 22:35:03.703 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: stopped(false) old=false
+11-23 22:35:03.710 32288  1529 D OpenGLRenderer: setSurface called with nullptr
+11-23 22:35:03.730 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: Relayout returned: old=(0,0,720,1600) new=(0,0,720,1600) req=(720,1600)0 dur=18 res=0x7 s={true 4123841536} ch=true fn=-1
+11-23 22:35:03.730 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: [DP] dp(1) 1 android.view.ViewRootImpl.reportNextDraw:11420 android.view.ViewRootImpl.performTraversals:4193 android.view.ViewRootImpl.doTraversal:2919 
+11-23 22:35:03.731 32288 32288 D ViewRootImpl@9bc6b19[MainActivity]: Creating frameDrawingCallback nextDrawUseBlastSync=false reportNextDraw=true hasBlurUpdates=false
+11-23 22:35:03.731 32288 32288 D ViewRootImpl@9bc6b19[MainActivity]: Creating frameCompleteCallback
+11-23 22:35:03.732 32288  1529 D OpenGLRenderer: eglCreateWindowSurface
+11-23 22:35:03.743 32288  1571 D ViewRootImpl@9bc6b19[MainActivity]: Received frameDrawingCallback frameNum=1. Creating transactionCompleteCallback=false
+11-23 22:35:03.756 32288  1529 D ViewRootImpl@9bc6b19[MainActivity]: Received frameCompleteCallback  lastAcquiredFrameNum=1 lastAttemptedDrawFrameNum=1
+11-23 22:35:03.757 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: [DP] pdf(0) 1 android.view.ViewRootImpl.lambda$addFrameCompleteCallbackIfNeeded$3$ViewRootImpl:4995 android.view.ViewRootImpl$$ExternalSyntheticLambda16.run:6 android.os.Handler.handleCallback:938 
+11-23 22:35:03.757 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: [DP] rdf()
+11-23 22:35:03.757 32288 32288 D ViewRootImpl@9bc6b19[MainActivity]: reportDrawFinished (fn: -1) 
+11-23 22:35:03.758 32288 32288 D InsetsSourceConsumer: ensureControlAlpha: for ITYPE_NAVIGATION_BAR on com.knoux.kxprivatevpn/com.knoux.kxprivatevpn.MainActivity
+11-23 22:35:03.759 32288 32288 D InsetsSourceConsumer: ensureControlAlpha: for ITYPE_STATUS_BAR on com.knoux.kxprivatevpn/com.knoux.kxprivatevpn.MainActivity
+11-23 22:35:03.796 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: MSG_WINDOW_FOCUS_CHANGED 1 1
+11-23 22:35:03.798 32288 32288 D InputMethodManager: startInputInner - Id : 0
+11-23 22:35:03.798 32288 32288 I InputMethodManager: startInputInner - mService.startInputOrWindowGainedFocus
+11-23 22:35:05.330 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:05.337 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:05.908 32288 32288 I DecorView: notifyKeepScreenOnChanged: keepScreenOn=false
+11-23 22:35:06.744 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: Relayout returned: old=(0,0,720,1600) new=(0,0,720,1600) req=(720,1600)0 dur=10 res=0x1 s={true 4123841536} ch=false fn=17
+11-23 22:35:07.122 32288  1608 I OpenGLRenderer: Davey! duration=1757ms; Flags=0, FrameTimelineVsyncId=8588481, IntendedVsync=86148788176926, Vsync=86148788176926, InputEventId=-24201667, HandleInputStart=86148789264166, AnimationStart=86148789269843, PerformTraversalsStart=86149413744895, DrawStart=86150425723384, FrameDeadline=86148804843592, FrameInterval=86148789254687, FrameStartTime=16666666, SyncQueued=86150524491770, SyncStart=86150524731614, IssueDrawCommandsStart=86150525236405, SwapBuffers=86150544434374, FrameCompleted=86150546359999, DequeueBufferDuration=31771, QueueBufferDuration=1102083, GpuCompleted=86150546359999, SwapBuffersCompleted=86150546359999, DisplayPresentTime=0, 
+11-23 22:35:07.138 32288 32288 I Choreographer: Skipped 106 frames!  The application may be doing too much work on its main thread.
+11-23 22:35:07.144 32288 32288 D InputMethodManager: startInputInner - Id : 0
+11-23 22:35:07.144 32288 32288 I InputMethodManager: startInputInner - mService.startInputOrWindowGainedFocus
+11-23 22:35:07.224 32288  1608 I OpenGLRenderer: Davey! duration=1840ms; Flags=0, FrameTimelineVsyncId=8588482, IntendedVsync=86148804887233, Vsync=86150571553829, InputEventId=0, HandleInputStart=86150579788697, AnimationStart=86150579796457, PerformTraversalsStart=86150587560468, DrawStart=86150587693228, FrameDeadline=86148838220565, FrameInterval=86150579553853, FrameStartTime=16666666, SyncQueued=86150637885311, SyncStart=86150638174843, IssueDrawCommandsStart=86150638651926, SwapBuffers=86150643870572, FrameCompleted=86150645799738, DequeueBufferDuration=35677, QueueBufferDuration=1081667, GpuCompleted=86150645799738, SwapBuffersCompleted=86150645799738, DisplayPresentTime=0, 
+11-23 22:35:22.426 32288 32294 D InputTransport: Input channel destroyed: 'ClientS', fd=102
+11-23 22:35:39.996 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme pointer 0
+11-23 22:35:40.018 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme pointer 1
+11-23 22:35:40.418 32288 32288 I DecorView: notifyKeepScreenOnChanged: keepScreenOn=false
+11-23 22:35:40.515 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: Relayout returned: old=(0,0,720,1600) new=(0,0,720,1600) req=(720,1600)0 dur=9 res=0x1 s={true 4123841536} ch=false fn=114
+11-23 22:35:45.890 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme pointer 0
+11-23 22:35:45.922 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme pointer 1
+11-23 22:35:46.054 32288 32288 D InputMethodManager: startInputInner - Id : 0
+11-23 22:35:46.055 32288 32288 I InputMethodManager: startInputInner - mService.startInputOrWindowGainedFocus
+11-23 22:35:46.059 32288 32288 D InsetsController: show(ime(), fromIme=false)
+11-23 22:35:46.059 32288 32288 I IMM_LC  : requestImeShow
+11-23 22:35:46.059 32288 32288 I IMM_LC  : ssi() - flag : 0 view : com.knoux.kxprivatevpn reason = SHOW_SOFT_INPUT_BY_INSETS_API
+11-23 22:35:46.059 32288 32288 I IMM_LC  : ssi() view is not EditText
+11-23 22:35:46.095 32288 32288 I AssistStructure: Flattened final assist data: 492 bytes, containing 1 windows, 3 views
+11-23 22:35:46.141 32288 32288 I IMM_LC  : showSoftInput(View,I)
+11-23 22:35:46.141 32288 32288 I IMM_LC  : ssi() - flag : 0 view : com.knoux.kxprivatevpn reason = SHOW_SOFT_INPUT
+11-23 22:35:46.141 32288 32288 I IMM_LC  : ssi() view is not EditText
+11-23 22:35:46.392 32288 32288 D InsetsController: show(ime(), fromIme=true)
+11-23 22:35:46.394 32288 32288 D InsetsSourceConsumer: setRequestedVisible: visible=true, type=19, host=com.knoux.kxprivatevpn/com.knoux.kxprivatevpn.MainActivity, from=android.view.InsetsSourceConsumer.show:246 android.view.InsetsController.showDirectly:1489 android.view.InsetsController.controlAnimationUnchecked:1137 android.view.InsetsController.show:942 android.view.ViewRootImpl$ViewRootHandler.handleMessageImpl:6478 android.view.ViewRootImpl$ViewRootHandler.handleMessage:6403 android.os.Handler.dispatchMessage:106 android.os.Looper.loopOnce:226 android.os.Looper.loop:313 android.app.ActivityThread.main:8751 
+11-23 22:35:46.394 32288 32288 D InsetsController: show(ime(), fromIme=true)
+11-23 22:35:46.416 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@4fd9776 fN = 174 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:35:46.417 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:35:46.436 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@1a831e4 fN = 175 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:35:46.436 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:35:46.494 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@a23b502 fN = 176 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:35:46.494 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:35:46.515 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@3e6de13 fN = 177 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:35:46.515 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:35:46.540 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@6a88850 fN = 178 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:35:46.540 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:35:46.564 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@d2a9a49 fN = 179 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:35:46.564 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:35:46.589 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@39c1f4e fN = 180 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:35:46.589 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:35:46.610 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@f57486f fN = 181 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:35:46.610 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:35:46.633 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@515d97c fN = 182 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:35:46.633 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:35:46.654 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@4799205 fN = 183 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:35:46.654 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:35:46.714 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@71ee25a fN = 184 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:35:46.715 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:35:46.740 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@cb9fc8b fN = 185 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:35:46.741 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:35:46.762 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@4a51168 fN = 186 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:35:46.762 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:35:47.255 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: setInTouchMode(false), android.view.ViewRootImpl.checkForLeavingTouchModeAndConsume:9038 android.view.ViewRootImpl.access$3500:302 android.view.ViewRootImpl$EarlyPostImeInputStage.processKeyEvent:7394 android.view.ViewRootImpl$EarlyPostImeInputStage.onProcess:7378 android.view.ViewRootImpl$InputStage.deliver:6922 android.view.ViewRootImpl$InputStage.onDeliverToNext:6979 android.view.ViewRootImpl$InputStage.forward:6945 android.view.ViewRootImpl$AsyncInputStage.forward:7176 android.view.ViewRootImpl$ImeInputStage.onFinishedInputEvent:7363 android.view.inputmethod.InputMethodManager$PendingEvent.run:3411 
+11-23 22:35:47.255 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:47.261 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:47.357 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:47.373 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:47.468 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:47.473 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:47.556 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:47.562 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:47.653 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:47.658 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:47.747 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:47.786 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:47.895 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:47.901 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:48.039 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:48.045 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:48.155 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:48.160 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:48.270 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:48.276 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:48.372 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:48.379 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:48.515 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:48.521 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:48.631 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:48.636 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:48.745 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:48.751 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:48.843 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:48.849 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:48.950 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:48.956 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:49.077 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:49.083 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:49.201 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:49.241 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:49.354 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:49.360 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:49.475 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:49.481 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:49.596 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:49.602 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:49.713 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:49.721 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:49.884 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:49.891 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:50.086 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:50.137 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:50.292 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:50.298 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:50.397 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:50.403 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:50.515 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:50.521 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:50.650 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:50.656 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:50.755 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:50.799 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:50.901 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:50.907 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:51.001 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:51.008 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:51.116 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:51.123 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:51.216 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:51.244 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:51.255 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:51.260 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:51.354 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:51.364 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:51.371 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:51.377 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:51.472 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:51.479 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:51.579 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:51.593 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:51.607 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:51.659 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:51.746 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:51.777 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:51.789 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:51.847 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:51.925 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:51.950 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:51.958 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:52.068 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:52.078 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:52.133 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:52.217 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:52.245 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:52.254 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:52.262 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:52.361 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:52.372 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:53.500 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 0
+11-23 22:35:53.506 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: The input has been finished in ImeInputStage.
+11-23 22:35:53.514 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme key 1
+11-23 22:35:53.525 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: The input has been finished in ImeInputStage.
+11-23 22:35:53.533 32288 32288 D InsetsSourceConsumer: setRequestedVisible: visible=false, type=19, host=com.knoux.kxprivatevpn/com.knoux.kxprivatevpn.MainActivity, from=android.view.InsetsSourceConsumer.hide:253 android.view.ImeInsetsSourceConsumer.hide:68 android.view.ImeInsetsSourceConsumer.hide:74 android.view.InsetsController.hideDirectly:1473 android.view.InsetsController.controlAnimationUnchecked:1139 android.view.InsetsController.applyAnimation:1456 android.view.InsetsController.applyAnimation:1437 android.view.InsetsController.hide:1006 android.view.ViewRootImpl$ViewRootHandler.handleMessageImpl:6482 android.view.ViewRootImpl$ViewRootHandler.handleMessage:6403 
+11-23 22:35:53.607 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@24d5cae fN = 262 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:35:53.607 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:35:53.609 32288 32288 D InsetsSourceConsumer: ensureControlAlpha: for ITYPE_NAVIGATION_BAR on com.knoux.kxprivatevpn/com.knoux.kxprivatevpn.MainActivity
+11-23 22:35:53.631 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@173c5dc fN = 263 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:35:53.631 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:35:53.649 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@8bc76e5 fN = 264 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:35:53.649 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:35:53.672 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@e9695ba fN = 265 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:35:53.672 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:35:53.697 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@f989c6b fN = 266 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:35:53.697 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:35:53.725 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@96563c8 fN = 267 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:35:53.725 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:35:53.745 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@9429c61 fN = 268 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:35:53.745 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:35:53.771 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@1085386 fN = 269 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:35:53.771 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:35:53.793 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@9a29447 fN = 270 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:35:53.793 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:35:53.816 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@950f474 fN = 271 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:35:53.817 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:35:53.835 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@7ab9d9d fN = 272 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:35:53.835 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:35:53.856 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@2862212 fN = 273 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:35:53.856 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:35:53.882 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@d6a2de3 fN = 274 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:35:53.883 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:35:53.902 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@c2e3e0 fN = 275 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:35:53.902 32288  1582 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:35:53.904 32288 32288 I IMM_LC  : notifyImeHidden
+11-23 22:35:53.925 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: t = android.view.SurfaceControl$Transaction@3a97699 fN = 276 android.view.SyncRtSurfaceTransactionApplier.applyTransaction:94 android.view.SyncRtSurfaceTransactionApplier.lambda$scheduleApply$0$SyncRtSurfaceTransactionApplier:71 android.view.SyncRtSurfaceTransactionApplier$$ExternalSyntheticLambda0.onFrameDraw:4 
+11-23 22:35:53.925 32288  1571 I ViewRootImpl@9bc6b19[MainActivity]: mWNT: merge t to BBQ
+11-23 22:35:57.723 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme pointer 0
+11-23 22:35:57.738 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme pointer 1
+11-23 22:35:58.013 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: MSG_WINDOW_FOCUS_CHANGED 0 1
+11-23 22:35:58.545 32288 32288 D InputTransport: Input channel destroyed: 'ClientS', fd=99
+11-23 22:35:58.600 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: handleAppVisibility mAppVisible=true visible=false
+11-23 22:35:58.615 32288  1529 D OpenGLRenderer: setSurface called with nullptr
+11-23 22:35:58.615 32288  1529 D OpenGLRenderer: setSurface() destroyed EGLSurface
+11-23 22:35:58.616 32288  1529 D OpenGLRenderer: destroyEglSurface
+11-23 22:35:58.626 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: Relayout returned: old=(0,0,720,1600) new=(0,0,720,1600) req=(720,1600)8 dur=7 res=0x5 s={false 0} ch=true fn=311
+11-23 22:35:58.634 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: stopped(true) old=false
+11-23 22:35:58.750 32288 32294 D InputTransport: Input channel destroyed: 'ClientS', fd=103
+11-23 22:42:46.912 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: handleAppVisibility mAppVisible=false visible=true
+11-23 22:42:46.919 32288  1529 D OpenGLRenderer: setSurface called with nullptr
+11-23 22:42:46.938 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: Relayout returned: old=(0,0,720,1600) new=(0,0,720,1600) req=(720,1600)4 dur=15 res=0x1 s={false 0} ch=false fn=-1
+11-23 22:42:47.046 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: stopped(false) old=true
+11-23 22:42:47.097 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: stopped(false) old=false
+11-23 22:42:47.445 32288  1529 D OpenGLRenderer: setSurface called with nullptr
+11-23 22:42:47.459 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: Relayout returned: old=(0,0,720,1600) new=(0,0,720,1600) req=(720,1600)0 dur=12 res=0x7 s={true 4123841536} ch=true fn=-1
+11-23 22:42:47.460 32288  1529 D OpenGLRenderer: eglCreateWindowSurface
+11-23 22:42:47.460 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: [DP] dp(1) 1 android.view.ViewRootImpl.reportNextDraw:11420 android.view.ViewRootImpl.performTraversals:4193 android.view.ViewRootImpl.doTraversal:2919 
+11-23 22:42:47.460 32288 32288 D ViewRootImpl@9bc6b19[MainActivity]: Creating frameDrawingCallback nextDrawUseBlastSync=false reportNextDraw=true hasBlurUpdates=false
+11-23 22:42:47.460 32288 32288 D ViewRootImpl@9bc6b19[MainActivity]: Creating frameCompleteCallback
+11-23 22:42:47.516 32288  1582 D ViewRootImpl@9bc6b19[MainActivity]: Received frameDrawingCallback frameNum=1. Creating transactionCompleteCallback=false
+11-23 22:42:47.538 32288  1529 D ViewRootImpl@9bc6b19[MainActivity]: Received frameCompleteCallback  lastAcquiredFrameNum=1 lastAttemptedDrawFrameNum=1
+11-23 22:42:47.539 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: [DP] pdf(0) 1 android.view.ViewRootImpl.lambda$addFrameCompleteCallbackIfNeeded$3$ViewRootImpl:4995 android.view.ViewRootImpl$$ExternalSyntheticLambda16.run:6 android.os.Handler.handleCallback:938 
+11-23 22:42:47.539 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: [DP] rdf()
+11-23 22:42:47.539 32288 32288 D ViewRootImpl@9bc6b19[MainActivity]: reportDrawFinished (fn: -1) 
+11-23 22:42:47.597 32288 32288 W ux.kxprivatevp: Monitor::Inflate: Install failed 0x2f7dad8
+11-23 22:42:47.605 32288 32288 I IMM_LC  : hsifw() - flags=0, caller=android.view.inputmethod.InputMethodManager.hideSoftInputFromWindow:1858 android.view.inputmethod.InputMethodManager.hideSoftInputFromWindow:1827 androidx.core.view.SoftwareKeyboardControllerCompat$Impl30.hide:224 androidx.core.view.SoftwareKeyboardControllerCompat.hide:81 androidx.compose.ui.text.input.InputMethodManagerImpl.hideSoftInput:85 
+11-23 22:42:47.606 32288 32288 I IMM_LC  : hideSoftInputFromWindow - mService.hideSoftInput
+11-23 22:42:47.608 32288 32288 D InputMethodManager: startInputInner - Id : 0
+11-23 22:42:47.609 32288 32288 I InputMethodManager: startInputInner - mService.startInputOrWindowGainedFocus
+11-23 22:42:47.624 32288 32288 D InsetsSourceConsumer: ensureControlAlpha: for ITYPE_NAVIGATION_BAR on com.knoux.kxprivatevpn/com.knoux.kxprivatevpn.MainActivity
+11-23 22:42:47.625 32288 32288 D InsetsSourceConsumer: ensureControlAlpha: for ITYPE_STATUS_BAR on com.knoux.kxprivatevpn/com.knoux.kxprivatevpn.MainActivity
+11-23 22:42:47.653 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: MSG_WINDOW_FOCUS_CHANGED 1 1
+11-23 22:42:47.654 32288 32288 D InputMethodManager: startInputInner - Id : 0
+11-23 22:42:47.654 32288 32288 I InputMethodManager: startInputInner - mService.startInputOrWindowGainedFocus
+11-23 22:42:50.101 32288 32288 I DecorView: notifyKeepScreenOnChanged: keepScreenOn=false
+11-23 22:42:50.874 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: Relayout returned: old=(0,0,720,1600) new=(0,0,720,1600) req=(720,1600)0 dur=9 res=0x1 s={true 4123841536} ch=false fn=96
+11-23 22:42:51.227 32288 32298 I OpenGLRenderer: Davey! duration=1845ms; Flags=0, FrameTimelineVsyncId=8599927, IntendedVsync=86612810797628, Vsync=86613027464286, InputEventId=0, HandleInputStart=86613037690395, AnimationStart=86613037696541, PerformTraversalsStart=86613602352114, DrawStart=86614534290291, FrameDeadline=86612844130960, FrameInterval=86613037680500, FrameStartTime=16666666, SyncQueued=86614628590082, SyncStart=86614628675707, IssueDrawCommandsStart=86614629323416, SwapBuffers=86614654300395, FrameCompleted=86614656157947, DequeueBufferDuration=31615, QueueBufferDuration=1116511, GpuCompleted=86614656157947, SwapBuffersCompleted=86614656157947, DisplayPresentTime=0, 
+11-23 22:42:51.232 32288 32288 I Choreographer: Skipped 97 frames!  The application may be doing too much work on its main thread.
+11-23 22:42:51.311 32288 32298 I OpenGLRenderer: Davey! duration=1688ms; Flags=0, FrameTimelineVsyncId=8599930, IntendedVsync=86613044647325, Vsync=86614661313927, InputEventId=0, HandleInputStart=86614673382426, AnimationStart=86614673389093, PerformTraversalsStart=86614677369666, DrawStart=86614677506801, FrameDeadline=86613077980657, FrameInterval=86614673185864, FrameStartTime=16666666, SyncQueued=86614726240030, SyncStart=86614726521124, IssueDrawCommandsStart=86614726971072, SwapBuffers=86614731709614, FrameCompleted=86614733729509, DequeueBufferDuration=29844, QueueBufferDuration=1139323, GpuCompleted=86614733729509, SwapBuffersCompleted=86614733729509, DisplayPresentTime=0, 
+11-23 22:42:56.063 32288 32293 I ux.kxprivatevp: Background concurrent copying GC freed 3227KB AllocSpace bytes, 10(2084KB) LOS objects, 49% free, 7818KB/15MB, paused 933us,82us total 127.130ms
+11-23 22:42:56.072 32288 32294 D InputTransport: Input channel destroyed: 'ClientS', fd=102
+11-23 22:43:31.840 32288 32293 I ux.kxprivatevp: Background concurrent copying GC freed 7914KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 7647KB/14MB, paused 229us,72us total 129.914ms
+11-23 22:44:07.544 32288 32293 I ux.kxprivatevp: Background concurrent copying GC freed 7840KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 7535KB/14MB, paused 361us,71us total 140.188ms
+11-23 22:44:42.250 32288 32293 I ux.kxprivatevp: Background concurrent copying GC freed 6221KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 8849KB/17MB, paused 542us,75us total 138.409ms
+11-23 22:45:23.179 32288 32293 I ux.kxprivatevp: Background concurrent copying GC freed 9673KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 8023KB/15MB, paused 266us,68us total 135.068ms
+11-23 22:46:00.129 32288 32293 I ux.kxprivatevp: Background concurrent copying GC freed 7688KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 8286KB/16MB, paused 1.028ms,66us total 199.670ms
+11-23 22:46:34.040 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme pointer 0
+11-23 22:46:34.102 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme pointer 1
+11-23 22:46:34.938 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: MSG_WINDOW_FOCUS_CHANGED 0 1
+11-23 22:46:50.133 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: stopped(false) old=false
+11-23 22:46:50.136 32288 32288 I DecorView: notifyKeepScreenOnChanged: keepScreenOn=false
+11-23 22:46:50.138 32288 32288 D InsetsSourceConsumer: ensureControlAlpha: for ITYPE_NAVIGATION_BAR on com.knoux.kxprivatevpn/com.knoux.kxprivatevpn.MainActivity
+11-23 22:46:50.139 32288 32288 D InsetsSourceConsumer: ensureControlAlpha: for ITYPE_STATUS_BAR on com.knoux.kxprivatevpn/com.knoux.kxprivatevpn.MainActivity
+11-23 22:46:50.336 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: Relayout returned: old=(0,0,720,1600) new=(0,0,720,1600) req=(720,1600)0 dur=10 res=0x1 s={true 4123841536} ch=false fn=563
+11-23 22:46:50.347 32288 32293 I ux.kxprivatevp: Background concurrent copying GC freed 8843KB AllocSpace bytes, 2(72KB) LOS objects, 49% free, 8041KB/15MB, paused 328us,70us total 163.654ms
+11-23 22:46:50.504 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: MSG_WINDOW_FOCUS_CHANGED 1 1
+11-23 22:46:50.505 32288 32288 D InputMethodManager: startInputInner - Id : 0
+11-23 22:46:50.505 32288 32288 I InputMethodManager: startInputInner - mService.startInputOrWindowGainedFocus
+11-23 22:46:51.919 32288  1542 D nativeloader: Load /data/app/~~45SqeA3YyQGgUBbg1-_oZQ==/com.knoux.kxprivatevpn-xVKiCegsafItuxmhlk9Kqg==/base.apk!/lib/armeabi-v7a/libwg-go.so using class loader ns clns-4 (caller=/data/app/~~45SqeA3YyQGgUBbg1-_oZQ==/com.knoux.kxprivatevpn-xVKiCegsafItuxmhlk9Kqg==/base.apk!classes14.dex): ok
+11-23 22:46:51.921 32288  1542 I WireGuard/GoBackend: Bringing tunnel kx-private UP
+11-23 22:46:51.924 32288  1542 D WireGuard/GoBackend: Requesting to start VpnService
+11-23 22:46:52.234 32288  1542 D WireGuard/GoBackend: Go backend f333402
+11-23 22:46:52.236 32288  1542 D WireGuard/GoBackend/kx-private: Attaching to interface tun0
+11-23 22:46:52.237 32288 13541 D WireGuard/GoBackend/kx-private: Routine: handshake worker 3 - started
+11-23 22:46:52.237 32288 13539 D WireGuard/GoBackend/kx-private: Routine: handshake worker 1 - started
+11-23 22:46:52.238 32288 13537 D WireGuard/GoBackend/kx-private: Routine: handshake worker 2 - started
+11-23 22:46:52.238 32288 13539 D WireGuard/GoBackend/kx-private: Routine: encryption worker 1 - started
+11-23 22:46:52.238 32288 13541 D WireGuard/GoBackend/kx-private: Routine: encryption worker 2 - started
+11-23 22:46:52.238 32288 13539 D WireGuard/GoBackend/kx-private: Routine: encryption worker 3 - started
+11-23 22:46:52.238 32288 13541 D WireGuard/GoBackend/kx-private: Routine: decryption worker 3 - started
+11-23 22:46:52.238 32288 13539 D WireGuard/GoBackend/kx-private: Routine: decryption worker 2 - started
+11-23 22:46:52.238 32288 13541 D WireGuard/GoBackend/kx-private: Routine: decryption worker 6 - started
+11-23 22:46:52.238 32288 13539 D WireGuard/GoBackend/kx-private: Routine: handshake worker 7 - started
+11-23 22:46:52.238 32288 13541 D WireGuard/GoBackend/kx-private: Routine: encryption worker 4 - started
+11-23 22:46:52.238 32288 13541 D WireGuard/GoBackend/kx-private: Routine: decryption worker 4 - started
+11-23 22:46:52.238 32288 13541 D WireGuard/GoBackend/kx-private: Routine: handshake worker 4 - started
+11-23 22:46:52.238 32288 13543 D WireGuard/GoBackend/kx-private: Routine: encryption worker 7 - started
+11-23 22:46:52.238 32288  1542 D WireGuard/GoBackend/kx-private: UAPI: Updating private key
+11-23 22:46:52.238 32288 13543 D WireGuard/GoBackend/kx-private: Routine: handshake worker 6 - started
+11-23 22:46:52.239 32288 13543 D WireGuard/GoBackend/kx-private: Routine: handshake worker 5 - started
+11-23 22:46:52.239 32288 13537 D WireGuard/GoBackend/kx-private: Routine: decryption worker 5 - started
+11-23 22:46:52.239 32288 13539 D WireGuard/GoBackend/kx-private: Routine: decryption worker 7 - started
+11-23 22:46:52.239 32288 13541 D WireGuard/GoBackend/kx-private: Routine: encryption worker 6 - started
+11-23 22:46:52.239 32288 13537 D WireGuard/GoBackend/kx-private: Routine: encryption worker 5 - started
+11-23 22:46:52.239 32288 13543 D WireGuard/GoBackend/kx-private: Routine: decryption worker 8 - started
+11-23 22:46:52.239 32288 13539 D WireGuard/GoBackend/kx-private: Routine: handshake worker 8 - started
+11-23 22:46:52.239 32288 13543 D WireGuard/GoBackend/kx-private: Routine: encryption worker 8 - started
+11-23 22:46:52.239 32288 13541 D WireGuard/GoBackend/kx-private: Routine: TUN reader - started
+11-23 22:46:52.239 32288 13542 D WireGuard/GoBackend/kx-private: Routine: decryption worker 1 - started
+11-23 22:46:52.239 32288 13539 D WireGuard/GoBackend/kx-private: Routine: event worker - started
+11-23 22:46:52.245 32288  1542 D WireGuard/GoBackend/kx-private: UAPI: Removing all peers
+11-23 22:46:52.252 32288  1542 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - UAPI: Created
+11-23 22:46:52.252 32288  1542 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - UAPI: Adding allowedip
+11-23 22:46:52.252 32288  1542 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - UAPI: Updating endpoint
+11-23 22:46:52.252 32288  1542 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - UAPI: Updating persistent keepalive interval
+11-23 22:46:52.252 32288  1542 E WireGuard/GoBackend/kx-private: UAPIOpen: mkdir /data/data/com.wireguard.android: permission denied
+11-23 22:46:52.254 32288  1542 D WireGuard/GoBackend/kx-private: UDP bind has been updated
+11-23 22:46:52.255 32288  1542 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Starting
+11-23 22:46:52.255 32288 13544 D WireGuard/GoBackend/kx-private: Routine: receive incoming v6 - started
+11-23 22:46:52.255 32288 13537 D WireGuard/GoBackend/kx-private: Routine: receive incoming v4 - started
+11-23 22:46:52.255 32288  1542 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Sending keepalive packet
+11-23 22:46:52.255 32288 13546 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Routine: sequential sender - started
+11-23 22:46:52.255 32288  1542 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Sending handshake initiation
+11-23 22:46:52.255 32288 13541 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Routine: sequential receiver - started
+11-23 22:46:52.268 32288  1542 D WireGuard/GoBackend/kx-private: Interface state was Down, requested Up, now Up
+11-23 22:46:52.268 32288  1542 D WireGuard/GoBackend/kx-private: Device started
+11-23 22:46:52.299 32288 13541 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Received handshake response
+11-23 22:46:52.753 32288 32288 D CompatibilityChangeReporter: Compat change id reported: 160794467; UID 10428; state: ENABLED
+11-23 22:47:10.329 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme pointer 0
+11-23 22:47:10.809 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme pointer 1
+11-23 22:47:12.414 32288 32293 I ux.kxprivatevp: Background concurrent copying GC freed 7476KB AllocSpace bytes, 1(20KB) LOS objects, 49% free, 8357KB/16MB, paused 461us,81us total 131.446ms
+11-23 22:47:12.443 32288 32294 D InputTransport: Input channel destroyed: 'ClientS', fd=120
+11-23 22:47:17.311 32288 13537 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Sending keepalive packet
+11-23 22:47:28.536 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme pointer 0
+11-23 22:47:28.811 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme pointer 0
+11-23 22:47:28.990 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme pointer 1
+11-23 22:47:30.479 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme pointer 0
+11-23 22:47:30.644 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme pointer 1
+11-23 22:47:30.668 32288 32288 D CompatibilityChangeReporter: Compat change id reported: 171228096; UID 10428; state: ENABLED
+11-23 22:47:32.549 32288  7782 I AssistStructure: Flattened final assist data: 6024 bytes, containing 1 windows, 76 views
+11-23 22:47:34.152 32288  7782 I OpenGLRenderer: Davey! duration=724ms; Flags=0, FrameTimelineVsyncId=8603306, IntendedVsync=86896852005878, Vsync=86896918672542, InputEventId=0, HandleInputStart=86896927536537, AnimationStart=86896927551225, PerformTraversalsStart=86897497391902, DrawStart=86897497510964, FrameDeadline=86896885339210, FrameInterval=86896927196433, FrameStartTime=16666666, SyncQueued=86897553388204, SyncStart=86897553497110, IssueDrawCommandsStart=86897554041589, SwapBuffers=86897573316068, FrameCompleted=86897576712110, DequeueBufferDuration=36094, QueueBufferDuration=2510781, GpuCompleted=86897576712110, SwapBuffersCompleted=86897576712110, DisplayPresentTime=0, 
+11-23 22:47:34.661 32288 32288 D InsetsSourceConsumer: ensureControlAlpha: for ITYPE_STATUS_BAR on com.knoux.kxprivatevpn/com.knoux.kxprivatevpn.MainActivity
+11-23 22:47:37.087 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: MSG_WINDOW_FOCUS_CHANGED 0 1
+11-23 22:47:37.507 32288 32288 D InputTransport: Input channel destroyed: 'ClientS', fd=99
+11-23 22:47:47.746 32288 13546 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Receiving keepalive packet
+11-23 22:48:08.969 32288 13541 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Receiving keepalive packet
+11-23 22:48:13.934 32288 32288 D InsetsSourceConsumer: ensureControlAlpha: for ITYPE_NAVIGATION_BAR on com.knoux.kxprivatevpn/com.knoux.kxprivatevpn.MainActivity
+11-23 22:48:13.939 32288 32288 D InsetsSourceConsumer: ensureControlAlpha: for ITYPE_STATUS_BAR on com.knoux.kxprivatevpn/com.knoux.kxprivatevpn.MainActivity
+11-23 22:48:14.046 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: MSG_WINDOW_FOCUS_CHANGED 1 1
+11-23 22:48:14.057 32288 32288 D InputMethodManager: startInputInner - Id : 0
+11-23 22:48:14.057 32288 32288 I InputMethodManager: startInputInner - mService.startInputOrWindowGainedFocus
+11-23 22:48:14.135 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: stopped(false) old=false
+11-23 22:48:14.156 32288 32288 I DecorView: notifyKeepScreenOnChanged: keepScreenOn=false
+11-23 22:48:14.889 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: Relayout returned: old=(0,0,720,1600) new=(0,0,720,1600) req=(720,1600)0 dur=12 res=0x1 s={true 4123841536} ch=false fn=729
+11-23 22:48:15.052 32288  7782 I OpenGLRenderer: Davey! duration=897ms; Flags=0, FrameTimelineVsyncId=8604739, IntendedVsync=86937586806584, Vsync=86937603473250, InputEventId=0, HandleInputStart=86937612968657, AnimationStart=86937612975428, PerformTraversalsStart=86938300407667, DrawStart=86938332251730, FrameDeadline=86937603473250, FrameInterval=86937612953917, FrameStartTime=16666666, SyncQueued=86938436516886, SyncStart=86938436831938, IssueDrawCommandsStart=86938439211417, SwapBuffers=86938481589282, FrameCompleted=86938484713605, DequeueBufferDuration=56823, QueueBufferDuration=1656042, GpuCompleted=86938484713605, SwapBuffersCompleted=86938484713605, DisplayPresentTime=0, 
+11-23 22:48:16.759 32288 32293 I ux.kxprivatevp: Background concurrent copying GC freed 8080KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 8709KB/17MB, paused 253us,76us total 219.358ms
+11-23 22:48:25.680 32288 32293 I ux.kxprivatevp: Background concurrent copying GC freed 8308KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 9089KB/17MB, paused 168us,75us total 135.125ms
+11-23 22:48:33.977 32288 13541 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Sending keepalive packet
+11-23 22:48:35.091 32288 32293 I ux.kxprivatevp: Background concurrent copying GC freed 9386KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 8790KB/17MB, paused 172us,65us total 133.347ms
+11-23 22:48:58.985 32288 13547 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Sending keepalive packet
+11-23 22:48:58.986 32288 13547 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Sending handshake initiation
+11-23 22:48:59.084 32288 13537 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Received handshake response
+11-23 22:48:59.084 32288 13537 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Sending keepalive packet
+11-23 22:49:01.539 32288 32293 I ux.kxprivatevp: Background concurrent copying GC freed 8811KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 8651KB/16MB, paused 154us,79us total 128.634ms
+11-23 22:49:24.085 32288 13547 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Sending keepalive packet
+11-23 22:49:28.169 32288 32293 I ux.kxprivatevp: Background concurrent copying GC freed 9013KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 8373KB/16MB, paused 353us,70us total 149.327ms
+11-23 22:49:49.087 32288 13537 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Sending keepalive packet
+11-23 22:49:52.493 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: MSG_WINDOW_FOCUS_CHANGED 0 1
+11-23 22:49:55.059 32288 32288 D InputTransport: Input channel destroyed: 'ClientS', fd=106
+11-23 22:49:55.403 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: handleAppVisibility mAppVisible=true visible=false
+11-23 22:49:55.418 32288  1529 D OpenGLRenderer: setSurface called with nullptr
+11-23 22:49:55.418 32288  1529 D OpenGLRenderer: setSurface() destroyed EGLSurface
+11-23 22:49:55.419 32288  1529 D OpenGLRenderer: destroyEglSurface
+11-23 22:49:55.431 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: Relayout returned: old=(0,0,720,1600) new=(0,0,720,1600) req=(720,1600)8 dur=8 res=0x5 s={false 0} ch=true fn=1126
+11-23 22:49:55.438 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: stopped(true) old=false
+11-23 22:49:59.548 32288 32293 I ux.kxprivatevp: Background concurrent copying GC freed 7435KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 9210KB/17MB, paused 111us,70us total 124.889ms
+11-23 22:50:14.109 32288 13537 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Sending keepalive packet
+11-23 22:50:34.061 32288 13537 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Receiving keepalive packet
+11-23 22:50:51.776 32288 13547 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Receiving keepalive packet
+11-23 22:51:00.080 32288 13541 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Sending handshake initiation
+11-23 22:51:00.123 32288 13547 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Received handshake response
+11-23 22:51:00.123 32288 13547 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Sending keepalive packet
+11-23 22:51:11.231 32288 13546 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Receiving keepalive packet
+11-23 22:51:36.240 32288 13539 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Sending keepalive packet
+11-23 22:52:01.259 32288 13539 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Sending keepalive packet
+11-23 22:52:02.102 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: handleAppVisibility mAppVisible=false visible=true
+11-23 22:52:02.119 32288  1529 D OpenGLRenderer: setSurface called with nullptr
+11-23 22:52:02.174 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: Relayout returned: old=(0,0,720,1600) new=(0,0,720,1600) req=(720,1600)4 dur=52 res=0x1 s={false 0} ch=false fn=-1
+11-23 22:52:02.175 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: stopped(false) old=true
+11-23 22:52:02.227 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: stopped(false) old=false
+11-23 22:52:02.353 32288  1529 D OpenGLRenderer: setSurface called with nullptr
+11-23 22:52:02.369 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: Relayout returned: old=(0,0,720,1600) new=(0,0,720,1600) req=(720,1600)0 dur=14 res=0x7 s={true 4123841536} ch=true fn=-1
+11-23 22:52:02.370 32288  1529 D OpenGLRenderer: eglCreateWindowSurface
+11-23 22:52:02.371 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: [DP] dp(1) 1 android.view.ViewRootImpl.reportNextDraw:11420 android.view.ViewRootImpl.performTraversals:4193 android.view.ViewRootImpl.doTraversal:2919 
+11-23 22:52:02.371 32288 32288 D ViewRootImpl@9bc6b19[MainActivity]: Creating frameDrawingCallback nextDrawUseBlastSync=false reportNextDraw=true hasBlurUpdates=false
+11-23 22:52:02.371 32288 32288 D ViewRootImpl@9bc6b19[MainActivity]: Creating frameCompleteCallback
+11-23 22:52:02.521 32288  1582 D ViewRootImpl@9bc6b19[MainActivity]: Received frameDrawingCallback frameNum=1. Creating transactionCompleteCallback=false
+11-23 22:52:02.577 32288  1529 D ViewRootImpl@9bc6b19[MainActivity]: Received frameCompleteCallback  lastAcquiredFrameNum=1 lastAttemptedDrawFrameNum=1
+11-23 22:52:02.578 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: [DP] pdf(0) 1 android.view.ViewRootImpl.lambda$addFrameCompleteCallbackIfNeeded$3$ViewRootImpl:4995 android.view.ViewRootImpl$$ExternalSyntheticLambda16.run:6 android.os.Handler.handleCallback:938 
+11-23 22:52:02.578 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: [DP] rdf()
+11-23 22:52:02.578 32288 32288 D ViewRootImpl@9bc6b19[MainActivity]: reportDrawFinished (fn: -1) 
+11-23 22:52:02.581 32288 32288 D InsetsSourceConsumer: ensureControlAlpha: for ITYPE_NAVIGATION_BAR on com.knoux.kxprivatevpn/com.knoux.kxprivatevpn.MainActivity
+11-23 22:52:02.583 32288 32288 D InsetsSourceConsumer: ensureControlAlpha: for ITYPE_STATUS_BAR on com.knoux.kxprivatevpn/com.knoux.kxprivatevpn.MainActivity
+11-23 22:52:02.602 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: MSG_WINDOW_FOCUS_CHANGED 1 1
+11-23 22:52:02.605 32288 32288 D InputMethodManager: startInputInner - Id : 0
+11-23 22:52:02.605 32288 32288 I InputMethodManager: startInputInner - mService.startInputOrWindowGainedFocus
+11-23 22:52:09.915 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme pointer 0
+11-23 22:52:09.952 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme pointer 1
+11-23 22:52:09.985 32288  1544 I WireGuard/GoBackend: Bringing tunnel kx-private DOWN
+11-23 22:52:09.990 32288  1544 D WireGuard/GoBackend/kx-private: Device closing
+11-23 22:52:09.990 32288 13546 D WireGuard/GoBackend/kx-private: Routine: event worker - stopped
+11-23 22:52:10.074 32288 13541 D WireGuard/GoBackend/kx-private: Routine: TUN reader - stopped
+11-23 22:52:10.076 32288 13541 D WireGuard/GoBackend/kx-private: Routine: receive incoming v6 - stopped
+11-23 22:52:10.076 32288 13547 D WireGuard/GoBackend/kx-private: Routine: receive incoming v4 - stopped
+11-23 22:52:10.076 32288  1544 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Stopping
+11-23 22:52:10.076 32288 13537 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Routine: sequential sender - stopped
+11-23 22:52:10.076 32288 13541 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Routine: sequential receiver - stopped
+11-23 22:52:10.076 32288  1544 D WireGuard/GoBackend/kx-private: Device closed
+11-23 22:52:10.076 32288 13541 D WireGuard/GoBackend/kx-private: Routine: handshake worker 6 - stopped
+11-23 22:52:10.076 32288 13541 D WireGuard/GoBackend/kx-private: Routine: handshake worker 5 - stopped
+11-23 22:52:10.076 32288 13546 D WireGuard/GoBackend/kx-private: Routine: handshake worker 8 - stopped
+11-23 22:52:10.076 32288 13541 D WireGuard/GoBackend/kx-private: Routine: handshake worker 4 - stopped
+11-23 22:52:10.076 32288 13541 D WireGuard/GoBackend/kx-private: Routine: handshake worker 7 - stopped
+11-23 22:52:10.076 32288 13546 D WireGuard/GoBackend/kx-private: Routine: handshake worker 2 - stopped
+11-23 22:52:10.076 32288 13541 D WireGuard/GoBackend/kx-private: Routine: decryption worker 4 - stopped
+11-23 22:52:10.076 32288 13546 D WireGuard/GoBackend/kx-private: Routine: handshake worker 1 - stopped
+11-23 22:52:10.076 32288 13546 D WireGuard/GoBackend/kx-private: Routine: handshake worker 3 - stopped
+11-23 22:52:10.076 32288 13541 D WireGuard/GoBackend/kx-private: Routine: decryption worker 5 - stopped
+11-23 22:52:10.077 32288 13546 D WireGuard/GoBackend/kx-private: Routine: encryption worker 6 - stopped
+11-23 22:52:10.077 32288 13537 D WireGuard/GoBackend/kx-private: Routine: decryption worker 2 - stopped
+11-23 22:52:10.077 32288 13546 D WireGuard/GoBackend/kx-private: Routine: encryption worker 7 - stopped
+11-23 22:52:10.077 32288 13541 D WireGuard/GoBackend/kx-private: Routine: decryption worker 1 - stopped
+11-23 22:52:10.077 32288 13537 D WireGuard/GoBackend/kx-private: Routine: decryption worker 6 - stopped
+11-23 22:52:10.077 32288 13546 D WireGuard/GoBackend/kx-private: Routine: encryption worker 4 - stopped
+11-23 22:52:10.077 32288 13541 D WireGuard/GoBackend/kx-private: Routine: decryption worker 3 - stopped
+11-23 22:52:10.077 32288 13537 D WireGuard/GoBackend/kx-private: Routine: decryption worker 8 - stopped
+11-23 22:52:10.077 32288 13546 D WireGuard/GoBackend/kx-private: Routine: encryption worker 3 - stopped
+11-23 22:52:10.077 32288 13541 D WireGuard/GoBackend/kx-private: Routine: encryption worker 1 - stopped
+11-23 22:52:10.077 32288 13547 D WireGuard/GoBackend/kx-private: Routine: decryption worker 7 - stopped
+11-23 22:52:10.077 32288 13537 D WireGuard/GoBackend/kx-private: Routine: encryption worker 5 - stopped
+11-23 22:52:10.077 32288 13546 D WireGuard/GoBackend/kx-private: Routine: encryption worker 8 - stopped
+11-23 22:52:10.077 32288 13541 D WireGuard/GoBackend/kx-private: Routine: encryption worker 2 - stopped
+11-23 22:52:10.820 32288 32293 I ux.kxprivatevp: Background concurrent copying GC freed 10097KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 8504KB/16MB, paused 210us,68us total 160.472ms
+11-23 22:52:34.155 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme pointer 0
+11-23 22:52:34.172 32288 32288 I ViewRootImpl@9bc6b19[MainActivity]: ViewPostIme pointer 1
+11-23 22:52:38.246 32288  1552 I WireGuard/GoBackend: Bringing tunnel kx-private UP
+11-23 22:52:38.249 32288  1552 D WireGuard/GoBackend: Requesting to start VpnService
+11-23 22:52:38.265 32288 32293 I ux.kxprivatevp: Background concurrent copying GC freed 7570KB AllocSpace bytes, 3(92KB) LOS objects, 49% free, 9333KB/18MB, paused 104us,74us total 130.241ms
+11-23 22:52:38.495 32288  1552 D WireGuard/GoBackend: Go backend f333402
+11-23 22:52:38.501 32288  1552 D WireGuard/GoBackend/kx-private: Attaching to interface tun0
+11-23 22:52:38.503 32288 13539 D WireGuard/GoBackend/kx-private: Routine: encryption worker 1 - started
+11-23 22:52:38.503 32288 13543 D WireGuard/GoBackend/kx-private: Routine: decryption worker 3 - started
+11-23 22:52:38.503 32288 13539 D WireGuard/GoBackend/kx-private: Routine: decryption worker 2 - started
+11-23 22:52:38.503 32288 13543 D WireGuard/GoBackend/kx-private: Routine: handshake worker 2 - started
+11-23 22:52:38.503 32288 13539 D WireGuard/GoBackend/kx-private: Routine: handshake worker 1 - started
+11-23 22:52:38.503 32288 13543 D WireGuard/GoBackend/kx-private: Routine: encryption worker 3 - started
+11-23 22:52:38.503 32288 13539 D WireGuard/GoBackend/kx-private: Routine: encryption worker 2 - started
+11-23 22:52:38.503 32288 13543 D WireGuard/GoBackend/kx-private: Routine: decryption worker 4 - started
+11-23 22:52:38.503 32288 13539 D WireGuard/GoBackend/kx-private: Routine: handshake worker 3 - started
+11-23 22:52:38.503 32288 13543 D WireGuard/GoBackend/kx-private: Routine: encryption worker 4 - started
+11-23 22:52:38.503 32288 13539 D WireGuard/GoBackend/kx-private: Routine: encryption worker 5 - started
+11-23 22:52:38.503 32288 13543 D WireGuard/GoBackend/kx-private: Routine: decryption worker 5 - started
+11-23 22:52:38.503 32288 13539 D WireGuard/GoBackend/kx-private: Routine: handshake worker 4 - started
+11-23 22:52:38.504 32288 13546 D WireGuard/GoBackend/kx-private: Routine: decryption worker 1 - started
+11-23 22:52:38.504 32288 13541 D WireGuard/GoBackend/kx-private: Routine: encryption worker 6 - started
+11-23 22:52:38.504 32288 13541 D WireGuard/GoBackend/kx-private: Routine: handshake worker 5 - started
+11-23 22:52:38.504 32288 13546 D WireGuard/GoBackend/kx-private: Routine: handshake worker 7 - started
+11-23 22:52:38.504 32288 13546 D WireGuard/GoBackend/kx-private: Routine: encryption worker 7 - started
+11-23 22:52:38.504 32288 13546 D WireGuard/GoBackend/kx-private: Routine: decryption worker 7 - started
+11-23 22:52:38.504 32288 13546 D WireGuard/GoBackend/kx-private: Routine: decryption worker 8 - started
+11-23 22:52:38.504 32288 13546 D WireGuard/GoBackend/kx-private: Routine: encryption worker 8 - started
+11-23 22:52:38.504 32288 13546 D WireGuard/GoBackend/kx-private: Routine: handshake worker 8 - started
+11-23 22:52:38.504 32288 13546 D WireGuard/GoBackend/kx-private: Routine: decryption worker 6 - started
+11-23 22:52:38.504 32288 13541 D WireGuard/GoBackend/kx-private: Routine: handshake worker 6 - started
+11-23 22:52:38.504 32288 13546 D WireGuard/GoBackend/kx-private: Routine: TUN reader - started
+11-23 22:52:38.504 32288 13541 D WireGuard/GoBackend/kx-private: Routine: event worker - started
+11-23 22:52:38.506 32288  1552 D WireGuard/GoBackend/kx-private: UAPI: Updating private key
+11-23 22:52:38.510 32288  1552 D WireGuard/GoBackend/kx-private: UAPI: Removing all peers
+11-23 22:52:38.517 32288  1552 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - UAPI: Created
+11-23 22:52:38.517 32288  1552 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - UAPI: Adding allowedip
+11-23 22:52:38.518 32288  1552 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - UAPI: Updating endpoint
+11-23 22:52:38.518 32288  1552 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - UAPI: Updating persistent keepalive interval
+11-23 22:52:38.519 32288  1552 E WireGuard/GoBackend/kx-private: UAPIOpen: mkdir /data/data/com.wireguard.android: permission denied
+11-23 22:52:38.524 32288  1552 D WireGuard/GoBackend/kx-private: UDP bind has been updated
+11-23 22:52:38.524 32288  1552 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Starting
+11-23 22:52:38.524 32288  1552 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Sending keepalive packet
+11-23 22:52:38.524 32288  1552 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Sending handshake initiation
+11-23 22:52:38.524 32288 13543 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Routine: sequential sender - started
+11-23 22:52:38.525 32288 13543 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Routine: sequential receiver - started
+11-23 22:52:38.525 32288 13541 D WireGuard/GoBackend/kx-private: Routine: receive incoming v6 - started
+11-23 22:52:38.525 32288 13539 D WireGuard/GoBackend/kx-private: Routine: receive incoming v4 - started
+11-23 22:52:38.554 32288  1552 D WireGuard/GoBackend/kx-private: Interface state was Down, requested Up, now Up
+11-23 22:52:38.554 32288  1552 D WireGuard/GoBackend/kx-private: Device started
+11-23 22:52:38.621 32288 13546 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Received handshake response
+11-23 22:53:00.793 32288 13539 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Receiving keepalive packet
+11-23 22:53:10.831 32288 13537 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Receiving keepalive packet
+11-23 22:53:11.743 32288 32293 I ux.kxprivatevp: Background concurrent copying GC freed 9866KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 8682KB/16MB, paused 166us,67us total 132.429ms
+11-23 22:53:35.839 32288 13546 D WireGuard/GoBackend/kx-private: peer(od/6…q7Uc) - Sending keepalive packet

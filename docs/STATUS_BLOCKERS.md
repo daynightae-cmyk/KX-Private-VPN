@@ -1,8 +1,8 @@
 # KX Private VPN — CURRENT BLOCKERS & COORDINATION LOG
 
-**Last updated:** 2026-11-22 UAE (late session)
-**Main SHA:** `e8dad11` (PR #55 merged — animated glass elevation: shared frame-paced ambient clock + staggered entrances, CI `45053268703` green on `8a8d489`: build, release-compile, device 26 12m24s, device 35 30m35s, SonarCloud pass)
-**Working branch:** none — `main` only; feature branch `codex/animated-glass-ui-20261122` merged and deleted (local + remote). PR #54 previously merged as `d228d77`.
+**Last updated:** 2026-11-23 UAE (finish-directive session)
+**Main SHA:** `8128048` (post-merge evidence/docs commits `e8dad11 → 54f1e14 → 29a7643 → c3e11d0 → 8128048`; CI runs `45058890234` and `45062524103` fully green)
+**Working branch:** `qa/lan-e2e-verified-20261123` — real LAN E2E evidence + first production signing identity + signing-material gitignore hardening.
 **CI looper-starvation wedge — RESOLVED:** run `45042088536` artifacts proved the per-vsync ambient stream saturated the main looper (API35: 115s idle-wait starvation; API26: exit-124 wedge at 346/350, zero assertion failures). Fixed by the frame-paced clock (`8cf1374`: one frame request per update + real delay, ~30fps cap, adaptive backoff, unchanged periods/waveforms), halo on the shared draw-phase clock, nearest-chevron shade picker + screenshot watchdog (`2f83d5f`). Device 26 now completes the full suite in 12m24s (previously never finished inside the 30m budget).
 **Physical phone:** re-attached 2026-11-22 ~22:45. Merged build `54f1e14` installed and verified: `VpnSessionServiceTest` **`OK (6 tests)` in 48.2s** on real One UI (`docs/evidence/animated-glass-20261122/device/local-vpn-service-6tests-54f1e14.txt`); tree-verified Home/Tools/Repair captures committed (`final-0*-54f1e14.png`). `svc power stayon` restored to `false`.
 **Branch policy:** exactly one integration branch (`main`); feature branches are merged and deleted after verification.
@@ -130,9 +130,9 @@ PR reconciliation corrections:
 
 | Blocker | Status | What is needed |
 |---------|--------|----------------|
-| **Real VPN tunnel proof** | ❌ Never proven on any device. `VpnPathVerification` cannot complete a handshake without an endpoint. | An authorized WireGuard gateway + a test profile. Until then `E2E_REAL_TUNNEL` stays `EXTERNAL_BLOCKED` and no release claim may be made. |
-| **Release signing** | ❌ `android/key.properties` absent. Release builds fall back to the debug key and must never be published. | The owner keystore (`key.properties.example` documents the format). |
-| **Physical-device tunnel run** | ❌ The API 35 phone `R9ZR20HWHQY` is attached over ADB, but no gateway exists to test against. | Same gateway as above. |
+| **Real VPN tunnel proof** | ✅ **VERIFIED 2026-11-23 (LAN scope)** — real phone `[SERIAL]` → Windows `KX-Win-LAN-Server` 192.168.70.103:51820. Real Android consent dialog; fresh handshakes (epoch `1795459608 → 1795459735 → 1795459856 → 1795459954`); server RX `0 → 1556 → 1768 → 14268 → 16432`, TX `0 → 156 → 248 → 436 → 592`; connect/disconnect/reconnect proven (tun0 destroyed and recreated, endpoint port changed). Evidence: `docs/evidence/lan-e2e-20261123/`. **Internet full-tunnel remains NOT-IMPLEMENTED by design** (AllowedIPs 10.253.64.1/32). | LAN scope closed. A public internet gateway + full-tunnel profile would be a separate authorized task. |
+| **Release signing** | 🟡 First production identity **created 2026-11-23** per finish directive §10 after confirming no pre-existing keystore anywhere (repo, AppData, user profile, workspace — only the standard `debug.keystore` exists). RSA-4096, SHA384withRSA, valid to 2056, stored ACL-protected outside the repo with a recovery README; `android/key.properties` wired locally and git-ignored. Signed release build verification in progress on branch `qa/lan-e2e-verified-20261123`. | Publishing/store submission still requires **separate explicit owner permission**. Never publish a debug-signed fallback. |
+| **Physical-device tunnel run** | ✅ Done — same run as the LAN E2E above, on the owner's real SM-A025F over the same Wi-Fi LAN. | Closed. |
 | **Firebase Test Lab** | Optional. The hosted API 26/35 emulator matrix is green, so Test Lab is now a robustness option, not a requirement. | A Firebase project with billing if the owner wants physical-device coverage in CI. |
 | **Owner visual review (Ref 14 / 18 / 03)** | ⏳ Awaiting Agent_A. The current screens are native and functional; the gap is atmosphere/glow/glass fidelity. | Agent_A coordination window over `CrystalIdentity.kt`, `KxOrb.kt`, `KxReferenceUi.kt`, `RepairLabScreen.kt`. |
 
@@ -159,7 +159,7 @@ No third-party crypto library is used and none is needed: the platform Keystore 
 1. ~~Merge PR #54 into `main` once its CI is green.~~ ✅ Done — merged as `d228d77`, branch deleted.
 2. ~~Visual fidelity pass for Ref 14 / 18 / 03 with screenshot evidence from the physical phone.~~ ✅ Done — Home (14), Tools (18) and Repair (03) captured on `R9ZR20HWHQY` with side-by-side comparison and honest deviation list.
 3. ~~Merge PR #55 (animated glass elevation).~~ ✅ Done — CI `45053268703` fully green on `8a8d489` (build, release-compile, device 26 12m24s, device 35 30m35s, SonarCloud); merged as `e8dad11`, branch deleted (single `main`).
-4. **Owner unblock required** — an authorized WireGuard gateway + test profile for real tunnel proof on `R9ZR20HWHQY` (handshake + RX/TX), then an owner keystore for the signed AAB and release.
+4. ~~Owner unblock required — an authorized WireGuard gateway + test profile for real tunnel proof.~~ ✅ Done 2026-11-23 — owner-provided LAN server `KX-Win-LAN-Server` + paired configs; real handshake/RX-TX/connect-disconnect-reconnect proof on the physical phone (`docs/evidence/lan-e2e-20261123/`). First production keystore created per directive §10; signed release verification in progress. Publishing remains owner-gated.
 5. ~~Re-attach the phone and re-run `VpnSessionServiceTest` locally.~~ ✅ Done — phone re-attached; **`OK (6 tests)` 48.2s** on the merged build; tree-verified Home/Tools/Repair captures committed; `svc power stayon false` restored.
 
 ---
@@ -189,6 +189,8 @@ No third-party crypto library is used and none is needed: the platform Keystore 
 | 2026-11-22 17:37 | Motion | Fixes pushed: frame-paced ambient clock `8cf1374` (one frame request per update + real delay, ~30fps cap, adaptive backoff, unchanged periods), halo on shared draw-phase clock, nearest-chevron shade picker + screenshot watchdog `2f83d5f`, Sonar `kotlin:S899` watchdog-await fix `358b8ee`, 20-test local log committed `8a8d489` | ✅ Local assembleDebug/assembleDebugAndroidTest/unit tests SUCCESSFUL; local `VpnSessionServiceTest` 4/6 before the chevron fix (2 failures = proven wrong-row tap); phone USB dropped before local re-run |
 | 2026-11-22 18:38 | Motion | CI run `45053268703` on `8a8d489` completed | ✅ **All green**: build 8m02s, release-compile 4m45s, **device 26 12m24s** (wedge resolved), device 35 30m35s, SonarCloud pass. CircleCI "fail" = external service with no config, ignored per policy |
 | 2026-11-22 18:45 | Motion | PR #55 merged into `main`; branch deleted local + remote; residue cleanup: `COMMIT_MSG.txt` removed (text verified preserved in merged `6640da4`), 13 ignored `ci-*/app` artifact trees removed (0 tracked files), ~429 MB stale CI scratch dirs removed after evidence committed | ✅ Merge commit `e8dad11`; working tree clean; single `main` |
+| 2026-11-23 22:46 | Finish | Real LAN E2E on the owner's phone: SAF/QR import of the existing paired client conf, real Android VPN consent, tunnel UP 22:46:52 (handshake response +44 ms), server handshake/RX-TX captured elevated and redacted at 4 checkpoints, tunnel-only TCP probes rc=0, disconnect (tun0 destroyed) + reconnect (new handshake, new endpoint port) | ✅ **LAN E2E VERIFIED** — `docs/evidence/lan-e2e-20261123/` (secret-scan clean); pushed conf/QR copies deleted from phone; `svc power stayon false` restored; server services untouched |
+| 2026-11-23 22:55 | Finish | First production signing identity generated per directive §10 after confirming no pre-existing keystore (repo/AppData/user/workspace scan: only `debug.keystore`). RSA-4096 SHA384withRSA, valid to 2056, ACL-protected dir + recovery README outside repo; `android/key.properties` local-only; `.gitignore` hardened (`key.properties`, `*.jks`, `*.keystore`) | 🟡 Signed `assembleRelease`/`bundleRelease` running; cert SHA256 `2D:AF:CE:3D:…:29:92` recorded in evidence. Publishing still owner-gated |
 
 ---
 
