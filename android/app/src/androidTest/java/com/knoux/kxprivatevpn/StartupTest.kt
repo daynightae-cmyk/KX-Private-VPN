@@ -20,6 +20,13 @@ class StartupTest {
 
     @Test fun realLauncherKeepsHomeAbsentThroughoutNormalSpin() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
+        // First-launch routing into the first-run wizard is pinned separately
+        // (entryRoute unit test + FirstRunWizardTest + on-device first-run captures).
+        // This test owns the returning-user entry timing: orb gate, then Home.
+        runBlocking {
+            LaunchPreferences(context).markSeen()
+            LaunchPreferences(context).completeOnboarding()
+        }
         // Do not mutate system accessibility settings to manufacture a normal-motion pass.
         assertEquals("normal-motion test requires animator scale 1", 1f,
             Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f), 0f)
