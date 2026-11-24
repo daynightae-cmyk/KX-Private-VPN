@@ -35,6 +35,12 @@ class PhysicalEntryTest {
             timings += "$event\t${it - startedAt}"
         }
         val context = instrumentation.targetContext
+        // First-launch routing into the first-run wizard is evidenced separately on this
+        // device (fresh DataStore captures). This opt-in test owns entry gate -> Home.
+        kotlinx.coroutines.runBlocking {
+            com.knoux.kxprivatevpn.launch.LaunchPreferences(context).markSeen()
+            com.knoux.kxprivatevpn.launch.LaunchPreferences(context).completeOnboarding()
+        }
         val animatorScale = Settings.Global.getFloat(context.contentResolver,
             Settings.Global.ANIMATOR_DURATION_SCALE, 1f)
         val powerSave = context.getSystemService(PowerManager::class.java).isPowerSaveMode

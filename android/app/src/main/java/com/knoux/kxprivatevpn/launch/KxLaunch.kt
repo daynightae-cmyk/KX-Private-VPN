@@ -45,11 +45,27 @@ import com.knoux.kxprivatevpn.features.NativeClient
 import com.knoux.kxprivatevpn.R
 import com.knoux.kxprivatevpn.designsystem.Atmosphere
 import com.knoux.kxprivatevpn.designsystem.GlassAction
+import com.knoux.kxprivatevpn.designsystem.KxGradientAction
+import com.knoux.kxprivatevpn.designsystem.KxMiniOrb
 import com.knoux.kxprivatevpn.designsystem.KxOrb
+import com.knoux.kxprivatevpn.designsystem.KxOrbAura
+import com.knoux.kxprivatevpn.designsystem.KxOrbitalHalo
 import com.knoux.kxprivatevpn.designsystem.LocalKxAmbient
+import com.knoux.kxprivatevpn.designsystem.kxCyan
+import com.knoux.kxprivatevpn.designsystem.kxViolet
 import com.knoux.kxprivatevpn.designsystem.rememberKxAmbient
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.withTimeoutOrNull
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+
+/**
+ * Where the explicit orb-tap entry lands. Returning users go straight to Home; a first
+ * launch enters the in-app Android first-run wizard (never a Windows/NSIS installer).
+ * Pure and unit-tested so the routing cannot drift between builds.
+ */
+internal fun entryRoute(onboarded: Boolean): String = if (onboarded) "home" else "intro-guide"
 
 @Composable
 fun KxLaunch() {
@@ -62,16 +78,17 @@ fun KxLaunch() {
     var entryAccepted by rememberSaveable { mutableStateOf(false) }
     var routingInitialized by rememberSaveable { mutableStateOf(false) }
     // Do not send returning users directly to Home: the person must tap the KX emblem.
-    LaunchedEffect(state.loaded, entryAccepted) {
+    LaunchedEffect(state.loaded, entryAccepted, state.settings.onboarded) {
         if (state.loaded && entryAccepted && !routingInitialized) {
-            // Enter Home after the emblem animation even on first launch. Import and
-            // Android VPN consent remain explicit actions; entry grants no permissions.
-            stack = listOf("home")
+            // Keep the protected emblem entrance. First launch now proceeds into the
+            // real Android education wizard; returning users reach Home.
+            // Neither path grants VPN permissions or claims a connected tunnel.
+            stack = listOf(entryRoute(state.settings.onboarded))
             routingInitialized = true
         }
     }
     LaunchedEffect(state.settings.onboarded) {
-        if (state.settings.onboarded && stack.last() == "education") stack = listOf("home")
+        if (state.settings.onboarded && stack.last() in listOf("education", "intro-guide")) stack = listOf("home")
     }
     LaunchedEffect(state.importedId) {
         if (state.importedId != null) { stack = listOf("home"); client.consumeImport() }
@@ -122,7 +139,19 @@ fun KxLaunch() {
             onEnter = if (!entryAccepted) ({ entryAccepted = true }) else null,
             showWelcomeControls = entryAccepted,
             onGetStarted = { stack = stack + "education" }, onImport = { stack = stack + "import" },
-        ) else key(stack.last()) { NativeClient(stack.last(), state, client, night,
+        ) else if (stack.last() == "intro-guide") {
+            KxFirstRunWizard(
+                night = night,
+                onGuest = { if (state.loaded && !state.busy) client.onboard() },
+                onImport = {
+                    if (state.loaded && !state.busy) {
+                        client.onboard()
+                        stack = listOf("import")
+                    }
+                },
+                onOpenPro = { stack = stack + "pro" },
+            )
+        } else key(stack.last()) { NativeClient(stack.last(), state, client, night,
             navigate = { stack = stack + it }, back = {
                 if (!state.busy) stack = if (stack.size > 1) stack.dropLast(1) else listOf("welcome")
             }) }
@@ -192,19 +221,37 @@ fun IdentityExperience(
     val entryHint = stringResource(R.string.tap_kx_orb_to_enter)
     MaterialTheme(colorScheme = if (night) darkColorScheme() else lightColorScheme()) {
         CompositionLocalProvider(LocalKxAmbient provides rememberKxAmbient()) {
-        BoxWithConstraints(Modifier.fillMaxSize().background(Color(0xFF080B28)).testTag("identity")) {
+        BoxWithConstraints(Modifier.fillMaxSize()
+            .background(if (night) Color(0xFF080B28) else Color(0xFFEFEBFF)).testTag("identity")) {
             // Only the logo exists on the first Compose frame; the approved scene gradually appears.
             Box(Modifier.fillMaxSize().graphicsLayer { alpha = appearance }) {
                 Atmosphere(night, frame.pulse)
             }
-            val orb = minOf(maxWidth * .88f, maxHeight * .46f, 410.dp)
-            val travel = maxHeight * .18f
+            // Reference splash: compact brand lockup pinned to the top edge.
+            Row(
+                Modifier.align(Alignment.TopStart).statusBarsPadding()
+                    .padding(top = 6.dp, start = 20.dp, end = 20.dp).heightIn(min = 44.dp)
+                    .graphicsLayer { alpha = appearance }.testTag("splash-header"),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                KxMiniOrb(night, 26.dp)
+                Spacer(Modifier.width(8.dp))
+                Text("KX Private VPN", color = text, fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold, letterSpacing = 1.2.sp)
+            }
+            val orb = minOf(maxWidth * .62f, maxHeight * .30f, 240.dp)
+            val travel = maxHeight * .10f
+            val enterable = onEnter != null && ready && stage >= 1f && !entryRequested
             // One shared orb across intro and Welcome: no image replacement or positional cut.
-            Box(Modifier.fillMaxWidth().padding(top = maxHeight * .09f), contentAlignment = Alignment.TopCenter) {
+            Box(Modifier.fillMaxWidth().padding(top = maxHeight * .10f), contentAlignment = Alignment.TopCenter) {
+                // Orbital rings and bloom measured from the owner's splash reference.
+                Box(Modifier.size(orb + 64.dp).graphicsLayer { alpha = appearance }) {
+                    KxOrbitalHalo(night, Modifier.fillMaxSize(), animated = !reducedMotion)
+                    KxOrbAura(night, Modifier.fillMaxSize(), strength = 1f)
+                }
                 // The same native glass orb is the entry button, not an extra generic CTA.
                 // Visual choreography stays 3D; a reduced-motion setting bypasses animation,
                 // never the explicit user click.
-                val enterable = onEnter != null && ready && stage >= 1f && !entryRequested
                 val emblemModifier = Modifier.size(orb)
                     .testTag("entry-orb")
                     .graphicsLayer {
@@ -232,25 +279,53 @@ fun IdentityExperience(
                 KxOrb(progress = stage, frame = formedFrame, modifier = emblemModifier)
             }
             Column(
-                Modifier.fillMaxWidth().padding(top = maxHeight * .53f)
+                Modifier.align(Alignment.BottomCenter).fillMaxWidth()
                     .windowInsetsPadding(WindowInsets.navigationBars)
-                    .padding(horizontal = 30.dp).verticalScroll(rememberScrollState())
+                    .padding(horizontal = 30.dp).padding(top = 8.dp, bottom = 16.dp)
+                    .verticalScroll(rememberScrollState())
                     .graphicsLayer { alpha = frame.wordmark },
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Text("KX", color = text, fontSize = 52.sp, fontWeight = FontWeight.ExtraBold,
-                    letterSpacing = 2.sp)
-                Text("PRIVATE VPN", color = text, fontSize = 20.sp, letterSpacing = 5.sp,
-                    textAlign = TextAlign.Center)
-                Spacer(Modifier.height(16.dp))
-                Text(stringResource(R.string.tagline), color = text, fontSize = 18.sp,
-                    fontStyle = FontStyle.Italic, textAlign = TextAlign.Center)
+                Text(stringResource(R.string.splash_welcome), color = text, fontSize = 26.sp,
+                    fontWeight = FontWeight.ExtraBold, lineHeight = 32.sp,
+                    textAlign = TextAlign.Center, modifier = Modifier.testTag("splash-title"))
+                Spacer(Modifier.height(8.dp))
+                Text(stringResource(R.string.splash_tagline), color = text.copy(alpha = .78f),
+                    fontSize = 13.sp, lineHeight = 19.sp, textAlign = TextAlign.Center)
+                Spacer(Modifier.height(14.dp))
+                Row(horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.testTag("splash-step-dots")) {
+                    repeat(4) { index ->
+                        val idle = Color.White.copy(alpha = if (night) .22f else .30f)
+                        Box(
+                            Modifier.padding(horizontal = 4.dp)
+                                .width(if (index == 0) 26.dp else 7.dp).height(7.dp)
+                                .clip(RoundedCornerShape(50))
+                                .background(
+                                    if (index == 0) Brush.horizontalGradient(
+                                        listOf(kxCyan(night), kxViolet(night)))
+                                    else Brush.horizontalGradient(listOf(idle, idle)),
+                                ),
+                        )
+                    }
+                }
                 if (onEnter != null && frame.welcome > 0f) {
-                    Spacer(Modifier.height(22.dp))
-                    Text(entryHint, color = text, fontSize = 17.sp,
+                    Spacer(Modifier.height(14.dp))
+                    Text(entryHint, color = text.copy(alpha = .8f), fontSize = 13.sp,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.testTag("entry-hint")
                             .graphicsLayer { alpha = frame.welcome })
+                    Spacer(Modifier.height(12.dp))
+                    // The reference gradient CTA performs the same single explicit entry
+                    // gesture as the orb; it never navigates by itself.
+                    KxGradientAction(
+                        label = stringResource(R.string.splash_start),
+                        night = night,
+                        enabled = enterable,
+                        tag = "entry-cta",
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = { if (!entryRequested) entryRequested = true },
+                    )
                 }
                 // An operable emblem is the only primary entry action. Welcome/setup
                 // controls belong after entry, never beside the emblem's tap guidance.
